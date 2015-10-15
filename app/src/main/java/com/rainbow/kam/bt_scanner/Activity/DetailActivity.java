@@ -82,11 +82,11 @@ public class DetailActivity extends AppCompatActivity {
             if (BluetoothService.ACTION_GATT_CONNECTED.equals(action)) { //연결됬을 시
                 connected = true;
                 updateConnectionState("connected");
-                invalidateOptionsMenu();
+
             } else if (BluetoothService.ACTION_GATT_DISCONNECTED.equals(action)) { //끊겼을 시
                 connected = false;
                 updateConnectionState("disconnected");
-                invalidateOptionsMenu();
+
                 clearUI();
             } else if (BluetoothService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) { //Find!
                 setGattServices(bluetoothService.getSupportedGattServices());
@@ -117,7 +117,7 @@ public class DetailActivity extends AppCompatActivity {
 
         if (data != null) {
             Log.e("data", data + "/");
-            dataField.setText(dataField.getText().toString() + " / " + data); //추가!
+            dataField.setText(data); //추가!
         }
     }
 
