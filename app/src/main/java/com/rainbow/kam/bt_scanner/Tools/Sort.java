@@ -1,4 +1,6 @@
-package com.rainbow.kam.bt_scanner;
+package com.rainbow.kam.bt_scanner.Tools;
+
+import com.rainbow.kam.bt_scanner.Adapter.DeviceItem;
 
 import java.text.Collator;
 import java.util.Comparator;
@@ -8,8 +10,10 @@ import java.util.Comparator;
  */
 public class Sort {
 
+    //Collator 초기화
     private final Collator collator = Collator.getInstance();
 
+    //RSSI 정렬
     public final Comparator<DeviceItem> COMPARATOR_RSSI = new Comparator<DeviceItem>() {
 
 
@@ -18,6 +22,8 @@ public class Sort {
             return collator.compare(String.valueOf(lhs.getExtraRssi()), String.valueOf(rhs.getExtraRssi()));
         }
     };
+
+    //네임 정렬
     public final Comparator<DeviceItem> COMPARATOR_NAME = new Comparator<DeviceItem>() {
 
 
@@ -31,6 +37,7 @@ public class Sort {
         }
     };
 
+    //타입 정렬
     public final Comparator<DeviceItem> COMPARATOR_TYPE = new Comparator<DeviceItem>() {
 
 

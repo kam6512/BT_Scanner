@@ -1,6 +1,5 @@
-package com.rainbow.kam.bt_scanner.bluetooth;
+package com.rainbow.kam.bt_scanner.Bluetooth_Package;
 
-import android.app.Activity;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,27 +10,15 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.MainActivity;
-import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -41,10 +28,10 @@ public class BluetoothService extends Service {
 
     private static final String TAG = BluetoothService.class.getSimpleName();
 
-    private static final int STATE_DISCONNECTED = 0; // we're doing nothing
-    private static final int STATE_CONNECTING = 1; // now initiating an outgoing connection
-    private static final int STATE_CONNECTED = 2; // now connected to a remote device
-    private int connectionState = STATE_DISCONNECTED;
+    private static final int STATE_DISCONNECTED = 0; // 아무것도 안함
+    private static final int STATE_CONNECTING = 1; //연결중
+    private static final int STATE_CONNECTED = 2; // 연결됨
+    private int connectionState = STATE_DISCONNECTED; //현재상황
 
     public final static String ACTION_GATT_CONNECTED =
             "com.rainbow.kam.bluetooth.ACTION_GATT_CONNECTED";
@@ -57,53 +44,80 @@ public class BluetoothService extends Service {
     public final static String EXTRA_DATA =
             "com.rainbow.kam.bluetooth.EXTRA_DATA";
 
+    //본 앱에서만 쓰일 로컬바인더로 초기화
+    private final IBinder mBinder = new LocalBinder();
+
+    //바인더를 상속받아 자기자신을 리턴
+    public class LocalBinder extends Binder {
+        public BluetoothService getService() {
+            return BluetoothService.this;
+        }
+    }
+
+    //블루투스 매니저/어댑터
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
+
+    //주소 String과 블루투스 Gatt
     private String mBluetoothDeviceAddress;
     private BluetoothGatt bluetoothGatt;
 
-    public final static UUID getMyUuid = UUID.fromString(GattAttributes.HEART_RATE_MEASUREMENT);
+    //UUID 값 초기화
+    public final static UUID getMyUuid = UUID.fromString(GattAttributes.UUID);
 
-    private final IBinder mBinder = new LocalBinder();
-    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() { //블루투스 Gatt콜백
         @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) { //연결 상태 전환
+            //액션(클래스 패키지 네임 + 태그)용 String
             String intentAction;
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intentAction = ACTION_GATT_CONNECTED;
-                connectionState = STATE_CONNECTED;
-                broadcastUpdate(intentAction);
-                Log.i(TAG, "Connected to GATT server.");
-                // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        bluetoothGatt.discoverServices());
 
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) { //현재상태 == 연결됨
+                //액션 전환
+                intentAction = ACTION_GATT_CONNECTED;
+                //현재상황 전환
+                connectionState = STATE_CONNECTED;
+
+                //브로드 캐스트를 업데이트
+                broadcastUpdate(intentAction);
+
+                Log.i(TAG, "Connected to GATT server.");
+                Log.i(TAG, "Attempting to start service discovery:" +
+                        bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
+
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { //현재상태
                 intentAction = ACTION_GATT_DISCONNECTED;
                 connectionState = STATE_DISCONNECTED;
-                Log.i(TAG, "Disconnected from GATT server.");
+
+                //브로드 캐스트를 업데이트
                 broadcastUpdate(intentAction);
+
+                Log.i(TAG, "Disconnected from GATT server.");
             }
         }
 
         @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
-            } else {
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) { //서비스 발견?
+            if (status == BluetoothGatt.GATT_SUCCESS) { //Gatt 성공
+                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED); //브로드 캐스트를 업데이트
+                Log.i(TAG, "onServicesDiscovered GATT_SUCCESS.");
+            } else {//Gatt 실패
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
         }
 
+        //Characteristic 읽는 중
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
+            Log.i(TAG, "onCharacteristicRead GATT_SUCCESS.");
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
         }
 
+        //Characteristic 변경 됨 + 통지호출
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
@@ -111,19 +125,21 @@ public class BluetoothService extends Service {
         }
     };
 
+    //브로드캐스트 업데이트
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
+        //브로드 캐스트 날림
         sendBroadcast(intent);
     }
 
+    //브로드캐스트 업데이트 (오버로드)
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
+        //인텐트 초기화
         final Intent intent = new Intent(action);
 
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-        // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (getMyUuid.equals(characteristic.getUuid())) {
+
+        if (getMyUuid.equals(characteristic.getUuid())) { //내 UUID와 Characteristicdml UUID일치
             int flag = characteristic.getProperties();
             int format = -1;
             if ((flag & 0x01) != 0) {
@@ -133,11 +149,11 @@ public class BluetoothService extends Service {
                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
                 Log.d(TAG, "Heart rate format UINT8.");
             }
-            final int heartRate = characteristic.getIntValue(format, 1);
-            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
+            final int value = characteristic.getIntValue(format, 1);
+            Log.d(TAG, String.format("Received value: %d", value));
+            intent.putExtra(EXTRA_DATA, String.valueOf(value));
+
+        } else {    //내 UUID와 Characteristicdml UUID불일치
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -146,29 +162,29 @@ public class BluetoothService extends Service {
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
             }
         }
+        //브로드 캐스트 날림
         sendBroadcast(intent);
     }
 
-    public class LocalBinder extends Binder {
-        BluetoothService getService() {
-            return BluetoothService.this;
-        }
-    }
-
+    //바인드
     @Override
     public IBinder onBind(Intent intent) {
+
+        Log.d(TAG, "onBind");
         return mBinder;
     }
 
+    //언바인드
     @Override
     public boolean onUnbind(Intent intent) {
         close();
         return super.onUnbind(intent);
     }
 
+
+    //블루투스 매니저 / 어댑터 초기화
     public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter through
-        // BluetoothManager.
+        Log.d(TAG, "initialize");
         if (bluetoothManager == null) {
             bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (bluetoothManager == null) {
@@ -186,20 +202,20 @@ public class BluetoothService extends Service {
         return true;
     }
 
+    //블루투스 연결
     public boolean connect(final String address) {
         if (bluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
 
-        // Previously connected device.  Try to reconnect.
         if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-                && bluetoothGatt != null) {
+                && bluetoothGatt != null) { //이상없음시
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            if (bluetoothGatt.connect()) {
+            if (bluetoothGatt.connect()) {//연결성공
                 connectionState = STATE_CONNECTING;
-                return true;
-            } else {
+                return true; //성공
+            } else { //실패
                 return false;
             }
         }
@@ -209,8 +225,6 @@ public class BluetoothService extends Service {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
-        // We want to directly connect to the device, so we are setting the autoConnect
-        // parameter to false.
         bluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
@@ -218,6 +232,7 @@ public class BluetoothService extends Service {
         return true;
     }
 
+    //블루투스 연결 끊기
     public void disconnect() {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -226,7 +241,9 @@ public class BluetoothService extends Service {
         bluetoothGatt.disconnect();
     }
 
+    //언바인드시 호출
     public void close() {
+        //블루투스 Gatt null
         if (bluetoothGatt == null) {
             return;
         }
@@ -234,23 +251,28 @@ public class BluetoothService extends Service {
         bluetoothGatt = null;
     }
 
+    //Characteristic 읽기
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
+        //인자로 받은 Characteristic를 넘겨 가공시킨다
         bluetoothGatt.readCharacteristic(characteristic);
     }
 
+    //GATT 통지 수신
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
+
+        Log.w(TAG, "setCharacteristicNotification");
+
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
         bluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // This is specific to Heart Rate Measurement.
         if (getMyUuid.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
@@ -258,11 +280,24 @@ public class BluetoothService extends Service {
             bluetoothGatt.writeDescriptor(descriptor);
         }
     }
-
+    //블루투스 Gatt의 서비스를 리턴
     public List<BluetoothGattService> getSupportedGattServices() {
         if (bluetoothGatt == null) return null;
 
         return bluetoothGatt.getServices();
+    }
+
+    //가능여부
+    public static boolean isCharacteristicWriteable(BluetoothGattCharacteristic pChar) {
+        return (pChar.getProperties() & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0;
+    }
+
+    public static boolean isCharacterisitcReadable(BluetoothGattCharacteristic pChar) {
+        return ((pChar.getProperties() & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
+    }
+
+    public boolean isCharacterisiticNotifiable(BluetoothGattCharacteristic pChar) {
+        return (pChar.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0;
     }
 
 }

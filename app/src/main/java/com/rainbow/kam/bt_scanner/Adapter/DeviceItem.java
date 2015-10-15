@@ -1,9 +1,9 @@
-package com.rainbow.kam.bt_scanner;
+package com.rainbow.kam.bt_scanner.Adapter;
 
 /**
  * Created by sion on 2015-10-14.
  */
-public class DeviceItem {
+public class DeviceItem { //카드 뷰 틀
     private String extraName;
     private String extraAddress;
     private int extraBondState;

@@ -1,22 +1,16 @@
-package com.rainbow.kam.bt_scanner;
+package com.rainbow.kam.bt_scanner.Adapter;
 
-import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Message;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.rainbow.kam.bt_scanner.bluetooth.BluetoothService;
+import com.rainbow.kam.bt_scanner.Activity.DetailActivity;
+import com.rainbow.kam.bt_scanner.R;
 
 import java.util.ArrayList;
 
@@ -25,11 +19,11 @@ import java.util.ArrayList;
  */
 public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private ArrayList<DeviceItem> deviceItemArrayList;
-    private Context context;
-    private View view;
+    private ArrayList<DeviceItem> deviceItemArrayList; //어댑터에 적용시킬 틀
+    private Context context; //컨택스트
+    private View view; //SnackBar대비 뷰
 
-    public DeviceAdapter(ArrayList<DeviceItem> deviceItemArrayList, Context context, View view) {
+    public DeviceAdapter(ArrayList<DeviceItem> deviceItemArrayList, Context context, View view) { //초기화
         this.deviceItemArrayList = deviceItemArrayList;
         this.context = context;
         this.view = view;
@@ -42,7 +36,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        //뷰홀더 적용
         Device device = (Device) holder;
+
+        //각각의 뷰 속성 적용
         device.extraName.setText(deviceItemArrayList.get(position).getExtraName());
         device.extraAddress.setText(deviceItemArrayList.get(position).getExtraextraAddress());
         device.extraBondState.setText(String.valueOf(deviceItemArrayList.get(position).getExtraBondState()));
@@ -55,7 +52,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return deviceItemArrayList.size();
     }
 
-    private class Device extends RecyclerView.ViewHolder {
+    private class Device extends RecyclerView.ViewHolder { //뷰 초기화
 
         private CardView cardView;
 
@@ -78,9 +75,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                  Intent getServiceintent = new Intent(context,BluetoothService.class);
-                    context.bindService(getServiceintent,)
+                public void onClick(View v) { //카드 뷰 클릭시 세부 액티비티로
+                    final Intent intent = new Intent(context, DetailActivity.class);
+                    intent.putExtra(DetailActivity.DEVICE_NAME, extraName.getText().toString()); //이름
+                    intent.putExtra(DetailActivity.DEVICE_ADDRESS, extraAddress.getText().toString()); //주소
+                    context.startActivity(intent);
                 }
             });
 
