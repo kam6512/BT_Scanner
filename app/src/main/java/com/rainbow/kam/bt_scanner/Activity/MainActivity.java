@@ -18,6 +18,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
@@ -27,6 +31,8 @@ import com.rainbow.kam.bt_scanner.Tools.Sort;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Sort sort = new Sort(); //커스텀 정렬 클래스
 
     private FloatingActionButton fabOn, fabSync, fabSortRssi, fabSortType, fabSortName; //버튼
+    private ProgressBar progressBar;
 
 /*  클래식(4.0미만)전용
     private BluetoothService bluetoothService = null;
@@ -100,13 +107,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fabSortName = (FloatingActionButton) findViewById(R.id.fab_sort_name);
         fabSortName.setOnClickListener(this);
 
+        progressBar = (ProgressBar) findViewById(R.id.main_progress);
+        progressBar.setVisibility(View.INVISIBLE);
+
         //리사이클러 그룹 초기화
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new DeviceAdapter(deviceItemArrayList, this, getWindow().getDecorView());
-        recyclerView.setAdapter(adapter);
+//        adapter = new DeviceAdapter(deviceItemArrayList, this, this, getWindow().getDecorView());
+
     }
 
     @Override
@@ -162,16 +172,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void run() {
                     isScanning = false;
                     bluetoothAdapter.stopLeScan(leScanCallback);
+                    progressBar.setVisibility(View.INVISIBLE);
+
+                    adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, getApplicationContext(), getWindow().getDecorView(), deviceItemArrayList.size());
+                    recyclerView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                 }
             }, SCAN_PERIOD); //10초 뒤에 OFF
 
             //시작
             isScanning = true;
             bluetoothAdapter.startLeScan(leScanCallback);
-        } else {    //중지
+            progressBar.setVisibility(View.VISIBLE);
+        } else
+
+        {    //중지
             isScanning = false;
             bluetoothAdapter.stopLeScan(leScanCallback);
+            progressBar.setVisibility(View.INVISIBLE);
         }
+
     }
 
     //디바이스가 스캔될 때 마다 콜백
@@ -181,10 +201,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             runOnUiThread(new Runnable() { //UI쓰레드에
                 @Override
                 public void run() { //로그넣고 어댑터에 추가
-                    Log.d(TAG, "leScanCallback");
+                    Log.e(TAG, "leScanCallback  " + device.getAddress());
                     deviceItemArrayList.add(new DeviceItem(device.getName(), device.getAddress(), device.getType(), device.getBondState(), rssi));
-                    adapter.notifyDataSetChanged();
-                    Log.d(TAG, "leScanCallback" + device.getName() + device.getAddress() + device.getType() + device.getBondState() + rssi);
+
+
+                    for (int i = 0; i < deviceItemArrayList.size(); i++) {
+                        for (int j = 1; j < deviceItemArrayList.size(); j++) {
+                            if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
+                                if (i == j) {
+
+                                } else {
+                                    Log.e(TAG, "leScanCallback remove " + "\n" + deviceItemArrayList.get(j).getExtraextraAddress().trim() + "\n" + deviceItemArrayList.get(i).getExtraextraAddress().trim());
+                                    Log.e(TAG, deviceItemArrayList.size() + " / before");
+                                    deviceItemArrayList.remove(j);
+                                    Log.e(TAG, deviceItemArrayList.size() + " / after");
+                                }
+
+                            } else {
+                                Log.e(TAG, "leScanCallback pass " + "\n" + deviceItemArrayList.get(j).getExtraextraAddress().trim() + "\n" + deviceItemArrayList.get(i).getExtraextraAddress().trim());
+
+//                            adapter.notifyDataSetChanged();
+
+                            }
+
+                        }
+
+                    }
+
+
+//                    adapter.notifyDataSetChanged();
+
 
                 }
             });
@@ -260,7 +306,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     scanLeDevice(false);
                 } else { //재 스캔시(10초이내)
                     deviceItemArrayList.clear();
-                    adapter.notifyDataSetChanged();
+
+                    if (adapter!=null){
+                        adapter.notifyDataSetChanged();
+                    }
+
 
 //                    registerReceiver(broadcastReceiver, intentFilter);
 //                    startScan();

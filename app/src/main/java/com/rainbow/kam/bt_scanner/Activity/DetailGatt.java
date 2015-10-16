@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.Activity;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
@@ -24,22 +26,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailGatt {
 
     //태그
-    private static final String TAG = "DetailActivity";
+    private static final String TAG = "DetailGatt";
 
     //고정 네임
     public static final String DEVICE_NAME = "DEVICE_NAME";
     public static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
+    private Activity activity;
+    private Context context;
+
     //뷰
     private TextView state;
+    private TextView address;
     private TextView dataField;
 
     //뷰에 적용할 String
-    private String deviceName;
+    private String deviceState;
     private String deviceAddress;
+    private String devicedataField;
 
     //블루투스 서비스
     private BluetoothService bluetoothService;
@@ -56,6 +63,27 @@ public class DetailActivity extends AppCompatActivity {
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
+    public DetailGatt(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
+        //액티비티 / 컨택스트
+        this.activity = activity;
+        this.context = context;
+
+        //뷰
+        this.state = device.state;
+        this.state.setText(device.state.getText().toString());
+        this.address = device.address;
+        this.address.setText(device.address.getText().toString());
+        this.dataField = device.dataField;
+        this.dataField.setText(device.dataField.getText().toString());
+
+
+        //값
+        this.deviceState = deviceState;
+        this.deviceAddress = deviceAddress;
+
+        this.address.setText(this.deviceAddress);
+    }
+
     //서비스와 상호작용하기위한 서비스 커넥션
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -64,7 +92,7 @@ public class DetailActivity extends AppCompatActivity {
             Log.e(TAG, "initialize Bluetooth");
             if (!bluetoothService.initialize()) { //초기화 오류시
                 Log.e(TAG, "Unable to initialize Bluetooth");
-                finish(); //종료
+                activity.finish(); //종료
             }
             bluetoothService.connect(deviceAddress); //블루투스 연결!
         }
@@ -99,12 +127,17 @@ public class DetailActivity extends AppCompatActivity {
 
     //끊기거나 데이터가 없을시
     private void clearUI() {
+//        address.setText("no Add");
         dataField.setText("no_data");
+        activity.unregisterReceiver(gattUpdateReceiver);
+        bluetoothService.disconnect();
+        activity.unbindService(serviceConnection);
+        bluetoothService = null;
     }
 
     //데이터 상태 표현
     private void updateConnectionState(final String resourceId) {
-        runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 state.setText(resourceId);
@@ -118,6 +151,9 @@ public class DetailActivity extends AppCompatActivity {
         if (data != null) {
             Log.e("data", data + "/");
             dataField.setText(data); //추가!
+            activity.unregisterReceiver(gattUpdateReceiver);
+            activity.unbindService(serviceConnection);
+            bluetoothService = null;
         }
     }
 
@@ -132,77 +168,21 @@ public class DetailActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void init() {
 
-        //레이아웃적용
-        setContentView(R.layout.activity_detail);
-
-        //startActivity를 통해 가져온 인텐트 GET
-        final Intent intent = getIntent();
-
-        // 인텐트에서 디바이스의 네임과 주소 GET
-        deviceName = intent.getStringExtra(DEVICE_NAME);
-        deviceAddress = intent.getStringExtra(DEVICE_ADDRESS);
-
-        // UI초기화
-        ((TextView) findViewById(R.id.detail_address)).setText(deviceAddress);
-        state = (TextView) findViewById(R.id.detail_state);
-        dataField = (TextView) findViewById(R.id.detail_datafield);
 
         //서비스 바인드(연결)
-        Intent gattServiceIntent = new Intent(this, BluetoothService.class);
-        bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
+        Intent gattServiceIntent = new Intent(activity, BluetoothService.class);
+        activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
 
-        //버튼 초기화
-        FloatingActionButton connect, disconnect;
-        connect = (FloatingActionButton) findViewById(R.id.fab_connnect);
-        disconnect = (FloatingActionButton) findViewById(R.id.fab_disconnnect);
-
-        //연결버튼 리스너
-        connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bluetoothService.connect(deviceAddress);
-            }
-        });
-        //연결취소 버튼 리스너
-        disconnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bluetoothService.disconnect();
-            }
-        });
-    }
-
-
-    protected void onResume() {
-        super.onResume();
         //브로드캐스트 리시버 적용
-        registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+        activity.registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
         if (bluetoothService != null) {
             //연결
             final boolean result = bluetoothService.connect(deviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }
     }
-
-    protected void onPause() {
-        super.onPause();
-        //브로드캐스트 리시버 취소
-        unregisterReceiver(gattUpdateReceiver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        //서비스 끊기
-        unbindService(serviceConnection);
-        bluetoothService = null;
-    }
-
 
     //Gatt를 찾은 브로드캐스트를 수신시 서비스를 GET하고 내부 Characteristic등을 분석
     private void setGattServices(List<BluetoothGattService> gattServices) {

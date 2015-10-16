@@ -214,8 +214,10 @@ public class BluetoothService extends Service {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             if (bluetoothGatt.connect()) {//연결성공
                 connectionState = STATE_CONNECTING;
+                Log.d(TAG, "success.");
                 return true; //성공
             } else { //실패
+                Log.d(TAG, "Fail.");
                 return false;
             }
         }

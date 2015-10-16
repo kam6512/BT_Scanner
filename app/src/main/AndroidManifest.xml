@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activity.DetailActivity"
+            android:name=".Activity.DetailGatt"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
 
