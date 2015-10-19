@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private FloatingActionButton fabOn, fabSync, fabSortRssi, fabSortType, fabSortName; //버튼
     private ProgressBar progressBar;
+    private TextView hasCard;
 
 /*  클래식(4.0미만)전용
     private BluetoothService bluetoothService = null;
@@ -105,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         progressBar = (ProgressBar) findViewById(R.id.main_progress);
         progressBar.setVisibility(View.INVISIBLE);
+
+        hasCard = (TextView)findViewById(R.id.hasCard);
+        hasCard.setVisibility(View.INVISIBLE);
 
         //리사이클러 그룹 초기화
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -169,6 +175,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     bluetoothAdapter.stopLeScan(leScanCallback);
                     progressBar.setVisibility(View.INVISIBLE);
 
+                    if (deviceItemArrayList.size()<1){
+                        hasCard.setVisibility(View.VISIBLE);
+                    }
+
                     adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, getApplicationContext(), getWindow().getDecorView(), deviceItemArrayList.size());
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
@@ -185,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isScanning = false;
             bluetoothAdapter.stopLeScan(leScanCallback);
             progressBar.setVisibility(View.INVISIBLE);
+            hasCard.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -199,11 +210,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
                     String deviceName = device.getName();
                     if (deviceName == null) {
-
                         deviceName = bleAdvertisedData.getName();
-
-
                     }
+
+                    Log.e(TAG, device.getName() + " / " + device.getAddress() + " / " + device.getType() + " / " + device.getBondState() + " / " + device.getBluetoothClass() + " / ");
+
                     deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                     for (int i = 0; i < deviceItemArrayList.size(); i++) {
                         for (int j = 1; j < deviceItemArrayList.size(); j++) {
@@ -300,16 +311,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.fab_sort_name:    //정렬 : 이름순
-                Collections.sort(deviceItemArrayList, sort.COMPARATOR_NAME);
-                adapter.notifyDataSetChanged();
+                if (adapter != null) {
+                    Collections.sort(deviceItemArrayList, sort.COMPARATOR_NAME);
+                    adapter.notifyDataSetChanged();
+                }
                 break;
             case R.id.fab_sort_type:    //정렬 : 타입순(숫자)
-                Collections.sort(deviceItemArrayList, sort.COMPARATOR_TYPE);
-                adapter.notifyDataSetChanged();
+                if (adapter != null) {
+                    Collections.sort(deviceItemArrayList, sort.COMPARATOR_TYPE);
+                    adapter.notifyDataSetChanged();
+                }
                 break;
             case R.id.fab_sort_rssi:    //정렬 : 강도순(숫자)
-                Collections.sort(deviceItemArrayList, sort.COMPARATOR_RSSI);
-                adapter.notifyDataSetChanged();
+                if (adapter != null) {
+                    Collections.sort(deviceItemArrayList, sort.COMPARATOR_RSSI);
+                    adapter.notifyDataSetChanged();
+                }
                 break;
         }
     }

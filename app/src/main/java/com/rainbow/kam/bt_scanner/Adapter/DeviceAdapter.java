@@ -147,34 +147,41 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
 
         private void startConnect() {
+            if (extraAddress.getText()!= null) {
 
-            //일단 null이 아니면 커넥션을 끊고
-            if (detailGatt != null) {
-                detailGatt.destroy();
-                dataField.setText("No Data");
-                state.setText("disconnected");
-            }
+                //일단 null이 아니면 커넥션을 끊고
+                if (detailGatt != null) {
+                    detailGatt.destroy();
+                    dataField.setText("No Data");
+                    state.setText("disconnected");
+                }
 
-            // 커넥션
-            try {
-                detailGatt = new DetailGatt(activity, context, devices[getLayoutPosition()], extraName.getText().toString(), extraAddress.getText().toString());
-                detailGatt.init();
-            } catch (Exception e) {
-
-            }
-
-            //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (!detailGatt.connected) {
-                        stopConnect();
-                        detailGatt.destroy();
-                        startConnect();
-                    }
+                // 커넥션
+                try {
+                    detailGatt = new DetailGatt(activity, context, devices[getLayoutPosition()], extraName.getText().toString(), extraAddress.getText().toString());
+                    detailGatt.init();
+                } catch (Exception e) {
 
                 }
-            }, 5000);
+
+                //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (detailGatt != null) {
+                            if (!detailGatt.connected) {
+                                stopConnect();
+                                detailGatt.destroy();
+                                startConnect();
+                            }
+                        } else {
+                            startConnect();
+                        }
+
+
+                    }
+                }, 5000);
+            }
         }
 
         //커넥션 OFF

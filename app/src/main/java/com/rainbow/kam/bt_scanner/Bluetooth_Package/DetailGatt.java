@@ -182,12 +182,16 @@ public class DetailGatt {
             bluetoothService.disconnect();
             //BlueTooth서비스에 onDestroy는 아무 기능이 없는거 같지만 그래도 한다.
             bluetoothService.onDestroy();
+            try {
+                //BR 해제
+                activity.unregisterReceiver(gattUpdateReceiver);
 
-            //BR 해제
-            activity.unregisterReceiver(gattUpdateReceiver);
+                //서비스 언바인드로 연결 끊기
+                activity.unbindService(serviceConnection);
+            } catch (Exception e) {
 
-            //서비스 언바인드로 연결 끊기
-            activity.unbindService(serviceConnection);
+            }
+
         }
     }
 

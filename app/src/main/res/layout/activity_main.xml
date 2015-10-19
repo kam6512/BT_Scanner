@@ -27,13 +27,6 @@
 
     <include layout="@layout/content_main" />
 
-    <ProgressBar
-        android:id="@+id/main_progress"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_gravity="center"
-        android:indeterminate="true" />
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_on"
         android:layout_width="wrap_content"
@@ -90,5 +83,19 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:src="@android:drawable/ic_menu_sort_alphabetically" />
 
+    <ProgressBar
+        android:id="@+id/main_progress"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:indeterminate="true" />
+
+    <TextView
+        android:id="@+id/hasCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:text="@string/has_not_card" />
 
 </android.support.design.widget.CoordinatorLayout>
