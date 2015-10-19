@@ -200,7 +200,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
                     String deviceName = device.getName();
                     if (deviceName == null) {
+
                         deviceName = bleAdvertisedData.getName();
+
+
                     }
                     deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                     for (int i = 0; i < deviceItemArrayList.size(); i++) {

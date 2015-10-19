@@ -32,11 +32,12 @@ public class DetailGatt {
 
     private Activity activity;
     private Context context;
+    private DeviceAdapter.Device device;
 
     //뷰
-    private TextView state;
-    private TextView address;
-    private TextView dataField;
+//    private TextView state;
+//    private TextView address;
+//    private TextView dataField;
 
     //뷰에 적용할 String
     private String deviceState;
@@ -65,20 +66,25 @@ public class DetailGatt {
         this.activity = activity;
         this.context = context;
 
+        this.device = device;
         //뷰
-        this.state = device.state;
-        this.state.setText(device.state.getText().toString());
-        this.address = device.address;
-        this.address.setText(device.address.getText().toString());
-        this.dataField = device.dataField;
-        this.dataField.setText(device.dataField.getText().toString());
+//        this.state = device.state;
+//        this.state.setText(device.state.getText().toString());
+//        this.address = device.address;
+//        this.address.setText(device.address.getText().toString());
+//        this.dataField = device.dataField;
+//        this.dataField.setText(device.dataField.getText().toString());
 
+
+        this.device.state.setText(device.state.getText().toString());
+        this.device.address.setText(device.address.getText().toString());
+        this.device.dataField.setText(device.dataField.getText().toString());
 
         //값
         this.deviceState = deviceState;
         this.deviceAddress = deviceAddress;
 
-        this.address.setText(this.deviceAddress);
+        this.device.address.setText(this.deviceAddress);
     }
 
     //서비스와 상호작용하기위한 서비스 커넥션
@@ -126,10 +132,9 @@ public class DetailGatt {
     //끊기거나 데이터가 없을시
     private void clearUI() {
 //        address.setText("no Add");
-        dataField.setText("no_data");
+        device.dataField.setText("no_data");
         activity.unregisterReceiver(gattUpdateReceiver);
         bluetoothService.disconnect();
-        activity.unbindService(serviceConnection);
 //        bluetoothService = null;
         bluetoothService.onDestroy();
     }
@@ -139,7 +144,7 @@ public class DetailGatt {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                state.setText(resourceId);
+                device.state.setText(resourceId);
             }
         });
     }
@@ -150,7 +155,7 @@ public class DetailGatt {
         if (data != null) {
             if (connected) {
                 Log.e("data", data + "/");
-                dataField.setText(data); //추가!
+                device.dataField.setText(data); //추가!
                 activity.unregisterReceiver(gattUpdateReceiver);
                 activity.unbindService(serviceConnection);
 //            bluetoothService = null;
@@ -177,25 +182,30 @@ public class DetailGatt {
             gattServiceIntent = new Intent(activity, BluetoothService.class);
             activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
 
+
             //브로드캐스트 리시버 적용
             activity.registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+            if (bluetoothService != null) {
+                //연결
+                final boolean result = bluetoothService.connect(deviceAddress);
+                Log.d(TAG, "Connect request result=" + result);
+            }
         } catch (Exception e) {
 
         }
 
-        if (bluetoothService != null) {
-            //연결
-            final boolean result = bluetoothService.connect(deviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
-        }
+
     }
 
     public void destroy() {
         if (bluetoothService != null) {
             bluetoothService.disconnect();
             bluetoothService.onDestroy();
+            activity.unregisterReceiver(gattUpdateReceiver);
+            activity.unbindService(serviceConnection);
         }
     }
+
 
     //Gatt를 찾은 브로드캐스트를 수신시 서비스를 GET하고 내부 Characteristic등을 분석
     private void setGattServices(List<BluetoothGattService> gattServices) {

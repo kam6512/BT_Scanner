@@ -178,6 +178,7 @@ public class BluetoothService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         close();
+        Log.d(TAG, "unBind");
         return super.onUnbind(intent);
     }
 
@@ -241,6 +242,7 @@ public class BluetoothService extends Service {
             return;
         }
         bluetoothGatt.disconnect();
+        onDestroy();
     }
 
     //언바인드시 호출

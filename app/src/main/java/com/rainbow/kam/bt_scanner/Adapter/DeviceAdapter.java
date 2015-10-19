@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService;
 import com.rainbow.kam.bt_scanner.Bluetooth_Package.DetailGatt;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.ServiceCheck;
@@ -72,6 +73,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         devices[holder.getLayoutPosition()].stopConnect();
     }
 
+
+
     @Override
     public int getItemCount() {
         return deviceItemArrayList.size();
@@ -118,23 +121,32 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.BluetoothService")) {
-                        handler.postDelayed(runnable,2000+(getLayoutPosition()*100));
+                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService")) {
+//                        handler.postDelayed(runnable, 2000 + (getLayoutPosition() * 1000));
+                        handler.postDelayed(runnable, 2000);
                     } else {
                         startConnect();
                     }
                 }
             };
 
+//            handler.postDelayed(runnable, 2000 + (getLayoutPosition() * 1000));
             handler.postDelayed(runnable, 2000);
+
+
 
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService")) {
+                        Log.e(TAG, getLayoutPosition() + " isRunning");
+                    } else {
+                        startConnect();
+                        Log.e(TAG, getLayoutPosition() + " isStop");
+                    }
                     startConnect();
                 }
             });
-
 
 
         }
@@ -146,18 +158,19 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 state.setText("disconnected");
             }
 
+            try {
+                detailGatt = new DetailGatt(activity, context, devices[getLayoutPosition()], extraName.getText().toString(), extraAddress.getText().toString());
+                detailGatt.init();
+            } catch (Exception e) {
 
+            }
 
-            detailGatt = new DetailGatt(activity, context, devices[getLayoutPosition()], extraName.getText().toString(), extraAddress.getText().toString());
-            detailGatt.init();
 
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (!detailGatt.connected) {
                         stopConnect();
-                        dataField.setText("No Data");
-                        state.setText("disconnected");
                         detailGatt.destroy();
                         startConnect();
                     }

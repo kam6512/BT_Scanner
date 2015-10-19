@@ -3,6 +3,7 @@ package com.rainbow.kam.bt_scanner.Tools;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.util.Log;
 
 /**
  * Created by kam6376 on 2015-07-17.
