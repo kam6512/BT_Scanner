@@ -9,17 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService;
-import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 
 import java.util.ArrayList;
@@ -136,6 +131,7 @@ public class DetailGatt {
         bluetoothService.disconnect();
         activity.unbindService(serviceConnection);
 //        bluetoothService = null;
+        bluetoothService.onDestroy();
     }
 
     //데이터 상태 표현
@@ -152,11 +148,14 @@ public class DetailGatt {
     private void displayData(String data) {
 
         if (data != null) {
-            Log.e("data", data + "/");
-            dataField.setText(data); //추가!
-            activity.unregisterReceiver(gattUpdateReceiver);
-            activity.unbindService(serviceConnection);
+            if (connected) {
+                Log.e("data", data + "/");
+                dataField.setText(data); //추가!
+                activity.unregisterReceiver(gattUpdateReceiver);
+                activity.unbindService(serviceConnection);
 //            bluetoothService = null;
+                bluetoothService.onDestroy();
+            }
         }
     }
 
@@ -194,6 +193,7 @@ public class DetailGatt {
     public void destroy() {
         if (bluetoothService != null) {
             bluetoothService.disconnect();
+            bluetoothService.onDestroy();
         }
     }
 

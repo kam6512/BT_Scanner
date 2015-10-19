@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.Activity.DetailGatt;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.Tools.ServiceCheck;
 
 import java.util.ArrayList;
 
@@ -94,6 +95,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public TextView address;
         public TextView dataField;
 
+//        private Handler handler;
+//        private Runnable runnable;
+
 
         public Device(View itemView) {
             super(itemView);
@@ -112,6 +116,19 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             address = (TextView) itemView.findViewById(R.id.detail_address);
             dataField = (TextView) itemView.findViewById(R.id.detail_datafield);
 
+//            handler = new Handler();
+//            runnable = new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.BluetoothService")) {
+//                        handler.postDelayed(runnable,2000+(getLayoutPosition()*100));
+//                    } else {
+//                        startConnect();
+//                    }
+//                }
+//            };
+//
+//            handler.postDelayed(runnable, 2000);
 
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -120,19 +137,18 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             });
 
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    startConnect();
-//                }
-//            }, 200);
+
 
         }
 
         private void startConnect() {
-            if (detailGatt!=null){
+            if (detailGatt != null) {
                 detailGatt.destroy();
+                dataField.setText("No Data");
+                state.setText("disconnected");
             }
+
+
 
             detailGatt = new DetailGatt(activity, context, devices[getLayoutPosition()], extraName.getText().toString(), extraAddress.getText().toString());
             detailGatt.init();
@@ -140,14 +156,16 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (!detailGatt.connected){
+                    if (!detailGatt.connected) {
                         stopConnect();
                         dataField.setText("No Data");
                         state.setText("disconnected");
+                        detailGatt.destroy();
+                        startConnect();
                     }
 
                 }
-            },5000);
+            }, 5000);
         }
 
         private void stopConnect() {
