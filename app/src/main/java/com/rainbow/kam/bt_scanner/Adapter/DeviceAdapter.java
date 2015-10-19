@@ -3,17 +3,15 @@ package com.rainbow.kam.bt_scanner.Adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
-import com.rainbow.kam.bt_scanner.Activity.DetailGatt;
+import com.rainbow.kam.bt_scanner.Bluetooth_Package.DetailGatt;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.ServiceCheck;
 
@@ -95,8 +93,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public TextView address;
         public TextView dataField;
 
-//        private Handler handler;
-//        private Runnable runnable;
+        private Handler handler;
+        private Runnable runnable;
 
 
         public Device(View itemView) {
@@ -116,19 +114,19 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             address = (TextView) itemView.findViewById(R.id.detail_address);
             dataField = (TextView) itemView.findViewById(R.id.detail_datafield);
 
-//            handler = new Handler();
-//            runnable = new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.BluetoothService")) {
-//                        handler.postDelayed(runnable,2000+(getLayoutPosition()*100));
-//                    } else {
-//                        startConnect();
-//                    }
-//                }
-//            };
-//
-//            handler.postDelayed(runnable, 2000);
+            handler = new Handler();
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.BluetoothService")) {
+                        handler.postDelayed(runnable,2000+(getLayoutPosition()*100));
+                    } else {
+                        startConnect();
+                    }
+                }
+            };
+
+            handler.postDelayed(runnable, 2000);
 
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Activity;
+package com.rainbow.kam.bt_scanner.Bluetooth_Package;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;

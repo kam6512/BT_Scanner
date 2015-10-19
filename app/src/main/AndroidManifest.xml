@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activity.DetailGatt"
+            android:name=".Bluetooth_Package.DetailGatt"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
 

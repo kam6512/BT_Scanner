@@ -18,21 +18,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.Tools.BleTools;
 import com.rainbow.kam.bt_scanner.Tools.Sort;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -115,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-//        adapter = new DeviceAdapter(deviceItemArrayList, this, this, getWindow().getDecorView());
 
     }
 
@@ -198,41 +193,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //디바이스가 스캔될 때 마다 콜백
     public BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
             runOnUiThread(new Runnable() { //UI쓰레드에
                 @Override
                 public void run() { //로그넣고 어댑터에 추가
-                    Log.e(TAG, "leScanCallback  " + device.getAddress());
-                    deviceItemArrayList.add(new DeviceItem(device.getName(), device.getAddress(), device.getType(), device.getBondState(), rssi));
-
-
+                    final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
+                    String deviceName = device.getName();
+                    if (deviceName == null) {
+                        deviceName = bleAdvertisedData.getName();
+                    }
+                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                     for (int i = 0; i < deviceItemArrayList.size(); i++) {
                         for (int j = 1; j < deviceItemArrayList.size(); j++) {
                             if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
                                 if (i == j) {
 
                                 } else {
-                                    Log.e(TAG, "leScanCallback remove " + "\n" + deviceItemArrayList.get(j).getExtraextraAddress().trim() + "\n" + deviceItemArrayList.get(i).getExtraextraAddress().trim());
-                                    Log.e(TAG, deviceItemArrayList.size() + " / before");
                                     deviceItemArrayList.remove(j);
-                                    Log.e(TAG, deviceItemArrayList.size() + " / after");
                                 }
-
-                            } else {
-                                Log.e(TAG, "leScanCallback pass " + "\n" + deviceItemArrayList.get(j).getExtraextraAddress().trim() + "\n" + deviceItemArrayList.get(i).getExtraextraAddress().trim());
-
-//                            adapter.notifyDataSetChanged();
-
                             }
 
                         }
 
                     }
-
-
-//                    adapter.notifyDataSetChanged();
-
-
                 }
             });
 
@@ -267,12 +250,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -308,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else { //재 스캔시(10초이내)
                     deviceItemArrayList.clear();
 
-                    if (adapter!=null){
+                    if (adapter != null) {
                         adapter.notifyDataSetChanged();
                     }
 
