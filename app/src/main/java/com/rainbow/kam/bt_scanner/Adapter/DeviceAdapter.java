@@ -2,7 +2,9 @@ package com.rainbow.kam.bt_scanner.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,7 +54,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     }
 
-
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         //뷰홀더 적용
@@ -98,6 +99,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private Handler handler;
         private Runnable runnable;
 
+        private Snackbar snackbar = null;
+        private CountDownTimer countDownTimer = null;
+        int duration = 5;
+
         public Device(View itemView) {
             super(itemView);
 
@@ -131,23 +136,38 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             handler.postDelayed(runnable, 2000);
 
+            showSnackBar();
             //클릭시 시작
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService")) {
-                        Log.e(TAG, getLayoutPosition() + " isRunning");
-                    } else {
-                        startConnect();
-                        Log.e(TAG, getLayoutPosition() + " isStop");
-                    }
+//                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService")) {
+//                        Log.e(TAG, getLayoutPosition() + " isRunning");
+//                    } else {
+//                        startConnect();
+//                        Log.e(TAG, getLayoutPosition() + " isStop");
+//                    }
+                    handler.removeCallbacks(runnable);
                     startConnect();
                 }
             });
+
+            countDownTimer = new CountDownTimer(5000, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    duration--;
+                    snackbar.setText(String.valueOf(duration));
+                }
+
+                @Override
+                public void onFinish() {
+                    duration = 5;
+                }
+            }.start();
         }
 
         private void startConnect() {
-            if (extraAddress.getText()!= null) {
+            if (extraAddress.getText() != null) {
 
                 //일단 null이 아니면 커넥션을 끊고
                 if (detailGatt != null) {
@@ -168,6 +188,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+
                         if (detailGatt != null) {
                             if (!detailGatt.connected) {
                                 stopConnect();
@@ -176,6 +197,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             }
                         } else {
                             startConnect();
+
                         }
 
 
@@ -189,6 +211,15 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             if (detailGatt != null) {
                 detailGatt.destroy();
             }
+        }
+
+        private void showSnackBar() {
+            snackbar.make(cardView, String.valueOf(duration), Snackbar.LENGTH_LONG).setAction("cancle", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    stopConnect();
+                }
+            }).show();
         }
 
 
