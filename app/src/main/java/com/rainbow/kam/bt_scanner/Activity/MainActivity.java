@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Bluetooth isEnabled");
         } else {    //블루투스 구동
             Log.d(TAG, "Bluetooth start");
+//            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent, MainActivity.REQUEST_ENABLE_BT);
         }

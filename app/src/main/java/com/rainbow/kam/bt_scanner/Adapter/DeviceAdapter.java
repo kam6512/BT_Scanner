@@ -68,6 +68,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        devices[holder.getLayoutPosition()].stopConnect();
+    }
+
+    @Override
     public int getItemCount() {
         return deviceItemArrayList.size();
     }
@@ -110,23 +116,44 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                   startConnect();
+                    startConnect();
                 }
             });
 
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    startConnect();
-                }
-            }, 200);
-
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    startConnect();
+//                }
+//            }, 200);
 
         }
 
         private void startConnect() {
+            if (detailGatt!=null){
+                detailGatt.destroy();
+            }
+
             detailGatt = new DetailGatt(activity, context, devices[getLayoutPosition()], extraName.getText().toString(), extraAddress.getText().toString());
             detailGatt.init();
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!detailGatt.connected){
+                        stopConnect();
+                        dataField.setText("No Data");
+                        state.setText("disconnected");
+                    }
+
+                }
+            },5000);
+        }
+
+        private void stopConnect() {
+            if (detailGatt != null) {
+                detailGatt.destroy();
+            }
         }
 
 

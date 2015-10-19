@@ -51,7 +51,7 @@ public class DetailGatt {
     //블루투스 서비스
     private BluetoothService bluetoothService;
     //연결 여부
-    private boolean connected = false;
+    public boolean connected = false;
 
     //블루투스 서비스의 BluetoothGattCharacteristic을 담을 리스트
     //ArrayList<서비스리스트 ArrayList<Characteristic>>구조이다.
@@ -62,6 +62,8 @@ public class DetailGatt {
     //블루투스 서비스목록의 태그
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
+
+    Intent gattServiceIntent;
 
     public DetailGatt(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
         //액티비티 / 컨택스트
@@ -120,6 +122,7 @@ public class DetailGatt {
                 setGattServices(bluetoothService.getSupportedGattServices());
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) { //Data가 유효할때
                 displayData(intent.getStringExtra(BluetoothService.EXTRA_DATA));
+                Log.e(TAG, intent.getStringExtra(BluetoothService.EXTRA_DATA));
             }
         }
     };
@@ -132,7 +135,7 @@ public class DetailGatt {
         activity.unregisterReceiver(gattUpdateReceiver);
         bluetoothService.disconnect();
         activity.unbindService(serviceConnection);
-        bluetoothService = null;
+//        bluetoothService = null;
     }
 
     //데이터 상태 표현
@@ -153,7 +156,7 @@ public class DetailGatt {
             dataField.setText(data); //추가!
             activity.unregisterReceiver(gattUpdateReceiver);
             activity.unbindService(serviceConnection);
-            bluetoothService = null;
+//            bluetoothService = null;
         }
     }
 
@@ -171,16 +174,26 @@ public class DetailGatt {
     public void init() {
 
 
-        //서비스 바인드(연결)
-        Intent gattServiceIntent = new Intent(activity, BluetoothService.class);
-        activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
+        try { //서비스 바인드(연결)
+            gattServiceIntent = new Intent(activity, BluetoothService.class);
+            activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
 
-        //브로드캐스트 리시버 적용
-        activity.registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+            //브로드캐스트 리시버 적용
+            activity.registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+        } catch (Exception e) {
+
+        }
+
         if (bluetoothService != null) {
             //연결
             final boolean result = bluetoothService.connect(deviceAddress);
             Log.d(TAG, "Connect request result=" + result);
+        }
+    }
+
+    public void destroy() {
+        if (bluetoothService != null) {
+            bluetoothService.disconnect();
         }
     }
 
