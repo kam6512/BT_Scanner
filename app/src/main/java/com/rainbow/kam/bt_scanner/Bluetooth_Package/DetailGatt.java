@@ -11,10 +11,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService;
 import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 
 import java.util.ArrayList;
@@ -34,12 +32,7 @@ public class DetailGatt {
     private Context context;
     private DeviceAdapter.Device device;
 
-    //뷰
-//    private TextView state;
-//    private TextView address;
-//    private TextView dataField;
-
-    //뷰에 적용할 String
+    //뷰에 적용할 임시 테스트 String
     private String deviceState;
     private String deviceAddress;
     private String devicedataField;
@@ -67,15 +60,8 @@ public class DetailGatt {
         this.context = context;
 
         this.device = device;
-        //뷰
-//        this.state = device.state;
-//        this.state.setText(device.state.getText().toString());
-//        this.address = device.address;
-//        this.address.setText(device.address.getText().toString());
-//        this.dataField = device.dataField;
-//        this.dataField.setText(device.dataField.getText().toString());
-
-
+        //뷰 - 메모리 참조 주소가 동일해서 new시킨 Device객체에 적용하는 방향으로 넘어갔다
+        //브로드캐스트의 관리 필요 - bind의 특성 확인.
         this.device.state.setText(device.state.getText().toString());
         this.device.address.setText(device.address.getText().toString());
         this.device.dataField.setText(device.dataField.getText().toString());
@@ -83,7 +69,6 @@ public class DetailGatt {
         //값
         this.deviceState = deviceState;
         this.deviceAddress = deviceAddress;
-
         this.device.address.setText(this.deviceAddress);
     }
 
@@ -133,13 +118,10 @@ public class DetailGatt {
     private void clearUI() {
 //        address.setText("no Add");
         device.dataField.setText("no_data");
-        activity.unregisterReceiver(gattUpdateReceiver);
-        bluetoothService.disconnect();
-//        bluetoothService = null;
-        bluetoothService.onDestroy();
+        destroy(); //끄기
     }
 
-    //데이터 상태 표현
+    //데이터 상태 표현 - 데이터 정보를 적용하지 않기 때문에 destroy 시키면 안된다...
     private void updateConnectionState(final String resourceId) {
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -156,10 +138,7 @@ public class DetailGatt {
             if (connected) {
                 Log.e("data", data + "/");
                 device.dataField.setText(data); //추가!
-                activity.unregisterReceiver(gattUpdateReceiver);
-                activity.unbindService(serviceConnection);
-//            bluetoothService = null;
-                bluetoothService.onDestroy();
+                destroy(); //끄기
             }
         }
     }
@@ -177,8 +156,8 @@ public class DetailGatt {
 
     public void init() {
 
-
-        try { //서비스 바인드(연결)
+        try {
+            //서비스 바인드(연결)
             gattServiceIntent = new Intent(activity, BluetoothService.class);
             activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
 
@@ -194,14 +173,20 @@ public class DetailGatt {
 
         }
 
-
     }
 
+    //뷰가 Detached 시 호출
     public void destroy() {
         if (bluetoothService != null) {
+            //커넥션 OFF
             bluetoothService.disconnect();
+            //BlueTooth서비스에 onDestroy는 아무 기능이 없는거 같지만 그래도 한다.
             bluetoothService.onDestroy();
+
+            //BR 해제
             activity.unregisterReceiver(gattUpdateReceiver);
+
+            //서비스 언바인드로 연결 끊기
             activity.unbindService(serviceConnection);
         }
     }
@@ -269,6 +254,7 @@ public class DetailGatt {
         }
         showBlueToothStat(gattCharacteristicData); //서비스리스트를 인자로 넘겨 호출
 
+        //테스트용 로그 표현 소스
           /* for (int i = 0; i < gattServices.size(); i++) {
             BluetoothGattService bluetoothGattService = gattServices.get(i);
             uuid = bluetoothGattService.getUuid().toString();

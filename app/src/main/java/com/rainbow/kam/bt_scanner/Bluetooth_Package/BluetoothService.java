@@ -284,6 +284,7 @@ public class BluetoothService extends Service {
             bluetoothGatt.writeDescriptor(descriptor);
         }
     }
+
     //블루투스 Gatt의 서비스를 리턴
     public List<BluetoothGattService> getSupportedGattServices() {
         if (bluetoothGatt == null) return null;

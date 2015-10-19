@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService;
 import com.rainbow.kam.bt_scanner.Bluetooth_Package.DetailGatt;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.ServiceCheck;
@@ -70,9 +69,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
+        //디바이스의 커넥션 OFF
         devices[holder.getLayoutPosition()].stopConnect();
     }
-
 
 
     @Override
@@ -99,10 +98,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private Handler handler;
         private Runnable runnable;
 
-
         public Device(View itemView) {
             super(itemView);
-
 
             Log.e(TAG, "leScanCallback  " + "start item");
             cardView = (CardView) itemView.findViewById(R.id.card);
@@ -117,12 +114,14 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             address = (TextView) itemView.findViewById(R.id.detail_address);
             dataField = (TextView) itemView.findViewById(R.id.detail_datafield);
 
+            //핸들러
             handler = new Handler();
+
+            //자동시작
             runnable = new Runnable() {
                 @Override
                 public void run() {
                     if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService")) {
-//                        handler.postDelayed(runnable, 2000 + (getLayoutPosition() * 1000));
                         handler.postDelayed(runnable, 2000);
                     } else {
                         startConnect();
@@ -130,11 +129,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             };
 
-//            handler.postDelayed(runnable, 2000 + (getLayoutPosition() * 1000));
             handler.postDelayed(runnable, 2000);
 
-
-
+            //클릭시 시작
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -147,17 +144,18 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     startConnect();
                 }
             });
-
-
         }
 
         private void startConnect() {
+
+            //일단 null이 아니면 커넥션을 끊고
             if (detailGatt != null) {
                 detailGatt.destroy();
                 dataField.setText("No Data");
                 state.setText("disconnected");
             }
 
+            // 커넥션
             try {
                 detailGatt = new DetailGatt(activity, context, devices[getLayoutPosition()], extraName.getText().toString(), extraAddress.getText().toString());
                 detailGatt.init();
@@ -165,7 +163,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             }
 
-
+            //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -179,6 +177,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }, 5000);
         }
 
+        //커넥션 OFF
         private void stopConnect() {
             if (detailGatt != null) {
                 detailGatt.destroy();
