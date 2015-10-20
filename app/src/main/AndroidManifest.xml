@@ -23,7 +23,6 @@
             </intent-filter>
         </activity>
         <service
-            android:enabled="true"
             android:name=".BluetoothPackage.BluetoothService">
             <intent-filter>
                 <action android:name="com.rainbow.kam.bt_scanner.BluetoothPackage.BluetoothService" />
