@@ -31,6 +31,7 @@ import com.rainbow.kam.bt_scanner.Tools.Sort;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.TreeSet;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         progressBar = (ProgressBar) findViewById(R.id.main_progress);
         progressBar.setVisibility(View.INVISIBLE);
 
-        hasCard = (TextView)findViewById(R.id.hasCard);
+        hasCard = (TextView) findViewById(R.id.hasCard);
         hasCard.setVisibility(View.INVISIBLE);
 
         //리사이클러 그룹 초기화
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     bluetoothAdapter.stopLeScan(leScanCallback);
                     progressBar.setVisibility(View.INVISIBLE);
 
-                    if (deviceItemArrayList.size()<1){
+                    if (deviceItemArrayList.size() < 1) {
                         hasCard.setVisibility(View.VISIBLE);
                     }
 
@@ -189,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isScanning = true;
             bluetoothAdapter.startLeScan(leScanCallback);
             progressBar.setVisibility(View.VISIBLE);
+            hasCard.setVisibility(View.INVISIBLE);
         } else
 
         {    //중지

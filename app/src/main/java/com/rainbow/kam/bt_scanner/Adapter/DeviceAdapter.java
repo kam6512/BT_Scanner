@@ -99,9 +99,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private Handler handler;
         private Runnable runnable;
 
-        private Snackbar snackbar = null;
-        private CountDownTimer countDownTimer = null;
-        int duration = 5;
 
         public Device(View itemView) {
             super(itemView);
@@ -118,6 +115,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             state = (TextView) itemView.findViewById(R.id.detail_state);
             address = (TextView) itemView.findViewById(R.id.detail_address);
             dataField = (TextView) itemView.findViewById(R.id.detail_datafield);
+
 
             //핸들러
             handler = new Handler();
@@ -136,7 +134,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             handler.postDelayed(runnable, 2000);
 
-            showSnackBar();
             //클릭시 시작
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -151,19 +148,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     startConnect();
                 }
             });
-
-            countDownTimer = new CountDownTimer(5000, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    duration--;
-                    snackbar.setText(String.valueOf(duration));
-                }
-
-                @Override
-                public void onFinish() {
-                    duration = 5;
-                }
-            }.start();
         }
 
         private void startConnect() {
@@ -212,16 +196,5 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 detailGatt.destroy();
             }
         }
-
-        private void showSnackBar() {
-            snackbar.make(cardView, String.valueOf(duration), Snackbar.LENGTH_LONG).setAction("cancle", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    stopConnect();
-                }
-            }).show();
-        }
-
-
     }
 }
