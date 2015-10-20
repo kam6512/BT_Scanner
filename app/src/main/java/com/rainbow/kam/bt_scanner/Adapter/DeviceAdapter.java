@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.rainbow.kam.bt_scanner.Bluetooth_Package.DetailGatt;
+import com.rainbow.kam.bt_scanner.BluetoothPackage.DetailGatt;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.ServiceCheck;
 
@@ -124,30 +124,14 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService")) {
+                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.BluetoothPackage.BluetoothService")) {
                         handler.postDelayed(runnable, 2000);
                     } else {
                         startConnect();
                     }
                 }
             };
-
             handler.postDelayed(runnable, 2000);
-
-            //클릭시 시작
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-//                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.Bluetooth_Package.BluetoothService")) {
-//                        Log.e(TAG, getLayoutPosition() + " isRunning");
-//                    } else {
-//                        startConnect();
-//                        Log.e(TAG, getLayoutPosition() + " isStop");
-//                    }
-                    handler.removeCallbacks(runnable);
-                    stopConnect();
-                }
-            });
         }
 
         private void startConnect() {
@@ -168,7 +152,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 }
 
-
                 runnable = new Runnable() {
                     @Override
                     public void run() {
@@ -188,7 +171,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
                     new Handler().postDelayed(runnable, 10000);
                 }
-
             }
         }
 
