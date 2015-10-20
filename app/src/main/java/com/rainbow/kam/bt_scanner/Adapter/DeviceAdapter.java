@@ -86,7 +86,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private CardView cardView;
 
-        private TextView extraName;
+        public TextView extraName;
         private TextView extraAddress;
         private TextView extraBondState;
         private TextView extraType;
@@ -186,7 +186,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 
                     }
-                }, 5000);
+                }, 10000);
             }
         }
 

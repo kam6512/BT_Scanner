@@ -70,6 +70,12 @@ public class DetailGatt {
         this.deviceState = deviceState;
         this.deviceAddress = deviceAddress;
         this.device.address.setText(this.deviceAddress);
+
+        if(this.device.extraName.getText().toString() == ""){
+            this.device.extraName.setText("BLE 네임정보를 가져오는 중....");
+        }
+
+        this.device.dataField.setText("BLE 세부정보를 가져오는 중....");
     }
 
     //서비스와 상호작용하기위한 서비스 커넥션
@@ -117,7 +123,7 @@ public class DetailGatt {
     //끊기거나 데이터가 없을시
     private void clearUI() {
 //        address.setText("no Add");
-        device.dataField.setText("no_data");
+        device.dataField.setText("데이터 누락됨, 재시도 중...");
         destroy(); //끄기
     }
 
@@ -138,6 +144,12 @@ public class DetailGatt {
             if (connected) {
                 Log.e("data", data + "/");
                 device.dataField.setText(data); //추가!
+
+//                data.substring(data.length()-21,data.length());
+//                device.extraName.setText("제품의 네이밍 정보 필요");
+//                device.extraName.setText(data.substring(data.length()-21,data.length()));
+//                device.extraName.setText(data.replaceAll("[0-9]+",""));
+                device.extraName.setText(data.substring(0,data.indexOf("\n")));
                 destroy(); //끄기
             }
         }
