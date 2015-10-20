@@ -18,7 +18,9 @@ import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -238,9 +240,11 @@ public class BluetoothService extends Service {
     //블루투스 연결 끊기
     public void disconnect() {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
+            refreshDeviceGattCache(bluetoothGatt);
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
+
         bluetoothGatt.disconnect();
         onDestroy();
     }
@@ -251,6 +255,7 @@ public class BluetoothService extends Service {
         if (bluetoothGatt == null) {
             return;
         }
+        refreshDeviceGattCache(bluetoothGatt);
         bluetoothGatt.close();
         bluetoothGatt = null;
     }
@@ -290,6 +295,21 @@ public class BluetoothService extends Service {
         if (bluetoothGatt == null) return null;
 
         return bluetoothGatt.getServices();
+    }
+
+    private boolean refreshDeviceGattCache(BluetoothGatt bluetoothGatt) {
+        try {
+            Log.e(TAG,"refresh");
+            BluetoothGatt localGatt = bluetoothGatt;
+            Method localMethod = localGatt.getClass().getMethod("refresh", new Class[0]);
+            if (localMethod != null) {
+                boolean b = ((Boolean) localMethod.invoke(localGatt, new Object[0]));
+                return b;
+            }
+        } catch (Exception localException) {
+            Log.e(TAG, "An exception occured while refreshing device");
+        }
+        return false;
     }
 
     //가능여부

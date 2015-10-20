@@ -145,7 +145,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 //                        Log.e(TAG, getLayoutPosition() + " isStop");
 //                    }
                     handler.removeCallbacks(runnable);
-                    startConnect();
+                    stopConnect();
                 }
             });
         }
@@ -168,11 +168,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 }
 
-                //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
-                new Handler().postDelayed(new Runnable() {
+
+                runnable = new Runnable() {
                     @Override
                     public void run() {
-
                         if (detailGatt != null) {
                             if (!detailGatt.connected) {
                                 stopConnect();
@@ -183,10 +182,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             startConnect();
 
                         }
-
-
                     }
-                }, 10000);
+                };
+                if(!detailGatt.connected){
+                    //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
+                    new Handler().postDelayed(runnable, 10000);
+                }
+
             }
         }
 

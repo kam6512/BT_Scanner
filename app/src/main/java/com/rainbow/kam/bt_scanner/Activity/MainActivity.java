@@ -84,9 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //블루투스 매니저/어댑터 초기화
-        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
+        initBluetooth();
 
         //핸들러 초기화
         handler = new Handler();
@@ -135,6 +133,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void initBluetooth() {
+        try {
+            //블루투스 매니저/어댑터 초기화
+            bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            bluetoothAdapter = bluetoothManager.getAdapter();
+            if (bluetoothAdapter == null || bluetoothManager == null) {
+                throw new Exception();
+
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
 
     public boolean getBT() { //블루투스 사용여부
         Log.d(TAG, "getBT");
@@ -147,15 +159,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void enableBluetooth() {//블루투스 가동여부
+    public boolean enableBluetooth() {//블루투스 가동여부
         Log.d(TAG, "enableBluetooth");
 
         if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
             Log.d(TAG, "Bluetooth isEnabled");
+            return true;
         } else {    //블루투스 구동
             Log.d(TAG, "Bluetooth start");
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent, MainActivity.REQUEST_ENABLE_BT);
+            return false;
         }
     }
 
@@ -168,37 +182,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void scanLeDevice(final boolean enable) {//저전력 스캔
-        if (enable) {   //시작중이면
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    isScanning = false;
-                    bluetoothAdapter.stopLeScan(leScanCallback);
-                    progressBar.setVisibility(View.INVISIBLE);
+        try {
+            if (enable) {   //시작중이면
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isScanning = false;
+                        bluetoothAdapter.stopLeScan(leScanCallback);
+                        progressBar.setVisibility(View.INVISIBLE);
 
-                    if (deviceItemArrayList.size() < 1) {
-                        hasCard.setVisibility(View.VISIBLE);
+                        if (deviceItemArrayList.size() < 1) {
+                            hasCard.setVisibility(View.VISIBLE);
+                        }
+
+                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, getApplicationContext(), getWindow().getDecorView(), deviceItemArrayList.size());
+                        recyclerView.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
                     }
+                }, SCAN_PERIOD); //10초 뒤에 OFF
 
-                    adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, getApplicationContext(), getWindow().getDecorView(), deviceItemArrayList.size());
-                    recyclerView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
-            }, SCAN_PERIOD); //10초 뒤에 OFF
-
-            //시작
-            isScanning = true;
-            bluetoothAdapter.startLeScan(leScanCallback);
-            progressBar.setVisibility(View.VISIBLE);
-            hasCard.setVisibility(View.INVISIBLE);
-        } else
-
-        {    //중지
-            isScanning = false;
-            bluetoothAdapter.stopLeScan(leScanCallback);
-            progressBar.setVisibility(View.INVISIBLE);
-            hasCard.setVisibility(View.INVISIBLE);
+                //시작
+                isScanning = true;
+                bluetoothAdapter.startLeScan(leScanCallback);
+                progressBar.setVisibility(View.VISIBLE);
+                hasCard.setVisibility(View.INVISIBLE);
+            } else {    //중지
+                isScanning = false;
+                bluetoothAdapter.stopLeScan(leScanCallback);
+                progressBar.setVisibility(View.INVISIBLE);
+                hasCard.setVisibility(View.INVISIBLE);
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
+            finish();
         }
+
 
     }
 
