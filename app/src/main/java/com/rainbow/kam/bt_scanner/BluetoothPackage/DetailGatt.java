@@ -46,15 +46,18 @@ public class DetailGatt {
 
     //블루투스 서비스의 BluetoothGattCharacteristic을 담을 리스트
     //ArrayList<서비스리스트 ArrayList<Characteristic>>구조이다.
-    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
+    private ArrayList<ArrayList<BluetoothGattCharacteristic>> rootGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private BluetoothGattCharacteristic notifyCharacteristic;
+    private ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
+    private ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
 
     //블루투스 서비스목록의 태그
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
-    Intent gattServiceIntent;
+    private Intent gattServiceIntent;
+
 
     public DetailGatt(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
         //액티비티 / 컨택스트
@@ -153,7 +156,7 @@ public class DetailGatt {
 //                device.extraName.setText("제품의 네이밍 정보 필요");
 //                device.extraName.setText(data.substring(data.length()-21,data.length()));
 //                device.extraName.setText(data.replaceAll("[0-9]+",""));
-                device.extraName.setText(data.substring(0,data.indexOf("\n")));
+                device.extraName.setText(data.substring(0, data.indexOf("\n")));
                 destroy(); //끄기
             }
         }
@@ -198,6 +201,9 @@ public class DetailGatt {
             bluetoothService.disconnect();
             //BlueTooth서비스에 onDestroy는 아무 기능이 없는거 같지만 그래도 한다.
             bluetoothService.onDestroy();
+            bluetoothService.close();
+            bluetoothService = null;
+
             try {
                 //BR 해제
                 activity.unregisterReceiver(gattUpdateReceiver);
@@ -218,9 +224,13 @@ public class DetailGatt {
         String unknownServiceString = "unknown_service";
         String unknownCharaString = "unknown_characteristic";
 
-        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
-        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
-        mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>(); //ArrayList<서비스리스트 ArrayList<Characteristic>> 이하 root로 표기
+//        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
+        gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
+
+//        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
+        gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
+
+        rootGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>(); //ArrayList<서비스리스트 ArrayList<Characteristic>> 이하 root로 표기
 
         //서비스 수집
         for (BluetoothGattService bluetoothGattService : gattServices) {// 인자로 받은 BluetoothGattService 리스트중 BluetoothGattService를 하나씩 뽑아
@@ -268,7 +278,7 @@ public class DetailGatt {
                 gattCharacteristicGroupData.add(currentCharaData);
 
             }
-            mGattCharacteristics.add(charas); //루트리스트에 Characteristic리스트 넣기
+            rootGattCharacteristics.add(charas); //루트리스트에 Characteristic리스트 넣기
             gattCharacteristicData.add(gattCharacteristicGroupData); //서비스리스트에 그룹리스트를 넣는다.
 
         }
@@ -297,7 +307,7 @@ public class DetailGatt {
     }
 
     void showBlueToothStat(ArrayList<ArrayList<HashMap<String, String>>> data) {
-        if (mGattCharacteristics != null) { //Characteristic리스트가 들어간 루트리스트가 살아있으면
+        if (rootGattCharacteristics != null) { //Characteristic리스트가 들어간 루트리스트가 살아있으면
 
             for (int i = 0; i < data.size(); i++) {
                 Log.e("data.size", data.size() + "");
@@ -305,7 +315,7 @@ public class DetailGatt {
 
                     Log.e("data.size", data.get(i).size() + "");
                     final BluetoothGattCharacteristic characteristic =
-                            mGattCharacteristics.get(i).get(j); //배열에서 가져오기
+                            rootGattCharacteristics.get(i).get(j); //배열에서 가져오기
 
 
                     final int charaProp = characteristic.getProperties();
@@ -326,4 +336,34 @@ public class DetailGatt {
             }
         }
     }
+
+    public BluetoothService getBluetoothService() {
+        return bluetoothService;
+    }
+
+    public ArrayList<ArrayList<BluetoothGattCharacteristic>> getGattCharacteristics() {
+        return rootGattCharacteristics;
+    }
+
+    public BluetoothGattCharacteristic getNotifyCharacteristic() {
+        return notifyCharacteristic;
+    }
+
+    public ArrayList<HashMap<String, String>> getGattServiceData() {
+        return gattServiceData;
+    }
+
+    public ArrayList<ArrayList<HashMap<String, String>>> getGattCharacteristicData() {
+        return gattCharacteristicData;
+    }
+
+
+    public String getLIST_NAME() {
+        return LIST_NAME;
+    }
+
+    public String getLIST_UUID() {
+        return LIST_UUID;
+    }
+
 }

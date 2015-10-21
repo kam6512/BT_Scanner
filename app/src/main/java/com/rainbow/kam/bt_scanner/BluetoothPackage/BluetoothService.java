@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +28,7 @@ import java.util.UUID;
 /**
  * Created by sion on 2015-10-14.
  */
-public class BluetoothService extends Service {
+public class BluetoothService extends Service implements Serializable {
 
     private static final String TAG = BluetoothService.class.getSimpleName();
 
@@ -147,7 +148,7 @@ public class BluetoothService extends Service {
         final Intent intent = new Intent(action);
 
 
-        if (getMyUuid.equals(characteristic.getUuid())) { //내 UUID와 Characteristicdml UUID일치
+        if (getMyUuid.equals(characteristic.getUuid())) { //내 UUID와 Characteristic의 UUID일치
             int flag = characteristic.getProperties();
             int format = -1;
             if ((flag & 0x01) != 0) {
@@ -161,7 +162,7 @@ public class BluetoothService extends Service {
             Log.d(TAG, String.format("Received value: %d", value));
             intent.putExtra(EXTRA_DATA, String.valueOf(value));
 
-        } else {    //내 UUID와 Characteristicdml UUID불일치
+        } else {    //내 UUID와 Characteristic의 UUID불일치
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
