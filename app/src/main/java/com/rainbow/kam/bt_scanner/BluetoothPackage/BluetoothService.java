@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -82,10 +83,15 @@ public class BluetoothService extends Service {
 
                 //브로드 캐스트를 업데이트
                 broadcastUpdate(intentAction);
+                new Handler(getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i(TAG, "Connected to GATT server.");
+                        Log.i(TAG, "Attempting to start service discovery:" +
+                                bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
+                    }
+                });
 
-                Log.i(TAG, "Connected to GATT server.");
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { //현재상태
                 intentAction = ACTION_GATT_DISCONNECTED;
@@ -230,7 +236,13 @@ public class BluetoothService extends Service {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
-        bluetoothGatt = device.connectGatt(this, false, mGattCallback);
+        new Handler(getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                bluetoothGatt = device.connectGatt(BluetoothService.this, false, mGattCallback);
+            }
+        });
+//        bluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         connectionState = STATE_CONNECTING;
@@ -238,6 +250,7 @@ public class BluetoothService extends Service {
     }
 
     //블루투스 연결 끊기
+
     public void disconnect() {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             refreshDeviceGattCache(bluetoothGatt);
@@ -299,7 +312,7 @@ public class BluetoothService extends Service {
 
     private boolean refreshDeviceGattCache(BluetoothGatt bluetoothGatt) {
         try {
-            Log.e(TAG,"refresh");
+            Log.e(TAG, "refresh");
             BluetoothGatt localGatt = bluetoothGatt;
             Method localMethod = localGatt.getClass().getMethod("refresh", new Class[0]);
             if (localMethod != null) {

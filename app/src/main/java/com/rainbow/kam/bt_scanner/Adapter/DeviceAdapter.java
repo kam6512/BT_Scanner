@@ -68,6 +68,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+//        super.onViewAttachedToWindow(holder);
+        Log.e(TAG, "onViewAttachedToWindow at " + holder.getLayoutPosition());
+    }
+
+    @Override
     public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         //디바이스의 커넥션 OFF
@@ -124,9 +130,15 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.BluetoothPackage.BluetoothService")) {
+                    boolean isServiceRun = new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.BluetoothPackage.BluetoothService");
+                    if (isServiceRun) {
+                        Log.e(TAG, "is Service Ruuning " + getLayoutPosition());
+                        extraName.setText("Gatt 서비스 리소스를 기다리는 중...");
+
                         handler.postDelayed(runnable, 2000);
+
                     } else {
+                        Log.e(TAG, "is Service Start " + getLayoutPosition());
                         startConnect();
                     }
                 }
@@ -136,6 +148,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private void startConnect() {
             if (extraAddress.getText() != null) {
+
+                if(extraName.getText().toString() == ""){
+                    extraName.setText("BLE 네임정보를 가져오는 중....");
+                }
 
                 //일단 null이 아니면 커넥션을 끊고
                 if (detailGatt != null) {
@@ -156,7 +172,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     @Override
                     public void run() {
                         if (detailGatt != null) {
-                            if (!detailGatt.connected) {
+                            if (!detailGatt.isDataFind) {
                                 stopConnect();
                                 detailGatt.destroy();
                                 startConnect();
@@ -167,7 +183,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         }
                     }
                 };
-                if(!detailGatt.connected){
+                if (!detailGatt.isDataFind) {
                     //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
                     new Handler().postDelayed(runnable, 10000);
                 }
@@ -180,5 +196,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 detailGatt.destroy();
             }
         }
+
+
     }
 }

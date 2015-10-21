@@ -42,6 +42,8 @@ public class DetailGatt {
     //연결 여부
     public boolean connected = false;
 
+    public boolean isDataFind = false;
+
     //블루투스 서비스의 BluetoothGattCharacteristic을 담을 리스트
     //ArrayList<서비스리스트 ArrayList<Characteristic>>구조이다.
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
@@ -71,9 +73,9 @@ public class DetailGatt {
         this.deviceAddress = deviceAddress;
         this.device.address.setText(this.deviceAddress);
 
-        if(this.device.extraName.getText().toString() == ""){
-            this.device.extraName.setText("BLE 네임정보를 가져오는 중....");
-        }
+//        if(this.device.extraName.getText().toString() == ""){
+//            this.device.extraName.setText("BLE 네임정보를 가져오는 중....");
+//        }
 
         this.device.dataField.setText("BLE 세부정보를 가져오는 중....");
     }
@@ -107,6 +109,7 @@ public class DetailGatt {
 
             } else if (BluetoothService.ACTION_GATT_DISCONNECTED.equals(action)) { //끊겼을 시
                 connected = false;
+                isDataFind = false;
                 updateConnectionState("disconnected");
 
                 clearUI();
@@ -115,6 +118,7 @@ public class DetailGatt {
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) { //Data가 유효할때
                 displayData(intent.getStringExtra(BluetoothService.EXTRA_DATA));
                 Log.e(TAG, intent.getStringExtra(BluetoothService.EXTRA_DATA));
+                isDataFind = true;
             }
         }
     };
