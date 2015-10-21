@@ -1,5 +1,8 @@
 package com.rainbow.kam.bt_scanner.Activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -9,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,9 +20,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,13 +36,12 @@ import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.BleTools;
-import com.rainbow.kam.bt_scanner.Tools.Sort;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.TreeSet;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "MainActivity"; //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1; //result 플래그
@@ -45,12 +53,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isScanning; //스캔중 여부
     private final long SCAN_PERIOD = 10000; //스캔시간
 
+    CoordinatorLayout coordinatorLayout;
+
     private RecyclerView recyclerView; //리사이클러 뷰
     private RecyclerView.Adapter adapter; //리사이클러 어댑터
     private ArrayList<DeviceItem> deviceItemArrayList = new ArrayList<DeviceItem>(); //어댑터 데이터 클래스(틀)
-    private Sort sort = new Sort(); //커스텀 정렬 클래스
 
-    private FloatingActionButton fabOn, fabSync, fabSortRssi, fabSortType, fabSortName; //버튼
+
+    private FloatingActionButton fabOn, fabSync; //버튼
     private ProgressBar progressBar;
     private TextView hasCard;
 
@@ -96,14 +106,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fabSync = (FloatingActionButton) findViewById(R.id.fab_sync);
         fabSync.setOnClickListener(this);
 
-        fabSortRssi = (FloatingActionButton) findViewById(R.id.fab_sort_rssi);
-        fabSortRssi.setOnClickListener(this);
-
-        fabSortType = (FloatingActionButton) findViewById(R.id.fab_sort_type);
-        fabSortType.setOnClickListener(this);
-
-        fabSortName = (FloatingActionButton) findViewById(R.id.fab_sort_name);
-        fabSortName.setOnClickListener(this);
 
         progressBar = (ProgressBar) findViewById(R.id.main_progress);
         progressBar.setVisibility(View.INVISIBLE);
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
     }
 
     @Override
@@ -265,6 +268,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        bluetoothAdapter.cancelDiscovery();
 //    }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fabSync.callOnClick();
+    }
+
     @Override
     protected void onDestroy() { //꺼짐
         super.onDestroy();
@@ -311,6 +321,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                             }
                         }).show();
+
                 break;
             case R.id.fab_sync: //블루투스 기기 찾기(4.0)
                 if (getScanning()) {  //스캔 시작
@@ -328,24 +339,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    registerReceiver(broadcastReceiver, intentFilter);
 //                    startScan();
                     scanLeDevice(true);
-                }
-                break;
-            case R.id.fab_sort_name:    //정렬 : 이름순
-                if (adapter != null) {
-                    Collections.sort(deviceItemArrayList, sort.COMPARATOR_NAME);
-                    adapter.notifyDataSetChanged();
-                }
-                break;
-            case R.id.fab_sort_type:    //정렬 : 타입순(숫자)
-                if (adapter != null) {
-                    Collections.sort(deviceItemArrayList, sort.COMPARATOR_TYPE);
-                    adapter.notifyDataSetChanged();
-                }
-                break;
-            case R.id.fab_sort_rssi:    //정렬 : 강도순(숫자)
-                if (adapter != null) {
-                    Collections.sort(deviceItemArrayList, sort.COMPARATOR_RSSI);
-                    adapter.notifyDataSetChanged();
                 }
                 break;
         }

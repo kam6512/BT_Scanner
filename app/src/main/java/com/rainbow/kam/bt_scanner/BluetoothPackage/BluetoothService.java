@@ -13,11 +13,13 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +28,7 @@ import java.util.UUID;
 /**
  * Created by sion on 2015-10-14.
  */
-public class BluetoothService extends Service {
+public class BluetoothService extends Service implements Serializable {
 
     private static final String TAG = BluetoothService.class.getSimpleName();
 
@@ -82,10 +84,15 @@ public class BluetoothService extends Service {
 
                 //브로드 캐스트를 업데이트
                 broadcastUpdate(intentAction);
+                new Handler(getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i(TAG, "Connected to GATT server.");
+                        Log.i(TAG, "Attempting to start service discovery:" +
+                                bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
+                    }
+                });
 
-                Log.i(TAG, "Connected to GATT server.");
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { //현재상태
                 intentAction = ACTION_GATT_DISCONNECTED;
@@ -141,7 +148,7 @@ public class BluetoothService extends Service {
         final Intent intent = new Intent(action);
 
 
-        if (getMyUuid.equals(characteristic.getUuid())) { //내 UUID와 Characteristicdml UUID일치
+        if (getMyUuid.equals(characteristic.getUuid())) { //내 UUID와 Characteristic의 UUID일치
             int flag = characteristic.getProperties();
             int format = -1;
             if ((flag & 0x01) != 0) {
@@ -155,7 +162,7 @@ public class BluetoothService extends Service {
             Log.d(TAG, String.format("Received value: %d", value));
             intent.putExtra(EXTRA_DATA, String.valueOf(value));
 
-        } else {    //내 UUID와 Characteristicdml UUID불일치
+        } else {    //내 UUID와 Characteristic의 UUID불일치
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -230,7 +237,13 @@ public class BluetoothService extends Service {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
-        bluetoothGatt = device.connectGatt(this, false, mGattCallback);
+        new Handler(getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                bluetoothGatt = device.connectGatt(BluetoothService.this, false, mGattCallback);
+            }
+        });
+//        bluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         connectionState = STATE_CONNECTING;
@@ -238,6 +251,7 @@ public class BluetoothService extends Service {
     }
 
     //블루투스 연결 끊기
+
     public void disconnect() {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             refreshDeviceGattCache(bluetoothGatt);
@@ -299,7 +313,7 @@ public class BluetoothService extends Service {
 
     private boolean refreshDeviceGattCache(BluetoothGatt bluetoothGatt) {
         try {
-            Log.e(TAG,"refresh");
+            Log.e(TAG, "refresh");
             BluetoothGatt localGatt = bluetoothGatt;
             Method localMethod = localGatt.getClass().getMethod("refresh", new Class[0]);
             if (localMethod != null) {

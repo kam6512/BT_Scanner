@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
 
@@ -51,45 +52,12 @@
         android:id="@+id/fab_sync"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="85dp"
-        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:src="@drawable/search_icon" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_sort_rssi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="155dp"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:src="@android:drawable/ic_lock_idle_low_battery" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_sort_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="225dp"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:src="@android:drawable/ic_menu_sort_by_size" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_sort_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="295dp"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:src="@android:drawable/ic_menu_sort_alphabetically" />
+        android:src="@drawable/search_icon"
+        app:layout_anchor="@id/main_coordinatorLayout"
+        app:layout_anchorGravity="bottom|start" />
 
     <ProgressBar
         android:id="@+id/main_progress"
