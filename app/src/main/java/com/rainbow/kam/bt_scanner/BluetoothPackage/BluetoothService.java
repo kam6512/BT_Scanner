@@ -22,7 +22,6 @@ import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -64,7 +63,7 @@ public class BluetoothService extends Service implements Serializable {
 
     //주소 String과 블루투스 Gatt
     private String mBluetoothDeviceAddress;
-    private BluetoothGatt bluetoothGatt;
+    public BluetoothGatt bluetoothGatt;
 
     //UUID 값 초기화
     public final static UUID getMyUuid = UUID.fromString(GattAttributes.UUID);
@@ -84,14 +83,14 @@ public class BluetoothService extends Service implements Serializable {
 
                 //브로드 캐스트를 업데이트
                 broadcastUpdate(intentAction);
-                new Handler(getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i(TAG, "Connected to GATT server.");
-                        Log.i(TAG, "Attempting to start service discovery:" +
-                                bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
-                    }
-                });
+
+                if (bluetoothGatt != null) {
+                    Log.i(TAG, "Connected to GATT server.");
+                    Log.i(TAG, "Attempting to start service discovery:" +
+                            bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
+                }else{
+                    onConnectionStateChange(gatt,BluetoothProfile.STATE_DISCONNECTED,BluetoothGatt.GATT_FAILURE);
+                }
 
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { //현재상태
@@ -120,7 +119,7 @@ public class BluetoothService extends Service implements Serializable {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
-            Log.i(TAG, "onCharacteristicRead GATT_SUCCESS.");
+            Log.i(TAG, "onCharacteristicRead GATT_SUCCESS and minning UUID.");
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
@@ -255,7 +254,7 @@ public class BluetoothService extends Service implements Serializable {
     public void disconnect() {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             refreshDeviceGattCache(bluetoothGatt);
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Log.w(TAG, "BluetoothAdapter not initialized_disconnect");
             return;
         }
 
@@ -277,7 +276,7 @@ public class BluetoothService extends Service implements Serializable {
     //Characteristic 읽기
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Log.w(TAG, "BluetoothAdapter not initialized_readCharacteristic");
             return;
         }
         //인자로 받은 Characteristic를 넘겨 가공시킨다
@@ -287,11 +286,8 @@ public class BluetoothService extends Service implements Serializable {
     //GATT 통지 수신
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
-
-        Log.w(TAG, "setCharacteristicNotification");
-
         if (bluetoothAdapter == null || bluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Log.w(TAG, "BluetoothAdapter not initialized_setCharacteristicNotification");
             return;
         }
         bluetoothGatt.setCharacteristicNotification(characteristic, enabled);
@@ -313,7 +309,7 @@ public class BluetoothService extends Service implements Serializable {
 
     private boolean refreshDeviceGattCache(BluetoothGatt bluetoothGatt) {
         try {
-            Log.e(TAG, "refresh");
+            Log.i(TAG, "refresh");
             BluetoothGatt localGatt = bluetoothGatt;
             Method localMethod = localGatt.getClass().getMethod("refresh", new Class[0]);
             if (localMethod != null) {

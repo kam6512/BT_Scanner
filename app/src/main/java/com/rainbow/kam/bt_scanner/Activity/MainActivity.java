@@ -1,8 +1,5 @@
 package com.rainbow.kam.bt_scanner.Activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -11,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,14 +16,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,10 +29,8 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.BleTools;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.TreeSet;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity"; //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1; //result 플래그
@@ -167,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
             Log.d(TAG, "Bluetooth isEnabled");
+            fabSync.callOnClick();
             return true;
         } else {    //블루투스 구동
             Log.d(TAG, "Bluetooth start");
@@ -238,7 +228,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     Log.e(TAG, device.getName() + " / " + device.getAddress() + " / " + device.getType() + " / " + device.getBondState() + " / " + device.getBluetoothClass() + " / ");
 
-                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                    try {
+                        if (deviceName.equals("Prime")) {
+                            deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                        }
+                    } catch (Exception e) {
+
+                    }
+
+//                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                     for (int i = 0; i < deviceItemArrayList.size(); i++) {
                         for (int j = 1; j < deviceItemArrayList.size(); j++) {
                             if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
@@ -252,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
 
                     }
+//                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                 }
             });
 
@@ -272,7 +271,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        fabSync.callOnClick();
+//        fabSync.callOnClick();
+
     }
 
     @Override

@@ -3,8 +3,6 @@ package com.rainbow.kam.bt_scanner.Adapter;
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -41,8 +39,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Context context; //컨택스트
     private Activity activity; //액티비티
     private View view; //SnackBar대비 뷰
-    int listLength;
-    Device[] devices;
+    private int listLength;
+    private Device[] devices;
+
+    private boolean isServiceHandling = false;
 
     public DeviceAdapter(ArrayList<DeviceItem> deviceItemArrayList, Activity activity, Context context, View view, int listLength) { //초기화
         this.deviceItemArrayList = deviceItemArrayList;
@@ -55,28 +55,34 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.e(TAG, "onCreateViewHolder");
-        return new Device(LayoutInflater.from(parent.getContext()).inflate(R.layout.bluetooth_device_item, parent, false));
-
+//        return new Device(LayoutInflater.from(parent.getContext()).inflate(R.layout.bluetooth_device_item, parent, false));
+        Device device;
+        View root;
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        root = layoutInflater.inflate(R.layout.bluetooth_device_item, parent, false);
+        device = new Device(root);
+        return device;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        //뷰홀더 적용
+//        //뷰홀더 적용
         devices[position] = (Device) holder;
+//
+//        //각각의 뷰 속성 적용
+//        devices[position].extraName.setText(deviceItemArrayList.get(position).getExtraName());
+//        devices[position].extraAddress.setText(deviceItemArrayList.get(position).getExtraextraAddress());
+//        devices[position].extraBondState.setText(String.valueOf(deviceItemArrayList.get(position).getExtraBondState()));
+//        devices[position].extraType.setText(String.valueOf(deviceItemArrayList.get(position).getExtraType()));
+//        devices[position].extraRssi.setText(String.valueOf(deviceItemArrayList.get(position).getExtraRssi()));
 
-        //각각의 뷰 속성 적용
-        devices[position].extraName.setText(deviceItemArrayList.get(position).getExtraName());
-        devices[position].extraAddress.setText(deviceItemArrayList.get(position).getExtraextraAddress());
-        devices[position].extraBondState.setText(String.valueOf(deviceItemArrayList.get(position).getExtraBondState()));
-        devices[position].extraType.setText(String.valueOf(deviceItemArrayList.get(position).getExtraType()));
-        devices[position].extraRssi.setText(String.valueOf(deviceItemArrayList.get(position).getExtraRssi()));
+        devices[position].bindViews(deviceItemArrayList.get(position));
+
     }
 
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
 //        super.onViewAttachedToWindow(holder);
-        Log.e(TAG, "onViewAttachedToWindow at " + holder.getLayoutPosition());
     }
 
     @Override
@@ -86,23 +92,17 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         devices[holder.getLayoutPosition()].stopConnect();
     }
 
-
     @Override
     public int getItemCount() {
         return deviceItemArrayList.size();
     }
 
+
     public class Device extends RecyclerView.ViewHolder { //뷰 초기화
 
         private DetailGatt detailGatt;
 
-        private ExpandableListView expandableListView;
-
-        BluetoothService bluetoothService;
-        ArrayList<ArrayList<BluetoothGattCharacteristic>> gattCharacteristics;
-        BluetoothGattCharacteristic notifyCharacteristic;
-        ArrayList<HashMap<String, String>> gattServiceData;
-        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData;
+//        public ExpandableListView expandableListView;
 
         private CardView cardView;
 
@@ -122,10 +122,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public Device(View itemView) {
             super(itemView);
 
-            Log.e(TAG, "leScanCallback  " + "start item");
             cardView = (CardView) itemView.findViewById(R.id.card);
 
-            expandableListView = (ExpandableListView) itemView.findViewById(R.id.gatt_services_list);
+//            expandableListView = (ExpandableListView) itemView.findViewById(R.id.gatt_services_list);
 
             extraName = (TextView) itemView.findViewById(R.id.item_name);
             extraAddress = (TextView) itemView.findViewById(R.id.item_address);
@@ -146,7 +145,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void run() {
                     boolean isServiceRun = new ServiceCheck().BtnSVC_Run(context, "com.rainbow.kam.bt_scanner.BluetoothPackage.BluetoothService");
-                    if (isServiceRun) {
+                    if (isServiceRun || isServiceHandling) {
                         Log.e(TAG, "is Service Ruuning " + getLayoutPosition());
                         if (extraName.getText().toString() == "") {
                             extraName.setText("Gatt 서비스 리소스를 기다리는 중...");
@@ -154,6 +153,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         handler.postDelayed(runnable, 2000);
 
                     } else {
+                        isServiceHandling = true;
                         Log.e(TAG, "is Service Start " + getLayoutPosition());
 
                         if (extraName.getText().toString() == "") {
@@ -171,113 +171,25 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onClick(View v) {
                     if ((detailGatt != null) && detailGatt.isDataFind) {
+//                        stopConnect();
+//                        setAdapter();
 
-                        setAdapter();
                     }
 
                 }
             });
         }
 
-        private void setAdapter() {
+        public void bindViews(DeviceItem deviceItem) {
+            //각각의 뷰 속성 적용
+            extraName.setText(deviceItem.getExtraName());
+            extraAddress.setText(deviceItem.getExtraextraAddress());
+            extraBondState.setText(String.valueOf(deviceItem.getExtraBondState()));
+            extraType.setText(String.valueOf(deviceItem.getExtraType()));
+            extraRssi.setText(String.valueOf(deviceItem.getExtraRssi()));
 
-            bluetoothService = detailGatt.getBluetoothService();
-            gattCharacteristics = detailGatt.getGattCharacteristics();
-            notifyCharacteristic = detailGatt.getNotifyCharacteristic();
-            gattServiceData = detailGatt.getGattServiceData();
-            gattCharacteristicData = detailGatt.getGattCharacteristicData();
-
-            String name = detailGatt.getLIST_NAME();
-            String uuid = detailGatt.getLIST_UUID();
-
-            if (name == null || uuid == null || bluetoothService == null || gattCharacteristics == null || notifyCharacteristic == null || gattServiceData == null || gattCharacteristicData == null) {
-                Toast.makeText(activity, "fail init", Toast.LENGTH_LONG).show();
-                if (name == null) {
-                    Log.e("Detail", "name is null");
-                }
-                if (uuid == null) {
-                    Log.e("Detail", "name is uuid");
-                }
-                if (bluetoothService == null) {
-                    Log.e("Detail", "name is bluetoothService");
-                }
-                if (gattCharacteristics == null) {
-                    Log.e("Detail", "name is gattCharacteristics");
-                }
-                if (notifyCharacteristic == null) {
-                    Log.e("Detail", "name is notifyCharacteristic");
-                }
-                if (gattServiceData == null) {
-                    Log.e("Detail", "name is gattServiceData");
-                }
-                if (gattCharacteristicData == null) {
-                    Log.e("Detail", "name is gattCharacteristicData");
-                }
-
-            }
-
-            expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                @Override
-                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-//                    if (gattCharacteristics != null) {
-//                        final BluetoothGattCharacteristic bluetoothGattCharacteristic = gattCharacteristics.get(groupPosition).get(childPosition);
-//                        final int charaProp = bluetoothGattCharacteristic.getProperties();
-//
-//                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-//                            if (notifyCharacteristic != null) {
-//                                bluetoothService.setCharacteristicNotification(notifyCharacteristic, false);
-//                                notifyCharacteristic = null;
-//                            }
-//                            bluetoothService.readCharacteristic(bluetoothGattCharacteristic);
-//                        }
-//                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-//                            notifyCharacteristic = bluetoothGattCharacteristic;
-//                            bluetoothService.setCharacteristicNotification(bluetoothGattCharacteristic, true);
-//                        }
-//                        return true;
-//                    }
-//                    return false;
-                    Log.e(TAG, " click ");
-                    if (gattCharacteristics != null) {
-                        final BluetoothGattCharacteristic characteristic =
-                                gattCharacteristics.get(groupPosition).get(childPosition);
-                        final int charaProp = characteristic.getProperties();
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
-                            if (notifyCharacteristic != null) {
-                                bluetoothService.setCharacteristicNotification(
-                                        notifyCharacteristic, false);
-                                notifyCharacteristic = null;
-                            }
-                            bluetoothService.readCharacteristic(characteristic);
-                        }
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                            notifyCharacteristic = characteristic;
-                            bluetoothService.setCharacteristicNotification(
-                                    characteristic, true);
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-            });
-
-            SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(
-                    activity,
-                    gattServiceData,
-                    android.R.layout.simple_expandable_list_item_2,
-                    new String[]{name, uuid},
-                    new int[]{android.R.id.text1, android.R.id.text2},
-                    gattCharacteristicData,
-                    android.R.layout.simple_expandable_list_item_2,
-                    new String[]{name, uuid},
-                    new int[]{android.R.id.text1, android.R.id.text2}
-            );
-
-
-            expandableListView.setAdapter(gattServiceAdapter);
         }
+
 
         private void startConnect() {
             if (extraAddress.getText() != null) {
@@ -301,10 +213,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 runnable = new Runnable() {
                     @Override
                     public void run() {
-                        if (detailGatt != null) {
+                        if (detailGatt != null && detailGatt.isBluetoothServiceClosed == true) {
                             if (!detailGatt.isDataFind) {
                                 stopConnect();
-                                detailGatt.destroy();
                                 startConnect();
                             }
                         } else {
@@ -315,7 +226,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 };
                 if (!detailGatt.isDataFind) {
                     //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
-                    new Handler().postDelayed(runnable, 10000);
+                    new Handler().postDelayed(runnable, 5000);
+                } else {
+                    isServiceHandling = false;
                 }
             }
         }
@@ -323,8 +236,15 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         //커넥션 OFF
         private void stopConnect() {
             if (detailGatt != null) {
+                Log.e(TAG, " stopConnect ");
                 detailGatt.destroy();
+                handler.removeCallbacks(runnable);
+
             }
+        }
+        public void stopHandling(){
+            Log.e(TAG, " stopHandling ");
+            isServiceHandling = false;
         }
 
 
