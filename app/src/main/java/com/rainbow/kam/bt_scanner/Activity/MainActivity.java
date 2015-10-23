@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+
                         isScanning = false;
                         bluetoothAdapter.stopLeScan(leScanCallback);
                         progressBar.setVisibility(View.INVISIBLE);
@@ -187,8 +188,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (deviceItemArrayList.size() < 1) {
                             hasCard.setVisibility(View.VISIBLE);
                         }
-
-                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, getApplicationContext(), getWindow().getDecorView(), deviceItemArrayList.size());
+                        adapter = null;
+                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, MainActivity.this, getWindow().getDecorView(), deviceItemArrayList.size());
                         recyclerView.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
                     }
@@ -282,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        unregisterReceiver(broadcastReceiver);
 //        stopScan();
         scanLeDevice(false);
+        adapter = null;
     }
 
     @Override

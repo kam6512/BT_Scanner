@@ -46,6 +46,7 @@ public class DetailGatt {
     private boolean connected = false;
     public boolean isBluetoothServiceClosed = true;
     public boolean isDataFind = false;
+//    public boolean flag = false;
 
     //블루투스 서비스의 BluetoothGattCharacteristic을 담을 리스트
     //ArrayList<서비스리스트 ArrayList<Characteristic>>구조이다.
@@ -60,6 +61,8 @@ public class DetailGatt {
     private final String LIST_UUID = "UUID";
 
     private Intent gattServiceIntent;
+
+    int index = 0;
 
 
     public DetailGatt(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
@@ -84,8 +87,6 @@ public class DetailGatt {
 //        }
 
         this.device.dataField.setText("BLE 세부정보를 가져오는 중....");
-
-        device.expandableListView.setOnChildClickListener(onChildClickListener);
     }
 
     //서비스와 상호작용하기위한 서비스 커넥션
@@ -122,17 +123,25 @@ public class DetailGatt {
                 updateConnectionState("disconnected");
                 clearUI();
             } else if (BluetoothService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) { //Find!
-                setGattServices(bluetoothService.getSupportedGattServices());
+                if (bluetoothService != null) {
+                    setGattServices(bluetoothService.getSupportedGattServices());
+                }
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) { //Data가 유효할때
-
+                Log.e("ACTION_DATA_AVAILABLE", index + " //===================================================================");
+                Log.e("ACTION_DATA_AVAILABLE", intent.getStringExtra(BluetoothService.EXTRA_DATA));
                 displayData(intent.getStringExtra(BluetoothService.EXTRA_DATA));
-//                Log.e(TAG, intent.getStringExtra(BluetoothService.EXTRA_DATA));
-                isDataFind = true;
+//                isDataFind = true;
+//                flag = true;
+                synchronized (showBlueToothStat) {
+                    Log.e("showBlueToothStat", "notify");
+                    showBlueToothStat.notifyAll();
+                }
+
             }
         }
     };
 
-    SimpleExpandableListAdapter gattServiceAdapter;
+    private SimpleExpandableListAdapter gattServiceAdapter;
 
     private final ExpandableListView.OnChildClickListener onChildClickListener = new ExpandableListView.OnChildClickListener() {
         @Override
@@ -166,7 +175,6 @@ public class DetailGatt {
     //끊기거나 데이터가 없을시
     private void clearUI() {
 //        address.setText("no Add");
-        device.expandableListView.setAdapter((SimpleExpandableListAdapter) null);
         device.dataField.setText("데이터 누락됨, 재시도 중...");
         destroy(); //끄기
     }
@@ -186,11 +194,13 @@ public class DetailGatt {
 
         if (data != null) {
             if (connected) {
+
+//                device.stopHandling();
                 Log.e("data", data + "/");
                 device.dataField.setText(data); //추가!
                 device.extraName.setText(data.substring(0, data.indexOf("\n")));
-                destroy(); //끄기
-                device.stopHandling();
+//                destroy(); //끄기
+
             }
         }
     }
@@ -232,11 +242,10 @@ public class DetailGatt {
     public void destroy() {
         if (bluetoothService != null) {
             //커넥션 OFF
-            bluetoothService.disconnect();
-            //BlueTooth서비스에 onDestroy는 아무 기능이 없는거 같지만 그래도 한다.
-            bluetoothService.onDestroy();
+
             bluetoothService.close();
-//            bluetoothService = null;
+            bluetoothService.disconnect();
+            bluetoothService = null;
             isBluetoothServiceClosed = true;
             try {
                 //BR 해제
@@ -331,41 +340,77 @@ public class DetailGatt {
 
 //        device.expandableListView.setAdapter(gattServiceAdapter);
 
-        showBlueToothStat(gattCharacteristicData); //서비스리스트를 인자로 넘겨 호출
-
+//        showBlueToothStat(gattCharacteristicData); //서비스리스트를 인자로 넘겨 호출
+        showBlueToothStat.start();
     }
 
-    void showBlueToothStat(ArrayList<ArrayList<HashMap<String, String>>> data) {
-        if (rootGattCharacteristics != null) { //Characteristic리스트가 들어간 루트리스트가 살아있으면
+    Thread showBlueToothStat = new Thread() {
 
-            for (int i = 0; i < data.size(); i++) {
-                for (int j = 0; j < data.get(i).size(); j++) {
+        @Override
+        public void run() {
+            super.run();
 
-                    final BluetoothGattCharacteristic characteristic =
-                            rootGattCharacteristics.get(i).get(j); //배열에서 가져오기
+            if (rootGattCharacteristics != null) { //Characteristic리스트가 들어간 루트리스트가 살아있으면
+                Log.e("showBlueToothStat", "start");
+                for (int i = 0; i < gattCharacteristicData.size(); i++) {
+                    ++index;
+                    Log.e("showBlueToothStat", i + " = data.index");
+                    for (int j = 0; j < gattCharacteristicData.get(i).size(); j++) {
+                        Log.e("showBlueToothStat", j + "is " + " data[" + i + "].index");
 
-                    final int charaProp = characteristic.getProperties();
+//                        if (i == gattCharacteristicData.size()) {
+//                            showBlueToothStat.interrupt();
+//                                return;
+//                        }
 
-                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                        if (notifyCharacteristic != null) {
-                            bluetoothService.setCharacteristicNotification(
-                                    notifyCharacteristic, false);
-                            notifyCharacteristic = null;
-                        }
-                        bluetoothService.readCharacteristic(characteristic);
+                        final BluetoothGattCharacteristic characteristic =
+                                rootGattCharacteristics.get(i).get(j); //배열에서 가져오기
+                        final int charaProp = characteristic.getProperties();
+
+                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                            if (notifyCharacteristic != null) {
+                                bluetoothService.setCharacteristicNotification(
+                                        notifyCharacteristic, false);
+                                notifyCharacteristic = null;
+                            }
+                            bluetoothService.readCharacteristic(characteristic);
 //                        Log.e("showBlueToothStat", String.valueOf(characteristic.getValue()));
-                    }
-                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                        notifyCharacteristic = characteristic;
-                        bluetoothService.setCharacteristicNotification(
-                                characteristic, true);
+                        }
+                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            notifyCharacteristic = characteristic;
+                            bluetoothService.setCharacteristicNotification(
+                                    characteristic, true);
 //                        Log.e("showBlueToothStat", "set");
+                        }
+                        synchronized (showBlueToothStat) {
+                            try {
+
+                                Log.e("showBlueToothStat", "wait");
+                                showBlueToothStat.wait();
+
+                            } catch (Exception e) {
+
+                            }
+                        }
                     }
+                    Log.e("showBlueToothStat", "end");
+                    device.stopHandling();
+                    DetailGatt.this.destroy();
+                    isDataFind = true;
+                    return;
                 }
+
             }
         }
+    };
 
 
+    public SimpleExpandableListAdapter getGattServiceAdapter() {
+        return gattServiceAdapter;
+    }
+
+    public ExpandableListView.OnChildClickListener getOnChildClickListener() {
+        return onChildClickListener;
     }
 
 

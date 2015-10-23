@@ -3,7 +3,9 @@ package com.rainbow.kam.bt_scanner.Adapter;
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +17,7 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rainbow.kam.bt_scanner.Activity.DetailActivity;
 import com.rainbow.kam.bt_scanner.BluetoothPackage.BluetoothService;
 import com.rainbow.kam.bt_scanner.BluetoothPackage.DetailGatt;
 import com.rainbow.kam.bt_scanner.R;
@@ -29,7 +32,7 @@ import java.util.HashMap;
 public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     //태그
-    private static final String TAG = "DetailGatt";
+    private static final String TAG = "DeviceAdapter";
 
     //고정 네임
     public static final String DEVICE_NAME = "DEVICE_NAME";
@@ -44,18 +47,24 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private boolean isServiceHandling = false;
 
+    public static SimpleExpandableListAdapter[] simpleExpandableListAdapter = null;
+    public static ExpandableListView.OnChildClickListener[] onChildClickListener = null;
+
     public DeviceAdapter(ArrayList<DeviceItem> deviceItemArrayList, Activity activity, Context context, View view, int listLength) { //초기화
         this.deviceItemArrayList = deviceItemArrayList;
         this.activity = activity;
         this.context = context;
         this.view = view;
         this.listLength = listLength;
+        simpleExpandableListAdapter = new SimpleExpandableListAdapter[this.listLength];
+        onChildClickListener = new ExpandableListView.OnChildClickListener[this.listLength];
         devices = new Device[this.listLength];
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 //        return new Device(LayoutInflater.from(parent.getContext()).inflate(R.layout.bluetooth_device_item, parent, false));
+
         Device device;
         View root;
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
@@ -68,7 +77,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 //        //뷰홀더 적용
         devices[position] = (Device) holder;
-//
+
 //        //각각의 뷰 속성 적용
 //        devices[position].extraName.setText(deviceItemArrayList.get(position).getExtraName());
 //        devices[position].extraAddress.setText(deviceItemArrayList.get(position).getExtraextraAddress());
@@ -97,6 +106,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return deviceItemArrayList.size();
     }
 
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+    }
 
     public class Device extends RecyclerView.ViewHolder { //뷰 초기화
 
@@ -118,6 +131,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private Handler handler;
         private Runnable runnable;
+
 
         public Device(View itemView) {
             super(itemView);
@@ -150,7 +164,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         if (extraName.getText().toString() == "") {
                             extraName.setText("Gatt 서비스 리소스를 기다리는 중...");
                         }
-                        handler.postDelayed(runnable, 2000);
+                        if (!(getLayoutPosition() < 0)) {
+                            handler.postDelayed(runnable, 2000);
+                        }
+
 
                     } else {
                         isServiceHandling = true;
@@ -171,8 +188,18 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onClick(View v) {
                     if ((detailGatt != null) && detailGatt.isDataFind) {
-//                        stopConnect();
-//                        setAdapter();
+                        if (simpleExpandableListAdapter == null || onChildClickListener == null) {
+                            Log.e(TAG, "hasNull");
+                        } else {
+//                            DetailActivity detailActivity = new DetailActivity(simpleExpandableListAdapter, onChildClickListener);
+////                            activity.startActivity(new Intent(activity, detailActivity.getClass()));
+//                             context.startActivity(new Intent(context,detailActivity.getClass()));
+
+                            Intent i = new Intent(context, DetailActivity.class);
+                            i.putExtra("position", getLayoutPosition());
+                            context.startActivity(i);
+                        }
+
 
                     }
 
@@ -215,7 +242,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     public void run() {
                         if (detailGatt != null && detailGatt.isBluetoothServiceClosed == true) {
                             if (!detailGatt.isDataFind) {
-                                stopConnect();
+
                                 startConnect();
                             }
                         } else {
@@ -228,6 +255,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     //정보를 받아 오지 못하면 핸들러로 5초마다 재 커넥션
                     new Handler().postDelayed(runnable, 5000);
                 } else {
+
+
                     isServiceHandling = false;
                 }
             }
@@ -242,9 +271,25 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             }
         }
-        public void stopHandling(){
+
+        public void stopHandling() {
             Log.e(TAG, " stopHandling ");
+            if (simpleExpandableListAdapter == null) {
+                Log.e(TAG, " simpleExpandableListAdapter is null ");
+            } else if (onChildClickListener == null) {
+                Log.e(TAG, " onChildClickListener is null ");
+            } else if (detailGatt.getGattServiceAdapter() == null) {
+                Log.e(TAG, " onChildClickListener is null ");
+            } else if (detailGatt.getOnChildClickListener() == null) {
+                Log.e(TAG, " onChildClickListener is null ");
+            } else {
+                simpleExpandableListAdapter[getLayoutPosition()] = detailGatt.getGattServiceAdapter();
+                onChildClickListener[getLayoutPosition()] = detailGatt.getOnChildClickListener();
+            }
+
+
             isServiceHandling = false;
+            stopConnect();
         }
 
 
