@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Adapter;
+package com.rainbow.kam.bt_scanner.Adapter.MainAdapter;
 
 /**
  * Created by sion on 2015-10-14.

@@ -15,17 +15,17 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 
-import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DetailGatt {
+public class DetailGattAuto {
 
     //태그
-    private static final String TAG = "DetailGatt";
+    private static final String TAG = "DetailGattAuto";
 
     //고정 네임
     private static final String DEVICE_NAME = "DEVICE_NAME";
@@ -65,28 +65,13 @@ public class DetailGatt {
     int index = 0;
 
 
-    public DetailGatt(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
+    public DetailGattAuto(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
         //액티비티 / 컨택스트
         this.activity = activity;
         this.context = context;
 
         this.device = device;
-        //뷰 - 메모리 참조 주소가 동일해서 new시킨 Device객체에 적용하는 방향으로 넘어갔다
-        //브로드캐스트의 관리 필요 - bind의 특성 확인.
-        this.device.state.setText(device.state.getText().toString());
-        this.device.address.setText(device.address.getText().toString());
-        this.device.dataField.setText(device.dataField.getText().toString());
 
-        //값
-        this.deviceState = deviceState;
-        this.deviceAddress = deviceAddress;
-        this.device.address.setText(this.deviceAddress);
-
-//        if(this.device.extraName.getText().toString() == ""){
-//            this.device.extraName.setText("BLE 네임정보를 가져오는 중....");
-//        }
-
-        this.device.dataField.setText("BLE 세부정보를 가져오는 중....");
     }
 
     //서비스와 상호작용하기위한 서비스 커넥션
@@ -174,8 +159,6 @@ public class DetailGatt {
 
     //끊기거나 데이터가 없을시
     private void clearUI() {
-//        address.setText("no Add");
-        device.dataField.setText("데이터 누락됨, 재시도 중...");
         destroy(); //끄기
     }
 
@@ -184,7 +167,7 @@ public class DetailGatt {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                device.state.setText(resourceId);
+//                device.state.setText(resourceId);
             }
         });
     }
@@ -197,8 +180,6 @@ public class DetailGatt {
 
 //                device.stopHandling();
                 Log.e("data", data + "/");
-                device.dataField.setText(data); //추가!
-                device.extraName.setText(data.substring(0, data.indexOf("\n")));
 //                destroy(); //끄기
 
             }
@@ -394,8 +375,8 @@ public class DetailGatt {
                         }
                     }
                     Log.e("showBlueToothStat", "end");
-                    device.stopHandling();
-                    DetailGatt.this.destroy();
+//                    device.stopHandling();
+                    DetailGattAuto.this.destroy();
                     isDataFind = true;
                     return;
                 }

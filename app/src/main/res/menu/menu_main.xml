@@ -1,6 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_scan"
+            android:icon="@drawable/ic_menu"
+            android:title="스캔"></item>
+    </group>
+
+    <item android:title="HELP">
+        <menu>
+            <item
+                android:id="@+id/nav_link1"
+                android:icon="@drawable/ic_link"
+                android:title="링크"/>
+            <item
+                android:id="@+id/nav_link2"
+                android:icon="@drawable/ic_link"
+                android:title="링크"/>
+        </menu>
+    </item>
+
 </menu>

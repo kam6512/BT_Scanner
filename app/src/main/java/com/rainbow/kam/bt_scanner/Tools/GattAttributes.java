@@ -16,7 +16,9 @@
 
 package com.rainbow.kam.bt_scanner.Tools;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class GattAttributes { //샘플을 참고함
 
@@ -32,5 +34,62 @@ public class GattAttributes { //샘플을 참고함
     public static String lookup(String uuid, String defaultName) {
         String name = attributes.get(uuid);
         return name == null ? defaultName : name;
+    }
+
+
+    public static String getService(String postKey) {
+        HashMap<String, String> serviceList = new HashMap<String, String>();
+        serviceList.put("00001800", "Generic Access");
+        serviceList.put("00001800", "Generic Access");
+        serviceList.put("0000180a", "Device Information");
+        serviceList.put("0000180f", "Battery Service");
+        serviceList.put("0000feba", "Unknown Service");
+        serviceList.put("0000fff0", "Unknown Service");
+
+        Iterator<String> stringIterator = serviceList.keySet().iterator();
+        while (stringIterator.hasNext()) {
+            String getKey = stringIterator.next();
+            if (getKey.equals(postKey)) {
+                String value = serviceList.get(getKey);
+                return value;
+            }
+        }
+        return "N/A";
+    }
+
+    public static String getCharacteristic(String postKey) {
+        HashMap<String, String> characteristicList = new HashMap<String, String>();
+        characteristicList.put("00002a00", "Device Name");
+        characteristicList.put("00002a01", "Appearance");
+        characteristicList.put("00002a04", "Peripheral Preferred Connection Parameters");
+
+        characteristicList.put("00002a29", "Manufacturer Name String");
+        characteristicList.put("00002a24", "Model Number String");
+        characteristicList.put("00002a25", "Serial Number String");
+        characteristicList.put("00002a27", "Hardware Revision String");
+        characteristicList.put("00002a26", "Firmware Revision String");
+        characteristicList.put("00002a28", "Software Revision String");
+
+        characteristicList.put("00002a19", "Battery Level");
+
+        characteristicList.put("0000fa10", "Unknown Characteristic");
+        characteristicList.put("0000fa11", "Unknown Characteristic");
+
+        characteristicList.put("0000fff2", "Unknown Characteristic");
+        characteristicList.put("0000fff1", "Unknown Characteristic");
+        characteristicList.put("0000fff4", "Unknown Characteristic");
+        characteristicList.put("0000fff3", "Unknown Characteristic");
+        characteristicList.put("0000fff5", "Unknown Characteristic");
+
+
+        Iterator<String> stringIterator = characteristicList.keySet().iterator();
+        while (stringIterator.hasNext()) {
+            String getKey = stringIterator.next();
+            if (getKey.equals(postKey)) {
+                String value = characteristicList.get(getKey);
+                return value;
+            }
+        }
+        return "N/A";
     }
 }
