@@ -90,6 +90,8 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 if (rootGattCharacteristics != null) {
+                    i = groupPosition;
+                    j = childPosition;
                     final BluetoothGattCharacteristic characteristic =
                             rootGattCharacteristics.get(groupPosition).get(childPosition);
                     final int charaProp = characteristic.getProperties();
@@ -172,7 +174,7 @@ public class DetailActivity extends AppCompatActivity {
                     setGattServices(bluetoothService.getSupportedGattServices());
                 }
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) { //Data가 유효할때
-                Log.e("ACTION_DATA_AVAILABLE", intent.getStringExtra(BluetoothService.EXTRA_DATA));
+//                Log.e("ACTION_DATA_AVAILABLE", intent.getStringExtra(BluetoothService.EXTRA_DATA));
                 displayData(intent.getStringExtra(BluetoothService.EXTRA_DATA));
 
 
@@ -203,14 +205,17 @@ public class DetailActivity extends AppCompatActivity {
 
         if (data != null) {
             if (connected) {
+                String hex = data.substring(data.indexOf("\n"), data.length());
+
                 try {
                     gattData[i][j] = data;
+
                 } catch (Exception e) {
 
                 }
 
 //                device.stopHandling();
-                Log.e("data", data + "/");
+                Log.e("data", data + " / " + hex);
 //                destroy(); //끄기
 
             }
@@ -293,7 +298,7 @@ public class DetailActivity extends AppCompatActivity {
 
         }
 
-        gattData = new String[gattServiceData.size()][gattCharacteristicData.size()];
+        gattData = new String[10][10];
 //        simpleExpandableListAdapter = new SimpleExpandableListAdapter(this,
 //                gattServiceData,
 //                android.R.layout.simple_expandable_list_item_2,
@@ -305,25 +310,7 @@ public class DetailActivity extends AppCompatActivity {
 //                new int[]{android.R.id.text1, android.R.id.text2}
 //        );
 //
-//        detailExpandableAdapter = new DetailExpandableAdapter(this,
-//                gattServiceData,
-//                R.layout.detail_bluetooth_service_item,
-//                new String[]{LIST_NAME, LIST_UUID},
-//                new int[]{R.id.detail_parent_list_item_service_title, R.id.detail_parent_list_item_service_UUID},
-//                gattCharacteristicData,
-//                R.layout.detail_bluetooth_characteristics_item,
-//                new String[]{LIST_NAME, LIST_UUID},
-//                new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID});
 
-
-//        simpleExpandableListAdapter.notifyDataSetChanged();
-//        expandableListView.setAdapter(detailExpandableAdapter);
-//        expandableListView.setOnChildClickListener(onChildClickListener);
-//        expandableListView.expandGroup(0);
-//        expandableListView.expandGroup(1);
-//        expandableListView.expandGroup(2);
-//        expandableListView.expandGroup(3);
-//        expandableListView.expandGroup(4);
         showBlueToothStat.start();
     }
 
@@ -363,8 +350,44 @@ public class DetailActivity extends AppCompatActivity {
                         synchronized (showBlueToothStat) {
                             try {
 
-                                Log.e("showBlueToothStat", "wait");
-                                showBlueToothStat.wait();
+                                if (i == 3 && j == 0) {
+                                    Log.e("showBlueToothStat", "end");
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            detailExpandableAdapter = new DetailExpandableAdapter(DetailActivity.this,
+                                                    gattServiceData,
+                                                    R.layout.detail_bluetooth_service_item,
+                                                    new String[]{LIST_NAME, LIST_UUID},
+                                                    new int[]{R.id.detail_parent_list_item_service_title, R.id.detail_parent_list_item_service_UUID},
+                                                    gattCharacteristicData,
+                                                    R.layout.detail_bluetooth_characteristics_item,
+                                                    new String[]{LIST_NAME, LIST_UUID},
+                                                    new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData);
+
+
+                                            detailExpandableAdapter.notifyDataSetChanged();
+                                            expandableListView.setAdapter(detailExpandableAdapter);
+                                            expandableListView.setOnChildClickListener(onChildClickListener);
+                                            expandableListView.expandGroup(0);
+                                            expandableListView.expandGroup(1);
+                                            expandableListView.expandGroup(2);
+                                            expandableListView.expandGroup(3);
+                                            expandableListView.expandGroup(4);
+                                            Log.e("showBlueToothStat", detailExpandableAdapter.isChildSelectable(0, 0) + " / " +
+                                                    detailExpandableAdapter.areAllItemsEnabled());
+
+                                            showBlueToothStat.interrupt();
+                                        }
+                                    });
+
+                                } else {
+
+                                    Log.e("showBlueToothStat", "wait" + i + " < " + gattCharacteristicData.size() + " / " + j + " < " + gattCharacteristicData.get(i).size());
+                                    showBlueToothStat.wait();
+                                }
+
 
                             } catch (Exception e) {
 
@@ -374,29 +397,28 @@ public class DetailActivity extends AppCompatActivity {
                 }
 
 
-                detailExpandableAdapter = new DetailExpandableAdapter(DetailActivity.this,
-                        gattServiceData,
-                        R.layout.detail_bluetooth_service_item,
-                        new String[]{LIST_NAME, LIST_UUID},
-                        new int[]{R.id.detail_parent_list_item_service_title, R.id.detail_parent_list_item_service_UUID},
-                        gattCharacteristicData,
-                        R.layout.detail_bluetooth_characteristics_item,
-                        new String[]{LIST_NAME, LIST_UUID},
-                        new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID},
-                        gattData);
-
-                simpleExpandableListAdapter.notifyDataSetChanged();
-                expandableListView.setAdapter(detailExpandableAdapter);
-                expandableListView.setOnChildClickListener(onChildClickListener);
-                expandableListView.expandGroup(0);
-                expandableListView.expandGroup(1);
-                expandableListView.expandGroup(2);
-                expandableListView.expandGroup(3);
-                expandableListView.expandGroup(4);
-
-
-                showBlueToothStat.stop();
-                showBlueToothStat.interrupt();
+//                detailExpandableAdapter = new DetailExpandableAdapter(DetailActivity.this,
+//                        gattServiceData,
+//                        R.layout.detail_bluetooth_service_item,
+//                        new String[]{LIST_NAME, LIST_UUID},
+//                        new int[]{R.id.detail_parent_list_item_service_title, R.id.detail_parent_list_item_service_UUID},
+//                        gattCharacteristicData,
+//                        R.layout.detail_bluetooth_characteristics_item,
+//                        new String[]{LIST_NAME, LIST_UUID},
+//                        new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData);
+//
+//
+//                detailExpandableAdapter.notifyDataSetChanged();
+//                expandableListView.setAdapter(detailExpandableAdapter);
+//                expandableListView.setOnChildClickListener(onChildClickListener);
+//                expandableListView.expandGroup(0);
+//                expandableListView.expandGroup(1);
+//                expandableListView.expandGroup(2);
+//                expandableListView.expandGroup(3);
+//                expandableListView.expandGroup(4);
+//
+//                showBlueToothStat.stop();
+//                showBlueToothStat.interrupt();
             }
         }
     };

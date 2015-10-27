@@ -6,8 +6,6 @@
     android:layout_gravity="center"
     android:layout_margin="5dp"
     android:background="@null"
-    android:clickable="true"
-    android:foreground="?android:attr/selectableItemBackground"
     app:cardCornerRadius="10dp"
     app:cardElevation="7dp"
     app:cardPreventCornerOverlap="false"

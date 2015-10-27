@@ -173,12 +173,17 @@ public class BluetoothService extends Service implements Serializable {
             intent.putExtra(EXTRA_DATA, String.valueOf(value));
 
         } else {    //내 UUID와 Characteristic의 UUID불일치
+            if (UUID.fromString(GattAttributes.Battery).equals(characteristic.getUuid())) {
+                Log.e(TAG, "GattAttributes.Battery is available");
+            }
             final byte[] data = characteristic.getValue();
+            int flag = characteristic.getProperties();
+
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for (byte byteChar : data)
                     stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString() + "\n" + flag);
             }
         }
         //브로드 캐스트 날림

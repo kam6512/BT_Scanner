@@ -93,6 +93,10 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
+    public void bindValue(int group, int child, String value) {
+
+    }
+
     private void bindView(View view, Map<String, ?> data, String[] from, int[] to) {
         bindView(view, data, from, to, 10000, 10000);
     }
@@ -120,7 +124,13 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
             }
             if (group != 10000 || child != 10000) {
                 TextView valueText = (TextView) view.findViewById(R.id.detail_child_list_item_characteristics_value);
-                valueText.setText(gattData[group][child]);
+                try {
+                    valueText.setText(gattData[group][child]);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    Log.e("valueText", "error : " + group + " / " + child);
+                    valueText.setText("값을 가져올 수가 없습니다.");
+                }
+
             }
         }
 
