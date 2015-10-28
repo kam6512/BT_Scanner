@@ -364,17 +364,17 @@ public class DetailActivity extends AppCompatActivity {
                                                     gattCharacteristicData,
                                                     R.layout.detail_bluetooth_characteristics_item,
                                                     new String[]{LIST_NAME, LIST_UUID},
-                                                    new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData);
+                                                    new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData,expandableListView);
 
 
                                             detailExpandableAdapter.notifyDataSetChanged();
                                             expandableListView.setAdapter(detailExpandableAdapter);
                                             expandableListView.setOnChildClickListener(onChildClickListener);
-                                            expandableListView.expandGroup(0);
-                                            expandableListView.expandGroup(1);
-                                            expandableListView.expandGroup(2);
-                                            expandableListView.expandGroup(3);
-                                            expandableListView.expandGroup(4);
+//                                            expandableListView.expandGroup(0);
+//                                            expandableListView.expandGroup(1);
+//                                            expandableListView.expandGroup(2);
+//                                            expandableListView.expandGroup(3);
+//                                            expandableListView.expandGroup(4);
                                             Log.e("showBlueToothStat", detailExpandableAdapter.isChildSelectable(0, 0) + " / " +
                                                     detailExpandableAdapter.areAllItemsEnabled());
 

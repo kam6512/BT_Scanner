@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
@@ -23,24 +24,25 @@ import java.util.Map;
  */
 public class DetailExpandableAdapter extends BaseExpandableListAdapter {
 
-    Context context;
-    ArrayList<HashMap<String, String>> serviceData;
+    private Context context;
+    private ArrayList<HashMap<String, String>> serviceData;
     private int collapsedGroupLayout;
     private String[] groupFrom;
     private int[] groupTo;
 
-    ArrayList<ArrayList<HashMap<String, String>>> characteristicsData;
+    private ArrayList<ArrayList<HashMap<String, String>>> characteristicsData;
     private int childLayout;
     private String[] childFrom;
     private int[] childTo;
 
-
     private String[][] gattData;
 
-    LayoutInflater layoutInflater;
+    private ExpandableListView expandableListView;
+
+    private LayoutInflater layoutInflater;
 
 
-    public DetailExpandableAdapter(Context context, ArrayList<HashMap<String, String>> serviceData, int collapsedGroupLayout, String[] groupFrom, int[] groupTo, ArrayList<ArrayList<HashMap<String, String>>> characteristicsData, int collapsedChildLayout, String[] childFrom, int[] childTo, String[][] data) {
+    public DetailExpandableAdapter(Context context, ArrayList<HashMap<String, String>> serviceData, int collapsedGroupLayout, String[] groupFrom, int[] groupTo, ArrayList<ArrayList<HashMap<String, String>>> characteristicsData, int collapsedChildLayout, String[] childFrom, int[] childTo, String[][] data, ExpandableListView expandableListView) {
         this.context = context;
 
         this.serviceData = serviceData;
@@ -54,6 +56,8 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
         this.childTo = childTo;
 
         this.gattData = data;
+
+        this.expandableListView = expandableListView;
 
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -103,7 +107,6 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
 
     private void bindView(View view, Map<String, ?> data, String[] from, int[] to, int group, int child) {
         int len = to.length;
-
         for (int i = 0; i < len; i++) {
             TextView textView = (TextView) view.findViewById(to[i]);
             if (textView != null) {
@@ -115,12 +118,14 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
                     TextView title = (TextView) view.findViewById(to[i - 1]);
                     title.setText(value);
                 }
+                textView.setText("UUID : " + "0x" + textView.getText().toString().substring(4, 8).toUpperCase());
             } else if (to[i] == R.id.detail_child_list_item_characteristics_UUID) {
                 String value = GattAttributes.getCharacteristic(textView.getText().toString().substring(0, 8));
                 if (value != "N/A") {
                     TextView title = (TextView) view.findViewById(to[i - 1]);
                     title.setText(value);
                 }
+                textView.setText("UUID : " + "0x" + textView.getText().toString().substring(4, 8).toUpperCase());
             }
             if (group != 10000 || child != 10000) {
                 TextView valueText = (TextView) view.findViewById(R.id.detail_child_list_item_characteristics_value);
@@ -149,6 +154,7 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
         } else {
             view = convertView;
         }
+
         bindView(view, serviceData.get(groupPosition), groupFrom, groupTo);
 //        ServiceHolder serviceHolder = new ServiceHolder(view);
 //        serviceHolder.detail_parent_list_item_service_title.setText(serviceData.get(groupPosition).get("NAME"));
@@ -166,7 +172,9 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
             view = convertView;
         }
 
-        bindView(view, characteristicsData.get(groupPosition).get(childPosition), childFrom, childTo, groupPosition, childPosition);
+        bindView(view, characteristicsData.get(groupPosition).get(childPosition), childFrom, childTo, groupPosition, childPosition
+
+        );
 
 //        CharacteristicsHolder characteristicsHolder = new CharacteristicsHolder(view);
 //        characteristicsHolder.detail_child_list_item_characteristics_title.setText(characteristicsData.get(groupPosition).get(childPosition).get("NAME"));

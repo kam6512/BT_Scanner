@@ -78,18 +78,40 @@ public class GattAttributes { //샘플을 참고함
 
     public static String getCharacteristic(String postKey) {
         HashMap<String, String> characteristicList = new HashMap<String, String>();
-        characteristicList.put("00002a00", "Device Name");
-        characteristicList.put("00002a01", "Appearance");
-        characteristicList.put("00002a04", "Peripheral Preferred Connection Parameters");
+//        characteristicList.put("00002a00", "Device Name");
+//        characteristicList.put("00002a01", "Appearance");
+//        characteristicList.put("00002a04", "Peripheral Preferred Connection Parameters");
+//
+//        characteristicList.put("00002a29", "Manufacturer Name String");
+//        characteristicList.put("00002a24", "Model Number String");
+//        characteristicList.put("00002a25", "Serial Number String");
+//        characteristicList.put("00002a27", "Hardware Revision String");
+//        characteristicList.put("00002a26", "Firmware Revision String");
+//        characteristicList.put("00002a28", "Software Revision String");
+//
+//        characteristicList.put("00002a19", "Battery Level");
+//
+//        characteristicList.put("0000fa10", "Unknown Characteristic");
+//        characteristicList.put("0000fa11", "Unknown Characteristic");
+//
+//        characteristicList.put("0000fff2", "Unknown Characteristic");
+//        characteristicList.put("0000fff1", "Unknown Characteristic");
+//        characteristicList.put("0000fff4", "Unknown Characteristic");
+//        characteristicList.put("0000fff3", "Unknown Characteristic");
+//        characteristicList.put("0000fff5", "Unknown Characteristic");
 
-        characteristicList.put("00002a29", "Manufacturer Name String");
-        characteristicList.put("00002a24", "Model Number String");
-        characteristicList.put("00002a25", "Serial Number String");
-        characteristicList.put("00002a27", "Hardware Revision String");
-        characteristicList.put("00002a26", "Firmware Revision String");
-        characteristicList.put("00002a28", "Software Revision String");
+        characteristicList.put("00002a00", "기기 이름");
+        characteristicList.put("00002a01", "외부 카테고리");
+        characteristicList.put("00002a04", "권장하는 기기 연결 수");
 
-        characteristicList.put("00002a19", "Battery Level");
+        characteristicList.put("00002a29", "제조사");
+        characteristicList.put("00002a24", "모델 넘버");
+        characteristicList.put("00002a25", "시리얼 넘버");
+        characteristicList.put("00002a27", "하드웨어 업데이트 넘버");
+        characteristicList.put("00002a26", "펌웨어 업데이트 넘버");
+        characteristicList.put("00002a28", "소프트웨어 업데이트 넘버");
+
+        characteristicList.put("00002a19", "배터리 잔량");
 
         characteristicList.put("0000fa10", "Unknown Characteristic");
         characteristicList.put("0000fa11", "Unknown Characteristic");
