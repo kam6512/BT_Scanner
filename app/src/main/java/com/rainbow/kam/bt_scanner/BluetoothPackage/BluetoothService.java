@@ -17,7 +17,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
+import com.rainbow.kam.bt_scanner.Tools.BLEGattAttributes;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -77,7 +77,7 @@ public class BluetoothService extends Service implements Serializable {
     public BluetoothGatt bluetoothGatt;
 
     //UUID 값 초기화
-    public final static UUID getMyUuid = UUID.fromString(GattAttributes.UUID);
+    public final static UUID getMyUuid = UUID.fromString(BLEGattAttributes.UUID);
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() { //블루투스 Gatt콜백
         @Override
@@ -183,8 +183,8 @@ public class BluetoothService extends Service implements Serializable {
                     stringBuilder.append(String.format("%02X ", byteChar));
                 }
 
-                if (UUID.fromString(GattAttributes.Battery).equals(characteristic.getUuid())) {
-                    Log.e(TAG, "GattAttributes.Battery is available");
+                if (UUID.fromString(BLEGattAttributes.Battery).equals(characteristic.getUuid())) {
+                    Log.e(TAG, "BLEGattAttributes.Battery is available");
                     long v = Long.parseLong(stringBuilder.toString().trim(), 16);
                     String.valueOf(v);
                     intent.putExtra(EXTRA_DATA, "name : " + new String(data) + "\n" + "잔량 : " + String.valueOf(v) + "\n" + "Properties : " + flag);
@@ -319,7 +319,7 @@ public class BluetoothService extends Service implements Serializable {
 
         if (getMyUuid.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+                    UUID.fromString(BLEGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             bluetoothGatt.writeDescriptor(descriptor);
         }

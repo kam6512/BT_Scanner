@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.Adapter.DetailAdapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,11 +11,10 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
+import com.rainbow.kam.bt_scanner.Tools.BLEGattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -113,14 +111,14 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
                 textView.setText((String) data.get(from[i]));
             }
             if (to[i] == R.id.detail_parent_list_item_service_UUID) {
-                String value = GattAttributes.getService(textView.getText().toString().substring(0, 8));
+                String value = BLEGattAttributes.getService(textView.getText().toString().substring(0, 8));
                 if (value != "N/A") {
                     TextView title = (TextView) view.findViewById(to[i - 1]);
                     title.setText(value);
                 }
                 textView.setText("UUID : " + "0x" + textView.getText().toString().substring(4, 8).toUpperCase());
             } else if (to[i] == R.id.detail_child_list_item_characteristics_UUID) {
-                String value = GattAttributes.getCharacteristic(textView.getText().toString().substring(0, 8));
+                String value = BLEGattAttributes.getCharacteristic(textView.getText().toString().substring(0, 8));
                 if (value != "N/A") {
                     TextView title = (TextView) view.findViewById(to[i - 1]);
                     title.setText(value);

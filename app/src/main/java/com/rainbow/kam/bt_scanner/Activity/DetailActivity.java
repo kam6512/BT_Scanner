@@ -20,7 +20,7 @@ import android.widget.SimpleExpandableListAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.DetailAdapter.DetailExpandableAdapter;
 import com.rainbow.kam.bt_scanner.BluetoothPackage.BluetoothService;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
+import com.rainbow.kam.bt_scanner.Tools.BLEGattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,6 +86,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         expandableListView = (ExpandableListView) findViewById(R.id.gatt_services_list);
+//        ViewCompat.setNestedScrollingEnabled(expandableListView, true);
         onChildClickListener = new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
@@ -255,7 +256,7 @@ public class DetailActivity extends AppCompatActivity {
             uuid = bluetoothGattService.getUuid().toString();
 
             //틀에 네임태그와 네임을 넣는다
-            currentServiceData.put(LIST_NAME, GattAttributes.lookup(uuid, unknownServiceString));
+            currentServiceData.put(LIST_NAME, BLEGattAttributes.lookup(uuid, unknownServiceString));
             //틀에 UUID를 넣는다
             currentServiceData.put(LIST_UUID, uuid);
             //서비스 리스트에 네임속성이 담긴 틀을 추가한다.
@@ -285,7 +286,7 @@ public class DetailActivity extends AppCompatActivity {
 
                 //틀에 네임태그와 네임을 넣는다
                 currentCharaData.put(
-                        LIST_NAME, GattAttributes.lookup(uuid, unknownCharaString));
+                        LIST_NAME, BLEGattAttributes.lookup(uuid, unknownCharaString));
                 //틀에 UUID를 넣는다
                 currentCharaData.put(LIST_UUID, uuid);
                 //틀을 그룹 리스트에 넣는다.
@@ -364,7 +365,7 @@ public class DetailActivity extends AppCompatActivity {
                                                     gattCharacteristicData,
                                                     R.layout.detail_bluetooth_characteristics_item,
                                                     new String[]{LIST_NAME, LIST_UUID},
-                                                    new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData,expandableListView);
+                                                    new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData, expandableListView);
 
 
                                             detailExpandableAdapter.notifyDataSetChanged();

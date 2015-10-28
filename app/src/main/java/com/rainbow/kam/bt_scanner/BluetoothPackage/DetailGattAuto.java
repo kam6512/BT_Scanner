@@ -16,7 +16,7 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 
 import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
+import com.rainbow.kam.bt_scanner.Tools.BLEGattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -265,7 +265,7 @@ public class DetailGattAuto {
             uuid = bluetoothGattService.getUuid().toString();
 
             //틀에 네임태그와 네임을 넣는다
-            currentServiceData.put(LIST_NAME, GattAttributes.lookup(uuid, unknownServiceString));
+            currentServiceData.put(LIST_NAME, BLEGattAttributes.lookup(uuid, unknownServiceString));
             //틀에 UUID를 넣는다
             currentServiceData.put(LIST_UUID, uuid);
             //서비스 리스트에 네임속성이 담긴 틀을 추가한다.
@@ -295,7 +295,7 @@ public class DetailGattAuto {
 
                 //틀에 네임태그와 네임을 넣는다
                 currentCharaData.put(
-                        LIST_NAME, GattAttributes.lookup(uuid, unknownCharaString));
+                        LIST_NAME, BLEGattAttributes.lookup(uuid, unknownCharaString));
                 //틀에 UUID를 넣는다
                 currentCharaData.put(LIST_UUID, uuid);
                 //틀을 그룹 리스트에 넣는다.
