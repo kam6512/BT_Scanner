@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Adapter.DetailAdapter;
+package com.rainbow.kam.bt_scanner.Deprecated.Adapter.DetailAdapter;
 
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
@@ -10,8 +10,9 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage.BluetoothService;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.Tools.BLE.BLEGattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class DetailExpandableAdapter extends BaseExpandableListAdapter {
 
     private Context context;
+    private ArrayList<BluetoothService> bluetoothServices;
     private ArrayList<HashMap<String, String>> serviceData;
     private int collapsedGroupLayout;
     private String[] groupFrom;
@@ -58,6 +60,10 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
         this.expandableListView = expandableListView;
 
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    public void setServices(ArrayList<BluetoothService> bluetoothServices) {
+        this.bluetoothServices = bluetoothServices;
     }
 
     @Override

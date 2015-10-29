@@ -30,7 +30,7 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.BleTools;
+import com.rainbow.kam.bt_scanner.Tools.BLE.BleTools;
 
 import java.util.ArrayList;
 
@@ -60,27 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton fabOn, fabSync; //버튼
     private ProgressBar progressBar;
     private TextView hasCard;
-
-/*  클래식(4.0미만)전용
-    private BluetoothService bluetoothService = null;
-    private IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-
-클래식의 브로드캐스트
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Log.d(TAG, "ACTION_FOUND");
-                BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
-                deviceItemArrayList.add(new DeviceItem(bluetoothDevice.getName(), bluetoothDevice.getAddress(), bluetoothDevice.getBondState(), bluetoothDevice.getType(), (int) rssi));
-                adapter.notifyDataSetChanged();
-            }
-        }
-    };
-*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -300,17 +279,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-//    public void startScan() {//클래식 스캔 시작
-//        Log.d(TAG, "startScan");
-//        bluetoothAdapter.startDiscovery();
-//    }
-//
-//    public void stopScan() {//클래식 스캔 중지
-//        Log.d(TAG, "stopScan");
-//        bluetoothAdapter.cancelDiscovery();
-//    }
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -327,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         scanLeDevice(false);
         adapter = null;
     }
-
 
     @Override
     public void onClick(View v) { //버튼 클릭 리스너
@@ -347,7 +314,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                             }
                         }).show();
-
                 break;
             case R.id.fab_sync: //블루투스 기기 찾기(4.0)
                 if (enableBluetooth()) {

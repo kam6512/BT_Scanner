@@ -13,7 +13,7 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.Activity.DetailActivity;
-import com.rainbow.kam.bt_scanner.BluetoothPackage.DetailGattAuto;
+import com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage.DetailGattAuto;
 import com.rainbow.kam.bt_scanner.R;
 
 import java.util.ArrayList;
@@ -105,7 +105,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(activity, DetailActivity.class);
-                    intent.putExtra("Address", extraAddress.getText().toString());
+                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, extraName.getText().toString());
+                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, extraAddress.getText().toString());
+                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, extraRssi.getText().toString());
                     activity.startActivity(intent);
                 }
             });

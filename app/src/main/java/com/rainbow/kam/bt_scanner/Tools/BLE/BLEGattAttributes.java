@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.rainbow.kam.bt_scanner.Tools;
+package com.rainbow.kam.bt_scanner.Tools.BLE;
 
 import android.util.SparseArray;
 
@@ -26,29 +26,35 @@ public class BLEGattAttributes {
     //열 속성 해쉬맵
     private static HashMap<String, String> attributes = new HashMap();
 
-    //UUID
-    public static String GENERIC_ACCESS = "00001800-0000-1000-8000-00805f9b34fb";
-    public static String DEVICE_INFORMATION = "0000180a-0000-1000-8000-00805f9b34fb";
-    public static String BATTERY_SERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
+    public static class Services {
+        public static String GENERIC_ACCESS = "00001800-0000-1000-8000-00805f9b34fb";
+        public static String DEVICE_INFORMATION = "0000180a-0000-1000-8000-00805f9b34fb";
+        public static String BATTERY_SERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
+        public static String HEART_RATE_MEASUREMENT_SERVICE = "0000180d-0000-1000-8000-00805f9b34fb";
+    }
+
+    public static class Characteristic {
+        public static String DEVICE_NAME = "00002a00-0000-1000-8000-00805f9b34fb";
+        public static String APPEARANCE = "00002a01-0000-1000-8000-00805f9b34fb";
+        public static String PPCP = "00002a04-0000-1000-8000-00805f9b34fb";
+
+        public static String MANUFACTURER = "00002a29-0000-1000-8000-00805f9b34fb";
+        public static String MODEL = "00002a24-0000-1000-8000-00805f9b34fb";
+        public static String SERIAL = "00002a25-0000-1000-8000-00805f9b34fb";
+        public static String HARDWARE = "00002a27-0000-1000-8000-00805f9b34fb";
+        public static String FIRMWARE = "00002a26-0000-1000-8000-00805f9b34fb";
+        public static String SOFTWARE = "00002a28-0000-1000-8000-00805f9b34fb";
 
 
-    public static String DEVICE_NAME = "00002a00-0000-1000-8000-00805f9b34fb";
-    public static String APPEARANCE = "00002a01-0000-1000-8000-00805f9b34fb";
-    public static String PPCP = "00002a04-0000-1000-8000-00805f9b34fb";
+        public static String BATTRY = "00002a19-0000-1000-8000-00805f9b34fb";
 
-    public static String Manufacturer = "00002a29-0000-1000-8000-00805f9b34fb";
-    public static String Model = "00002a24-0000-1000-8000-00805f9b34fb";
-    public static String Serial = "00002a25-0000-1000-8000-00805f9b34fb";
-    public static String Hardware = "00002a27-0000-1000-8000-00805f9b34fb";
-    public static String Firmware = "00002a26-0000-1000-8000-00805f9b34fb";
-    public static String Software = "00002a28-0000-1000-8000-00805f9b34fb";
+        public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
+        final static public String BODY_SENSOR_LOCATION = "00002a38-0000-1000-8000-00805f9b34fb";
+    }
 
-    public static String Battery = "00002a19-0000-1000-8000-00805f9b34fb";
-
-    public static String UUID = "00002a37-0000-1000-8000-00805f9b34fb";
-
-    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
-
+    public static class Descriptor {
+        public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+    }
 
     //속성 값 GET
     public static String lookup(String uuid, String defaultName) {
@@ -135,6 +141,9 @@ public class BLEGattAttributes {
         return "N/A";
     }
 
+    /**
+     * =============================================================================================================
+     **/
 
     private static HashMap<String, String> services = new HashMap<String, String>();
     private static HashMap<String, String> characteristics = new HashMap<String, String>();

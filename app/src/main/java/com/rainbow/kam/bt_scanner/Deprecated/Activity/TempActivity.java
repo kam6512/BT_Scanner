@@ -1,6 +1,5 @@
-package com.rainbow.kam.bt_scanner.BluetoothPackage;
+package com.rainbow.kam.bt_scanner.Deprecated.Activity;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
@@ -9,44 +8,41 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 
-import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.Tools.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.Deprecated.Adapter.DetailAdapter.DetailExpandableAdapter;
+import com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage.BluetoothService;
+import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.Tools.BLE.BLEGattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DetailGattAuto {
+/**
+ * Created by sion on 2015-10-29.
+ */
+public class TempActivity extends AppCompatActivity {
 
     //태그
-    private static final String TAG = "DetailGattAuto";
+    private static final String TAG = "DetailActivity";
 
     //고정 네임
     private static final String DEVICE_NAME = "DEVICE_NAME";
     private static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
-
-    private Activity activity;
-    private Context context;
-    private DeviceAdapter.Device device;
-
-    //뷰에 적용할 임시 테스트 String
-    private String deviceState;
-    private String deviceAddress;
-    private String devicedataField;
+    private String address;
 
     //블루투스 서비스
     private BluetoothService bluetoothService;
     //연결 여부
     private boolean connected = false;
-    public boolean isBluetoothServiceClosed = true;
-    public boolean isDataFind = false;
-//    public boolean flag = false;
 
     //블루투스 서비스의 BluetoothGattCharacteristic을 담을 리스트
     //ArrayList<서비스리스트 ArrayList<Characteristic>>구조이다.
@@ -55,6 +51,9 @@ public class DetailGattAuto {
     private BluetoothGattCharacteristic notifyCharacteristic;
     private ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
     private ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
+    private String[][] gattData;
+
+    int i = 0, j = 0;
 
     //블루투스 서비스목록의 태그
     private final String LIST_NAME = "NAME";
@@ -62,16 +61,81 @@ public class DetailGattAuto {
 
     private Intent gattServiceIntent;
 
-    int index = 0;
+    ExpandableListView expandableListView;
+    SimpleExpandableListAdapter simpleExpandableListAdapter;
+    DetailExpandableAdapter detailExpandableAdapter;
+    ExpandableListView.OnChildClickListener onChildClickListener;
 
 
-    public DetailGattAuto(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
-        //액티비티 / 컨택스트
-        this.activity = activity;
-        this.context = context;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_detail);
 
-        this.device = device;
+        address = getIntent().getStringExtra("Address");
 
+        gattServiceIntent = new Intent(TempActivity.this, BluetoothService.class);
+        bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
+
+        //브로드캐스트 리시버 적용
+        registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+        if (bluetoothService != null) {
+            //연결
+            final boolean result = bluetoothService.connect(address);
+            Log.d(TAG, "Connect request result=" + result);
+        }
+
+//        expandableListView = (ExpandableListView) findViewById(R.id.gatt_services_list);
+//        ViewCompat.setNestedScrollingEnabled(expandableListView, true);
+        onChildClickListener = new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                if (rootGattCharacteristics != null) {
+                    i = groupPosition;
+                    j = childPosition;
+                    final BluetoothGattCharacteristic characteristic =
+                            rootGattCharacteristics.get(groupPosition).get(childPosition);
+                    final int charaProp = characteristic.getProperties();
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                        if (notifyCharacteristic != null) {
+                            bluetoothService.setCharacteristicNotification(
+                                    notifyCharacteristic, false);
+                            notifyCharacteristic = null;
+                        }
+                        bluetoothService.readCharacteristic(characteristic);
+                    }
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                        notifyCharacteristic = characteristic;
+                        bluetoothService.setCharacteristicNotification(
+                                characteristic, true);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (bluetoothService != null) {
+            //커넥션 OFF
+
+            bluetoothService.close();
+            bluetoothService.disconnect();
+            bluetoothService = null;
+            try {
+                //BR 해제
+                unregisterReceiver(gattUpdateReceiver);
+
+                //서비스 언바인드로 연결 끊기
+                unbindService(serviceConnection);
+            } catch (Exception e) {
+
+            }
+
+        }
     }
 
     //서비스와 상호작용하기위한 서비스 커넥션
@@ -82,9 +146,9 @@ public class DetailGattAuto {
             Log.i(TAG, "initialize Bluetooth");
             if (!bluetoothService.initialize()) { //초기화 오류시
                 Log.e(TAG, "Unable to initialize Bluetooth");
-                activity.finish(); //종료
+                finish(); //종료
             }
-            bluetoothService.connect(deviceAddress); //블루투스 연결!
+            bluetoothService.connect(address); //블루투스 연결!
         }
 
         @Override
@@ -104,7 +168,6 @@ public class DetailGattAuto {
 
             } else if (BluetoothService.ACTION_GATT_DISCONNECTED.equals(action)) { //끊겼을 시
                 connected = false;
-                isDataFind = false;
                 updateConnectionState("disconnected");
                 clearUI();
             } else if (BluetoothService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) { //Find!
@@ -112,64 +175,30 @@ public class DetailGattAuto {
                     setGattServices(bluetoothService.getSupportedGattServices());
                 }
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) { //Data가 유효할때
-                Log.e("ACTION_DATA_AVAILABLE", index + " //===================================================================");
-                Log.e("ACTION_DATA_AVAILABLE", intent.getStringExtra(BluetoothService.EXTRA_DATA));
+//                Log.e("ACTION_DATA_AVAILABLE", intent.getStringExtra(BluetoothService.EXTRA_DATA));
                 displayData(intent.getStringExtra(BluetoothService.EXTRA_DATA));
-//                isDataFind = true;
-//                flag = true;
-                synchronized (showBlueToothStat) {
-                    Log.e("showBlueToothStat", "notify");
-                    showBlueToothStat.notifyAll();
-                }
 
-            }
-        }
-    };
 
-    private SimpleExpandableListAdapter gattServiceAdapter;
-
-    private final ExpandableListView.OnChildClickListener onChildClickListener = new ExpandableListView.OnChildClickListener() {
-        @Override
-        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-            if (rootGattCharacteristics != null) {
-                final BluetoothGattCharacteristic characteristic =
-                        rootGattCharacteristics.get(groupPosition).get(childPosition);
-                final int charaProp = characteristic.getProperties();
-                if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                    // If there is an active notification on a characteristic, clear
-                    // it first so it doesn't update the data field on the user interface.
-                    if (notifyCharacteristic != null) {
-                        bluetoothService.setCharacteristicNotification(
-                                notifyCharacteristic, false);
-                        notifyCharacteristic = null;
+                if (showBlueToothStat.isAlive()) {
+                    synchronized (showBlueToothStat) {
+                        Log.e("showBlueToothStat", "notify");
+                        showBlueToothStat.notifyAll();
                     }
-                    bluetoothService.readCharacteristic(characteristic);
                 }
-                if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                    notifyCharacteristic = characteristic;
-                    bluetoothService.setCharacteristicNotification(
-                            characteristic, true);
-                }
-                return true;
             }
-            return false;
         }
     };
-
 
     //끊기거나 데이터가 없을시
     private void clearUI() {
-        destroy(); //끄기
+//        expandableListView.setAdapter((SimpleExpandableListAdapter) null);
     }
 
     //데이터 상태 표현 - 데이터 정보를 적용하지 않기 때문에 destroy 시키면 안된다...
     private void updateConnectionState(final String resourceId) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-//                device.state.setText(resourceId);
-            }
-        });
+
+        Snackbar.make(getWindow().getDecorView(), resourceId, Snackbar.LENGTH_SHORT).show();
+
     }
 
     //데이터 내용 적용
@@ -177,9 +206,17 @@ public class DetailGattAuto {
 
         if (data != null) {
             if (connected) {
+                String hex = data.substring(data.indexOf("\n"), data.length());
+
+                try {
+                    gattData[i][j] = data;
+
+                } catch (Exception e) {
+
+                }
 
 //                device.stopHandling();
-                Log.e("data", data + "/");
+                Log.e("data", data + " / " + hex);
 //                destroy(); //끄기
 
             }
@@ -195,52 +232,6 @@ public class DetailGattAuto {
         intentFilter.addAction(BluetoothService.ACTION_DATA_AVAILABLE); //Data OK
         return intentFilter;
     }
-
-
-    public void init() {
-
-        try {
-            //서비스 바인드(연결)
-            gattServiceIntent = new Intent(activity, BluetoothService.class);
-            activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
-
-            isBluetoothServiceClosed = false;
-
-            //브로드캐스트 리시버 적용
-            activity.registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
-            if (bluetoothService != null) {
-                //연결
-                final boolean result = bluetoothService.connect(deviceAddress);
-                Log.d(TAG, "Connect request result=" + result);
-            }
-        } catch (Exception e) {
-
-        }
-
-    }
-
-    //뷰가 Detached 시 호출
-    public void destroy() {
-        if (bluetoothService != null) {
-            //커넥션 OFF
-
-            bluetoothService.close();
-            bluetoothService.disconnect();
-            bluetoothService = null;
-            isBluetoothServiceClosed = true;
-            try {
-                //BR 해제
-                activity.unregisterReceiver(gattUpdateReceiver);
-
-                //서비스 언바인드로 연결 끊기
-                activity.unbindService(serviceConnection);
-            } catch (Exception e) {
-
-            }
-
-        }
-    }
-
 
     //Gatt를 찾은 브로드캐스트를 수신시 서비스를 GET하고 내부 Characteristic등을 분석
     private void setGattServices(List<BluetoothGattService> gattServices) {
@@ -308,22 +299,22 @@ public class DetailGattAuto {
 
         }
 
-        gattServiceAdapter = new SimpleExpandableListAdapter(activity,
-                gattServiceData,
-                android.R.layout.simple_expandable_list_item_2,
-                new String[]{LIST_NAME, LIST_UUID},
-                new int[]{android.R.id.text1, android.R.id.text2},
-                gattCharacteristicData,
-                android.R.layout.simple_expandable_list_item_2,
-                new String[]{LIST_NAME, LIST_UUID},
-                new int[]{android.R.id.text1, android.R.id.text2}
-        );
+        gattData = new String[10][10];
+//        simpleExpandableListAdapter = new SimpleExpandableListAdapter(this,
+//                gattServiceData,
+//                android.R.layout.simple_expandable_list_item_2,
+//                new String[]{LIST_NAME, LIST_UUID},
+//                new int[]{android.R.id.text1, android.R.id.text2},
+//                gattCharacteristicData,
+//                android.R.layout.simple_expandable_list_item_2,
+//                new String[]{LIST_NAME, LIST_UUID},
+//                new int[]{android.R.id.text1, android.R.id.text2}
+//        );
+//
 
-//        device.expandableListView.setAdapter(gattServiceAdapter);
-
-//        showBlueToothStat(gattCharacteristicData); //서비스리스트를 인자로 넘겨 호출
         showBlueToothStat.start();
     }
+
 
     Thread showBlueToothStat = new Thread() {
 
@@ -333,16 +324,10 @@ public class DetailGattAuto {
 
             if (rootGattCharacteristics != null) { //Characteristic리스트가 들어간 루트리스트가 살아있으면
                 Log.e("showBlueToothStat", "start");
-                for (int i = 0; i < gattCharacteristicData.size(); i++) {
-                    ++index;
+                for (i = 0; i < gattCharacteristicData.size(); i++) {
                     Log.e("showBlueToothStat", i + " = data.index");
-                    for (int j = 0; j < gattCharacteristicData.get(i).size(); j++) {
+                    for (j = 0; j < gattCharacteristicData.get(i).size(); j++) {
                         Log.e("showBlueToothStat", j + "is " + " data[" + i + "].index");
-
-//                        if (i == gattCharacteristicData.size()) {
-//                            showBlueToothStat.interrupt();
-//                                return;
-//                        }
 
                         final BluetoothGattCharacteristic characteristic =
                                 rootGattCharacteristics.get(i).get(j); //배열에서 가져오기
@@ -355,44 +340,85 @@ public class DetailGattAuto {
                                 notifyCharacteristic = null;
                             }
                             bluetoothService.readCharacteristic(characteristic);
-//                        Log.e("showBlueToothStat", String.valueOf(characteristic.getValue()));
                         }
                         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
                             notifyCharacteristic = characteristic;
                             bluetoothService.setCharacteristicNotification(
                                     characteristic, true);
-//                        Log.e("showBlueToothStat", "set");
                         }
                         synchronized (showBlueToothStat) {
                             try {
 
-                                Log.e("showBlueToothStat", "wait");
-                                showBlueToothStat.wait();
+                                if (i == 3 && j == 0) {
+                                    Log.e("showBlueToothStat", "end");
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            detailExpandableAdapter = new DetailExpandableAdapter(TempActivity.this,
+                                                    gattServiceData,
+                                                    R.layout.detail_bluetooth_service_item,
+                                                    new String[]{LIST_NAME, LIST_UUID},
+                                                    new int[]{R.id.detail_parent_list_item_service_title, R.id.detail_parent_list_item_service_UUID},
+                                                    gattCharacteristicData,
+                                                    R.layout.detail_bluetooth_characteristics_item,
+                                                    new String[]{LIST_NAME, LIST_UUID},
+                                                    new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData, expandableListView);
+
+
+                                            detailExpandableAdapter.notifyDataSetChanged();
+                                            expandableListView.setAdapter(detailExpandableAdapter);
+                                            expandableListView.setOnChildClickListener(onChildClickListener);
+//                                            expandableListView.expandGroup(0);
+//                                            expandableListView.expandGroup(1);
+//                                            expandableListView.expandGroup(2);
+//                                            expandableListView.expandGroup(3);
+//                                            expandableListView.expandGroup(4);
+                                            Log.e("showBlueToothStat", detailExpandableAdapter.isChildSelectable(0, 0) + " / " +
+                                                    detailExpandableAdapter.areAllItemsEnabled());
+
+                                            showBlueToothStat.interrupt();
+                                        }
+                                    });
+
+                                } else {
+
+                                    Log.e("showBlueToothStat", "wait" + i + " < " + gattCharacteristicData.size() + " / " + j + " < " + gattCharacteristicData.get(i).size());
+                                    showBlueToothStat.wait();
+                                }
+
 
                             } catch (Exception e) {
 
                             }
                         }
                     }
-                    Log.e("showBlueToothStat", "end");
-//                    device.stopHandling();
-                    DetailGattAuto.this.destroy();
-                    isDataFind = true;
-                    return;
                 }
 
+
+//                detailExpandableAdapter = new DetailExpandableAdapter(DetailActivity.this,
+//                        gattServiceData,
+//                        R.layout.detail_bluetooth_service_item,
+//                        new String[]{LIST_NAME, LIST_UUID},
+//                        new int[]{R.id.detail_parent_list_item_service_title, R.id.detail_parent_list_item_service_UUID},
+//                        gattCharacteristicData,
+//                        R.layout.detail_bluetooth_characteristics_item,
+//                        new String[]{LIST_NAME, LIST_UUID},
+//                        new int[]{R.id.detail_child_list_item_characteristics_title, R.id.detail_child_list_item_characteristics_UUID}, gattData);
+//
+//
+//                detailExpandableAdapter.notifyDataSetChanged();
+//                expandableListView.setAdapter(detailExpandableAdapter);
+//                expandableListView.setOnChildClickListener(onChildClickListener);
+//                expandableListView.expandGroup(0);
+//                expandableListView.expandGroup(1);
+//                expandableListView.expandGroup(2);
+//                expandableListView.expandGroup(3);
+//                expandableListView.expandGroup(4);
+//
+//                showBlueToothStat.stop();
+//                showBlueToothStat.interrupt();
             }
         }
     };
-
-
-    public SimpleExpandableListAdapter getGattServiceAdapter() {
-        return gattServiceAdapter;
-    }
-
-    public ExpandableListView.OnChildClickListener getOnChildClickListener() {
-        return onChildClickListener;
-    }
-
-
 }
