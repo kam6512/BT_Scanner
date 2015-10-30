@@ -38,6 +38,7 @@ public class DetailCharacteristicFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.e("char","onCreateView");
         activity = getActivity();
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
@@ -45,6 +46,11 @@ public class DetailCharacteristicFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new DetailAdapter(characteristicItemArrayList, activity, activity);
+        if (adapter == null){
+            Log.e("char","adapter is a null");
+        }else{
+            Log.e("char","adapter is not a null");
+        }
         recyclerView.setAdapter(adapter);
         return view;
     }
@@ -57,7 +63,7 @@ public class DetailCharacteristicFragment extends Fragment {
 
     public void addCharacteristic(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
 //        for (int i = 0; i < serviceItemArrayList.size(); i++) {
-        Log.e("frag", "add Service");
+        Log.e("frag", "add char");
 //            if (serviceItemArrayList.get(i).getBluetoothGattService() == null) {
         String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
         String name = BLEGattAttributes.resolveCharacteristicName(uuid);
@@ -69,9 +75,9 @@ public class DetailCharacteristicFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    public BluetoothGattService getService(int index) {
-        return serviceItemArrayList.get(index).getBluetoothGattService();
-    }
+//    public BluetoothGattService getService(int index) {
+//        return serviceItemArrayList.get(index).getBluetoothGattService();
+//    }
 
     public void noti() {
         adapter.notifyDataSetChanged();

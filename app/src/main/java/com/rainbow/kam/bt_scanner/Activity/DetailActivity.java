@@ -81,8 +81,12 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             @Override
             public void run() {
                 deviceStateTextView.setText("disconnected");
-                serviceFragment.clearAdapter();
-                characteristicFragment.clearAdapter();
+                try {
+                    serviceFragment.clearAdapter();
+                    characteristicFragment.clearAdapter();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 listType = ListType.GATT_SERIVCES;
 
@@ -125,7 +129,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             public void run() {
                 listType = ListType.GATT_CHARACTERISTICS;
                 characteristicFragment.clearAdapter();
-                for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars){
+                for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars) {
                     characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
                 }
                 characteristicFragment.noti();
@@ -205,28 +209,44 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         deviceRSSITextView.setText(deviceRSSI);
 
         fragmentManager = getSupportFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
-
-        serviceFragment = new DetailServiceFragment();
-
-        fragmentTransaction.add(R.id.detail_fragment_view, serviceFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
 
         handler = new Handler() {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage(final Message msg) {
                 super.handleMessage(msg);
+                fragmentTransaction = fragmentManager.beginTransaction();
                 switch (msg.what) {
                     case 0:
-                        BluetoothGattService bluetoothGattService = serviceFragment.getService(msg.arg1);
-                        ble.getCharacteristicsForService(bluetoothGattService);
+                        Log.e(TAG, "Start 0");
+                        serviceFragment = new DetailServiceFragment();
+                        fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
                         break;
                     case 1:
+                        serviceFragment.startTransition(msg.arg1);
+//                        Log.e(TAG, "Start 1");
+//                        characteristicFragment = new DetailCharacteristicFragment();
+//                        fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
+//                        fragmentTransaction.addToBackStack(null);
+//                        fragmentTransaction.commit();
+//                        postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                BluetoothGattService bluetoothGattService = serviceFragment.getService(msg.arg1);
+//                                ble.getCharacteristicsForService(bluetoothGattService);
+//                            }
+//                        }, 200);
+
+                        break;
+                    case 2:
+                        Log.e(TAG, "Start 2");
                         break;
                 }
+
             }
         };
+        handler.sendEmptyMessage(0);
     }
 
     @Override
@@ -249,7 +269,12 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     @Override
     protected void onPause() {
         super.onPause();
-        serviceFragment.clearAdapter();
+        try {
+            serviceFragment.clearAdapter();
+            characteristicFragment.clearAdapter();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         ble.stopMonitoringRssiValue();
         ble.disconnect();
         ble.close();

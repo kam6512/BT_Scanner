@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 
 import com.rainbow.kam.bt_scanner.Adapter.DetailAdpater.DetailAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.DetailAdpater.ServiceItem;
@@ -34,10 +39,14 @@ public class DetailServiceFragment extends Fragment {
     private RecyclerView recyclerView;
     private DetailAdapter adapter;
     private ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<ServiceItem>();
+    Animation animation;
+    View animView;
+    int position;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.e("service", "onCreateView");
         activity = getActivity();
         view = inflater.inflate(R.layout.fragment_detail_service, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.detail_service_recyclerView);
@@ -78,4 +87,46 @@ public class DetailServiceFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    public void startTransition(int position) {
+        DetailAdapter.ServiceViewHolder transitionViewHolder = adapter.getServiceViewHolder();
+        animView = transitionViewHolder.getView();
+        this.position = position;
+        Log.e("animation", "start position : " + position);
+        AnimationSet animationSet = new AnimationSet(true);
+        animationSet.setInterpolator(new AccelerateInterpolator());
+        Bundle bundle = transitionViewHolder.getParams();
+        animation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, (-1.0f * position));
+//        animation = new TranslateAnimation(bundle.getFloat("X"), recyclerView.getX(), bundle.getFloat("Y"), recyclerView.getY());
+        animation.setDuration(1000);
+        animation.setFillAfter(false);
+        animView.startAnimation(animation);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resetTransition();
+            }
+        },animation.getDuration());
+    }
+
+    public void resetTransition(){
+        DetailAdapter.ServiceViewHolder transitionViewHolder = adapter.getServiceViewHolder();
+        animView = transitionViewHolder.getView();
+        Log.e("animation", "reset position : " + position);
+        AnimationSet animationSet = new AnimationSet(true);
+        animationSet.setInterpolator(new AccelerateInterpolator());
+        Bundle bundle = transitionViewHolder.getParams();
+        animation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, (-1.0f * position),
+                Animation.RELATIVE_TO_SELF, 0.0f,);
+//        animation = new TranslateAnimation(bundle.getFloat("X"), recyclerView.getX(), bundle.getFloat("Y"), recyclerView.getY());
+        animation.setDuration(1000);
+        animation.setFillAfter(true);
+        animView.startAnimation(animation);
+    }
 }

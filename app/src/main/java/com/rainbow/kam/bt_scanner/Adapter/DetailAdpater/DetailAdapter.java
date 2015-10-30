@@ -3,8 +3,10 @@ package com.rainbow.kam.bt_scanner.Adapter.DetailAdpater;
 import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +29,13 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int TYPE_CHARACTERISTIC = 1;
 
     private ArrayList<ServiceItem> serviceItemArrayList;
-    //    private ArrayList<BluetoothGattService> bluetoothGattServices;
     private ArrayList<CharacteristicItem> characteristicItemArrayList;
     private boolean isRoot = true;
     private Activity activity;
     private Context context;
     private View view;
 
+    private ServiceViewHolder selecteServiceViewHolder = null;
 
     public DetailAdapter(ArrayList<ServiceItem> serviceItemArrayList, Activity activity, Context context, boolean isRoot) {
         this.serviceItemArrayList = serviceItemArrayList;
@@ -61,7 +63,7 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 return new ServiceViewHolder(view);
 
             case TYPE_CHARACTERISTIC:
-                view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
+                view = layoutInflater.inflate(R.layout.detail_bluetooth_characteristics_item, parent, false);
                 return new CharacteristicViewHolder(view);
         }
         return null;
@@ -77,9 +79,9 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 serviceViewHolder.service_type.setText(serviceItemArrayList.get(position).getType());
 
 
-                String title = BLEGattAttributes.getService( serviceViewHolder.service_uuid.getText().toString().substring(0, 8));
+                String title = BLEGattAttributes.getService(serviceViewHolder.service_uuid.getText().toString().substring(0, 8));
                 serviceViewHolder.service_title.setText(title);
-                serviceViewHolder.service_uuid.setText("UUID : " + "0x" +  serviceViewHolder.service_uuid.getText().toString().substring(4, 8).toUpperCase());
+                serviceViewHolder.service_uuid.setText("UUID : " + "0x" + serviceViewHolder.service_uuid.getText().toString().substring(4, 8).toUpperCase());
 
 
                 break;
@@ -90,6 +92,16 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 characteristicViewHolder.characteristic_value.setText(characteristicItemArrayList.get(position).getValue());
                 break;
         }
+    }
+
+    public ServiceViewHolder getServiceViewHolder() {
+        if (selecteServiceViewHolder != null) {
+            return selecteServiceViewHolder;
+        } else {
+            Log.e(TAG, "selecteServiceViewHolder is null");
+            return null;
+        }
+
     }
 
     @Override
@@ -126,18 +138,21 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private class ServiceViewHolder extends RecyclerView.ViewHolder {
+    public class ServiceViewHolder extends RecyclerView.ViewHolder {
 
         private TextView service_title;
         private TextView service_uuid;
         private TextView service_type;
+        private View view;
 
         public ServiceViewHolder(View itemView) {
             super(itemView);
+            view = itemView;
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Message message = Message.obtain(DetailActivity.handler,0,getLayoutPosition());
+                    selecteServiceViewHolder = ServiceViewHolder.this;
+                    Message message = Message.obtain(DetailActivity.handler, 1, getLayoutPosition(),0);
                     DetailActivity.handler.sendMessage(message);
                 }
             });
@@ -146,6 +161,16 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             service_type = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
         }
 
+        public Bundle getParams() {
+            Bundle bundle = new Bundle();
+            bundle.putFloat("X", view.getX());
+            bundle.putFloat("Y", view.getY());
+            return bundle;
+        }
+
+        public View getView() {
+            return view;
+        }
     }
 
     private class CharacteristicViewHolder extends RecyclerView.ViewHolder {
@@ -159,7 +184,7 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Message message = Message.obtain(DetailActivity.handler, 1, getLayoutPosition());
+                    Message message = Message.obtain(DetailActivity.handler, 2, getLayoutPosition());
                     DetailActivity.handler.sendMessage(message);
                 }
             });
