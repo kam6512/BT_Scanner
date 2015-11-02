@@ -31,6 +31,7 @@ import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.BLE.BleTools;
+import com.rainbow.kam.bt_scanner.Nursing.Activity.StartNursingActivity;
 
 import java.util.ArrayList;
 
@@ -89,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         handler = new Handler();
 
         //버튼 초기화 + 리스너 적용
-        fabOn = (FloatingActionButton) findViewById(R.id.fab_on);
-        fabOn.setOnClickListener(this);
+//        fabOn = (FloatingActionButton) findViewById(R.id.fab_on);
+//        fabOn.setOnClickListener(this);
 
         fabSync = (FloatingActionButton) findViewById(R.id.fab_sync);
         fabSync.setOnClickListener(this);
@@ -134,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         switch (menuItem.getItemId()) {
                             case R.id.nav_scan:
                                 Snackbar.make(getWindow().getDecorView(), "Scanner Layout", Snackbar.LENGTH_LONG).show();
+                                return true;
+                            case R.id.nav_nursing:
+                                Intent startNursing = new Intent(MainActivity.this, StartNursingActivity.class);
+                                startActivity(startNursing);
                                 return true;
                             case R.id.nav_link1:
                                 Intent browser1 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.android.com/"));
@@ -302,22 +307,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) { //버튼 클릭 리스너
         switch (v.getId()) {
-            case R.id.fab_on: //블루투스 켜기
-                Snackbar.make(v.getRootView(), "Enable BlueTooth?", Snackbar.LENGTH_LONG)
-                        .setAction("On", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (getBT()) {  //블루투스 사용 가능시
-                                    enableBluetooth();
-                                } else {    //블루투스 사용 불가능시
-                                    if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                                        Toast.makeText(MainActivity.this, "ble_not_supported", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                    }
-                                }
-                            }
-                        }).show();
-                break;
+//            case R.id.fab_on: //블루투스 켜기
+//                Snackbar.make(coordinatorLayout, "Enable BlueTooth?", Snackbar.LENGTH_LONG)
+//                        .setAction("On", new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                if (getBT()) {  //블루투스 사용 가능시
+//                                    enableBluetooth();
+//                                } else {    //블루투스 사용 불가능시
+//                                    if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+//                                        Toast.makeText(MainActivity.this, "ble_not_supported", Toast.LENGTH_SHORT).show();
+//                                        finish();
+//                                    }
+//                                }
+//                            }
+//                        }).show();
+//                break;
             case R.id.fab_sync: //블루투스 기기 찾기(4.0)
                 if (enableBluetooth()) {
                     if (getScanning()) {  //스캔 시작
@@ -337,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         scanLeDevice(true);
                     }
                 } else {
-                    Snackbar.make(v, "You musst initalize Bluetooth", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(coordinatorLayout, "You musst initalize Bluetooth", Snackbar.LENGTH_SHORT).show();
                 }
 
                 break;

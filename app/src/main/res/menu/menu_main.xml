@@ -6,6 +6,9 @@
         <item android:id="@+id/nav_scan"
             android:icon="@drawable/ic_menu"
             android:title="스캔"></item>
+        <item android:id="@+id/nav_nursing"
+            android:icon="@drawable/ic_menu"
+            android:title="샘플"></item>
     </group>
 
     <item android:title="HELP">
