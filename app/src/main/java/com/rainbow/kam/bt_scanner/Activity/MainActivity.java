@@ -1,47 +1,43 @@
 package com.rainbow.kam.bt_scanner.Activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.Adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.Adapter.DeviceItem;
+import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.BleTools;
+import com.rainbow.kam.bt_scanner.Tools.BLE.BleTools;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.TreeSet;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+/**
+ * Created by kam6512 on 2015-10-22.
+ */
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity"; //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1; //result 플래그
@@ -53,7 +49,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isScanning; //스캔중 여부
     private final long SCAN_PERIOD = 10000; //스캔시간
 
-    CoordinatorLayout coordinatorLayout;
+    private Toolbar toolbar;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+
+    private CoordinatorLayout coordinatorLayout;
 
     private RecyclerView recyclerView; //리사이클러 뷰
     private RecyclerView.Adapter adapter; //리사이클러 어댑터
@@ -64,35 +64,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ProgressBar progressBar;
     private TextView hasCard;
 
-/*  클래식(4.0미만)전용
-    private BluetoothService bluetoothService = null;
-    private IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-
-클래식의 브로드캐스트
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Log.d(TAG, "ACTION_FOUND");
-                BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
-                deviceItemArrayList.add(new DeviceItem(bluetoothDevice.getName(), bluetoothDevice.getAddress(), bluetoothDevice.getBondState(), bluetoothDevice.getType(), (int) rssi));
-                adapter.notifyDataSetChanged();
-            }
-        }
-    };
-*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         //툴바 적용
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setElevation(1.0);
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            setupDrawerContent(navigationView);
+        }
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         initBluetooth();
 
@@ -136,6 +125,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void setupDrawerContent(final NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        menuItem.setChecked(true);
+                        switch (menuItem.getItemId()) {
+                            case R.id.nav_scan:
+                                Snackbar.make(getWindow().getDecorView(), "Scanner Layout", Snackbar.LENGTH_LONG).show();
+                                return true;
+                            case R.id.nav_link1:
+                                Intent browser1 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.android.com/"));
+                                startActivity(browser1);
+                                return true;
+                            case R.id.nav_link2:
+                                Intent browser2 = new Intent(Intent.ACTION_VIEW, Uri.parse("http://developer.android.com/"));
+                                startActivity(browser2);
+                                return true;
+                            default:
+                                return true;
+                        }
+                    }
+                });
+    }
+
     private void initBluetooth() {
         try {
             //블루투스 매니저/어댑터 초기화
@@ -167,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
             Log.d(TAG, "Bluetooth isEnabled");
+
             return true;
         } else {    //블루투스 구동
             Log.d(TAG, "Bluetooth start");
@@ -190,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+
                         isScanning = false;
                         bluetoothAdapter.stopLeScan(leScanCallback);
                         progressBar.setVisibility(View.INVISIBLE);
@@ -197,8 +213,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (deviceItemArrayList.size() < 1) {
                             hasCard.setVisibility(View.VISIBLE);
                         }
-
-                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, getApplicationContext(), getWindow().getDecorView(), deviceItemArrayList.size());
+                        adapter = null;
+                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, MainActivity.this, getWindow().getDecorView(), deviceItemArrayList.size());
                         recyclerView.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
                     }
@@ -234,11 +250,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String deviceName = device.getName();
                     if (deviceName == null) {
                         deviceName = bleAdvertisedData.getName();
+                        if (deviceName == null) {
+                            deviceName = "N/A";
+                        }
+                    }
+                    try {
+                        if (deviceName.equals("Prime")) {
+                            deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                        }
+                    } catch (Exception e) {
+
                     }
 
-                    Log.e(TAG, device.getName() + " / " + device.getAddress() + " / " + device.getType() + " / " + device.getBondState() + " / " + device.getBluetoothClass() + " / ");
-
-                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+//                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                     for (int i = 0; i < deviceItemArrayList.size(); i++) {
                         for (int j = 1; j < deviceItemArrayList.size(); j++) {
                             if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
@@ -258,21 +282,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-//    public void startScan() {//클래식 스캔 시작
-//        Log.d(TAG, "startScan");
-//        bluetoothAdapter.startDiscovery();
-//    }
-//
-//    public void stopScan() {//클래식 스캔 중지
-//        Log.d(TAG, "stopScan");
-//        bluetoothAdapter.cancelDiscovery();
-//    }
-
-
     @Override
     protected void onResume() {
         super.onResume();
-        fabSync.callOnClick();
+//        fabSync.callOnClick();
+
     }
 
     @Override
@@ -282,26 +296,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        unregisterReceiver(broadcastReceiver);
 //        stopScan();
         scanLeDevice(false);
+        adapter = null;
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     @Override
     public void onClick(View v) { //버튼 클릭 리스너
@@ -321,26 +317,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                             }
                         }).show();
-
                 break;
             case R.id.fab_sync: //블루투스 기기 찾기(4.0)
-                if (getScanning()) {  //스캔 시작
+                if (enableBluetooth()) {
+                    if (getScanning()) {  //스캔 시작
 //                    unregisterReceiver(broadcastReceiver);
 //                    stopScan();
-                    scanLeDevice(false);
-                } else { //재 스캔시(10초이내)
-                    deviceItemArrayList.clear();
+                        scanLeDevice(false);
+                    } else { //재 스캔시(10초이내)
+                        deviceItemArrayList.clear();
 
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
 
 
 //                    registerReceiver(broadcastReceiver, intentFilter);
 //                    startScan();
-                    scanLeDevice(true);
+                        scanLeDevice(true);
+                    }
+                } else {
+                    Snackbar.make(v, "You musst initalize Bluetooth", Snackbar.LENGTH_SHORT).show();
                 }
+
                 break;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

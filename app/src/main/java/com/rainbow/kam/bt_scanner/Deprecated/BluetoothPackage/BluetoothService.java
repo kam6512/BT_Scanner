@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.BluetoothPackage;
+package com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -17,16 +17,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.Tools.GattAttributes;
+import com.rainbow.kam.bt_scanner.Tools.BLE.BLEGattAttributes;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Created by sion on 2015-10-14.
+ * Created by kam6512 on 2015-10-14.
  */
 public class BluetoothService extends Service implements Serializable {
 
@@ -37,16 +36,27 @@ public class BluetoothService extends Service implements Serializable {
     private static final int STATE_CONNECTED = 2; // 연결됨
     private int connectionState = STATE_DISCONNECTED; //현재상황
 
+    //    public final static String ACTION_GATT_CONNECTED =
+//            "com.rainbow.kam.bluetooth.ACTION_GATT_CONNECTED";
+//    public final static String ACTION_GATT_DISCONNECTED =
+//            "com.rainbow.kam.bluetooth.ACTION_GATT_DISCONNECTED";
+//    public final static String ACTION_GATT_SERVICES_DISCOVERED =
+//            "com.rainbow.kam.bluetooth.ACTION_GATT_SERVICES_DISCOVERED";
+//    public final static String ACTION_DATA_AVAILABLE =
+//            "com.rainbow.kam.bluetooth.ACTION_DATA_AVAILABLE";
+//    public final static String EXTRA_DATA =
+//            "com.rainbow.kam.bluetooth.EXTRA_DATA";
+
     public final static String ACTION_GATT_CONNECTED =
-            "com.rainbow.kam.bluetooth.ACTION_GATT_CONNECTED";
+            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
-            "com.rainbow.kam.bluetooth.ACTION_GATT_DISCONNECTED";
+            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "com.rainbow.kam.bluetooth.ACTION_GATT_SERVICES_DISCOVERED";
+            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
-            "com.rainbow.kam.bluetooth.ACTION_DATA_AVAILABLE";
+            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
-            "com.rainbow.kam.bluetooth.EXTRA_DATA";
+            "com.example.bluetooth.le.EXTRA_DATA";
 
     //본 앱에서만 쓰일 로컬바인더로 초기화
     private final IBinder mBinder = new LocalBinder();
@@ -64,10 +74,10 @@ public class BluetoothService extends Service implements Serializable {
 
     //주소 String과 블루투스 Gatt
     private String mBluetoothDeviceAddress;
-    private BluetoothGatt bluetoothGatt;
+    public BluetoothGatt bluetoothGatt;
 
     //UUID 값 초기화
-    public final static UUID getMyUuid = UUID.fromString(GattAttributes.UUID);
+    public final static UUID getMyUuid = UUID.fromString(BLEGattAttributes.Characteristic.HEART_RATE_MEASUREMENT);
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() { //블루투스 Gatt콜백
         @Override
@@ -84,14 +94,14 @@ public class BluetoothService extends Service implements Serializable {
 
                 //브로드 캐스트를 업데이트
                 broadcastUpdate(intentAction);
-                new Handler(getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i(TAG, "Connected to GATT server.");
-                        Log.i(TAG, "Attempting to start service discovery:" +
-                                bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
-                    }
-                });
+
+                if (bluetoothGatt != null) {
+                    Log.i(TAG, "Connected to GATT server.");
+                    Log.i(TAG, "Attempting to start service discovery:" +
+                            bluetoothGatt.discoverServices()); //블루투스 가트 서비스 여부를 가져옴
+                } else {
+                    onConnectionStateChange(gatt, BluetoothProfile.STATE_DISCONNECTED, BluetoothGatt.GATT_FAILURE);
+                }
 
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { //현재상태
@@ -120,7 +130,7 @@ public class BluetoothService extends Service implements Serializable {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
-            Log.i(TAG, "onCharacteristicRead GATT_SUCCESS.");
+            Log.i(TAG, "onCharacteristicRead GATT_SUCCESS and minning UUID.");
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
@@ -163,12 +173,26 @@ public class BluetoothService extends Service implements Serializable {
             intent.putExtra(EXTRA_DATA, String.valueOf(value));
 
         } else {    //내 UUID와 Characteristic의 UUID불일치
+
             final byte[] data = characteristic.getValue();
+            int flag = characteristic.getProperties();
+
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for (byte byteChar : data)
+                for (byte byteChar : data) {
                     stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+                }
+
+                if (UUID.fromString(BLEGattAttributes.Characteristic.BATTRY).equals(characteristic.getUuid())) {
+                    Log.e(TAG, "BLEGattAttributes.Battery is available");
+                    long v = Long.parseLong(stringBuilder.toString().trim(), 16);
+                    String.valueOf(v);
+                    intent.putExtra(EXTRA_DATA, "name : " + new String(data) + "\n" + "잔량 : " + String.valueOf(v) + "\n" + "Properties : " + flag);
+                } else {
+                    intent.putExtra(EXTRA_DATA, "name : " + new String(data) + "\n" + "Hex : " + stringBuilder.toString() + "\n" + "Properties : " + flag);
+                }
+
+
             }
         }
         //브로드 캐스트 날림
@@ -255,7 +279,7 @@ public class BluetoothService extends Service implements Serializable {
     public void disconnect() {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             refreshDeviceGattCache(bluetoothGatt);
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Log.w(TAG, "BluetoothAdapter not initialized_disconnect");
             return;
         }
 
@@ -277,7 +301,7 @@ public class BluetoothService extends Service implements Serializable {
     //Characteristic 읽기
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Log.w(TAG, "BluetoothAdapter not initialized_readCharacteristic");
             return;
         }
         //인자로 받은 Characteristic를 넘겨 가공시킨다
@@ -287,18 +311,15 @@ public class BluetoothService extends Service implements Serializable {
     //GATT 통지 수신
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
-
-        Log.w(TAG, "setCharacteristicNotification");
-
         if (bluetoothAdapter == null || bluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Log.w(TAG, "BluetoothAdapter not initialized_setCharacteristicNotification");
             return;
         }
         bluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         if (getMyUuid.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+                    UUID.fromString(BLEGattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             bluetoothGatt.writeDescriptor(descriptor);
         }
@@ -313,7 +334,7 @@ public class BluetoothService extends Service implements Serializable {
 
     private boolean refreshDeviceGattCache(BluetoothGatt bluetoothGatt) {
         try {
-            Log.e(TAG, "refresh");
+            Log.i(TAG, "refresh");
             BluetoothGatt localGatt = bluetoothGatt;
             Method localMethod = localGatt.getClass().getMethod("refresh", new Class[0]);
             if (localMethod != null) {

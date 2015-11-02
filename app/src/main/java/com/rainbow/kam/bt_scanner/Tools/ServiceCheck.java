@@ -5,7 +5,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 
 /**
- * Created by kam6376 on 2015-07-17.
+ * Created by kam6512 on 2015-07-17.
  */
 public class ServiceCheck {
     public boolean BtnSVC_Run(Context context, String serviceName) {

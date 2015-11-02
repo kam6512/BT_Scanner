@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Tools;
+package com.rainbow.kam.bt_scanner.Tools.BLE;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Created by sion on 2015-10-19.
+ * Created by kam6512 on 2015-10-19.
  */
 public class BleTools {
     private final String TAG = BleTools.class.getSimpleName();
