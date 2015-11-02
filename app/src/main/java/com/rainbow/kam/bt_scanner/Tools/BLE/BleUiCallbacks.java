@@ -8,7 +8,7 @@ import android.bluetooth.BluetoothGattService;
 import java.util.List;
 
 /**
- * Created by sion on 2015-10-29.
+ * Created by kam6512 on 2015-10-29.
  */
 public interface BleUiCallbacks {
 

@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by sion on 2015-10-26.
+ * Created by kam6512 on 2015-10-26.
  */
 public class DetailExpandableAdapter extends BaseExpandableListAdapter {
 

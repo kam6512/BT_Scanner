@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 /**
- * Created by sion on 2015-10-29.
+ * Created by kam6512 on 2015-10-29.
  */
 public class DetailCharacteristicFragment extends Fragment {
 
@@ -38,7 +38,7 @@ public class DetailCharacteristicFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("char","onCreateView");
+        Log.e("char", "onCreateView");
         activity = getActivity();
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
@@ -46,10 +46,10 @@ public class DetailCharacteristicFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new DetailAdapter(characteristicItemArrayList, activity, activity);
-        if (adapter == null){
-            Log.e("char","adapter is a null");
-        }else{
-            Log.e("char","adapter is not a null");
+        if (adapter == null) {
+            Log.e("char", "adapter is a null");
+        } else {
+            Log.e("char", "adapter is not a null");
         }
         recyclerView.setAdapter(adapter);
         return view;
@@ -75,9 +75,12 @@ public class DetailCharacteristicFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-//    public BluetoothGattService getService(int index) {
+    //    public BluetoothGattService getService(int index) {
 //        return serviceItemArrayList.get(index).getBluetoothGattService();
 //    }
+    public BluetoothGattCharacteristic getCharacteristic(int index) {
+        return characteristicItemArrayList.get(index).getBluetoothGattCharacteristic();
+    }
 
     public void noti() {
         adapter.notifyDataSetChanged();

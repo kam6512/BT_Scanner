@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Created by sion on 2015-10-14.
+ * Created by kam6512 on 2015-10-14.
  */
 public class BluetoothService extends Service implements Serializable {
 

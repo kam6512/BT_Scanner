@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 /**
- * Created by sion on 2015-10-29.
+ * Created by kam6512 on 2015-10-29.
  */
 public class DetailServiceFragment extends Fragment {
 
@@ -39,9 +39,9 @@ public class DetailServiceFragment extends Fragment {
     private RecyclerView recyclerView;
     private DetailAdapter adapter;
     private ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<ServiceItem>();
-    Animation animation;
-    View animView;
-    int position;
+    private Animation animation;
+    private View animView;
+    private int position;
 
     @Nullable
     @Override
@@ -88,6 +88,7 @@ public class DetailServiceFragment extends Fragment {
     }
 
     public void startTransition(int position) {
+        recyclerView.smoothScrollToPosition(0);
         DetailAdapter.ServiceViewHolder transitionViewHolder = adapter.getServiceViewHolder();
         animView = transitionViewHolder.getView();
         this.position = position;
@@ -109,10 +110,10 @@ public class DetailServiceFragment extends Fragment {
             public void run() {
                 resetTransition();
             }
-        },animation.getDuration());
+        }, animation.getDuration());
     }
 
-    public void resetTransition(){
+    public void resetTransition() {
         DetailAdapter.ServiceViewHolder transitionViewHolder = adapter.getServiceViewHolder();
         animView = transitionViewHolder.getView();
         Log.e("animation", "reset position : " + position);
@@ -123,7 +124,7 @@ public class DetailServiceFragment extends Fragment {
                 Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, (-1.0f * position),
-                Animation.RELATIVE_TO_SELF, 0.0f,);
+                Animation.RELATIVE_TO_SELF, 0.0f);
 //        animation = new TranslateAnimation(bundle.getFloat("X"), recyclerView.getX(), bundle.getFloat("Y"), recyclerView.getY());
         animation.setDuration(1000);
         animation.setFillAfter(true);

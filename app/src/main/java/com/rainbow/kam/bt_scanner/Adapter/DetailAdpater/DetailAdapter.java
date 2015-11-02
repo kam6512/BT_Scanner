@@ -19,7 +19,7 @@ import com.rainbow.kam.bt_scanner.Tools.BLE.BLEGattAttributes;
 import java.util.ArrayList;
 
 /**
- * Created by sion on 2015-10-29.
+ * Created by kam6512 on 2015-10-29.
  */
 public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -184,7 +184,8 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Message message = Message.obtain(DetailActivity.handler, 2, getLayoutPosition());
+                    Log.e(TAG, getLayoutPosition()+"");
+                    Message message = Message.obtain(DetailActivity.handler, 2, getLayoutPosition(),0);
                     DetailActivity.handler.sendMessage(message);
                 }
             });

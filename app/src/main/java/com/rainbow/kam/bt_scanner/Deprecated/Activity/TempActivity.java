@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by sion on 2015-10-29.
+ * Created by kam6512 on 2015-10-29.
  */
 public class TempActivity extends AppCompatActivity {
 
@@ -53,7 +53,7 @@ public class TempActivity extends AppCompatActivity {
     private ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
     private String[][] gattData;
 
-    int i = 0, j = 0;
+    private int i = 0, j = 0;
 
     //블루투스 서비스목록의 태그
     private final String LIST_NAME = "NAME";
@@ -61,10 +61,10 @@ public class TempActivity extends AppCompatActivity {
 
     private Intent gattServiceIntent;
 
-    ExpandableListView expandableListView;
-    SimpleExpandableListAdapter simpleExpandableListAdapter;
-    DetailExpandableAdapter detailExpandableAdapter;
-    ExpandableListView.OnChildClickListener onChildClickListener;
+    private ExpandableListView expandableListView;
+    private SimpleExpandableListAdapter simpleExpandableListAdapter;
+    private DetailExpandableAdapter detailExpandableAdapter;
+    private ExpandableListView.OnChildClickListener onChildClickListener;
 
 
     @Override

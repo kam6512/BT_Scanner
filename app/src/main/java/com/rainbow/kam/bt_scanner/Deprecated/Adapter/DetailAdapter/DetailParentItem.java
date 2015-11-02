@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by sion on 2015-10-14.
+ * Created by kam6512 on 2015-10-14.
  */
 public class DetailParentItem { //카드 뷰 틀
     private String parentTitle;

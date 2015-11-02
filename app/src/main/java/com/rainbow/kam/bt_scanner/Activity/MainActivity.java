@@ -34,6 +34,9 @@ import com.rainbow.kam.bt_scanner.Tools.BLE.BleTools;
 
 import java.util.ArrayList;
 
+/**
+ * Created by kam6512 on 2015-10-22.
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity"; //로그용 태그
@@ -46,11 +49,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isScanning; //스캔중 여부
     private final long SCAN_PERIOD = 10000; //스캔시간
 
-    Toolbar toolbar;
-    DrawerLayout drawerLayout;
-    NavigationView navigationView;
+    private Toolbar toolbar;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
-    CoordinatorLayout coordinatorLayout;
+    private CoordinatorLayout coordinatorLayout;
 
     private RecyclerView recyclerView; //리사이클러 뷰
     private RecyclerView.Adapter adapter; //리사이클러 어댑터

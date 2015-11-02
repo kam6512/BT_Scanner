@@ -6,7 +6,7 @@
     android:layout_gravity="center"
     android:background="@null"
     app:cardBackgroundColor="#ff8c00"
-    app:cardCornerRadius="10dp"
+    app:cardCornerRadius="2dp"
     app:cardElevation="7dp"
     app:cardPreventCornerOverlap="false"
     app:contentPadding="0dp">

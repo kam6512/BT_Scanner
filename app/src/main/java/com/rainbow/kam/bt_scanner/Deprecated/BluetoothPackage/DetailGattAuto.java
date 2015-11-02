@@ -62,7 +62,7 @@ public class DetailGattAuto {
 
     private Intent gattServiceIntent;
 
-    int index = 0;
+    private int index = 0;
 
 
     public DetailGattAuto(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {

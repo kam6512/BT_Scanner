@@ -3,7 +3,7 @@ package com.rainbow.kam.bt_scanner.Adapter.DetailAdpater;
 import android.bluetooth.BluetoothGattCharacteristic;
 
 /**
- * Created by sion on 2015-10-29.
+ * Created by kam6512 on 2015-10-29.
  */
 public class CharacteristicItem {
     private String title;
