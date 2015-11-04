@@ -19,8 +19,8 @@ android {
     }
     productFlavors {
     }
-}
 
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:support-v4:23.0.0'
@@ -28,4 +28,11 @@ dependencies {
     compile 'com.android.support:design:23.0.1'
     compile 'com.android.support:cardview-v7:23.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'io.realm:realm-android:0.84.1'
+    compile('com.github.afollestad.material-dialogs:commons:0.8.5.0@aar') {
+        transitive = true
+    }
+}
+repositories {
+    maven { url "https://jitpack.io" }
 }

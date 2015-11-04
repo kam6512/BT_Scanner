@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public static Handler handler;  //핸들러 - Find 메세지 핸들링
     private boolean isScanning; //스캔중 여부
-    private final long SCAN_PERIOD = 10000; //스캔시간
+    private final long SCAN_PERIOD = 5000; //스캔시간
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             hasCard.setVisibility(View.VISIBLE);
                         }
                         adapter = null;
-                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, MainActivity.this, getWindow().getDecorView(), deviceItemArrayList.size());
+                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, MainActivity.this, getWindow().getDecorView(), deviceItemArrayList.size(),false);
                         recyclerView.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
                     }

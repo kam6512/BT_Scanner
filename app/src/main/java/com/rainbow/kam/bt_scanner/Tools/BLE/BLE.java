@@ -261,9 +261,12 @@ public class BLE {
 
             if (rawValue.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
-                for (byte bytrChar : rawValue) {
-                    stringBuilder.append(String.format("%c", bytrChar));
+
+                for (byte byteChar : rawValue) {
+                    stringBuilder.append(String.format("%c", byteChar));
+
                 }
+
                 strValue = stringBuilder.toString();
             }
         }
@@ -301,7 +304,9 @@ public class BLE {
     }
 
     public void writeDataToCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
-        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
+        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null)
+            return;
+        else {
             bluetoothGattCharacteristic.setValue(dataToWrite);
             bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
         }
@@ -309,6 +314,7 @@ public class BLE {
 
     public void setNotificationForCharacteristic(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
+            Log.e(TAG, "is null");
             return;
         }
         boolean success = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
@@ -319,9 +325,11 @@ public class BLE {
 
         BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(BLEGattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
         if (bluetoothGattDescriptor != null) {
+            Log.e(TAG, "start Notify");
             byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
             bluetoothGattDescriptor.setValue(value);
-            bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            boolean enable = bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            Log.e(TAG, value[0] + value[1] + "writeDescriptor : " + enable);
         }
     }
 

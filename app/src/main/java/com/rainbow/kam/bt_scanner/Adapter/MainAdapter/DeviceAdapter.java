@@ -3,6 +3,8 @@ package com.rainbow.kam.bt_scanner.Adapter.MainAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +16,8 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.Activity.DetailActivity;
 import com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage.DetailGattAuto;
+import com.rainbow.kam.bt_scanner.Nursing.Fragment.SelectNursingDeviceFragment;
+import com.rainbow.kam.bt_scanner.Nursing.Fragment.StartNursingFragment;
 import com.rainbow.kam.bt_scanner.R;
 
 import java.util.ArrayList;
@@ -37,15 +41,18 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private int listLength;
     private Device[] devices;
 
+    private boolean isNursing = false;
+
     public static SimpleExpandableListAdapter[] simpleExpandableListAdapter = null;
     public static ExpandableListView.OnChildClickListener[] onChildClickListener = null;
 
-    public DeviceAdapter(ArrayList<DeviceItem> deviceItemArrayList, Activity activity, Context context, View view, int listLength) { //초기화
+    public DeviceAdapter(ArrayList<DeviceItem> deviceItemArrayList, Activity activity, Context context, View view, int listLength, boolean isNursing) { //초기화
         this.deviceItemArrayList = deviceItemArrayList;
         this.activity = activity;
         this.context = context;
         this.view = view;
         this.listLength = listLength;
+        this.isNursing = isNursing;
         simpleExpandableListAdapter = new SimpleExpandableListAdapter[this.listLength];
         onChildClickListener = new ExpandableListView.OnChildClickListener[this.listLength];
         devices = new Device[this.listLength];
@@ -104,11 +111,21 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             fab_connect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(activity, DetailActivity.class);
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, extraName.getText().toString());
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, extraAddress.getText().toString());
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, extraRssi.getText().toString());
-                    activity.startActivity(intent);
+                    if (isNursing) {
+                        Bundle info = getInfomation();
+                        Message message = new Message();
+                        message.setData(info);
+                        SelectNursingDeviceFragment.handler.sendEmptyMessage(0);
+                        StartNursingFragment.handler.sendMessage(message);
+
+                    } else {
+                        Intent intent = new Intent(activity, DetailActivity.class);
+                        intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, extraName.getText().toString());
+                        intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, extraAddress.getText().toString());
+                        intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, extraRssi.getText().toString());
+                        activity.startActivity(intent);
+                    }
+
                 }
             });
         }
@@ -121,6 +138,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             extraType.setText(String.valueOf(deviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(deviceItem.getExtraRssi()));
 
+        }
+
+        public Bundle getInfomation() {
+            Bundle info = new Bundle();
+            info.putString("name", extraName.getText().toString());
+            info.putString("address", extraName.getText().toString());
+            return info;
         }
     }
 }

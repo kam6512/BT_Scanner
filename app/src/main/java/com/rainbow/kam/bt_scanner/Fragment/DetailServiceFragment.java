@@ -114,20 +114,25 @@ public class DetailServiceFragment extends Fragment {
     }
 
     public void resetTransition() {
-        DetailAdapter.ServiceViewHolder transitionViewHolder = adapter.getServiceViewHolder();
-        animView = transitionViewHolder.getView();
-        Log.e("animation", "reset position : " + position);
-        AnimationSet animationSet = new AnimationSet(true);
-        animationSet.setInterpolator(new AccelerateInterpolator());
-        Bundle bundle = transitionViewHolder.getParams();
-        animation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0.0f,
-                Animation.RELATIVE_TO_SELF, 0.0f,
-                Animation.RELATIVE_TO_SELF, (-1.0f * position),
-                Animation.RELATIVE_TO_SELF, 0.0f);
+        try {
+            DetailAdapter.ServiceViewHolder transitionViewHolder = adapter.getServiceViewHolder();
+            animView = transitionViewHolder.getView();
+            Log.e("animation", "reset position : " + position);
+            AnimationSet animationSet = new AnimationSet(true);
+            animationSet.setInterpolator(new AccelerateInterpolator());
+            Bundle bundle = transitionViewHolder.getParams();
+            animation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, (-1.0f * position),
+                    Animation.RELATIVE_TO_SELF, 0.0f);
 //        animation = new TranslateAnimation(bundle.getFloat("X"), recyclerView.getX(), bundle.getFloat("Y"), recyclerView.getY());
-        animation.setDuration(1000);
-        animation.setFillAfter(true);
-        animView.startAnimation(animation);
+            animation.setDuration(1000);
+            animation.setFillAfter(true);
+            animView.startAnimation(animation);
+        } catch (Exception e) {
+
+        }
+
     }
 }

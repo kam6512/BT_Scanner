@@ -115,13 +115,15 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             @Override
             public void run() {
                 listType = ListType.GATT_SERVICES;
-                serviceFragment.clearAdapter();
-
-                for (BluetoothGattService bluetoothGattService : ble.getBluetoothGattServices()) {
-                    serviceFragment.addService(bluetoothGattService);
+                if (serviceFragment != null) {
+                    serviceFragment.clearAdapter();
+                    for (BluetoothGattService bluetoothGattService : ble.getBluetoothGattServices()) {
+                        serviceFragment.addService(bluetoothGattService);
+                    }
+                    serviceFragment.noti();
+                } else {
+                    return;
                 }
-                serviceFragment.noti();
-
             }
         });
     }
@@ -147,6 +149,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Log.e(TAG, "uiCharacteristicsDetails");
                 listType = ListType.GATT_CHARACTERISTIC_DETAILS;
                 detailFragment.setCharacteristic(characteristic);
                 detailFragment.onStartDetail();
@@ -173,6 +176,13 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                byte[] res = characteristic.getValue();
+                for (int i = 0; i < res.length; i++) {
+                    int lsb = characteristic.getValue()[i] & 0xff;
+                    Log.e(TAG, "res = " + res[i] + " lsb = " + lsb + "\n");
+                }
+
+                Toast.makeText(getApplicationContext(), "uiGotNotification " + res[0], Toast.LENGTH_LONG).show();
                 detailFragment.setNotificationEnabledForService(characteristic);
             }
         });
