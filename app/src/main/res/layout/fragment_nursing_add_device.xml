@@ -29,5 +29,5 @@
         android:layout_centerVertical="true"
         android:layout_gravity="center"
         android:indeterminate="true"
-        android:text="@string/has_not_card" />
+        android:text="@string/has_not_card_nurs" />
 </RelativeLayout>

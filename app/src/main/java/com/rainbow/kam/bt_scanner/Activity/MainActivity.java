@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceItem;
+import com.rainbow.kam.bt_scanner.Nursing.Activity.MainNursingActivity;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.BLE.BleTools;
 import com.rainbow.kam.bt_scanner.Nursing.Activity.StartNursingActivity;
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setHasFixedSize(true);
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
+
     }
 
     @Override

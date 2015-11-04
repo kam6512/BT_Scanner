@@ -35,7 +35,7 @@ public class StartNursingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start_nursing);
+        setContentView(R.layout.activity_nursing_start);
 
 
         nursingHandler = new Handler();
@@ -48,14 +48,6 @@ public class StartNursingActivity extends AppCompatActivity {
             }
         });
         inflateFragment(true);
-
-
-//        nursingHandler = new Handler() {
-//            @Override
-//            public void handleMessage(Message msg) {
-//                super.handleMessage(msg);
-//            }
-//        };
 
     }
 

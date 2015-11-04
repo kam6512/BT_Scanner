@@ -34,7 +34,7 @@ import com.rainbow.kam.bt_scanner.Tools.BLE.BleTools;
 import java.util.ArrayList;
 
 /**
- * Created by sion on 2015-11-04.
+ * Created by kam6512 on 2015-11-04.
  */
 public class SelectNursingDeviceFragment extends DialogFragment {
 
@@ -45,7 +45,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
     private final String TAG = "SelectDialog"; //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1; //result 플래그
 
-    public static Handler handler;  //핸들러 - Find 메세지 핸들링
+    private Handler handler;  //핸들러 - Find 메세지 핸들링
     private boolean isScanning; //스캔중 여부
     private final long SCAN_PERIOD = 5000; //스캔시간
 
@@ -67,14 +67,8 @@ public class SelectNursingDeviceFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_nursing_add_device, container, false);
         activity = getActivity();
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                Toast.makeText(activity, "success!", Toast.LENGTH_SHORT).show();
-                dismiss();
-            }
-        };
+
+        handler = new Handler();
 
         progressBar = (ProgressBar) view.findViewById(R.id.nursing_device_progress);
         progressBar.setVisibility(View.INVISIBLE);
@@ -87,10 +81,8 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
 
-        // remove dialog title
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-        // remove dialog background
         getDialog().getWindow().setBackgroundDrawable(
                 new ColorDrawable(android.graphics.Color.TRANSPARENT));
         return view;
@@ -100,17 +92,24 @@ public class SelectNursingDeviceFragment extends DialogFragment {
     public void onResume() {
         super.onResume();
         try {
-            //블루투스 매니저/어댑터 초기화
             bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
             if (bluetoothAdapter == null || bluetoothManager == null) {
+
                 throw new Exception();
+            }else{
+                startScan();
             }
 
-            startScan();
         } catch (Exception e) {
-            Toast.makeText(activity, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
-
+            Toast.makeText(activity, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(init Fail)", Toast.LENGTH_LONG).show();
+//            Log.e(TAG,e.getMessage());
+            if (bluetoothAdapter == null){
+                Log.e(TAG,"BA null");
+            }
+            if (bluetoothManager == null){
+                Log.e(TAG,"BM null");
+            }
         }
     }
 
@@ -121,15 +120,9 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         adapter = null;
     }
 
-    public View getMainView() {
-        return view;
-    }
-
-    public void startScan() {
+    private void startScan() {
         if (enableBluetooth()) {
             if (getScanning()) {  //스캔 시작
-//                    unregisterReceiver(broadcastReceiver);
-//                    stopScan();
                 scanLeDevice(false);
             } else { //재 스캔시(10초이내)
                 deviceItemArrayList.clear();
@@ -138,9 +131,6 @@ public class SelectNursingDeviceFragment extends DialogFragment {
                     adapter.notifyDataSetChanged();
                 }
 
-
-//                    registerReceiver(broadcastReceiver, intentFilter);
-//                    startScan();
                 scanLeDevice(true);
             }
         } else {
@@ -149,7 +139,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
 
     }
 
-    public boolean getScanning() {//스캔중
+    private boolean getScanning() {//스캔중
         if (isScanning) {
             return true;
         } else {
@@ -157,7 +147,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         }
     }
 
-    public boolean enableBluetooth() {//블루투스 가동여부
+    private boolean enableBluetooth() {//블루투스 가동여부
         Log.d(TAG, "enableBluetooth");
 
         if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
@@ -172,7 +162,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         }
     }
 
-    public void scanLeDevice(final boolean enable) {//저전력 스캔
+    private void scanLeDevice(final boolean enable) {//저전력 스캔
         try {
             if (enable) {   //시작중이면
                 handler.postDelayed(new Runnable() {
@@ -205,48 +195,49 @@ public class SelectNursingDeviceFragment extends DialogFragment {
                 hasCard.setVisibility(View.INVISIBLE);
             }
         } catch (Exception e) {
-            Toast.makeText(activity, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
-
+            Toast.makeText(activity, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(LE Fail)", Toast.LENGTH_LONG).show();
+            Log.e(TAG, e.getStackTrace().toString());
         }
 
 
     }
 
-    public BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
-                    String deviceName = device.getName();
-                    if (deviceName == null) {
-                        deviceName = bleAdvertisedData.getName();
-                        if (deviceName == null) {
-                            deviceName = "N/A";
-                        }
-                    }
                     try {
+                        final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
+
+                        String deviceName = device.getName();
+                        if (deviceName == null) {
+                            deviceName = bleAdvertisedData.getName();
+                            if (deviceName == null) {
+                                deviceName = "N/A";
+                            }
+                        }
+
                         if (deviceName.equals("Prime")) {
                             deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                         }
-                    } catch (Exception e) {
 
-                    }
+                        for (int i = 0; i < deviceItemArrayList.size(); i++) {
+                            for (int j = 1; j < deviceItemArrayList.size(); j++) {
+                                if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
+                                    if (i == j) {
 
-//                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-                    for (int i = 0; i < deviceItemArrayList.size(); i++) {
-                        for (int j = 1; j < deviceItemArrayList.size(); j++) {
-                            if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
-                                if (i == j) {
-
-                                } else {
-                                    deviceItemArrayList.remove(j);
+                                    } else {
+                                        deviceItemArrayList.remove(j);
+                                    }
                                 }
+
                             }
 
                         }
-
+                    } catch (Exception e) {
+                        Log.e(TAG, "leScanCallback is Exception" + e.getMessage());
                     }
                 }
             });

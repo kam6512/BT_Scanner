@@ -112,10 +112,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onClick(View v) {
                     if (isNursing) {
+
                         Bundle info = getInfomation();
                         Message message = new Message();
                         message.setData(info);
-                        SelectNursingDeviceFragment.handler.sendEmptyMessage(0);
                         StartNursingFragment.handler.sendMessage(message);
 
                     } else {
@@ -143,7 +143,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public Bundle getInfomation() {
             Bundle info = new Bundle();
             info.putString("name", extraName.getText().toString());
-            info.putString("address", extraName.getText().toString());
+            info.putString("address", extraAddress.getText().toString());
             return info;
         }
     }
