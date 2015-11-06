@@ -39,11 +39,11 @@
                 <item
                     android:id="@+id/nursing_info_prime"
                     android:icon="@drawable/ic_menu"
-                    android:title="샘플"></item>
+                    android:title="Prime"></item>
                 <item
                     android:id="@+id/nursing_info_goal"
                     android:icon="@drawable/ic_menu"
-                    android:title="샘플"></item>
+                    android:title="GOAL"></item>
             </group>
 
         </menu>

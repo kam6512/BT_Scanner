@@ -263,6 +263,7 @@ public class BLE {
                 final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
 
                 for (byte byteChar : rawValue) {
+//                    Log.e("rawValue",String.format("%c", byteChar));
                     stringBuilder.append(String.format("%c", byteChar));
 
                 }
@@ -304,9 +305,13 @@ public class BLE {
     }
 
     public void writeDataToCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
-        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null)
+        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
+            Log.e(TAG, "writeDataToCharacteristic null");
             return;
+        }
         else {
+            Log.e(TAG, "writeDataToCharacteristic start");
+            bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             bluetoothGattCharacteristic.setValue(dataToWrite);
             bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
         }
@@ -384,7 +389,7 @@ public class BLE {
             String description = "Device: " + deviceName + " Service: " + serviceName + " Characteristic: " + characteristicName;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                bleUiCallbacks.uiSuccessfulWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description);
+                bleUiCallbacks.uiSuccessfulWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description+ " STATUS= " + status);
             } else {
                 bleUiCallbacks.uiFailedWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
             }

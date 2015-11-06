@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setHasFixedSize(true);
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
-
+        startActivity(new Intent(MainActivity.this, MainNursingActivity.class));
     }
 
     @Override

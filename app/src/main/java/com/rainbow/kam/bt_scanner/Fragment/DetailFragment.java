@@ -133,6 +133,7 @@ public class DetailFragment extends Fragment {
                 part = "0x" + tmp.substring(i * 2, i * 2 + 2);
                 bytes[i] = Long.decode(part).byteValue();
                 checksum = (checksum ^ bytes[i]);
+                Log.e("part", "part : " + part);
             }
             Log.e("cS","checkSum : " + checksum);
             return bytes;
