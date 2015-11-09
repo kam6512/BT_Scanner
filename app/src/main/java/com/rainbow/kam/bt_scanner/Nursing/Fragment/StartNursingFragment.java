@@ -169,7 +169,7 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
         if (dialogFragment != null) {
             dialogFragment.dismiss();
         }
-        startActivity(new Intent(getActivity(), MainNursingActivity.class));
+        getActivity().finish();
     }
 
     @Override
@@ -189,7 +189,7 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
                 gender = "여성";
                 break;
             default:
-                gender = "NULL";
+                gender = "남성";
                 break;
         }
 

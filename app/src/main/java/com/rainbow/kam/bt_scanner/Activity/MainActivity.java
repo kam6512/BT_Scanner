@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setHasFixedSize(true);
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
-        startActivity(new Intent(MainActivity.this, MainNursingActivity.class));
+//        startActivity(new Intent(MainActivity.this, MainNursingActivity.class));
     }
 
     @Override
@@ -139,8 +139,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Snackbar.make(getWindow().getDecorView(), "Scanner Layout", Snackbar.LENGTH_LONG).show();
                                 return true;
                             case R.id.nav_nursing:
-                                Intent startNursing = new Intent(MainActivity.this, StartNursingActivity.class);
-                                startActivity(startNursing);
+//                                Intent startNursing = new Intent(MainActivity.this, MainNursingActivity.class);
+//                                startActivity(startNursing);
+                                finish();
                                 return true;
                             case R.id.nav_link1:
                                 Intent browser1 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.android.com/"));

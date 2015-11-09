@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,7 @@ import com.rainbow.kam.bt_scanner.Nursing.Patient.Patient;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.BLE.BLE;
 import com.rainbow.kam.bt_scanner.Tools.BLE.BleUiCallbacks;
+import com.rainbow.kam.bt_scanner.Tools.BLE.WrapperBLE;
 
 import java.util.List;
 
@@ -35,15 +38,13 @@ public class DashboardFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-
-
     private Activity activity = getActivity();
+    public static Handler handler;
 
     private View view;
-    private TextView textView;
+    private TextView time, data;
     public static final String ARG_PAGE = "ARG_PAGE";
     private int mPage;
-
 
 
     public static DashboardFragment newInstance(int page) {
@@ -58,14 +59,31 @@ public class DashboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPage = getArguments().getInt(ARG_PAGE);
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+//                Log.e(TAG, "OBJ = " + (String) msg.obj);
+                switch (msg.what) {
+                    case 1:
+                        time.setText((String) msg.obj);
+                        break;
+                    case 2:
+                        data.setText((String) msg.obj);
+                        break;
+                }
+            }
+        };
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragmnet_nursing_dashboard, container, false);
-        textView = (TextView) view.findViewById(R.id.tab_tv);
-        textView.setText("Fragment #" + mPage);
+        time = (TextView) view.findViewById(R.id.deviceTime);
+        data = (TextView) view.findViewById(R.id.deviceData);
+//        textView.setText("Fragment #" + mPage);
+
 
         return view;
     }
