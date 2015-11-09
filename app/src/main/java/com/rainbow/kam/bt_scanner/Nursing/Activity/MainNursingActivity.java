@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Activity.MainActivity;
@@ -79,6 +80,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
     private int bleProcess = 0;
     private boolean isNewUser = false;
+    private boolean isCharcteristicRunning = false;
 
     @Override
     protected void onStart() {
@@ -163,7 +165,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             return true;
                         case R.id.nursing_about_setting:
                             Snackbar.make(coordinatorLayout, "nursing_about_setting", Snackbar.LENGTH_LONG).show();
+                            realm.beginTransaction();
                             realm.clear(Patient.class);
+                            realm.commitTransaction();
+                            System.exit(0);
                             return true;
                         case R.id.nursing_about_about:
                             Snackbar.make(coordinatorLayout, "nursing_about_about", Snackbar.LENGTH_LONG).show();
@@ -204,7 +209,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-
+                isCharcteristicRunning = true;
                 Message message = handler.obtainMessage(msg.what, msg.arg1, msg.arg2, msg.obj);
                 byte[] dataToWrite;
                 Log.e("what", msg.what + " is what");
@@ -213,23 +218,22 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 //                        dataToWrite = WrapperBLE.READ_DEVICE_TIME();
                         dataToWrite = WrapperBLE.READ_DEVICE_TIME();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-
                         break;
 
                     case 1: //Check the time result And READ_STEP_DATA
                         dashboardFragment.handler.sendMessage(message);
-
                         dataToWrite = WrapperBLE.READ_STEP_DATA(8);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
-
 
                     case 2: // READ_STEP_DATA result
                         dashboardFragment.handler.sendMessage(message);
                         break;
 
+                    case -1: //new User
+                        dataToWrite = WrapperBLE.SET_USER_DATA();
+                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
 
-                    case 3: //Read Step Data
                         break;
                     default:
                         bleProcess = 0;
@@ -251,9 +255,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         if (ble.initialize() == false) {
             finish();
         }
-
         ble.connect(deviceAddress);
-
     }
 
     @Override
@@ -295,7 +297,19 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.e(TAG, "Disconnected");
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("연결시도", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                onResume();
+                            }
+                        }).show();
+                        Log.e(TAG, "Disconnected");
+                    }
+                }, 300);
+
             }
         });
     }
@@ -311,8 +325,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 ble.getCharacteristicsForService(bluetoothGattService);
             }
         });
-
-
     }
 
     @Override
@@ -338,13 +350,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        handler.sendEmptyMessage(bleProcess);
+                        if (isNewUser) {
+                            handler.sendEmptyMessage(-1);
+                        } else {
+                            handler.sendEmptyMessage(bleProcess);
+                        }
                     }
                 }, 300);
-
             }
         });
-
     }
 
     @Override
@@ -360,43 +374,77 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 String result = "";
                 byte[] res = characteristic.getValue();
 
-
-                switch (bleProcess) {
-                    case 0:
-                        for (int i = 0; i < res.length; i++) {
-                            int lsb = characteristic.getValue()[i] & 0xff;
-//                    result += String.format("%3s", Integer.toHexString(res[i]));
-                            if (i > 1 && i != res.length - 1) {
-                                result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16) + " / ";
-                            }
-                            Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
-                        }
-                        break;
-                    case 1:
-                        for (int i = 0; i < res.length; i++) {
-                            int lsb = characteristic.getValue()[i] & 0xff;
-                            if (i > 1 && i != res.length - 1) {
-                                result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16) + " / ";
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
+                Bundle bundle = new Bundle();
+                String step = "";
+                String calo = "";
+                String dist = "";
 
                 final Message handleMessage = new Message();
                 handleMessage.what = ++bleProcess;
                 handleMessage.arg1 = 0;
                 handleMessage.arg2 = 0;
-                handleMessage.obj = result;
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        handler.sendMessage(handleMessage);
+
+                if (isNewUser) {
+                    isNewUser = false;
+                } else {
+                    switch (bleProcess) {
+                        case 0:
+                            for (int i = 0; i < res.length; i++) {
+                                int lsb = characteristic.getValue()[i] & 0xff;
+//                    result += String.format("%3s", Integer.toHexString(res[i]));
+                                if (i > 1 && i != res.length - 1) {
+                                    result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16) + " / ";
+                                }
+                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
+                            }
+                            handleMessage.obj = result;
+                            break;
+                        case 1:
+                            for (int i = 0; i < res.length; i++) {
+                                int lsb = characteristic.getValue()[i] & 0xff;
+                                if (i > 1 && i != res.length - 1) {
+                                    result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16) + " / ";
+                                    switch (i) {
+                                        case 2:
+                                        case 3:
+                                        case 4:
+                                            step += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16);
+                                            break;
+
+                                        case 5:
+                                        case 6:
+                                        case 7:
+                                            calo += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16);
+                                            break;
+
+                                        case 8:
+                                        case 9:
+                                        case 10:
+                                            dist += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16);
+                                            break;
+                                    }
+
+                                }
+                            }
+                            bundle.putString("STEP", step);
+                            bundle.putString("CALO", calo);
+                            bundle.putString("DIST", dist);
+                            handleMessage.setData(bundle);
+                            break;
+                        default:
+                            break;
                     }
-                }, 300);
-                Toast.makeText(getApplicationContext(), "uiGotNotification " + res[0], Toast.LENGTH_LONG).show();
+
+
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            handler.sendMessage(handleMessage);
+                        }
+                    }, 300);
+                    Toast.makeText(getApplicationContext(), "uiGotNotification " + res[0], Toast.LENGTH_LONG).show();
+                    isCharcteristicRunning = false;
+                }
             }
         });
     }
@@ -406,8 +454,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(), "Writing to " + description + " was finished successfully!", Toast.LENGTH_LONG).show();
                 Log.e("uiSuccessfulWrite", description);
+                isCharcteristicRunning = false;
+                if (isNewUser) {
+                    Toast.makeText(getApplicationContext(), "유저등록성공.", Toast.LENGTH_LONG).show();
+                    handler.sendEmptyMessage(bleProcess);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Writing to " + description + " was finished successfully!", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -417,8 +471,13 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(), "Writing to " + description + " FAILED!", Toast.LENGTH_LONG).show();
                 Log.e("uiFailedWrite", description);
+                isCharcteristicRunning = false;
+                if (isNewUser) {
+                    handler.sendEmptyMessage(bleProcess);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Writing to " + description + " FAILED!", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -441,7 +500,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
         @Override
         public Fragment getItem(int position) {
-//            return DashboardFragment.newInstance(position + 1);
             return dashboardFragment.newInstance(position + 1);
         }
 

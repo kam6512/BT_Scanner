@@ -57,7 +57,7 @@
             <item
                 android:id="@+id/nursing_about_setting"
                 android:icon="@drawable/ic_link"
-                android:title="설정" />
+                android:title="유저정보 지우기" />
             <item
                 android:id="@+id/nursing_about_about"
                 android:icon="@drawable/ic_link"

@@ -69,7 +69,9 @@ public class DashboardFragment extends Fragment {
                         time.setText((String) msg.obj);
                         break;
                     case 2:
-                        data.setText((String) msg.obj);
+                        Bundle bundle = msg.getData();
+                        String userData = "걸음 수 : "+ bundle.getString("STEP")+ "칼로리 소비 : "+ bundle.getString("CALO")+ "거리 : "+ bundle.getString("DIST");
+                        data.setText(userData);
                         break;
                 }
             }
