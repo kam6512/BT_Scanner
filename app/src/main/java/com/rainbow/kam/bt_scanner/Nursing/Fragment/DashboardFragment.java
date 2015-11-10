@@ -66,11 +66,17 @@ public class DashboardFragment extends Fragment {
 //                Log.e(TAG, "OBJ = " + (String) msg.obj);
                 switch (msg.what) {
                     case 1:
-                        time.setText((String) msg.obj);
+                        time.setText("시간 : " + (String) msg.obj);
                         break;
                     case 2:
                         Bundle bundle = msg.getData();
-                        String userData = "걸음 수 : "+ bundle.getString("STEP")+ "칼로리 소비 : "+ bundle.getString("CALO")+ "거리 : "+ bundle.getString("DIST");
+                        String step = bundle.getString("STEP");
+                        String calo = bundle.getString("CALO");
+                        String dist = bundle.getString("DIST");
+                        step = "" + Integer.valueOf(step, 16);
+                        calo = "" + Integer.valueOf(calo, 16);
+                        dist = "" + Integer.valueOf(dist, 16);
+                        String userData = "걸음 수 : " + step + " 칼로리 소비 : " + calo + " 거리 : " + dist;
                         data.setText(userData);
                         break;
                 }

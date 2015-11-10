@@ -72,9 +72,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
     private String patientName = null;
     private String patientAge = null;
-    private String patientHeight = null;
-    private String patientWeight = null;
+    public static String patientHeight = null;
+    public static String patientWeight = null;
     private String patientStep = null;
+    private String patientGender = null;
     private String deviceName = null;
     private String deviceAddress = null;
 
@@ -96,6 +97,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             patientHeight = results.get(0).getHeight();
             patientWeight = results.get(0).getWeight();
             patientStep = results.get(0).getStep();
+            if (results.get(0).getGender().equals("남성")) {
+                patientGender = "1";
+            } else {
+                patientGender = "0";
+            }
             deviceName = results.get(0).getDeviceName();
             deviceAddress = results.get(0).getDeviceAddress();
             if (patientName == null || patientAge == null || patientHeight == null || patientWeight == null || patientStep == null || deviceName == null || deviceAddress == null) {
@@ -168,7 +174,12 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             realm.beginTransaction();
                             realm.clear(Patient.class);
                             realm.commitTransaction();
-                            System.exit(0);
+                            if (isCharcteristicRunning) {
+                                byte[] dataToWrite;
+                                dataToWrite = WrapperBLE.CLEAR_DATA();
+                                ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                            }
+//                            System.exit(0);
                             return true;
                         case R.id.nursing_about_about:
                             Snackbar.make(coordinatorLayout, "nursing_about_about", Snackbar.LENGTH_LONG).show();
@@ -211,6 +222,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 super.handleMessage(msg);
                 isCharcteristicRunning = true;
                 Message message = handler.obtainMessage(msg.what, msg.arg1, msg.arg2, msg.obj);
+                message.setData(msg.getData());
                 byte[] dataToWrite;
                 Log.e("what", msg.what + " is what");
                 switch (msg.what) {
@@ -231,7 +243,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         break;
 
                     case -1: //new User
-                        dataToWrite = WrapperBLE.SET_USER_DATA();
+                        dataToWrite = WrapperBLE.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
 
                         break;
@@ -288,6 +300,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e(TAG, "Connected");
+                isCharcteristicRunning = true;
             }
         });
     }
@@ -306,6 +319,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                 onResume();
                             }
                         }).show();
+                        isCharcteristicRunning = false;
                         Log.e(TAG, "Disconnected");
                     }
                 }, 300);
@@ -356,7 +370,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             handler.sendEmptyMessage(bleProcess);
                         }
                     }
-                }, 300);
+                }, 1000);
             }
         });
     }
@@ -380,9 +394,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 String dist = "";
 
                 final Message handleMessage = new Message();
-                handleMessage.what = ++bleProcess;
-                handleMessage.arg1 = 0;
-                handleMessage.arg2 = 0;
 
                 if (isNewUser) {
                     isNewUser = false;
@@ -402,25 +413,31 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         case 1:
                             for (int i = 0; i < res.length; i++) {
                                 int lsb = characteristic.getValue()[i] & 0xff;
+                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
+
                                 if (i > 1 && i != res.length - 1) {
-                                    result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16) + " / ";
+                                    result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16) + " / ";
                                     switch (i) {
                                         case 2:
                                         case 3:
                                         case 4:
-                                            step += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16);
+                                            step +=Integer.toHexString(lsb);
+//                                            step += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16);
+                                            Log.e(TAG, step);
                                             break;
-
                                         case 5:
                                         case 6:
                                         case 7:
-                                            calo += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16);
+                                            calo +=Integer.toHexString(lsb);
+//                                            calo += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16);
+                                            Log.e(TAG, calo);
                                             break;
-
                                         case 8:
                                         case 9:
                                         case 10:
-                                            dist += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16);
+                                            dist +=Integer.toHexString(lsb);
+//                                            dist += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16);
+                                            Log.e(TAG, dist);
                                             break;
                                     }
 
@@ -434,6 +451,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         default:
                             break;
                     }
+                    handleMessage.what = ++bleProcess;
+                    handleMessage.arg1 = 0;
+                    handleMessage.arg2 = 0;
 
 
                     handler.postDelayed(new Runnable() {
@@ -444,6 +464,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     }, 300);
                     Toast.makeText(getApplicationContext(), "uiGotNotification " + res[0], Toast.LENGTH_LONG).show();
                     isCharcteristicRunning = false;
+
                 }
             }
         });

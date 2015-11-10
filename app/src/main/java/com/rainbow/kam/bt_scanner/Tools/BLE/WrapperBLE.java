@@ -2,6 +2,8 @@ package com.rainbow.kam.bt_scanner.Tools.BLE;
 
 import android.util.Log;
 
+import com.rainbow.kam.bt_scanner.Tools.BLE.Device.BandDeviceList;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,11 +24,15 @@ public class WrapperBLE {
                 '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
         };
     */
+
+    public static BandDeviceList bandDeviceList = new BandDeviceList();
+
     public static final byte[] READ_DEVICE_TIME() {
         return parseHexStringToBytes("0x8900");
     }
 
     public static final byte[] READ_DEVICE_BATTERY() {
+        
         return parseHexStringToBytes("0xC60108");
     }
 
@@ -67,8 +73,21 @@ public class WrapperBLE {
         return parseHexStringToBytes("0xC403010603");
     }
 
-    public static final byte[] SET_USER_DATA() {
-        return parseHexStringToBytes("0x832f00000000000000000000000000000000000000000000000000000000000000000001b46446640b1e071e0200000000");
+    public static final byte[] SET_USER_DATA(int gender, int height, int weight, int stride, int runningStride) {
+//        return parseHexStringToBytes("0x832f00000000000000000000000000000000000000000000000000000000000000000001b46446640b1e071e0200000000");
+        String ex = "0x832f00000000000000000000000000000000000000000000000000000000000000000001b46446640b1e071e0200000000";
+
+
+        String info = "0x832f000000000000000000000000000000000000000000000000000000000000000000";
+        info += setWidth(String.valueOf(gender));
+        info += setWidth(Integer.toHexString(height));
+        info += setWidth(Integer.toHexString(weight));
+        info += setWidth(Integer.toHexString(stride));
+        info += setWidth(Integer.toHexString(runningStride));
+        info += "0b1e071e0200000000";
+
+        Log.e("USERDATA", ex + "\n" + info);
+        return parseHexStringToBytes(info);
     }
 
 

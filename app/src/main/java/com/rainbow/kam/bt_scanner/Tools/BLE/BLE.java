@@ -13,9 +13,11 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.util.Xml;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -263,8 +265,13 @@ public class BLE {
                 final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
 
                 for (byte byteChar : rawValue) {
-                    Log.e("rawValue",String.format("%c", byteChar));
-                    stringBuilder.append(String.format("%c", byteChar));
+//                    Log.e("rawValue",String.format("%c", byteChar));
+                    try {
+                        stringBuilder.append(String.format("%c", byteChar));
+                    } catch (IllegalFormatCodePointException e) {
+
+                        stringBuilder.append((char) byteChar);
+                    }
 
                 }
 
