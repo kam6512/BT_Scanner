@@ -1,35 +1,16 @@
 package com.rainbow.kam.bt_scanner.Nursing.Fragment;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.Nursing.Activity.StartNursingActivity;
-import com.rainbow.kam.bt_scanner.Nursing.Patient.Patient;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.BLE.BLE;
-import com.rainbow.kam.bt_scanner.Tools.BLE.BleUiCallbacks;
-import com.rainbow.kam.bt_scanner.Tools.BLE.WrapperBLE;
-
-import java.util.List;
-
-import io.realm.Realm;
-import io.realm.RealmQuery;
-import io.realm.RealmResults;
 
 /**
  * Created by sion on 2015-11-04.

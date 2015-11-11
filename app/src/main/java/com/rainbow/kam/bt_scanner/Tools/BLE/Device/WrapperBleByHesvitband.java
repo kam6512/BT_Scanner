@@ -1,20 +1,15 @@
-package com.rainbow.kam.bt_scanner.Tools.BLE;
+package com.rainbow.kam.bt_scanner.Tools.BLE.Device;
 
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.Tools.BLE.Device.BandDeviceList;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
 /**
  * Created by sion on 2015-11-04.
  */
-public class WrapperBLE {
+public class WrapperBleByHesvitband {
     /*
         private static final int sizeOfIntInHalfBytes = 2;
         private static final int numberOfBitsInAHalfByte = 1;
@@ -32,7 +27,7 @@ public class WrapperBLE {
     }
 
     public static final byte[] READ_DEVICE_BATTERY() {
-        
+
         return parseHexStringToBytes("0xC60108");
     }
 

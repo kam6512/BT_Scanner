@@ -33,7 +33,7 @@ import com.rainbow.kam.bt_scanner.Nursing.Patient.Patient;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.BLE.BLE;
 import com.rainbow.kam.bt_scanner.Tools.BLE.BleUiCallbacks;
-import com.rainbow.kam.bt_scanner.Tools.BLE.WrapperBLE;
+import com.rainbow.kam.bt_scanner.Tools.BLE.Device.WrapperBleByPrime;
 
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
             realm = Realm.getInstance(this);
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
-            Log.e("Dashboard", results.size() + " / " + results.get(0).getName() + " / " + results.get(0).getAge() + " / " + results.get(0).getHeight() + " / " + results.get(0).getWeight() + " / " + results.get(0).getStep() + " / " + results.get(0).getDeviceName() + " / " + results.get(0).getDeviceAddress());
+//            Log.e("Dashboard", results.size() + " / " + results.get(0).getName() + " / " + results.get(0).getAge() + " / " + results.get(0).getHeight() + " / " + results.get(0).getWeight() + " / " + results.get(0).getStep() + " / " + results.get(0).getDeviceName() + " / " + results.get(0).getDeviceAddress());
 
             patientName = results.get(0).getName();
             patientAge = results.get(0).getAge();
@@ -176,7 +176,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             realm.commitTransaction();
                             if (isCharcteristicRunning) {
                                 byte[] dataToWrite;
-                                dataToWrite = WrapperBLE.CLEAR_DATA();
+                                dataToWrite = WrapperBleByPrime.CLEAR_DATA();
                                 ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                             }
 //                            System.exit(0);
@@ -214,6 +214,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
             }
         });
+        dashboardFragment = new DashboardFragment();
         tabLayout.setupWithViewPager(viewPager);
 
         handler = new Handler() {
@@ -225,36 +226,42 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 message.setData(msg.getData());
                 byte[] dataToWrite;
                 Log.e("what", msg.what + " is what");
-                switch (msg.what) {
+                switch (message.what) {
                     case 0:  //Check the time
-//                        dataToWrite = WrapperBLE.READ_DEVICE_TIME();
-                        dataToWrite = WrapperBLE.READ_DEVICE_TIME();
+//                        dataToWrite = WrapperBleByPrime.READ_DEVICE_TIME();
+                        dataToWrite = WrapperBleByPrime.READ_DEVICE_TIME();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
                     case 1: //Check the time result And READ_STEP_DATA
                         dashboardFragment.handler.sendMessage(message);
-                        dataToWrite = WrapperBLE.READ_STEP_DATA(8);
+                        dataToWrite = WrapperBleByPrime.READ_STEP_DATA(8);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
-                    case 2: // READ_STEP_DATA result
+                    case 2:
                         dashboardFragment.handler.sendMessage(message);
+                        dataToWrite = WrapperBleByPrime.READ_SPORTS_CURVE_DATA();
+                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                        break;
+                    case 3:
+                        dashboardFragment.handler.sendMessage(message);
+                        Log.e(TAG,"READ_SPORTS_CURVE_DATA's result = " + msg.obj);
                         break;
 
                     case -1: //new User
-                        dataToWrite = WrapperBLE.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
+                        dataToWrite = WrapperBleByPrime.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
 
                         break;
                     default:
-                        bleProcess = 0;
+//                        bleProcess = 0;
                         break;
                 }
             }
         };
 
-        dashboardFragment = new DashboardFragment();
+
     }
 
 
@@ -316,7 +323,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("연결시도", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                onResume();
+                               MainNursingActivity.this.onResume();
                             }
                         }).show();
                         isCharcteristicRunning = false;
@@ -404,10 +411,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                 int lsb = characteristic.getValue()[i] & 0xff;
 //                    result += String.format("%3s", Integer.toHexString(res[i]));
                                 if (i > 1 && i != res.length - 1) {
-                                    result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(res[i])), 16) + " / ";
+                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16) + " / ";
                                 }
                                 Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
                             }
+                            handleMessage.what = ++bleProcess;
                             handleMessage.obj = result;
                             break;
                         case 1:
@@ -416,42 +424,51 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                 Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
 
                                 if (i > 1 && i != res.length - 1) {
-                                    result += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16) + " / ";
+                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(lsb)), 16) + " / ";
                                     switch (i) {
                                         case 2:
                                         case 3:
                                         case 4:
-                                            step +=Integer.toHexString(lsb);
-//                                            step += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16);
+                                            step += Integer.toHexString(lsb);
                                             Log.e(TAG, step);
                                             break;
                                         case 5:
                                         case 6:
                                         case 7:
-                                            calo +=Integer.toHexString(lsb);
-//                                            calo += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16);
+                                            calo += Integer.toHexString(lsb);
                                             Log.e(TAG, calo);
                                             break;
                                         case 8:
                                         case 9:
                                         case 10:
-                                            dist +=Integer.toHexString(lsb);
-//                                            dist += Integer.valueOf(WrapperBLE.setWidth(Integer.toHexString(lsb)), 16);
+                                            dist += Integer.toHexString(lsb);
                                             Log.e(TAG, dist);
                                             break;
                                     }
 
                                 }
                             }
+                            handleMessage.what = ++bleProcess;
                             bundle.putString("STEP", step);
                             bundle.putString("CALO", calo);
                             bundle.putString("DIST", dist);
                             handleMessage.setData(bundle);
                             break;
+                        case 2:
+                            for (int i = 0; i < res.length; i++) {
+                                int lsb = characteristic.getValue()[i] & 0xff;
+//                                if (i > 1 && i != res.length - 1) {
+                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16) + " / ";
+//                                }
+                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
+                            }
+                            handleMessage.what = 3;
+                            handleMessage.obj = result;
+                            break;
                         default:
                             break;
                     }
-                    handleMessage.what = ++bleProcess;
+//                    handleMessage.what = ++bleProcess;
                     handleMessage.arg1 = 0;
                     handleMessage.arg2 = 0;
 

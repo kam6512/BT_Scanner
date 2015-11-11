@@ -263,9 +263,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                     try {
-                        if (deviceName.equals("Prime")) {
+//                        if (deviceName.equals("Prime")) {
                             deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-                        }
+//                        }
                     } catch (Exception e) {
 
                     }
