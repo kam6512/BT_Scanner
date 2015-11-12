@@ -1,13 +1,20 @@
 package com.rainbow.kam.bt_scanner.Nursing.Activity;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Nursing.Fragment.StartNursingFragment;
 import com.rainbow.kam.bt_scanner.R;
@@ -29,7 +36,6 @@ public class StartNursingActivity extends AppCompatActivity {
 
     private StartNursingFragment startNusingFragment;
 
-    public static Handler nursingHandler;
     public static int indexByStart = 0;
 
     @Override
@@ -37,8 +43,6 @@ public class StartNursingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nursing_start);
 
-
-        nursingHandler = new Handler();
 
         startNursingFab = (FloatingActionButton) findViewById(R.id.nursing_next_fab);
         startNursingFab.setOnClickListener(new View.OnClickListener() {
@@ -63,5 +67,16 @@ public class StartNursingActivity extends AppCompatActivity {
         }
 
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+//        finish();
+//        android.os.Process.killProcess(android.os.Process.myPid());
+//        super.onDestroy();
     }
 }

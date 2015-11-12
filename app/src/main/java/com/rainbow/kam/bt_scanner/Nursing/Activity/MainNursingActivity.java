@@ -1,11 +1,15 @@
 package com.rainbow.kam.bt_scanner.Nursing.Activity;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,10 +29,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Activity.MainActivity;
+import com.rainbow.kam.bt_scanner.BuildConfig;
 import com.rainbow.kam.bt_scanner.Nursing.Fragment.DashboardFragment;
+import com.rainbow.kam.bt_scanner.Nursing.Fragment.SampleFragment;
 import com.rainbow.kam.bt_scanner.Nursing.Patient.Patient;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.BLE.BLE;
@@ -51,6 +59,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private Handler handler;
 
     private DashboardFragment dashboardFragment;
+    private SampleFragment sampleFragment;
 
     private BLE ble;
     private List<BluetoothGattService> serviceList;
@@ -61,6 +70,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
     private CoordinatorLayout coordinatorLayout;
     private Toolbar toolbar;
+    private TextView toolbarRssi;
+    private ImageView toolbarBluetoothFlag;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private TabLayout tabLayout;
@@ -71,10 +82,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private Realm realm;
 
     private String patientName = null;
-    private String patientAge = null;
+    public static String patientAge = null;
     public static String patientHeight = null;
     public static String patientWeight = null;
-    private String patientStep = null;
+    public static String patientStep = null;
     private String patientGender = null;
     private String deviceName = null;
     private String deviceAddress = null;
@@ -82,6 +93,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private int bleProcess = 0;
     private boolean isNewUser = false;
     private boolean isCharcteristicRunning = false;
+
+
+    private Snackbar snackbar;
+
 
     @Override
     protected void onStart() {
@@ -112,6 +127,42 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             startActivity(new Intent(MainNursingActivity.this, StartNursingActivity.class));
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    Toast.makeText(this, "ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
+                }
+                requestPermissions(new String[]{
+                        Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+                }, 1);
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "권한의 남용을 주의 하십시오", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! do the
+                    // calendar task you need to do.
+                } else {
+                    finish();
+                    Log.d(TAG, "Permission always deny");
+                    Toast.makeText(getApplicationContext(), "권한의 획득을 거부하여 앱을 종료합니다", Toast.LENGTH_SHORT).show();
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                break;
+        }
     }
 
     @Override
@@ -127,6 +178,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        toolbarRssi = (TextView) findViewById(R.id.nursing_toolbar_rssi);
+        toolbarBluetoothFlag = (ImageView) findViewById(R.id.nursing_toolbar_bluetoothFlag);
+        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
+
         drawerLayout = (DrawerLayout) findViewById(R.id.nursing_drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nursing_nav_view);
         if (navigationView != null) {
@@ -136,40 +191,40 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     menuItem.setChecked(true);
                     drawerLayout.closeDrawer(GravityCompat.START);
                     switch (menuItem.getItemId()) {
-                        case R.id.nursing_dashboard:
+                        case R.id.menu_nursing_dashboard:
                             viewPager.setCurrentItem(0, true);
                             Snackbar.make(coordinatorLayout, "nursing_dashboard", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_dashboard_step:
+                        case R.id.menu_nursing_dashboard_step:
                             viewPager.setCurrentItem(1, true);
                             Snackbar.make(coordinatorLayout, "nursing_dashboard_step", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_dashboard_calorie:
+                        case R.id.menu_nursing_dashboard_calorie:
                             viewPager.setCurrentItem(2, true);
                             Snackbar.make(coordinatorLayout, "nursing_dashboard_calorie", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_dashboard_distance:
+                        case R.id.menu_nursing_dashboard_distance:
                             viewPager.setCurrentItem(3, true);
                             Snackbar.make(coordinatorLayout, "nursing_dashboard_distance", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_dashboard_sleep:
+                        case R.id.menu_nursing_dashboard_sleep:
                             viewPager.setCurrentItem(4, true);
                             Snackbar.make(coordinatorLayout, "nursing_dashboard_sleep", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_info_user:
+                        case R.id.menu_nursing_info_user:
                             Snackbar.make(coordinatorLayout, "nursing_info_user", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_info_prime:
+                        case R.id.menu_nursing_info_prime:
                             Snackbar.make(coordinatorLayout, "nursing_info_prime", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_info_goal:
+                        case R.id.menu_nursing_info_goal:
                             Snackbar.make(coordinatorLayout, "nursing_info_goal", Snackbar.LENGTH_LONG).show();
                             return true;
-                        case R.id.nursing_about_dev:
+                        case R.id.menu_nursing_about_dev:
                             Snackbar.make(coordinatorLayout, "nursing_about_dev", Snackbar.LENGTH_LONG).show();
                             startActivity(new Intent(MainNursingActivity.this, MainActivity.class));
                             return true;
-                        case R.id.nursing_about_setting:
+                        case R.id.menu_nursing_about_setting:
                             Snackbar.make(coordinatorLayout, "nursing_about_setting", Snackbar.LENGTH_LONG).show();
                             realm.beginTransaction();
                             realm.clear(Patient.class);
@@ -181,7 +236,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             }
 //                            System.exit(0);
                             return true;
-                        case R.id.nursing_about_about:
+                        case R.id.menu_nursing_about_about:
                             Snackbar.make(coordinatorLayout, "nursing_about_about", Snackbar.LENGTH_LONG).show();
                             return true;
 
@@ -193,15 +248,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
 
         tabLayout = (TabLayout) findViewById(R.id.nursing_tabs);
-
-        viewPager = (ViewPager) findViewById(R.id.nursing_viewpager);
         dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager(), this);
+        viewPager = (ViewPager) findViewById(R.id.nursing_viewpager);
         viewPager.setAdapter(dashBoardAdapter);
+        viewPager.setOffscreenPageLimit(5);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
+                viewPager.setCurrentItem(tab.getPosition(), true);
             }
 
             @Override
@@ -215,7 +270,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             }
         });
         dashboardFragment = new DashboardFragment();
+        sampleFragment = new SampleFragment();
         tabLayout.setupWithViewPager(viewPager);
+
+        snackbar = Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("연결시도", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                connectDevice();
+            }
+        });
 
         handler = new Handler() {
             @Override
@@ -241,12 +304,13 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                     case 2:
                         dashboardFragment.handler.sendMessage(message);
-                        dataToWrite = WrapperBleByPrime.READ_SPORTS_CURVE_DATA();
+                        dataToWrite = WrapperBleByPrime.CALL_DEVICE();
+//                        dataToWrite = WrapperBleByPrime.READ_SPORTS_CURVE_DATA();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
                     case 3:
                         dashboardFragment.handler.sendMessage(message);
-                        Log.e(TAG,"READ_SPORTS_CURVE_DATA's result = " + msg.obj);
+                        Log.e(TAG, "READ_SPORTS_CURVE_DATA's result = " + msg.obj);
                         break;
 
                     case -1: //new User
@@ -254,37 +318,29 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
 
                         break;
+                    case -2://re-connect
+                        disconnectDevice();
+                        connectDevice();
+                        break;
                     default:
 //                        bleProcess = 0;
                         break;
                 }
             }
         };
-
-
     }
-
 
     @Override
     public void onResume() {
         super.onResume();
-        if (ble == null) {
-            ble = new BLE(this, this);
-        }
-        if (ble.initialize() == false) {
-            finish();
-        }
-        ble.connect(deviceAddress);
+        connectDevice();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        ble.stopMonitoringRssiValue();
-        ble.disconnect();
-        ble.close();
+        disconnectDevice();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -294,6 +350,23 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void connectDevice() {
+        if (ble == null) {
+            ble = new BLE(this, this);
+        }
+        if (ble.initialize() == false) {
+            finish();
+        }
+        ble.connect(deviceAddress);
+    }
+
+    private void disconnectDevice() {
+        ble.stopMonitoringRssiValue();
+        ble.disconnect();
+        ble.close();
+        ble = null;
     }
 
     @Override
@@ -308,6 +381,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             public void run() {
                 Log.e(TAG, "Connected");
                 isCharcteristicRunning = true;
+                snackbar.dismiss();
+                toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
             }
         });
     }
@@ -320,17 +395,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("연결시도", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                               MainNursingActivity.this.onResume();
-                            }
-                        }).show();
                         isCharcteristicRunning = false;
+                        snackbar.show();
+
+                        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
+                        toolbarRssi.setText("No Signal");
                         Log.e(TAG, "Disconnected");
                     }
                 }, 300);
-
             }
         });
     }
@@ -409,9 +481,54 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         case 0:
                             for (int i = 0; i < res.length; i++) {
                                 int lsb = characteristic.getValue()[i] & 0xff;
-//                    result += String.format("%3s", Integer.toHexString(res[i]));
                                 if (i > 1 && i != res.length - 1) {
-                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16) + " / ";
+                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16);
+                                    switch (i) {
+                                        case 2:
+                                            result += "년 ";
+                                            break;
+                                        case 3:
+                                            result += "월 ";
+                                            break;
+                                        case 4:
+                                            result += "일 ";
+                                            break;
+                                        case 5:
+                                            result += "시 ";
+                                            break;
+                                        case 6:
+                                            result += "분 ";
+                                            break;
+                                        case 7:
+                                            result += "초 ";
+                                            break;
+                                        case 8:
+                                            result = result.substring(0, result.length() - 1);
+                                            switch (Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16)) {
+                                                case 1:
+                                                    result += "월";
+                                                    break;
+                                                case 2:
+                                                    result += "화";
+                                                    break;
+                                                case 3:
+                                                    result += "수";
+                                                    break;
+                                                case 4:
+                                                    result += "목";
+                                                    break;
+                                                case 5:
+                                                    result += "금";
+                                                    break;
+                                                case 6:
+                                                    result += "토";
+                                                    break;
+                                                case 7:
+                                                    result += "일";
+                                                    break;
+                                            }
+                                            break;
+                                    }
                                 }
                                 Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
                             }
@@ -439,10 +556,28 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                             Log.e(TAG, calo);
                                             break;
                                         case 8:
+                                            dist += Integer.toHexString(lsb);
+                                            break;
                                         case 9:
+                                            dist += Integer.toHexString(lsb);
+                                            break;
                                         case 10:
                                             dist += Integer.toHexString(lsb);
-                                            Log.e(TAG, dist);
+                                            int distance;
+                                            int steps = Integer.valueOf(step, 16);
+                                            int age = Integer.parseInt(patientAge);
+                                            double height = Integer.parseInt(patientHeight);
+                                            if (age <= 15 || age >= 65) {
+                                                distance = (int) ((height * 0.37) * steps);
+                                            } else if (15 < age || age < 45) {
+                                                distance = (int) ((height * 0.45) * steps);
+                                            } else if (45 <= age || age < 65) {
+                                                distance = (int) ((height * 0.40) * steps);
+                                            } else {
+                                                distance = (int) ((height * 0.30) * steps);
+                                            }
+                                            Log.e(TAG, "dist : " + dist + " distance : " + distance + " age : " + age + " steps : " + steps + " height  : " + height);
+                                            dist = String.valueOf(distance / 100) + "m";
                                             break;
                                     }
 
@@ -457,18 +592,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         case 2:
                             for (int i = 0; i < res.length; i++) {
                                 int lsb = characteristic.getValue()[i] & 0xff;
-//                                if (i > 1 && i != res.length - 1) {
-                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16) + " / ";
-//                                }
-                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
                             }
+
                             handleMessage.what = 3;
                             handleMessage.obj = result;
                             break;
                         default:
                             break;
                     }
-//                    handleMessage.what = ++bleProcess;
                     handleMessage.arg1 = 0;
                     handleMessage.arg2 = 0;
 
@@ -521,13 +652,18 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void uiNewRssiAvailable(BluetoothGatt gatt, BluetoothDevice device, int rssi) {
-
+    public void uiNewRssiAvailable(BluetoothGatt gatt, BluetoothDevice device, final int rssi) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                toolbarRssi.setText(rssi + "db");
+            }
+        });
     }
 
     private class DashBoardAdapter extends FragmentStatePagerAdapter {
 
-        final int PAGE_COUNT = 1;
+        final int PAGE_COUNT = 5;
         private String tabTitles[] = new String[]{"DASHBOARD", "STEP", "CALORIE", "DISTANCE", "SLEEP"};
         private Context context;
 
@@ -538,7 +674,26 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
         @Override
         public Fragment getItem(int position) {
-            return dashboardFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    return dashboardFragment.newInstance(position + 1);
+
+                case 1:
+                    return sampleFragment.newInstance(position + 1);
+
+                case 2:
+                    return sampleFragment.newInstance(position + 1);
+
+                case 3:
+                    return sampleFragment.newInstance(position + 1);
+
+                case 4:
+                    return sampleFragment.newInstance(position + 1);
+
+                default:
+                    return sampleFragment.newInstance(position + 1);
+            }
+
         }
 
         @Override

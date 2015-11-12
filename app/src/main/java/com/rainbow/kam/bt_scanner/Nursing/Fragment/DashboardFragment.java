@@ -1,6 +1,7 @@
 package com.rainbow.kam.bt_scanner.Nursing.Fragment;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 import com.rainbow.kam.bt_scanner.R;
 
 /**
- * Created by sion on 2015-11-04.
+ * Created by kam6512 on 2015-11-04.
  */
 public class DashboardFragment extends Fragment {
 
@@ -23,7 +24,8 @@ public class DashboardFragment extends Fragment {
     public static Handler handler;
 
     private View view;
-    private TextView time, data;
+    private TextView time;
+    private TextView stepTextview, calorieTextview, distanceTextview;
     public static final String ARG_PAGE = "ARG_PAGE";
     private int mPage;
 
@@ -44,23 +46,28 @@ public class DashboardFragment extends Fragment {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-//                Log.e(TAG, "OBJ = " + (String) msg.obj);
-                switch (msg.what) {
-                    case 1:
-                        time.setText("시간 : " + (String) msg.obj);
-                        break;
-                    case 2:
-                        Bundle bundle = msg.getData();
-                        String step = bundle.getString("STEP");
-                        String calo = bundle.getString("CALO");
-                        String dist = bundle.getString("DIST");
-                        step = "" + Integer.valueOf(step, 16);
-                        calo = "" + Integer.valueOf(calo, 16);
-                        dist = "" + Integer.valueOf(dist, 16);
-                        String userData = "걸음 수 : " + step + " 칼로리 소비 : " + calo + " 거리 : " + dist;
-                        data.setText(userData);
-                        break;
+                try {
+                    switch (msg.what) {
+                        case 1:
+                            time.setText("시간 : " + (String) msg.obj);
+                            break;
+                        case 2:
+                            Bundle bundle = msg.getData();
+                            String step = bundle.getString("STEP");
+                            String calo = bundle.getString("CALO");
+                            String dist = bundle.getString("DIST");
+                            step = "" + Integer.valueOf(step, 16);
+                            calo = "" + Integer.valueOf(calo, 16);
+
+                            stepTextview.setText(step);
+                            calorieTextview.setText(calo);
+                            distanceTextview.setText(dist);
+                            break;
+                    }
+                } catch (Exception e) {
+
                 }
+
             }
         };
     }
@@ -68,10 +75,18 @@ public class DashboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragmnet_nursing_dashboard, container, false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view = inflater.inflate(R.layout.fragmnet_nursing_dashboard_21, container, false);
+        }else {
+            view = inflater.inflate(R.layout.fragmnet_nursing_dashboard, container, false);
+        }
+
         time = (TextView) view.findViewById(R.id.deviceTime);
-        data = (TextView) view.findViewById(R.id.deviceData);
-//        textView.setText("Fragment #" + mPage);
+//        data = (TextView) view.findViewById(R.id.deviceData);
+
+        stepTextview = (TextView) view.findViewById(R.id.dashboard_step);
+        calorieTextview = (TextView) view.findViewById(R.id.dashboard_calorie);
+        distanceTextview = (TextView) view.findViewById(R.id.dashboard_distance);
 
 
         return view;

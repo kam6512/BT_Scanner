@@ -49,6 +49,9 @@ public class WrapperBleByPrime {
         return parseHexStringToBytes("0xC601" + String.format("%02d", week));
     }
 
+    public static final byte[] CALL_DEVICE() {
+        return parseHexStringToBytes("0xfw30101");
+    }
 
     public static final byte[] SET_DEVICE_TIME_NOW() {
         String setDate = "0xC207";
