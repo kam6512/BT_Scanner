@@ -14,5 +14,27 @@
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
 
-    <color name="rippelColor">#FFFFFF</color>
+    <color name="rippleColor">#00d7ff</color>
+
+    <color name="stepColor">#00d7ff</color>
+    <color name="stepAccent">#32aaff</color>
+    <color name="stepPrimary">#32f1ff</color>
+    <color name="stepPrimaryDark">#0078ff</color>
+
+    <color name="caloColor">#ff5675</color>
+    <color name="caloAccent">#ff4500</color>
+    <color name="caloPrimary">#ff88a7</color>
+    <color name="caloPrimaryDark">#dc143c</color>
+
+    <color name="dirColor">#b2fa5c</color>
+    <color name="dirAccent">#32cd32</color>
+    <color name="dirPrimary">#54bd54</color>
+    <color name="dirPrimaryDark">#228b22</color>
+
+    <color name="etcColor">#ffd700</color>
+    <color name="etcAccent">#ffc300</color>
+    <color name="etcPrimary">#fff56e</color>
+    <color name="etcPrimaryDark">#ff9100</color>
+
+
 </resources>

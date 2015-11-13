@@ -21,4 +21,13 @@
         <attr name="cb_color" format="color" />
         <attr name="cb_pressedRingWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="CircularMeter">
+        <attr name="textColor" format="color" />
+        <attr name="textSize" format="dimension" />
+        <attr name="typeface" format="string" />
+        <attr name="metricSize" format="dimension" />
+        <attr name="metricText" format="string" />
+        <attr name="range" format="integer" />
+    </declare-styleable>
 </resources>

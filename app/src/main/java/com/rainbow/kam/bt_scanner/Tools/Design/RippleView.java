@@ -22,7 +22,7 @@ import android.widget.RelativeLayout;
 import com.rainbow.kam.bt_scanner.R;
 
 /**
- * Created by sion on 2015-11-04.
+ * Created by kam6512 on 2015-11-04.
  */
 public class RippleView extends RelativeLayout {
 
@@ -81,7 +81,7 @@ public class RippleView extends RelativeLayout {
         rippleHandler = new Handler();
 
         final TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.RippleView);
-        rippleColor = typedArray.getColor(R.styleable.RippleView_rv_color, getResources().getColor(R.color.rippelColor));
+        rippleColor = typedArray.getColor(R.styleable.RippleView_rv_color, getResources().getColor(R.color.rippleColor));
         rippleType = typedArray.getInt(R.styleable.RippleView_rv_type, 0);
         hasToZoom = typedArray.getBoolean(R.styleable.RippleView_rv_zoom, false);
         isCentered = typedArray.getBoolean(R.styleable.RippleView_rv_centered, false);

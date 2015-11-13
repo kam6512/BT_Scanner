@@ -50,7 +50,7 @@ public class WrapperBleByPrime {
     }
 
     public static final byte[] CALL_DEVICE() {
-        return parseHexStringToBytes("0xfw30101");
+        return parseHexStringToBytes("0xf30101");
     }
 
     public static final byte[] SET_DEVICE_TIME_NOW() {
@@ -75,6 +75,10 @@ public class WrapperBleByPrime {
     public static final byte[] READ_SPORTS_CURVE_DATA() {
         return parseHexStringToBytes("0xC403031503");
 //        return parseHexStringToBytes("0xC7020108");
+    }
+
+    public static final byte[] OFF_ANTI_LOST(){
+        return parseHexStringToBytes("0x01a102a2");
     }
 
     public static final byte[] SET_USER_DATA(int gender, int height, int weight, int stride, int runningStride) {

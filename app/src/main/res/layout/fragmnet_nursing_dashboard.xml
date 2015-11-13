@@ -49,7 +49,7 @@
                     android:layout_gravity="center_vertical|end"
                     android:background="@null"
                     android:src="@drawable/ic_link"
-                    app:cb_color="#148cff"
+                    app:cb_color="@color/accent"
                     app:cb_pressedRingWidth="8dip" />
             </android.support.v7.widget.CardView>
         </com.rainbow.kam.bt_scanner.Tools.Design.RippleView>
@@ -66,7 +66,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="15dp"
+                android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:background="@null"
                 app:rv_zoom="true">
@@ -93,7 +93,7 @@
                             android:layout_centerVertical="true"
                             android:background="@null"
                             android:src="@drawable/ic_directions_walk_white_36dp"
-                            app:cb_color="#00d7ff"
+                            app:cb_color="@color/stepColor"
                             app:cb_pressedRingWidth="8dip" />
 
                         <TextView
@@ -123,7 +123,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="15dp"
+                android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:background="@null"
                 app:rv_zoom="true">
@@ -149,8 +149,8 @@
                             android:layout_centerHorizontal="true"
                             android:layout_centerVertical="true"
                             android:background="@null"
-                            android:src="@drawable/ic_link"
-                            app:cb_color="#ff5675"
+                            android:src="@drawable/ic_whatshot_white_36dp"
+                            app:cb_color="@color/caloColor"
                             app:cb_pressedRingWidth="8dip" />
 
                         <TextView
@@ -188,7 +188,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="15dp"
+                android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:background="@null"
                 app:rv_zoom="true">
@@ -214,8 +214,8 @@
                             android:layout_centerHorizontal="true"
                             android:layout_centerVertical="true"
                             android:background="@null"
-                            android:src="@drawable/ic_link"
-                            app:cb_color="#b2fa5c"
+                            android:src="@drawable/ic_directions_white_36dp"
+                            app:cb_color="@color/dirColor"
                             app:cb_pressedRingWidth="8dip" />
 
                         <TextView
@@ -245,7 +245,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="15dp"
+                android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:background="@null"
                 app:rv_zoom="true">
@@ -271,8 +271,8 @@
                             android:layout_centerHorizontal="true"
                             android:layout_centerVertical="true"
                             android:background="@null"
-                            android:src="@drawable/ic_link"
-                            app:cb_color="#fff650"
+                            android:src="@drawable/ic_launcher_arrow_next"
+                            app:cb_color="@color/etcColor"
                             app:cb_pressedRingWidth="8dip" />
 
                         <TextView

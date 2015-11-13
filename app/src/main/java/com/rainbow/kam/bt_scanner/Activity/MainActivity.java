@@ -1,11 +1,9 @@
 package com.rainbow.kam.bt_scanner.Activity;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,12 +25,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceItem;
-import com.rainbow.kam.bt_scanner.Nursing.Activity.MainNursingActivity;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.BLE.BleTools;
-import com.rainbow.kam.bt_scanner.Nursing.Activity.StartNursingActivity;
+import com.rainbow.kam.bt_scanner.Tools.BLE.BleManager;
 
 import java.util.ArrayList;
 
@@ -65,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton fabOn, fabSync; //버튼
     private ProgressBar progressBar;
     private TextView hasCard;
+
+    private BleManager bleManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +109,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
 //        startActivity(new Intent(MainActivity.this, MainNursingActivity.class));
+
+        bleManager = new BleManager(TAG, this, handler, bluetoothAdapter, bluetoothManager, recyclerView, adapter, deviceItemArrayList, coordinatorLayout, progressBar, hasCard);
+
     }
 
     @Override
@@ -199,112 +199,126 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public boolean getScanning() {//스캔중
-        if (isScanning) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void scanLeDevice(final boolean enable) {//저전력 스캔
-        try {
-            if (enable) {   //시작중이면
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        isScanning = false;
-                        bluetoothAdapter.stopLeScan(leScanCallback);
-                        progressBar.setVisibility(View.INVISIBLE);
-
-                        if (deviceItemArrayList.size() < 1) {
-                            hasCard.setVisibility(View.VISIBLE);
-                        }
-                        adapter = null;
-                        adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, MainActivity.this, getWindow().getDecorView(), deviceItemArrayList.size(),false);
-                        recyclerView.setAdapter(adapter);
-                        adapter.notifyDataSetChanged();
-                    }
-                }, SCAN_PERIOD); //10초 뒤에 OFF
-
-                //시작
-                isScanning = true;
-                bluetoothAdapter.startLeScan(leScanCallback);
-                progressBar.setVisibility(View.VISIBLE);
-                hasCard.setVisibility(View.INVISIBLE);
-            } else {    //중지
-                isScanning = false;
-                bluetoothAdapter.stopLeScan(leScanCallback);
-                progressBar.setVisibility(View.INVISIBLE);
-                hasCard.setVisibility(View.INVISIBLE);
+    /*
+        public boolean getScanning() {//스캔중
+            if (isScanning) {
+                return true;
+            } else {
+                return false;
             }
-        } catch (Exception e) {
-            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
-            finish();
         }
 
+        public void scanLeDevice(final boolean enable) {//저전력 스캔
+            try {
+                if (enable) {   //시작중이면
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
 
-    }
+                            isScanning = false;
+                            bluetoothAdapter.stopLeScan(leScanCallback);
+                            progressBar.setVisibility(View.INVISIBLE);
 
-    //디바이스가 스캔될 때 마다 콜백
-    public BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-            runOnUiThread(new Runnable() { //UI쓰레드에
-                @Override
-                public void run() { //로그넣고 어댑터에 추가
-                    final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
-                    String deviceName = device.getName();
-                    if (deviceName == null) {
-                        deviceName = bleAdvertisedData.getName();
-                        if (deviceName == null) {
-                            deviceName = "N/A";
+                            if (deviceItemArrayList.size() < 1) {
+                                hasCard.setVisibility(View.VISIBLE);
+                            }
+                            adapter = null;
+                            adapter = new DeviceAdapter(deviceItemArrayList, MainActivity.this, MainActivity.this, getWindow().getDecorView(), deviceItemArrayList.size(),false);
+                            recyclerView.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
                         }
-                    }
-                    try {
-//                        if (deviceName.equals("Prime")) {
-                            deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-//                        }
-                    } catch (Exception e) {
+                    }, SCAN_PERIOD); //10초 뒤에 OFF
 
-                    }
+                    //시작
+                    isScanning = true;
+                    bluetoothAdapter.startLeScan(leScanCallback);
+                    progressBar.setVisibility(View.VISIBLE);
+                    hasCard.setVisibility(View.INVISIBLE);
+                } else {    //중지
+                    isScanning = false;
+                    bluetoothAdapter.stopLeScan(leScanCallback);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    hasCard.setVisibility(View.INVISIBLE);
+                }
+            } catch (Exception e) {
+                Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
+                finish();
+            }
 
-//                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-                    for (int i = 0; i < deviceItemArrayList.size(); i++) {
-                        for (int j = 1; j < deviceItemArrayList.size(); j++) {
-                            if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
-                                if (i == j) {
 
-                                } else {
-                                    deviceItemArrayList.remove(j);
+        }
+
+        //디바이스가 스캔될 때 마다 콜백
+        public BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+            @Override
+            public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+                runOnUiThread(new Runnable() { //UI쓰레드에
+                    @Override
+                    public void run() { //로그넣고 어댑터에 추가
+                        final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
+                        String deviceName = device.getName();
+                        if (deviceName == null) {
+                            deviceName = bleAdvertisedData.getName();
+                            if (deviceName == null) {
+                                deviceName = "N/A";
+                            }
+                        }
+                        try {
+    //                        if (deviceName.equals("Prime")) {
+                                deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+    //                        }
+                        } catch (Exception e) {
+
+                        }
+
+    //                    deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                        for (int i = 0; i < deviceItemArrayList.size(); i++) {
+                            for (int j = 1; j < deviceItemArrayList.size(); j++) {
+                                if (deviceItemArrayList.get(i).getExtraextraAddress().trim().toString().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim().toString())) {
+                                    if (i == j) {
+
+                                    } else {
+                                        deviceItemArrayList.remove(j);
+                                    }
                                 }
+
                             }
 
                         }
-
                     }
-                }
-            });
+                });
+
+            }
+        };
+
+        @Override
+        protected void onResume() {
+            super.onResume();
+    //        fabSync.callOnClick();
 
         }
-    };
+
+        @Override
+        protected void onDestroy() { //꺼짐
+            super.onDestroy();
+            //클래식 스캔 중지
+    //        unregisterReceiver(broadcastReceiver);
+    //        stopScan();
+            scanLeDevice(false);
+            adapter = null;
+        }
+    */
 
     @Override
     protected void onResume() {
         super.onResume();
-//        fabSync.callOnClick();
-
+        bleManager.onResume();
     }
 
     @Override
     protected void onDestroy() { //꺼짐
         super.onDestroy();
-        //클래식 스캔 중지
-//        unregisterReceiver(broadcastReceiver);
-//        stopScan();
-        scanLeDevice(false);
-        adapter = null;
+        bleManager.onDestroyView();
     }
 
     @Override
@@ -328,10 +342,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                break;
             case R.id.fab_sync: //블루투스 기기 찾기(4.0)
                 if (enableBluetooth()) {
-                    if (getScanning()) {  //스캔 시작
+                    if (bleManager.getScanning()) {  //스캔 시작
 //                    unregisterReceiver(broadcastReceiver);
 //                    stopScan();
-                        scanLeDevice(false);
+                        bleManager.scanLeDevice(false);
                     } else { //재 스캔시(10초이내)
                         deviceItemArrayList.clear();
 
@@ -342,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //                    registerReceiver(broadcastReceiver, intentFilter);
 //                    startScan();
-                        scanLeDevice(true);
+                        bleManager.scanLeDevice(true);
                     }
                 } else {
                     Snackbar.make(coordinatorLayout, "You musst initalize Bluetooth", Snackbar.LENGTH_SHORT).show();

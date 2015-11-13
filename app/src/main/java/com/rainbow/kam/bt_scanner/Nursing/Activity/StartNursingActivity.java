@@ -12,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.Toast;
@@ -75,8 +76,23 @@ public class StartNursingActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_HOME);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        indexByStart = 0;
 //        finish();
 //        android.os.Process.killProcess(android.os.Process.myPid());
 //        super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    //블루투스 켜짐
+                } else {
+                    Log.d(TAG, "Bluetooth is not enabled");
+                    //블루투스 에러
+                }
+                break;
+        }
     }
 }

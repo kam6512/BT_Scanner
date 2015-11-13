@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import com.rainbow.kam.bt_scanner.R;
 
 /**
- * Created by sion on 2015-11-06.
+ * Created by kam6512 on 2015-11-06.
  */
 public class CircleButton extends ImageView{
     private static final int PRESSED_COLOR_LIGHTUP = 255 / 25;

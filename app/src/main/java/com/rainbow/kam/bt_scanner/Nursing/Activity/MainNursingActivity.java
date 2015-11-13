@@ -92,7 +92,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
     private int bleProcess = 0;
     private boolean isNewUser = false;
-    private boolean isCharcteristicRunning = false;
+    public static boolean isCharcteristicRunning = false;
 
 
     private Snackbar snackbar;
@@ -229,7 +229,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             realm.beginTransaction();
                             realm.clear(Patient.class);
                             realm.commitTransaction();
-                            if (isCharcteristicRunning) {
+                            if (!isCharcteristicRunning) {
                                 byte[] dataToWrite;
                                 dataToWrite = WrapperBleByPrime.CLEAR_DATA();
                                 ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
@@ -380,7 +380,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e(TAG, "Connected");
-                isCharcteristicRunning = true;
                 snackbar.dismiss();
                 toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
             }
@@ -395,7 +394,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        isCharcteristicRunning = false;
                         snackbar.show();
 
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
