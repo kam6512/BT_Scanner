@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Nursing.Fragment;
+package com.rainbow.kam.bt_scanner.Nursing.Fragment.Start;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -57,7 +57,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_nursing_add_device, container, false);
+        view = inflater.inflate(R.layout.fragment_nursing_start_add_device, container, false);
         activity = getActivity();
 
         handler = new Handler();

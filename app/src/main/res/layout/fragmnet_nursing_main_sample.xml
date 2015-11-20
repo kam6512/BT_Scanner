@@ -21,7 +21,7 @@
             app:metricSize="20sp"
             app:metricText="metric"
             app:range="60"
-            app:textColor="#000000"
+            app:textColor="#ffffff"
             app:textSize="100sp" />
 
 

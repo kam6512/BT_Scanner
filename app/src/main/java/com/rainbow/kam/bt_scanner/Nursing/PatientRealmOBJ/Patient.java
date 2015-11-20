@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Nursing.Patient;
+package com.rainbow.kam.bt_scanner.Nursing.PatientRealmOBJ;
 
 import io.realm.RealmObject;
 

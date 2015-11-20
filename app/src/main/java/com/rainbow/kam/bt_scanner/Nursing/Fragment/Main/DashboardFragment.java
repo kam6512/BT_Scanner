@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Nursing.Fragment;
+package com.rainbow.kam.bt_scanner.Nursing.Fragment.Main;
 
 import android.app.Activity;
 import android.os.Build;
@@ -55,9 +55,9 @@ public class DashboardFragment extends Fragment {
                             Bundle bundle = msg.getData();
                             String step = bundle.getString("STEP");
                             String calo = bundle.getString("CALO");
-                            String dist = bundle.getString("DIST");
-                            step = "" + Integer.valueOf(step, 16);
-                            calo = "" + Integer.valueOf(calo, 16);
+                            String dist = bundle.getString("DIST") + "m";
+                            step = Integer.valueOf(step, 16) + "걸음";
+                            calo = Integer.valueOf(calo, 16) + "Kcal";
 
                             stepTextview.setText(step);
                             calorieTextview.setText(calo);
@@ -76,13 +76,12 @@ public class DashboardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            view = inflater.inflate(R.layout.fragmnet_nursing_dashboard_21, container, false);
-        }else {
-            view = inflater.inflate(R.layout.fragmnet_nursing_dashboard, container, false);
+            view = inflater.inflate(R.layout.fragmnet_nursing_main_dashboard_21, container, false);
+        } else {
+            view = inflater.inflate(R.layout.fragmnet_nursing_main_dashboard, container, false);
         }
 
         time = (TextView) view.findViewById(R.id.deviceTime);
-//        data = (TextView) view.findViewById(R.id.deviceData);
 
         stepTextview = (TextView) view.findViewById(R.id.dashboard_step);
         calorieTextview = (TextView) view.findViewById(R.id.dashboard_calorie);

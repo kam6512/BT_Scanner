@@ -19,11 +19,6 @@ import android.view.View;
 
 import com.rainbow.kam.bt_scanner.R;
 
-/**
- * @author Diogo Bernardino
- * @email mail@diogobernardino.com
- * @date 04/2014
- */
 public class CircleCounter extends View {
 
 
@@ -133,7 +128,6 @@ public class CircleCounter extends View {
      * Handler to update the view
      */
     private SpeedHandler mSpinHandler;
-
 
 
     @SuppressLint("Recycle")
@@ -300,7 +294,6 @@ public class CircleCounter extends View {
     }
 
 
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -322,12 +315,13 @@ public class CircleCounter extends View {
 
 
 	/*
-	 * Setters
+     * Setters
 	 *
 	 */
 
     /**
      * Set the next values to be drawn
+     *
      * @param v1
      * @param v2
      * @param v3
@@ -353,7 +347,6 @@ public class CircleCounter extends View {
         invalidate();
 //        mSpinHandler.sendEmptyMessage(0);
     }
-
 
 
     public CircleCounter setRange(int range) {
@@ -422,7 +415,6 @@ public class CircleCounter extends View {
     }
 
 
-
     /**
      * Handles display invalidates
      */
@@ -444,317 +436,3 @@ public class CircleCounter extends View {
     }
 
 }
-
-//package com.rainbow.kam.bt_scanner.Tools.Design;
-//
-//import android.annotation.SuppressLint;
-//import android.content.Context;
-//import android.content.res.TypedArray;
-//import android.graphics.Canvas;
-//import android.graphics.Paint;
-//import android.graphics.Rect;
-//import android.graphics.RectF;
-//import android.graphics.Typeface;
-//import android.os.Handler;
-//import android.os.Message;
-//import android.util.AttributeSet;
-//import android.view.View;
-//
-//import com.rainbow.kam.bt_scanner.R;
-//
-//import java.lang.reflect.Type;
-//
-///**
-// * Created by kam6512 on 2015-11-13.
-// */
-//public class CircleCounter extends View {
-//    private final static float START_DEGREES = 90;
-//
-//    private int backGroundCenter;
-//    private int backGroundRadius;
-//
-//    private int oneDegrees;
-//    private int twoDegrees;
-//    private int threeDegrees;
-//
-//    private int oneValue = 0;
-//
-//    private int range;
-//
-//    private float oneWidth;
-//    private float twoWidth;
-//    private float threeWidth;
-//
-//    private float textSize;
-//    private float metricSize;
-//
-//    private int oneColor;
-//    private int twoColor;
-//    private int threeColor;
-//
-//    private int textColor = -1;
-//    private int backgroundColor;
-//
-//    private Paint onePaint;
-//    private Paint twoPaint;
-//    private Paint threePaint;
-//    private Paint backgroundPaint;
-//    private Paint textPaint;
-//    private Paint metricPaint;
-//
-//    private RectF oneBounds;
-//    private RectF twoBounds;
-//    private RectF threeBounds;
-//
-//    private float textPositionY;
-//    private float metricPositionY;
-//    private float metricPaddingY;
-//
-//    private String metricText;
-//
-//    private Typeface typeface;
-//
-//    private SpeedHandler speedHandler;
-//
-//    @SuppressLint("Recycle")
-//    public CircleCounter(Context context, AttributeSet attributeSet) {
-//        super(context, attributeSet);
-//        init(context.obtainStyledAttributes(attributeSet, R.styleable.CircularMeter));
-//    }
-//
-//    @Override
-//    protected void onAttachedToWindow() {
-//        super.onAttachedToWindow();
-//        speedHandler = new SpeedHandler(this);
-//
-//        setupBounds();
-//        setupPaint();
-//        setupTextPosition();
-//    }
-//
-//    @Override
-//    protected void onDetachedFromWindow() {
-//        super.onDetachedFromWindow();
-//
-//        speedHandler = null;
-//        onePaint = null;
-//        oneBounds = null;
-//        twoPaint = null;
-//        twoBounds = null;
-//        backgroundPaint = null;
-//        textPaint = null;
-//        metricPaint = null;
-//    }
-//
-//    private void setupPaint() {
-//        onePaint = new Paint();
-//        onePaint.setColor(oneColor);
-//        onePaint.setAntiAlias(true);
-//        onePaint.setStyle(Paint.Style.STROKE);
-//        onePaint.setStrokeWidth(oneWidth);
-//
-//        twoPaint = new Paint();
-//        twoPaint.setColor(twoColor);
-//        twoPaint.setAntiAlias(true);
-//        twoPaint.setStyle(Paint.Style.STROKE);
-//        twoPaint.setStrokeWidth(twoWidth);
-//
-//        threePaint = new Paint();
-//        threePaint.setColor(threeColor);
-//        threePaint.setAntiAlias(true);
-//        threePaint.setStyle(Paint.Style.STROKE);
-//        threePaint.setStrokeWidth(threeWidth);
-//
-//        backgroundPaint = new Paint();
-//        backgroundPaint.setColor(backgroundColor);
-//        backgroundPaint.setAntiAlias(true);
-//        backgroundPaint.setStyle(Paint.Style.FILL);
-//
-//        textPaint = new Paint();
-//        textPaint.setColor(textColor);
-//        textPaint.setStyle(Paint.Style.FILL);
-//        textPaint.setAntiAlias(true);
-//        textPaint.setTextSize(textSize);
-//        textPaint.setTypeface(typeface);
-//        textPaint.setTextAlign(Paint.Align.CENTER);
-//
-//        metricPaint = new Paint();
-//        metricPaint.setColor(textColor);
-//        metricPaint.setStyle(Paint.Style.FILL);
-//        metricPaint.setAntiAlias(true);
-//        metricPaint.setTextSize(metricSize);
-//        metricPaint.setTypeface(typeface);
-//        metricPaint.setTextAlign(Paint.Align.CENTER);
-//    }
-//
-//    private void setupBounds() {
-//        backGroundCenter = this.getLayoutParams().width / 2;
-//        backGroundRadius = backGroundCenter - this.getPaddingTop();
-//
-//        oneBounds = new RectF(
-//                this.getPaddingTop() + oneWidth / 2,
-//                this.getPaddingLeft() + oneWidth / 2,
-//                this.getLayoutParams().width - this.getPaddingRight() - oneWidth / 2,
-//                this.getLayoutParams().height - this.getPaddingBottom() - oneWidth / 2);
-//
-//        twoBounds = new RectF(
-//                this.getPaddingTop() + twoWidth / 2 + oneWidth,
-//                this.getPaddingLeft() + twoWidth / 2 + oneWidth,
-//                this.getLayoutParams().width - this.getPaddingRight() - twoWidth / 2 - oneWidth,
-//                this.getLayoutParams().height - this.getPaddingBottom() - twoWidth / 2 - oneWidth);
-//
-//        threeBounds = new RectF(
-//                this.getPaddingTop() + threeWidth / 2 + twoWidth + oneWidth,
-//                this.getPaddingLeft() + threeWidth / 2 + twoWidth + oneWidth,
-//                this.getLayoutParams().width - this.getPaddingRight() - threeWidth / 2 - twoWidth - oneWidth,
-//                this.getLayoutParams().height - this.getPaddingBottom() - threeWidth / 2 - twoWidth - oneWidth);
-//    }
-//
-//    private void setupTextPosition() {
-//        Rect textBounds = new Rect();
-//        textPaint.getTextBounds("1", 0, 1, textBounds);
-//        textPositionY = oneBounds.centerY() + (textBounds.height() / 2f);
-//        metricPositionY = textPositionY + metricPaddingY;
-//    }
-//
-//    private void init(TypedArray typedArray) {
-//        textSize = typedArray.getDimension(R.styleable.CircularMeter_textSize, getResources().getDimension(R.dimen.textSize));
-//        textColor = typedArray.getColor(R.styleable.CircularMeter_textColor, textColor);
-//        metricSize = typedArray.getDimension(R.styleable.CircularMeter_metricSize, getResources().getDimension(R.dimen.metricSize));
-//        metricText = typedArray.getString(R.styleable.CircularMeter_metricText);
-//        metricPaddingY = getResources().getDimension(R.dimen.metricPaddingY);
-//
-//        range = typedArray.getInt(R.styleable.CircularMeter_range, 100);
-//
-//        oneWidth = getResources().getDimension(R.dimen.width);
-//        twoWidth = getResources().getDimension(R.dimen.width);
-//        threeWidth = getResources().getDimension(R.dimen.width);
-//
-//        oneColor = -1213350;
-//        twoColor = -77747644;
-//        threeColor = -1;
-//
-//        oneDegrees = 0;
-//        twoDegrees = 0;
-//        threeDegrees = 0;
-//
-//        String aux = typedArray.getString(R.styleable.CircularMeter_typeface);
-//        if (aux != null) {
-//            typeface = Typeface.createFromAsset(this.getResources().getAssets(), aux);
-//        }
-//    }
-//
-//    @Override
-//    protected void onDraw(Canvas canvas) {
-//        super.onDraw(canvas);
-//
-//        canvas.drawCircle(backGroundCenter, backGroundCenter, backGroundRadius, backgroundPaint);
-//
-//        canvas.drawArc(oneBounds, START_DEGREES, oneDegrees, false, onePaint);
-//        canvas.drawArc(twoBounds, START_DEGREES, twoDegrees, false, twoPaint);
-//        canvas.drawArc(threeBounds, START_DEGREES, threeDegrees, false, threePaint);
-//
-//        canvas.drawText(Integer.toString(oneValue), oneBounds.centerX(), textPositionY, textPaint);
-//        canvas.drawText(metricText, oneBounds.centerX(), metricPositionY, metricPaint);
-//    }
-//
-//
-//    public void setValues(int valueOne, int valueTwo, int valueThree) {
-//        if (valueOne <= range) {
-//            oneDegrees = Math.round(((float) valueOne * 360) / range);
-//        } else {
-//            oneDegrees = 360;
-//        }
-//        if (valueTwo <= range) {
-//            twoDegrees = Math.round(((float) valueTwo * 360) / range);
-//        } else {
-//            twoDegrees = 360;
-//        }
-//        if (valueThree <= range) {
-//            threeDegrees = Math.round(((float) valueThree * 360) / range);
-//        } else {
-//            threeDegrees = 360;
-//        }
-//    }
-//
-//
-//    public CircleCounter setRange(int range) {
-//        this.range = range;
-//        return this;
-//    }
-//
-//    public CircleCounter setFirstWidth(float width) {
-//        this.oneWidth = width;
-//        return this;
-//    }
-//
-//    public CircleCounter setSecondWidth(float width) {
-//        this.twoWidth = width;
-//        return this;
-//    }
-//
-//    public CircleCounter setThirdWidth(float width) {
-//        this.threeWidth = width;
-//        return this;
-//    }
-//
-//    public CircleCounter setTextSize(float size) {
-//        this.textSize = size;
-//        return this;
-//    }
-//
-//    public CircleCounter setMetricSize(float size) {
-//        this.metricSize = size;
-//        return this;
-//    }
-//
-//    public CircleCounter setFirstColor(int color) {
-//        this.oneColor = color;
-//        return this;
-//    }
-//
-//    public CircleCounter setSecondColor(int color) {
-//        this.twoColor = color;
-//        return this;
-//    }
-//
-//    public CircleCounter setThirdColor(int color) {
-//        this.threeColor = color;
-//        return this;
-//    }
-//
-//    public CircleCounter setTextColor(int color) {
-//        this.textColor = color;
-//        return this;
-//    }
-//
-//    public CircleCounter setMetricText(String text) {
-//        this.metricText = text;
-//        return this;
-//    }
-//
-//    @Override
-//    public void setBackgroundColor(int color) {
-//        this.backgroundColor = color;
-//    }
-//
-//    public CircleCounter setTypeface(Typeface typeface) {
-//        this.typeface = typeface;
-//        return this;
-//    }
-//
-//    private static class SpeedHandler extends Handler {
-//        private CircleCounter circleCounter;
-//
-//        public SpeedHandler(CircleCounter circleCounter) {
-//            super();
-//            this.circleCounter = circleCounter;
-//        }
-//
-//        @Override
-//        public void handleMessage(Message msg) {
-//            circleCounter.invalidate();
-//            super.handleMessage(msg);
-//        }
-//    }
-//}

@@ -15,15 +15,6 @@ import java.util.Locale;
  * Created by sion on 2015-11-04.
  */
 public class WrapperBleByPrime {
-    /*
-        private static final int sizeOfIntInHalfBytes = 2;
-        private static final int numberOfBitsInAHalfByte = 1;
-        private static final int halfByte = 0x0F;
-        private static final char[] hexDigits = {
-                '0', '1', '2', '3', '4', '5', '6', '7',
-                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-        };
-    */
 
     public static BandDeviceList bandDeviceList = new BandDeviceList();
 
@@ -68,7 +59,7 @@ public class WrapperBleByPrime {
         }
         String week = setWidth(String.format("%2s", weekTemp));
         setDate += year + month + date + hour + min + sec + week;
-        Log.e("TIME", year + " / " + month + " / " + date + " / " + hour + " / " + min + " / " + sec + " / " + week + " / " + cal.get(Calendar.HOUR_OF_DAY));
+        Log.e("TIME", year + " / " + month + " / " + date + " / " + hour + " / " + min + " / " + sec + " / " + week);
         return parseHexStringToBytes(setDate);
     }
 
@@ -82,9 +73,8 @@ public class WrapperBleByPrime {
     }
 
     public static final byte[] SET_USER_DATA(int gender, int height, int weight, int stride, int runningStride) {
-//        return parseHexStringToBytes("0x832f00000000000000000000000000000000000000000000000000000000000000000001b46446640b1e071e0200000000");
-        String ex = "0x832f00000000000000000000000000000000000000000000000000000000000000000001b46446640b1e071e0200000000";
 
+        String ex = "0x832f00000000000000000000000000000000000000000000000000000000000000000001b46446640b1e071e0200000000";
 
         String info = "0x832f000000000000000000000000000000000000000000000000000000000000000000";
         info += setWidth(String.valueOf(gender));
@@ -132,7 +122,7 @@ public class WrapperBleByPrime {
             }
         }
 
-        String ch_str = String.format("%02d", checksum);
+        String ch_str = setWidth(Integer.toHexString(checksum));
         Log.e("CheckSum" , ch_str);
         String res = (hex + ch_str).substring(2).replaceAll("[^[0-9][a-f]]", "");
         byte[] resBytes = new byte[res.length() / 2];

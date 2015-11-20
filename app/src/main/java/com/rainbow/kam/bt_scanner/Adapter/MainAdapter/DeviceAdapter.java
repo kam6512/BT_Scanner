@@ -16,8 +16,7 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.Activity.DetailActivity;
 import com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage.DetailGattAuto;
-import com.rainbow.kam.bt_scanner.Nursing.Fragment.SelectNursingDeviceFragment;
-import com.rainbow.kam.bt_scanner.Nursing.Fragment.StartNursingFragment;
+import com.rainbow.kam.bt_scanner.Nursing.Fragment.Start.StartNursingFragment;
 import com.rainbow.kam.bt_scanner.R;
 
 import java.util.ArrayList;
