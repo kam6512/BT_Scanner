@@ -19,7 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_margin="30dp"
             app:metricSize="20sp"
-            app:metricText="metric"
+            app:metricText="distance"
             app:range="60"
             app:textColor="#ffffff"
             app:textSize="100sp" />

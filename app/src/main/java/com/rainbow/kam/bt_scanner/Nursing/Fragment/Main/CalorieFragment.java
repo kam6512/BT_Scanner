@@ -7,14 +7,10 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.Nursing.Adapter.DashboardAdapter;
 import com.rainbow.kam.bt_scanner.Nursing.Adapter.DashboardItem;
 import com.rainbow.kam.bt_scanner.R;
@@ -25,7 +21,7 @@ import java.util.ArrayList;
 /**
  * Created by sion on 2015-11-04.
  */
-public class StepFragment extends Fragment {
+public class CalorieFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -36,17 +32,16 @@ public class StepFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
     private int mPage;
 
-    private CircleCounter stepCircleCounter;
+    private CircleCounter calorieCircleCounter;
     private RecyclerView recyclerView;
-    //    private RecyclerView.Adapter adapter;
-    private BaseAdapter adapter;
+    private RecyclerView.Adapter adapter;
     private ArrayList<DashboardItem> dashboardList = new ArrayList<DashboardItem>();
-    private int step;
+    private int calorie;
 
-    public static StepFragment newInstance(int page) {
+    public static CalorieFragment newInstance(int page) {
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, page);
-        StepFragment fragment = new StepFragment();
+        CalorieFragment fragment = new CalorieFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,54 +50,50 @@ public class StepFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPage = getArguments().getInt(ARG_PAGE);
-
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 bundle = msg.getData();
-                step = Integer.valueOf(bundle.getString("STEP"), 16);
+                calorie = Integer.valueOf(bundle.getString("CALO"), 16);
                 super.handleMessage(msg);
-                stepCircleCounter.setValues(step, step, step);
+                calorieCircleCounter.setValues(calorie, calorie, calorie);
             }
         };
 
     }
 
-    public void setArrayList(Activity activity, ArrayList<DashboardItem> dashboardList) {
-
-        this.activity = activity;
+    public void setArrayList(ArrayList<DashboardItem> dashboardList) {
         this.dashboardList = dashboardList;
-
-        adapter = new DashboardAdapter(this.dashboardList, activity, activity, view);
-//        recyclerView.setAdapter(adapter);
-//        adapter.notifyDataSetChanged();
-
-        new MaterialDialog.Builder(activity).title("step").adapter(adapter, new MaterialDialog.ListCallback() {
-            @Override
-            public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
-
-            }
-        }).show();
+//        adapter = new DashboardAdapter(this.dashboardList, activity, activity, view);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.fragmnet_nursing_main_step, container, false);
-        stepCircleCounter = (CircleCounter) view.findViewById(R.id.step_counter);
-        stepCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
-        stepCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));
-        stepCircleCounter.setThirdWidth(getResources().getDimension(R.dimen.third));
-        stepCircleCounter.setFirstColor(getResources().getColor(R.color.stepAccent));
-        stepCircleCounter.setSecondColor(getResources().getColor(R.color.stepPrimary));
-        stepCircleCounter.setThirdColor(getResources().getColor(R.color.stepPrimaryDark));
-        stepCircleCounter.setBackgroundColor(getResources().getColor(R.color.stepColor));
-        recyclerView = (RecyclerView) view.findViewById(R.id.step_recycler);
+
+        view = inflater.inflate(R.layout.fragmnet_nursing_main_calorie, container, false);
+        calorieCircleCounter = (CircleCounter) view.findViewById(R.id.calorie_counter);
+        calorieCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
+        calorieCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));
+        calorieCircleCounter.setThirdWidth(getResources().getDimension(R.dimen.third));
+        calorieCircleCounter.setFirstColor(getResources().getColor(R.color.caloAccent));
+        calorieCircleCounter.setSecondColor(getResources().getColor(R.color.caloPrimary));
+        calorieCircleCounter.setThirdColor(getResources().getColor(R.color.caloPrimaryDark));
+        calorieCircleCounter.setBackgroundColor(getResources().getColor(R.color.caloColor));
+        recyclerView = (RecyclerView) view.findViewById(R.id.calorie_recycler);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        activity = getActivity();
     }
 
 

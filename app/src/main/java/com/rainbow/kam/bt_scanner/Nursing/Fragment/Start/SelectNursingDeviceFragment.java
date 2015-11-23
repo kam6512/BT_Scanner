@@ -78,7 +78,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         getDialog().getWindow().setBackgroundDrawable(
                 new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-        bleManager = new BleManager(TAG, activity, handler, bluetoothAdapter, bluetoothManager, selectDeviceRecyclerView, adapter, deviceItemArrayList, view, progressBar, hasCard);
+        bleManager = new BleManager(TAG, activity, handler, bluetoothAdapter, bluetoothManager, selectDeviceRecyclerView, adapter, deviceItemArrayList, view, progressBar, hasCard,true);
 
         return view;
     }

@@ -23,8 +23,6 @@ public class StartNursingActivity extends AppCompatActivity {
 
     public static FloatingActionButton startNursingFab;
 
-    private Animation animation;
-
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
 
@@ -70,9 +68,6 @@ public class StartNursingActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         indexByStart = 0;
-//        finish();
-//        android.os.Process.killProcess(android.os.Process.myPid());
-//        super.onDestroy();
     }
 
     @Override

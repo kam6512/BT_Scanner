@@ -87,10 +87,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //핸들러 초기화
         handler = new Handler();
 
-        //버튼 초기화 + 리스너 적용
-//        fabOn = (FloatingActionButton) findViewById(R.id.fab_on);
-//        fabOn.setOnClickListener(this);
-
         fabSync = (FloatingActionButton) findViewById(R.id.fab_sync);
         fabSync.setOnClickListener(this);
 
@@ -108,9 +104,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setHasFixedSize(true);
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
-//        startActivity(new Intent(MainActivity.this, MainNursingActivity.class));
 
-        bleManager = new BleManager(TAG, this, handler, bluetoothAdapter, bluetoothManager, recyclerView, adapter, deviceItemArrayList, coordinatorLayout, progressBar, hasCard);
+        bleManager = new BleManager(TAG, this, handler, bluetoothAdapter, bluetoothManager, recyclerView, adapter, deviceItemArrayList, coordinatorLayout, progressBar, hasCard,false);
 
     }
 

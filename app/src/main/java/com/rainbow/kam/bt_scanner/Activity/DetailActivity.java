@@ -327,8 +327,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-//            onPause();
-//            onBackPressed();
             finish();
             return true;
         }
@@ -359,7 +357,4 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         }
     }
 
-    public BLE getBlebyDetailFragment() {
-        return ble;
-    }
 }

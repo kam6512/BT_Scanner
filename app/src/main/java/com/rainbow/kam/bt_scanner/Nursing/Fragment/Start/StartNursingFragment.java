@@ -103,7 +103,7 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
 
                     final Bundle callbackBundle = msg.getData();
                         Realm.removeDefaultConfiguration();
-                        realm = Realm.getInstance(getContext());
+                        realm = Realm.getInstance(getActivity());
                         realm.beginTransaction();
                         realm.allObjects(Patient.class).clear();
 //                    realm.allObjects(UserBand.class).clear();

@@ -46,8 +46,10 @@ public class BleManager {
     private ProgressBar progressBar;
     private TextView hasCard;
 
+    private boolean isNursing = false;
+
     public BleManager(String TAG, Activity activity, Handler handler, BluetoothAdapter bluetoothAdapter, BluetoothManager bluetoothManager, RecyclerView selectDeviceRecyclerView, RecyclerView.Adapter adapter,
-                      ArrayList<DeviceItem> deviceItemArrayList, View view, ProgressBar progressBar, TextView hasCard) {
+                      ArrayList<DeviceItem> deviceItemArrayList, View view, ProgressBar progressBar, TextView hasCard, boolean isNursing) {
         this.TAG = TAG;
         this.activity = activity;
         this.handler = handler;
@@ -59,7 +61,7 @@ public class BleManager {
         this.view = view;
         this.progressBar = progressBar;
         this.hasCard = hasCard;
-
+        this.isNursing = isNursing;
     }
 
     public void onResume() {
@@ -105,7 +107,7 @@ public class BleManager {
                             hasCard.setVisibility(View.VISIBLE);
                         }
                         adapter = null;
-                        adapter = new DeviceAdapter(deviceItemArrayList, activity, activity, view, deviceItemArrayList.size(), true);
+                        adapter = new DeviceAdapter(deviceItemArrayList, activity, activity, view, deviceItemArrayList.size(), isNursing);
                         selectDeviceRecyclerView.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
                     }

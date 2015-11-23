@@ -1,9 +1,12 @@
 package com.rainbow.kam.bt_scanner.Nursing.Activity;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -30,8 +33,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.Activity.MainActivity;
+import com.rainbow.kam.bt_scanner.Nursing.Adapter.DashboardItem;
+import com.rainbow.kam.bt_scanner.Nursing.Fragment.Main.CalorieFragment;
 import com.rainbow.kam.bt_scanner.Nursing.Fragment.Main.DashboardFragment;
+import com.rainbow.kam.bt_scanner.Nursing.Fragment.Main.DistanceFragment;
 import com.rainbow.kam.bt_scanner.Nursing.Fragment.Main.SampleFragment;
+import com.rainbow.kam.bt_scanner.Nursing.Fragment.Main.StepFragment;
 import com.rainbow.kam.bt_scanner.Nursing.PatientRealmOBJ.BandData;
 import com.rainbow.kam.bt_scanner.Nursing.PatientRealmOBJ.Patient;
 import com.rainbow.kam.bt_scanner.R;
@@ -41,12 +48,11 @@ import com.rainbow.kam.bt_scanner.Tools.BLE.Device.WrapperBleByPrime;
 import com.rainbow.kam.bt_scanner.Tools.PermissionV21;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -56,31 +62,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
     public static final String TAG = MainNursingActivity.class.getSimpleName();
 
-    private Handler handler;
-
-    private DashboardFragment dashboardFragment;
-    private SampleFragment sampleFragment;
-
-    private BLE ble;
-    private List<BluetoothGattService> serviceList;
-    private List<BluetoothGattCharacteristic> characteristicList;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
-
-    private Snackbar snackbar;
-
-    private CoordinatorLayout coordinatorLayout;
-    private Toolbar toolbar;
-    private TextView toolbarRssi;
-    private ImageView toolbarBluetoothFlag;
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private DashBoardAdapter dashBoardAdapter;
-
-    private RealmQuery<Patient> patientRealmQuery;
     private Realm realm;
 
     private String patientName = null;
@@ -99,30 +80,69 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
     private String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
-    private int today;
+    private Handler handler;
+
+    private DashboardFragment dashboardFragment;
+    private StepFragment stepFragment;
+    private CalorieFragment calorieFragment;
+    private DistanceFragment distanceFragment;
+    private SampleFragment sampleFragment;
+
+    private BLE ble;
+    private List<BluetoothGattCharacteristic> characteristicList;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
+
+    private Snackbar snackbar;
+
+    private CoordinatorLayout coordinatorLayout;
+    private Toolbar toolbar;
+    private TextView toolbarRssi;
+    private ImageView toolbarBluetoothFlag;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private DashBoardAdapter dashBoardAdapter;
+
+
+
 
     @Override
     protected void onStart() {
         super.onStart();
         try {
-
             realm = Realm.getInstance(this);
             realm.beginTransaction();
+
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
 
-
-            patientName = results.get(0).getName();
-            patientAge = results.get(0).getAge();
-            patientHeight = results.get(0).getHeight();
-            patientWeight = results.get(0).getWeight();
-            patientStep = results.get(0).getStep();
-            if (results.get(0).getGender().equals("남성")) {
+            Patient patient = results.get(0);
+            patientName = patient.getName();
+            patientAge = patient.getAge();
+            patientHeight = patient.getHeight();
+            patientWeight = patient.getWeight();
+            patientStep = patient.getStep();
+            if (patient.getGender().equals("남성")) {
                 patientGender = "1";
             } else {
                 patientGender = "0";
             }
-            deviceName = results.get(0).getDeviceName();
-            deviceAddress = results.get(0).getDeviceAddress();
+            deviceName = patient.getDeviceName();
+            deviceAddress = patient.getDeviceAddress();
+
+//            patientName = results.get(0).getName();
+//            patientAge = results.get(0).getAge();
+//            patientHeight = results.get(0).getHeight();
+//            patientWeight = results.get(0).getWeight();
+//            patientStep = results.get(0).getStep();
+//            if (results.get(0).getGender().equals("남성")) {
+//                patientGender = "1";
+//            } else {
+//                patientGender = "0";
+//            }
+//            deviceName = results.get(0).getDeviceName();
+//            deviceAddress = results.get(0).getDeviceAddress();
 
             if (patientName == null || patientAge == null || patientHeight == null || patientWeight == null || patientStep == null || deviceName == null || deviceAddress == null) {
                 throw new Exception();
@@ -130,16 +150,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
         } catch (Exception e) {
 
-            realm.clear(BandData.class);
             isNewUser = true;
+            realm.clear(BandData.class);
             startActivity(new Intent(MainNursingActivity.this, StartNursingActivity.class));
 
         } finally {
             realm.commitTransaction();
+
+            PermissionV21.check(this);
         }
-
-        PermissionV21.check(this);
-
     }
 
     @Override
@@ -175,6 +194,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
+                if (ble == null) {
+                    return;
+                }
                 isCharcteristicRunning = true;
                 Message message = handler.obtainMessage(msg.what, msg.arg1, msg.arg2, msg.obj);
                 message.setData(msg.getData());
@@ -198,10 +220,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     case 2:
 
                         dashboardFragment.handler.sendMessage(message);
+                        stepFragment.handler.sendMessage(Message.obtain(message));
+                        calorieFragment.handler.sendMessage(Message.obtain(message));
+                        distanceFragment.handler.sendMessage(Message.obtain(message));
                         sampleFragment.handler.sendMessage(Message.obtain(message));
+
                         addBandData(Message.obtain(message));
 
-                        dataToWrite = WrapperBleByPrime.READ_DEVICE_BATTERY();
+                        dataToWrite = WrapperBleByPrime.READ_DEVICE_TIME();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
@@ -222,12 +248,74 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         disconnectDevice();
                         connectDevice();
                         break;
-                    default:
-//                        bleProcess = 0;
-                        break;
                 }
             }
         };
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        enableBluetooth();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (ble != null) {
+            disconnectDevice();
+        }
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1) {
+            connectDevice();
+        } else {
+            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+
+    }
+
+    public boolean enableBluetooth() {//블루투스 가동여부
+        Log.d(TAG, "enableBluetooth");
+        BluetoothManager bluetoothManager;
+        BluetoothAdapter bluetoothAdapter;
+        try {
+            //블루투스 매니저/어댑터 초기화
+            bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            bluetoothAdapter = bluetoothManager.getAdapter();
+            if (bluetoothAdapter == null || bluetoothManager == null) {
+                throw new Exception();
+            }
+            if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
+                Log.d(TAG, "Bluetooth isEnabled");
+                connectDevice();
+                return true;
+            } else {    //블루투스 구동
+                Log.d(TAG, "Bluetooth start");
+                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(intent, 1);
+                return false;
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+        return false;
+
     }
 
     private void setToolbar() {
@@ -337,7 +425,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             }
         });
         dashboardFragment = new DashboardFragment();
+        stepFragment = new StepFragment();
+        calorieFragment = new CalorieFragment();
+        distanceFragment = new DistanceFragment();
         sampleFragment = new SampleFragment();
+
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -368,6 +460,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     private void addBandData(Message message) {
+
         Bundle bundle = message.getData();
         int step = Integer.valueOf(bundle.getString("STEP"), 16);
         int calorie = Integer.valueOf(bundle.getString("CALO"), 16);
@@ -388,11 +481,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     Log.e(TAG, "calendar : " + results.get(results.size() - 1).getCalendar() + " // " + today);
                     results.removeLast();
                 }
-                    BandData bandData = realm.createObject(BandData.class);
-                    bandData.setCalendar(today);
-                    bandData.setStep(step);
-                    bandData.setCalorie(calorie);
-                    bandData.setDistance(distance);
+                BandData bandData = realm.createObject(BandData.class);
+                bandData.setCalendar(today);
+                bandData.setStep(step);
+                bandData.setCalorie(calorie);
+                bandData.setDistance(distance);
 
             }
         } else {
@@ -404,57 +497,21 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
         realm.commitTransaction();
 
-        getToday();
         results = realm.where(BandData.class).findAll();
-//        Log.e(TAG, "band : " + results.size());
-//        Log.e(TAG, "band : " + results.get(0).getBandDatas().get(0).getCalorie());
+
+        ArrayList<DashboardItem> arrayList = new ArrayList<DashboardItem>();
 
         for (int i = 0; i < results.size(); i++) {
             Log.e(TAG, "band [" + i + "] : " + results.size() + " step : " + results.get(i).getStep() + " calo : " + results.get(i).getCalorie() + " dist : " + results.get(i).getDistance() + " calendat : " + results.get(i).getCalendar());
+            arrayList.add(new DashboardItem(results.get(i).getStep(), results.get(i).getCalorie(), results.get(i).getDistance(), results.get(i).getCalendar()));
         }
+
+
+        stepFragment.setArrayList(this, arrayList);
+//        calorieFragment.setArrayList(arrayList);
+//        distanceFragment.setArrayList(arrayList);
+
     }
-
-    private void getToday() {
-        Date date = new Date();
-        today = (int) date.getTime() / (24 * 60 * 60 * 1000);
-
-        Log.e(TAG, today + "");
-    }
-
-    public void diffOfDate(String begin, String end) throws Exception {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-
-        Date beginDate = formatter.parse(begin);
-        Date endDate = formatter.parse(end);
-
-        long diff = endDate.getTime() - beginDate.getTime();
-        long diffDays = diff / (24 * 60 * 60 * 1000);
-        Log.e(TAG, diffDays + "");
-//        index = (int) diffDays;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        connectDevice();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        disconnectDevice();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
 
     @Override
     public void uiDeviceFound(BluetoothDevice device, int rssi, byte[] record) {
@@ -498,7 +555,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                serviceList = services;
                 BluetoothGattService bluetoothGattService = services.get(4);
                 ble.getCharacteristicsForService(bluetoothGattService);
             }
@@ -606,14 +662,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                         case 3:
                                         case 4:
 
-                                            step += Integer.toHexString(lsb);
+                                            step += WrapperBleByPrime.setWidth(Integer.toHexString(lsb));
                                             break;
 
                                         case 5:
                                         case 6:
                                         case 7:
 
-                                            calo += Integer.toHexString(lsb);
+                                            calo += WrapperBleByPrime.setWidth(Integer.toHexString(lsb));
                                             break;
 
                                         case 8:
@@ -742,6 +798,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         });
     }
 
+
     private class DashBoardAdapter extends FragmentStatePagerAdapter {
 
         final int PAGE_COUNT = 5;
@@ -757,6 +814,12 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 case 0:
                     return dashboardFragment.newInstance(position + 1);
 
+                case 1:
+                    return stepFragment.newInstance(position + 1);
+                case 2:
+                    return calorieFragment.newInstance(position + 1);
+                case 3:
+                    return distanceFragment.newInstance(position + 1);
                 default:
                     return sampleFragment.newInstance(position + 1);
             }

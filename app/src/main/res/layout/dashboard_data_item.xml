@@ -27,9 +27,19 @@
             app:cb_pressedRingWidth="8dip" />
 
         <TextView
+            android:id="@+id/dashboard_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="TV" />
+            android:text="info" />
+
+        <TextView
+            android:id="@+id/dashboard_calendar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
+            android:text="calendar"
+            android:layout_weight="1" />
     </LinearLayout>
 </android.support.v7.widget.CardView>
