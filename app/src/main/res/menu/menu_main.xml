@@ -1,26 +1,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
 
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_scan"
             android:icon="@drawable/ic_menu"
-            android:title="스캔"></item>
+            android:title="@string/menu_scan"/>
         <item android:id="@+id/nav_nursing"
             android:icon="@drawable/ic_menu"
-            android:title="샘플"></item>
+            android:title="@string/menu_sample"/>
     </group>
 
-    <item android:title="HELP">
+    <item android:title="@string/menu_help">
         <menu>
             <item
                 android:id="@+id/nav_link1"
                 android:icon="@drawable/ic_link"
-                android:title="링크"/>
+                android:title="@string/menu_link"/>
             <item
                 android:id="@+id/nav_link2"
                 android:icon="@drawable/ic_link"
-                android:title="링크"/>
+                android:title="@string/menu_link"/>
         </menu>
     </item>
 

@@ -336,9 +336,9 @@ public class BluetoothService extends Service implements Serializable {
         try {
             Log.i(TAG, "refresh");
             BluetoothGatt localGatt = bluetoothGatt;
-            Method localMethod = localGatt.getClass().getMethod("refresh", new Class[0]);
+            Method localMethod = localGatt.getClass().getMethod("refresh");
             if (localMethod != null) {
-                boolean b = ((Boolean) localMethod.invoke(localGatt, new Object[0]));
+                boolean b = ((Boolean) localMethod.invoke(localGatt));
                 return b;
             }
         } catch (Exception localException) {

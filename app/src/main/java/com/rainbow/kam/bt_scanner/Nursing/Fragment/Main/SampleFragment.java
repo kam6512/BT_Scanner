@@ -14,7 +14,7 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Tools.Design.CircleCounter;
 
 /**
- * Created by sion on 2015-11-04.
+ * Created by kam6512 on 2015-11-04.
  */
 public class SampleFragment extends Fragment {
 

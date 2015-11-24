@@ -23,11 +23,6 @@ public class StartNursingActivity extends AppCompatActivity {
 
     public static FloatingActionButton startNursingFab;
 
-    private FragmentManager fragmentManager;
-    private FragmentTransaction fragmentTransaction;
-
-    private StartNursingFragment startNusingFragment;
-
     public static int indexByStart = 0;
 
     @Override
@@ -48,9 +43,9 @@ public class StartNursingActivity extends AppCompatActivity {
     }
 
     private void inflateFragment(boolean isStart) {
-        startNusingFragment = new StartNursingFragment();
-        fragmentManager = getSupportFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
+        StartNursingFragment startNusingFragment = new StartNursingFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         if (isStart) {
             fragmentTransaction.add(R.id.nursing_start_frame, startNusingFragment);
 
@@ -75,6 +70,7 @@ public class StartNursingActivity extends AppCompatActivity {
         switch (requestCode) {
             case 1:
                 if (resultCode == RESULT_OK) {
+                    Log.d(TAG, "Bluetooth is enabled");
                     //블루투스 켜짐
                 } else {
                     Log.d(TAG, "Bluetooth is not enabled");

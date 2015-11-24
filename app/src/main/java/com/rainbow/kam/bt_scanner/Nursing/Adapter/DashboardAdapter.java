@@ -98,7 +98,7 @@ import com.rainbow.kam.bt_scanner.R;
 import java.util.ArrayList;
 
 /**
- * Created by sion on 2015-11-23.
+ * Created by kam6512 on 2015-11-23.
  */
 public class DashboardAdapter extends BaseAdapter {
     //태그

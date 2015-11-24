@@ -202,7 +202,7 @@ public class DetailGattAuto {
         try {
             //서비스 바인드(연결)
             gattServiceIntent = new Intent(activity, BluetoothService.class);
-            activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
+            activity.bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
             isBluetoothServiceClosed = false;
 

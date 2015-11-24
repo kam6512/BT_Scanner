@@ -3,7 +3,7 @@ package com.rainbow.kam.bt_scanner.Nursing.PatientRealmOBJ;
 import io.realm.RealmObject;
 
 /**
- * Created by sion on 2015-11-20.
+ * Created by kam6512 on 2015-11-20.
  */
 public class BandData extends RealmObject {
 

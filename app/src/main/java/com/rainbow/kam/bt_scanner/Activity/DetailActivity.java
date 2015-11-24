@@ -38,7 +38,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
     public static final String EXTRAS_DEVICE_RSSI = "BLE_DEVICE_RSSI";
 
-    public enum ListType {
+    private enum ListType {
         GATT_SERVICES, GATT_CHARACTERISTICS, GATT_CHARACTERISTIC_DETAILS
     }
 
@@ -221,19 +221,18 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         deviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
         deviceRSSI = intent.getStringExtra(EXTRAS_DEVICE_RSSI) + "db";
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(deviceName);
-
         deviceNameTextView = (TextView) findViewById(R.id.detail_name);
         deviceRSSITextView = (TextView) findViewById(R.id.detail_rssi);
         deviceAddressTextView = (TextView) findViewById(R.id.detail_address);
         deviceStateTextView = (TextView) findViewById(R.id.detail_state);
-
         deviceNameTextView.setText(deviceName);
         deviceAddressTextView.setText(deviceAddress);
         deviceRSSITextView.setText(deviceRSSI);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(deviceName);
 
         fragmentManager = getSupportFragmentManager();
 
@@ -246,7 +245,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                 switch (msg.what) {
 
                     case 0:
-//                        Log.e(TAG, "Start 0");
                         serviceFragment = new DetailServiceFragment();
                         fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
                         fragmentTransaction.addToBackStack(null);
@@ -255,8 +253,8 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                     case 1:
                         final int positionByService = msg.arg1;
                         serviceFragment.startTransition(positionByService);
-                        Log.e(TAG, "Start 1");
                         characteristicFragment = new DetailCharacteristicFragment();
+                        fragmentTransaction.hide(serviceFragment);
                         fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
                         fragmentTransaction.addToBackStack(null);
                         fragmentTransaction.commit();
@@ -274,13 +272,13 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                     case 2:
                         final int positionByCharacteristic = msg.arg1;
                         detailFragment = new DetailFragment(ble);
+                        fragmentTransaction.hide(characteristicFragment);
                         fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
                         fragmentTransaction.addToBackStack(null);
                         fragmentTransaction.commit();
                         postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                Log.e(TAG, "Start 2 : " + positionByCharacteristic);
                                 BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristicFragment.getCharacteristic(positionByCharacteristic);
                                 uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristic);
                             }
@@ -293,6 +291,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         handler.sendEmptyMessage(0);
     }
 
+    //앱 onResume BLE연결
     @Override
     protected void onResume() {
         super.onResume();
@@ -310,6 +309,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         ble.connect(deviceAddress);
     }
 
+    //앱 onPause BLE종료
     @Override
     protected void onPause() {
         super.onPause();
@@ -324,6 +324,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         ble.close();
     }
 
+    //홈버튼은 뒤로가기 를대신해서 finish
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -333,9 +334,9 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         return super.onOptionsItemSelected(item);
     }
 
+    //Detail -> charactericstic -> service 로 넘어가기
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
         fragmentTransaction = fragmentManager.beginTransaction();
         if (listType.equals(ListType.GATT_SERVICES)) {
             finish();
@@ -343,6 +344,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         if (listType.equals(ListType.GATT_CHARACTERISTICS)) {
             uiAvailableServices(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattServices());
             characteristicFragment.clearAdapter();
+            fragmentTransaction.show(serviceFragment);
             fragmentTransaction.remove(characteristicFragment);
             fragmentTransaction.commit();
 
@@ -351,6 +353,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         if (listType.equals(ListType.GATT_CHARACTERISTIC_DETAILS)) {
             ble.getCharacteristicsForService(ble.getBluetoothGattService());
             detailFragment.clearCharacteristic();
+            fragmentTransaction.show(characteristicFragment);
             fragmentTransaction.remove(detailFragment);
             fragmentTransaction.commit();
             return;

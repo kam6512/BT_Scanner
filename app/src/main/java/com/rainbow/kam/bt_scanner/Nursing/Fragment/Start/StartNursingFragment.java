@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -32,15 +33,12 @@ import io.realm.RealmResults;
  */
 public class StartNursingFragment extends Fragment implements View.OnClickListener {
 
+    Activity activity;
     public static Handler handler;
-    private Activity activity;
     private FragmentManager fm;
     private SelectNursingDeviceFragment dialogFragment;
 
-    private View view;
-    private LinearLayout pilotLayout;
-
-    private Animation animation;
+//    private Animation animation;
 
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
@@ -60,11 +58,12 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        View view;
         if (StartNursingActivity.indexByStart == 0) {
 
             view = inflater.inflate(R.layout.fragment_nursing_start_splash, container, false);
 
-            pilotLayout = (LinearLayout) view.findViewById(R.id.nursing_start_pilot);
+//            LinearLayout pilotLayout = (LinearLayout) view.findViewById(R.id.nursing_start_pilot);
 
 //            animation = AnimationUtils.loadAnimation(getActivity(), R.anim.show_fab);
 //            pilotLayout.startAnimation(animation);
@@ -102,41 +101,40 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
 
 
                     final Bundle callbackBundle = msg.getData();
-                        Realm.removeDefaultConfiguration();
-                        realm = Realm.getInstance(getActivity());
-                        realm.beginTransaction();
-                        realm.allObjects(Patient.class).clear();
+                    Realm.removeDefaultConfiguration();
+                    realm = Realm.getInstance(getActivity());
+                    realm.beginTransaction();
+                    realm.allObjects(Patient.class).clear();
 //                    realm.allObjects(UserBand.class).clear();
-                        transaction = realm.executeTransaction(new Realm.Transaction() {
-                            @Override
-                            public void execute(Realm realm) {
-                                Patient patient = realm.createObject(Patient.class);
-                                patient.setName(userName);
-                                patient.setAge(userAge);
-                                patient.setHeight(userHeight);
-                                patient.setWeight(userWeight);
-                                patient.setStep(userStep);
-                                patient.setGender(gender);
-                                patient.setDeviceName(callbackBundle.getString("name"));
-                                patient.setDeviceAddress(callbackBundle.getString("address"));
-                            }
-                        }, new Realm.Transaction.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
-                                Log.e(StartNursingActivity.TAG, results.size() + " / " + results.get(0).getName() + " / " + results.get(0).getAge() + " / " + results.get(0).getHeight() + " / " + results.get(0).getWeight() + " / " + results.get(0).getStep() + " / " + results.get(0).getDeviceName() + " / " + results.get(0).getDeviceAddress());
+                    transaction = realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            Patient patient = realm.createObject(Patient.class);
+                            patient.setName(userName);
+                            patient.setAge(userAge);
+                            patient.setHeight(userHeight);
+                            patient.setWeight(userWeight);
+                            patient.setStep(userStep);
+                            patient.setGender(gender);
+                            patient.setDeviceName(callbackBundle.getString("name"));
+                            patient.setDeviceAddress(callbackBundle.getString("address"));
+                        }
+                    }, new Realm.Transaction.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
+                            Log.e(StartNursingActivity.TAG, results.size() + " / " + results.get(0).getName() + " / " + results.get(0).getAge() + " / " + results.get(0).getHeight() + " / " + results.get(0).getWeight() + " / " + results.get(0).getStep() + " / " + results.get(0).getDeviceName() + " / " + results.get(0).getDeviceAddress());
 
-                                dismissDeviceListDialog();
-                            }
+                            dismissDeviceListDialog();
+                        }
 
-                            @Override
-                            public void onError(Exception e) {
-                                Toast.makeText(getContext(), "fail " + e.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        });
+                        @Override
+                        public void onError(Exception e) {
+                            Toast.makeText(getContext(), "fail " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
 
-                        realm.commitTransaction();
-
+                    realm.commitTransaction();
 
 
                 }
@@ -168,7 +166,7 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
                 .positiveText("확인").negativeText("수정")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
-                    public void onClick(MaterialDialog materialDialog, DialogAction dialogAction) {
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
                         materialDialog.dismiss();
                         showDeviceListDialog();
                     }
@@ -225,7 +223,7 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
             height.setError("Height is missing");
         } else if (userWeight == null || userWeight.equals("") || userWeight.length() <= 0) {
             weight.setError("weight is missing");
-        } else if (userStep == null || userStep.equals("") || userStep.length() <= 0) {
+        } else if (userStep.equals("") || userStep.length() <= 0) {
             step.setError("step is missing");
         } else {
             name.setErrorEnabled(false);

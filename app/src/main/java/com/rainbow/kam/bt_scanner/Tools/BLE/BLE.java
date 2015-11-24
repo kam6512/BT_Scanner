@@ -114,10 +114,7 @@ public class BLE {
         }
 
         if (bluetoothAdapter == null) bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter == null) {
-            return false;
-        }
-        return true;
+        return bluetoothAdapter != null;
     }
 
     public boolean connect(final String deviceAddress) {
@@ -154,14 +151,14 @@ public class BLE {
     public void readPeriodicalyRssiValue(final boolean repeat) {
         timerEnabled = repeat;
 
-        if (connected == false || bluetoothGatt == null || timerEnabled == false) {
+        if (!connected || bluetoothGatt == null || !timerEnabled) {
             timerEnabled = false;
             return;
         }
         timerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (bluetoothGatt == null || bluetoothAdapter == null || connected == false) {
+                if (bluetoothGatt == null || bluetoothAdapter == null || !connected) {
                     timerEnabled = false;
                     return;
                 }
@@ -199,7 +196,7 @@ public class BLE {
         if (bluetoothGattService == null) {
             return;
         }
-        List<BluetoothGattCharacteristic> bluetoothGattCharacteristics = null;
+        List<BluetoothGattCharacteristic> bluetoothGattCharacteristics;
 
         bluetoothGattCharacteristics = bluetoothGattService.getCharacteristics();
         bleUiCallbacks.uiCharacteristicForService(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristics);

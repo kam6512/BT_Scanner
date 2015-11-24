@@ -49,7 +49,7 @@ public class DashboardFragment extends Fragment {
                 try {
                     switch (msg.what) {
                         case 1:
-                            time.setText("시간 : " + (String) msg.obj);
+                            time.setText("시간 : " + msg.obj);
                             break;
                         case 2:
                             Bundle bundle = msg.getData();

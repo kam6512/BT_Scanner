@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.SimpleExpandableListAdapter;
 
 import com.rainbow.kam.bt_scanner.Deprecated.Adapter.DetailAdapter.DetailExpandableAdapter;
 import com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage.BluetoothService;
@@ -34,9 +33,6 @@ public class TempActivity extends AppCompatActivity {
     //태그
     private static final String TAG = "DetailActivity";
 
-    //고정 네임
-    private static final String DEVICE_NAME = "DEVICE_NAME";
-    private static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
     private String address;
 
     //블루투스 서비스
@@ -47,10 +43,10 @@ public class TempActivity extends AppCompatActivity {
     //블루투스 서비스의 BluetoothGattCharacteristic을 담을 리스트
     //ArrayList<서비스리스트 ArrayList<Characteristic>>구조이다.
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> rootGattCharacteristics =
-            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+            new ArrayList<>();
     private BluetoothGattCharacteristic notifyCharacteristic;
-    private ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
-    private ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
+    private ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();  //서비스 리스트
+    private ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>(); //Characteristic 리스트
     private String[][] gattData;
 
     private int i = 0, j = 0;
@@ -59,10 +55,7 @@ public class TempActivity extends AppCompatActivity {
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
-    private Intent gattServiceIntent;
-
-    private ExpandableListView expandableListView;
-    private SimpleExpandableListAdapter simpleExpandableListAdapter;
+    private ExpandableListView expandableListView = null;
     private DetailExpandableAdapter detailExpandableAdapter;
     private ExpandableListView.OnChildClickListener onChildClickListener;
 
@@ -74,7 +67,7 @@ public class TempActivity extends AppCompatActivity {
 
         address = getIntent().getStringExtra("Address");
 
-        gattServiceIntent = new Intent(TempActivity.this, BluetoothService.class);
+        Intent gattServiceIntent = new Intent(TempActivity.this, BluetoothService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
 
         //브로드캐스트 리시버 적용
@@ -121,20 +114,15 @@ public class TempActivity extends AppCompatActivity {
         super.onDestroy();
         if (bluetoothService != null) {
             //커넥션 OFF
-
             bluetoothService.close();
             bluetoothService.disconnect();
             bluetoothService = null;
-            try {
+            if (gattUpdateReceiver != null && serviceConnection != null) {
                 //BR 해제
                 unregisterReceiver(gattUpdateReceiver);
-
                 //서비스 언바인드로 연결 끊기
                 unbindService(serviceConnection);
-            } catch (Exception e) {
-
             }
-
         }
     }
 
@@ -210,14 +198,10 @@ public class TempActivity extends AppCompatActivity {
 
                 try {
                     gattData[i][j] = data;
-
+                    Log.e("data", data + " / " + hex);
                 } catch (Exception e) {
-
+                    Log.e("data", "NULL");
                 }
-
-//                device.stopHandling();
-                Log.e("data", data + " / " + hex);
-//                destroy(); //끄기
 
             }
         }
@@ -235,23 +219,23 @@ public class TempActivity extends AppCompatActivity {
 
     //Gatt를 찾은 브로드캐스트를 수신시 서비스를 GET하고 내부 Characteristic등을 분석
     private void setGattServices(List<BluetoothGattService> gattServices) {
-        String uuid = null;
+        String uuid;
         String unknownServiceString = "unknown_service";
         String unknownCharaString = "unknown_characteristic";
 
 //        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
-        gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
+        gattServiceData = new ArrayList<>();  //서비스 리스트
 
 //        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
-        gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
+        gattCharacteristicData = new ArrayList<>(); //Characteristic 리스트
 
-        rootGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>(); //ArrayList<서비스리스트 ArrayList<Characteristic>> 이하 root로 표기
+        rootGattCharacteristics = new ArrayList<>(); //ArrayList<서비스리스트 ArrayList<Characteristic>> 이하 root로 표기
 
         //서비스 수집
         for (BluetoothGattService bluetoothGattService : gattServices) {// 인자로 받은 BluetoothGattService 리스트중 BluetoothGattService를 하나씩 뽑아
 
             //틀을 만들고
-            HashMap<String, String> currentServiceData = new HashMap<String, String>();
+            HashMap<String, String> currentServiceData = new HashMap<>();
             //UUID를 블루투스 서비스에서 가져온다
             uuid = bluetoothGattService.getUuid().toString();
 
@@ -264,13 +248,13 @@ public class TempActivity extends AppCompatActivity {
 
             //Characteristic그룹을 넣을 리스트르 만들고
             ArrayList<HashMap<String, String>> gattCharacteristicGroupData =
-                    new ArrayList<HashMap<String, String>>();
+                    new ArrayList<>();
             //Characteristic가 들어갈 리스트도 만들어 서비스에서 Characteristic들을 가져온다
             List<BluetoothGattCharacteristic> gattCharacteristics =
                     bluetoothGattService.getCharacteristics();
             //Characteristic가 들어갈 다른 빈 리스트
             ArrayList<BluetoothGattCharacteristic> charas =
-                    new ArrayList<BluetoothGattCharacteristic>();
+                    new ArrayList<>();
 
 
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {//서비스안의 BluetoothGattCharacteristic을 수집한다
@@ -279,7 +263,7 @@ public class TempActivity extends AppCompatActivity {
                 charas.add(gattCharacteristic);
 
                 //Characteristic의 속성들이 들어갈 틀을 만든다
-                HashMap<String, String> currentCharaData = new HashMap<String, String>();
+                HashMap<String, String> currentCharaData = new HashMap<>();
 
                 //UUID를 서비스가 아닌 Characteristic의 UUID를 넣는다.
                 uuid = gattCharacteristic.getUuid().toString();
@@ -316,7 +300,7 @@ public class TempActivity extends AppCompatActivity {
     }
 
 
-    Thread showBlueToothStat = new Thread() {
+    private final Thread showBlueToothStat = new Thread() {
 
         @Override
         public void run() {
@@ -389,7 +373,7 @@ public class TempActivity extends AppCompatActivity {
 
 
                             } catch (Exception e) {
-
+                                Log.e("showBlueToothStat", "error");
                             }
                         }
                     }

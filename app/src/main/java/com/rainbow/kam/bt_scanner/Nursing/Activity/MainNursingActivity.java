@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -106,8 +107,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private DashBoardAdapter dashBoardAdapter;
 
 
-
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -131,19 +130,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             deviceName = patient.getDeviceName();
             deviceAddress = patient.getDeviceAddress();
 
-//            patientName = results.get(0).getName();
-//            patientAge = results.get(0).getAge();
-//            patientHeight = results.get(0).getHeight();
-//            patientWeight = results.get(0).getWeight();
-//            patientStep = results.get(0).getStep();
-//            if (results.get(0).getGender().equals("남성")) {
-//                patientGender = "1";
-//            } else {
-//                patientGender = "0";
-//            }
-//            deviceName = results.get(0).getDeviceName();
-//            deviceAddress = results.get(0).getDeviceAddress();
-
             if (patientName == null || patientAge == null || patientHeight == null || patientWeight == null || patientStep == null || deviceName == null || deviceAddress == null) {
                 throw new Exception();
             }
@@ -162,7 +148,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -211,7 +197,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                     case 1: //Check the time result And READ_STEP_DATA
 
-                        dashboardFragment.handler.sendMessage(message);
+                        DashboardFragment.handler.sendMessage(message);
 
                         dataToWrite = WrapperBleByPrime.READ_STEP_DATA(8);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
@@ -219,11 +205,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                     case 2:
 
-                        dashboardFragment.handler.sendMessage(message);
-                        stepFragment.handler.sendMessage(Message.obtain(message));
-                        calorieFragment.handler.sendMessage(Message.obtain(message));
-                        distanceFragment.handler.sendMessage(Message.obtain(message));
-                        sampleFragment.handler.sendMessage(Message.obtain(message));
+                        DashboardFragment.handler.sendMessage(message);
+                        StepFragment.handler.sendMessage(Message.obtain(message));
+                        CalorieFragment.handler.sendMessage(Message.obtain(message));
+                        DistanceFragment.handler.sendMessage(Message.obtain(message));
+                        SampleFragment.handler.sendMessage(Message.obtain(message));
 
                         addBandData(Message.obtain(message));
 
@@ -232,7 +218,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         break;
 
                     case 3:
-                        dashboardFragment.handler.sendMessage(message);
+                        DashboardFragment.handler.sendMessage(message);
 
                         Log.e(TAG, "READ_SPORTS_CURVE_DATA's result = " + msg.obj);
                         break;
@@ -252,6 +238,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             }
         };
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -297,7 +284,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             //블루투스 매니저/어댑터 초기화
             bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
-            if (bluetoothAdapter == null || bluetoothManager == null) {
+            if (bluetoothAdapter == null) {
                 throw new Exception();
             }
             if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
@@ -322,8 +309,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         toolbar = (Toolbar) findViewById(R.id.nursing_toolbar);
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         toolbarRssi = (TextView) findViewById(R.id.nursing_toolbar_rssi);
         toolbarBluetoothFlag = (ImageView) findViewById(R.id.nursing_toolbar_bluetoothFlag);
@@ -446,7 +435,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         if (ble == null) {
             ble = new BLE(this, this);
         }
-        if (ble.initialize() == false) {
+        if (!ble.initialize()) {
             finish();
         }
         ble.connect(deviceAddress);
@@ -462,9 +451,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private void addBandData(Message message) {
 
         Bundle bundle = message.getData();
-        int step = Integer.valueOf(bundle.getString("STEP"), 16);
-        int calorie = Integer.valueOf(bundle.getString("CALO"), 16);
-        int distance = Integer.valueOf(bundle.getString("DIST"), 16);
+        int step = Integer.valueOf(bundle.getString("STEP", "0"), 16);
+        int calorie = Integer.valueOf(bundle.getString("CALO", "0"), 16);
+        int distance = Integer.valueOf(bundle.getString("DIST", "0"), 16);
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
@@ -499,7 +488,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
         results = realm.where(BandData.class).findAll();
 
-        ArrayList<DashboardItem> arrayList = new ArrayList<DashboardItem>();
+        ArrayList<DashboardItem> arrayList = new ArrayList<>();
 
         for (int i = 0; i < results.size(); i++) {
             Log.e(TAG, "band [" + i + "] : " + results.size() + " step : " + results.get(i).getStep() + " calo : " + results.get(i).getCalorie() + " dist : " + results.get(i).getDistance() + " calendat : " + results.get(i).getCalendar());
@@ -714,9 +703,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             break;
 
                         case 2:
-                            for (int i = 0; i < res.length; i++) {
-                                int lsb = characteristic.getValue()[i] & 0xff;
-                            }
+//                            for (int i = 0; i < res.length; i++) {
+//                                int lsb = characteristic.getValue()[i] & 0xff;
+//                            }
 
                             handleMessage.what = 3;
                             handleMessage.obj = result;
@@ -812,16 +801,16 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return dashboardFragment.newInstance(position + 1);
+                    return DashboardFragment.newInstance(position + 1);
 
                 case 1:
-                    return stepFragment.newInstance(position + 1);
+                    return StepFragment.newInstance(position + 1);
                 case 2:
-                    return calorieFragment.newInstance(position + 1);
+                    return CalorieFragment.newInstance(position + 1);
                 case 3:
-                    return distanceFragment.newInstance(position + 1);
+                    return DistanceFragment.newInstance(position + 1);
                 default:
-                    return sampleFragment.newInstance(position + 1);
+                    return SampleFragment.newInstance(position + 1);
             }
 
         }
