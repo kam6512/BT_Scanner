@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.Nursing.Activity;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -48,12 +49,14 @@ import com.rainbow.kam.bt_scanner.Tools.BLE.BleUiCallbacks;
 import com.rainbow.kam.bt_scanner.Tools.BLE.Device.WrapperBleByPrime;
 import com.rainbow.kam.bt_scanner.Tools.PermissionV21;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 /**
@@ -64,6 +67,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     public static final String TAG = MainNursingActivity.class.getSimpleName();
 
     private Realm realm;
+    private Activity activity;
 
     private String patientName = null;
     public static String patientAge = null;
@@ -111,8 +115,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     protected void onStart() {
         super.onStart();
         try {
-            realm = Realm.getInstance(this);
-            realm.beginTransaction();
+            activity = this;
+            realm = Realm.getInstance(activity);
 
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
 
@@ -136,13 +140,19 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
         } catch (Exception e) {
 
+            Realm.removeDefaultConfiguration();
+
+            realm = Realm.getInstance(this);
+            realm.beginTransaction();
+
             isNewUser = true;
             realm.clear(BandData.class);
             startActivity(new Intent(MainNursingActivity.this, StartNursingActivity.class));
 
-        } finally {
             realm.commitTransaction();
 
+
+        } finally {
             PermissionV21.check(this);
         }
     }
@@ -251,8 +261,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         if (ble != null) {
             disconnectDevice();
         }
-
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -275,6 +285,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
 
     }
+
 
     public boolean enableBluetooth() {//블루투스 가동여부
         Log.d(TAG, "enableBluetooth");
@@ -364,6 +375,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             return true;
                         case R.id.menu_nursing_about_setting:
                             Snackbar.make(coordinatorLayout, "nursing_about_setting", Snackbar.LENGTH_LONG).show();
+
+                            realm = Realm.getInstance(activity);
                             realm.beginTransaction();
                             realm.clear(Patient.class);
                             realm.clear(BandData.class);

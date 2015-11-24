@@ -56,6 +56,8 @@ public class BleActivityManager {
 
     private boolean isNursing = false;
     private boolean isOverM = false;
+    private BluetoothAdapter.LeScanCallback leScanCallback;
+    private ScanCallback scanCallback;
 
     public BleActivityManager(String TAG, Activity activity, Handler handler, BluetoothAdapter bluetoothAdapter, BluetoothManager bluetoothManager, RecyclerView selectDeviceRecyclerView, RecyclerView.Adapter adapter,
                               ArrayList<DeviceItem> deviceItemArrayList, View view, ProgressBar progressBar, TextView hasCard, boolean isNursing) {
@@ -94,6 +96,9 @@ public class BleActivityManager {
                     if (bleScanner == null) {
                         throw new Exception();
                     }
+                    setScannerM();
+                } else {
+                    setScanner();
                 }
 
                 startScan();
@@ -230,101 +235,110 @@ public class BleActivityManager {
         }
     }
 
-    private ScanCallback scanCallback = new ScanCallback() {
+    private void setScannerM() {
+        Log.e(TAG, "setScannerM");
+        scanCallback = new ScanCallback() {
 
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            processResult(result);
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            for (ScanResult result : results) {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
                 processResult(result);
             }
-        }
 
-        @Override
-        public void onScanFailed(int errorCode) {
-        }
+            @Override
+            public void onBatchScanResults(List<ScanResult> results) {
+                for (ScanResult result : results) {
+                    processResult(result);
+                }
+            }
 
-        private void processResult(final ScanResult result) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(result.getScanRecord().getBytes());
+            @Override
+            public void onScanFailed(int errorCode) {
+            }
 
-                        String deviceName = result.getDevice().getName();
-                        if (deviceName == null) {
-                            deviceName = bleAdvertisedData.getName();
+            private void processResult(final ScanResult result) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(result.getScanRecord().getBytes());
+
+                            String deviceName = result.getDevice().getName();
                             if (deviceName == null) {
-                                deviceName = "N/A";
+                                deviceName = bleAdvertisedData.getName();
+                                if (deviceName == null) {
+                                    deviceName = "N/A";
+                                }
                             }
-                        }
 
-                        if (deviceName.equals("Prime")) {
-                            deviceItemArrayList.add(new DeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
-                        }
+                            if (deviceName.equals("Prime")) {
+                                deviceItemArrayList.add(new DeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
+                            }
 
-                        for (int i = 0; i < deviceItemArrayList.size(); i++) {
-                            for (int j = 1; j < deviceItemArrayList.size(); j++) {
-                                if (deviceItemArrayList.get(i).getExtraextraAddress().trim().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim())) {
-                                    if (i != j) {
-                                        deviceItemArrayList.remove(j);
+                            for (int i = 0; i < deviceItemArrayList.size(); i++) {
+                                for (int j = 1; j < deviceItemArrayList.size(); j++) {
+                                    if (deviceItemArrayList.get(i).getExtraextraAddress().trim().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim())) {
+                                        if (i != j) {
+                                            deviceItemArrayList.remove(j);
+                                        }
                                     }
+
                                 }
 
                             }
-
+                        } catch (Exception e) {
+                            Log.e(TAG, "leScanCallback is Exception" + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "leScanCallback is Exception" + e.getMessage());
                     }
-                }
-            });
-        }
-    };
+                });
+            }
+        };
+    }
 
-    public BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
+    private void setScanner() {
+        Log.e(TAG, "setScanner");
+        leScanCallback = new BluetoothAdapter.LeScanCallback()
 
-                        String deviceName = device.getName();
-                        if (deviceName == null) {
-                            deviceName = bleAdvertisedData.getName();
+        {
+            @Override
+            public void onLeScan(final BluetoothDevice device, final int rssi,
+                                 final byte[] scanRecord) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            final BleTools.BleAdvertisedData bleAdvertisedData = BleTools.parseAdertisedData(scanRecord);
+
+                            String deviceName = device.getName();
                             if (deviceName == null) {
-                                deviceName = "N/A";
+                                deviceName = bleAdvertisedData.getName();
+                                if (deviceName == null) {
+                                    deviceName = "N/A";
+                                }
                             }
-                        }
 
-                        if (deviceName.equals("Prime")) {
-                            deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-                        }
+                            if (deviceName.equals("Prime")) {
+                                deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                            }
 
-                        for (int i = 0; i < deviceItemArrayList.size(); i++) {
-                            for (int j = 1; j < deviceItemArrayList.size(); j++) {
-                                if (deviceItemArrayList.get(i).getExtraextraAddress().trim().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim())) {
-                                    if (i != j) {
-                                        deviceItemArrayList.remove(j);
+                            for (int i = 0; i < deviceItemArrayList.size(); i++) {
+                                for (int j = 1; j < deviceItemArrayList.size(); j++) {
+                                    if (deviceItemArrayList.get(i).getExtraextraAddress().trim().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim())) {
+                                        if (i != j) {
+                                            deviceItemArrayList.remove(j);
+                                        }
                                     }
+
                                 }
 
                             }
-
+                        } catch (Exception e) {
+                            Log.e(TAG, "leScanCallback is Exception" + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "leScanCallback is Exception" + e.getMessage());
                     }
-                }
-            });
-        }
-    };
+                });
+            }
+        };
+    }
 
     public boolean getBT() { //블루투스 사용여부
         Log.d(TAG, "getBT");
