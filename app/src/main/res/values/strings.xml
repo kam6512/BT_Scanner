@@ -2,7 +2,7 @@
     <string name="app_name">BT_Scanner</string>
     <string name="action_settings">Settings</string>
     <string name="has_not_card">블루루스 BLE 기기가 탐색되지 않았습니다</string>
-    <string name="has_not_card_nurs">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중...</string>
+    <string name="has_not_card_nurs">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
     <string name="menu_scan">스캔</string>
     <string name="menu_sample">샘플</string>
     <string name="menu_help">HELP</string>
