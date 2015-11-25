@@ -53,10 +53,14 @@ public class CalorieFragment extends Fragment {
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                bundle = msg.getData();
-                calorie = Integer.valueOf(bundle.getString("CALO"), 16);
-                super.handleMessage(msg);
-                calorieCircleCounter.setValues(calorie, calorie, calorie);
+                try {
+                    bundle = msg.getData();
+                    calorie = Integer.valueOf(bundle.getString("CALO"), 16);
+                    super.handleMessage(msg);
+                    calorieCircleCounter.setValues(calorie, calorie, calorie);
+                } catch (NumberFormatException e) {
+
+                }
             }
         };
 

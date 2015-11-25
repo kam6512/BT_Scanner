@@ -90,6 +90,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
     private String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
+    private int READ_TIME = 0;
+    private int READ_DATA = 1;
+    private int ETC = 2;
+
     public static Handler handler;
 
     private DashboardFragment dashboardFragment;
@@ -182,6 +186,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
                     myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivityForResult(myAppSettings, 0);
+
                 }
                 break;
         }
@@ -214,7 +219,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 Log.e("what", msg.what + " is what");
                 switch (message.what) {
                     case 0:  //Check the time
-
+                        bleProcess = READ_TIME;
                         dataToWrite = WrapperBleByPrime.READ_DEVICE_TIME();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
@@ -223,6 +228,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                         DashboardFragment.handler.sendMessage(message);
 
+                        bleProcess = READ_DATA;
                         dataToWrite = WrapperBleByPrime.READ_STEP_DATA(8);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
@@ -237,7 +243,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                         addBandData(Message.obtain(message));
 
-                        dataToWrite = WrapperBleByPrime.READ_DEVICE_TIME();
+                        bleProcess = ETC;
+                        dataToWrite = WrapperBleByPrime.CALL_DEVICE();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
@@ -453,7 +460,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     private void setSnackBar() {
-        snackbar = Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("연결시도", new View.OnClickListener() {
+        snackbar = Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("재시도", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 connectDevice();
@@ -472,10 +479,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     private void disconnectDevice() {
-        ble.stopMonitoringRssiValue();
-        ble.disconnect();
-        ble.close();
-        ble = null;
+        if (ble != null) {
+            ble.stopMonitoringRssiValue();
+            ble.disconnect();
+            ble.close();
+        }
     }
 
     private void addBandData(Message message) {
@@ -505,7 +513,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 bandData.setStep(step);
                 bandData.setCalorie(calorie);
                 bandData.setDistance(distance);
-
             }
         } else {
             BandData bandData = realm.createObject(BandData.class);
@@ -543,7 +550,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e(TAG, "Connected");
-                snackbar.dismiss();
+                if (snackbar.isShown()) {
+                    snackbar.dismiss();
+                }
+
                 toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
             }
         });
@@ -557,13 +567,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        snackbar.show();
-
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
                         toolbarRssi.setText("No Signal");
                         Log.e(TAG, "Disconnected");
+                        if (!snackbar.isShown()){
+                            snackbar.show();
+                        }
+
                     }
-                }, 300);
+                }, 100);
             }
         });
     }
@@ -606,7 +618,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         if (isNewUser) {
                             handler.sendEmptyMessage(-1);
                         } else {
-                            handler.sendEmptyMessage(bleProcess);
+                            handler.sendEmptyMessage(READ_TIME);
                         }
                     }
                 }, 1000);
@@ -660,7 +672,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                 Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
                             }
 
-                            handleMessage.what = ++bleProcess;
+                            handleMessage.what = READ_TIME + 1;
                             handleMessage.obj = result;
                             break;
 
@@ -669,7 +681,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             for (int i = 0; i < res.length; i++) {
 
                                 int lsb = characteristic.getValue()[i] & 0xff;
-                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
+
 
                                 if (i > 1 && i != res.length - 1) {
 
@@ -718,14 +730,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                                 distance = (int) ((height * 0.30) * steps);
                                             }
                                             Log.e(TAG, "dist : " + dist + " distance : " + distance + " age : " + age + " steps : " + steps + " height  : " + height);
-                                            dist = String.valueOf(distance / 100);
+
+                                            dist = String.valueOf(distance / 100);  //CM -> M
                                             break;
                                     }
-
+                                    Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
                                 }
                             }
 
-                            handleMessage.what = ++bleProcess;
+                            handleMessage.what = READ_DATA + 1;
                             bundle.putString("STEP", step);
                             bundle.putString("CALO", calo);
                             bundle.putString("DIST", dist);
@@ -774,7 +787,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 if (isNewUser) {
 
                     Toast.makeText(getApplicationContext(), "유저등록성공.", Toast.LENGTH_LONG).show();
-                    handler.sendEmptyMessage(bleProcess);
+                    handler.sendEmptyMessage(READ_TIME);
 
                 } else {
 
@@ -796,7 +809,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                 if (isNewUser) {
 
-                    handler.sendEmptyMessage(bleProcess);
+                    handler.sendEmptyMessage(READ_TIME);
 
                 } else {
 
