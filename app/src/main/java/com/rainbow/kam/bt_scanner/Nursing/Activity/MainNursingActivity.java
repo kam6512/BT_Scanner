@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.Nursing.Activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,14 +11,18 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -85,7 +90,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
     private String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
-    private Handler handler;
+    public static Handler handler;
 
     private DashboardFragment dashboardFragment;
     private StepFragment stepFragment;
@@ -114,8 +119,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     @Override
     protected void onStart() {
         super.onStart();
+        activity = this;
+
         try {
-            activity = this;
             realm = Realm.getInstance(activity);
 
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
@@ -138,6 +144,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 throw new Exception();
             }
 
+            PermissionV21.check(this);
+
         } catch (Exception e) {
 
             Realm.removeDefaultConfiguration();
@@ -152,22 +160,28 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             realm.commitTransaction();
 
 
-        } finally {
-            PermissionV21.check(this);
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult");
+        Toast.makeText(getApplicationContext(), "권한 획득 필요.", Toast.LENGTH_SHORT).show();
         switch (requestCode) {
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-
+                        || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Snackbar.make(getWindow().getDecorView(), "권한 획득, 감사합니다.", Snackbar.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "권한 획득, 감사합니다.", Toast.LENGTH_SHORT).show();
                 } else {
                     finish();
-                    Log.d(TAG, "Permission always deny");
-                    Toast.makeText(getApplicationContext(), "권한의 획득을 거부하여 앱을 종료합니다", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "[권한] 탭 -> [위치] 권한을 허용해주십시오", Toast.LENGTH_SHORT).show();
+//                    startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION), 0);
+                    Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                    myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+                    myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivityForResult(myAppSettings, 0);
                 }
                 break;
         }
@@ -243,6 +257,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     case -2://re-connect
                         disconnectDevice();
                         connectDevice();
+                        break;
+                    case -10000:
+                        finish();
                         break;
                 }
             }
