@@ -182,6 +182,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
                     myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivityForResult(myAppSettings, 0);
+
                 }
                 break;
         }
@@ -237,7 +238,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                         addBandData(Message.obtain(message));
 
-                        dataToWrite = WrapperBleByPrime.READ_DEVICE_TIME();
+                        dataToWrite = WrapperBleByPrime.CALL_DEVICE();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
@@ -453,7 +454,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     private void setSnackBar() {
-        snackbar = Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("연결시도", new View.OnClickListener() {
+        snackbar = Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("재시도", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 connectDevice();
@@ -505,6 +506,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 bandData.setStep(step);
                 bandData.setCalorie(calorie);
                 bandData.setDistance(distance);
+
 
             }
         } else {
