@@ -58,14 +58,11 @@ public class StepFragment extends Fragment {
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                try {
-                    bundle = msg.getData();
-                    step = Integer.valueOf(bundle.getString("STEP"), 16);
-                    super.handleMessage(msg);
-                    stepCircleCounter.setValues(step, step, step);
-                }catch (NumberFormatException e){
+                bundle = msg.getData();
+                step = Integer.valueOf(bundle.getString("STEP"), 16);
+                super.handleMessage(msg);
+                stepCircleCounter.setValues(step, step, step);
 
-                }
 
             }
         };

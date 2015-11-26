@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -39,6 +40,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.Activity.MainActivity;
 import com.rainbow.kam.bt_scanner.Nursing.Adapter.DashboardItem;
 import com.rainbow.kam.bt_scanner.Nursing.Fragment.Main.CalorieFragment;
@@ -95,6 +98,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private int ETC = 2;
 
     public static Handler handler;
+    private Runnable runnable;
 
     private DashboardFragment dashboardFragment;
     private StepFragment stepFragment;
@@ -107,7 +111,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
 
-    private Snackbar snackbar;
+    //    private Snackbar snackbar;
+    private MaterialDialog materialDialog;
 
     private CoordinatorLayout coordinatorLayout;
     private Toolbar toolbar;
@@ -244,8 +249,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         addBandData(Message.obtain(message));
 
                         bleProcess = ETC;
-                        dataToWrite = WrapperBleByPrime.CALL_DEVICE();
-                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+//                        dataToWrite = WrapperBleByPrime.();
+//                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
                     case 3:
@@ -460,12 +465,41 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     private void setSnackBar() {
-        snackbar = Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("재시도", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                connectDevice();
-            }
-        });
+
+        materialDialog = new MaterialDialog.Builder(this).title("기기와의 연결이 비활성화 되었습니다").content("다시 연결하기").positiveText("재시도").negativeText("종료")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        // TODO
+                        enableBluetooth();
+                        materialDialog.getBuilder().content("연결중").build();
+                    }
+                })
+                .onNeutral(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        // TODO
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        // TODO
+                        finish();
+                        materialDialog.dismiss();
+                    }
+                }).showListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+
+                    }
+                }).autoDismiss(false).cancelable(false).build();
+//        snackbar = Snackbar.make(coordinatorLayout, "기기와의 연결이 비활성화 되었습니다", Snackbar.LENGTH_INDEFINITE).setAction("재시도", new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                connectDevice();
+//            }
+//        });
     }
 
     private void connectDevice() {
@@ -476,6 +510,19 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             finish();
         }
         ble.connect(deviceAddress);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!ble.isConnected()){
+                    handler.postDelayed(this, 5000);
+                    Snackbar.make(coordinatorLayout,"connecting...",Snackbar.LENGTH_SHORT).show();
+                }else{
+
+                }
+
+            }
+        };
+        handler.postDelayed(runnable, 2000);
     }
 
     private void disconnectDevice() {
@@ -483,6 +530,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             ble.stopMonitoringRssiValue();
             ble.disconnect();
             ble.close();
+            ble = null;
         }
     }
 
@@ -495,7 +543,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
-//        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE)+1);
         String today = formatter.format(calendar.getTime());
 
         realm = Realm.getInstance(this);
@@ -550,10 +597,12 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e(TAG, "Connected");
-                if (snackbar.isShown()) {
-                    snackbar.dismiss();
+//                if (snackbar.isShown()) {
+//                    snackbar.dismiss();
+//                }
+                if (materialDialog.isShowing()) {
+                    materialDialog.dismiss();
                 }
-
                 toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
             }
         });
@@ -570,10 +619,18 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
                         toolbarRssi.setText("No Signal");
                         Log.e(TAG, "Disconnected");
-                        if (!snackbar.isShown()){
-                            snackbar.show();
-                        }
+//                        if (!snackbar.isShown()) {
+//                            snackbar.show();
+//                        }
 
+                        if (!materialDialog.isShowing()) {
+                            if (!isFinishing() || !isDestroyed()) {
+                                materialDialog.show();
+                            }
+
+                        } else {
+                            materialDialog.getBuilder().content("실패");
+                        }
                     }
                 }, 100);
             }
@@ -746,9 +803,12 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             break;
 
                         case 2:
-//                            for (int i = 0; i < res.length; i++) {
-//                                int lsb = characteristic.getValue()[i] & 0xff;
-//                            }
+                            for (int i = 0; i < res.length; i++) {
+                                int lsb = characteristic.getValue()[i] & 0xff;
+                                result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16);
+                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
+
+                            }
 
                             handleMessage.what = 3;
                             handleMessage.obj = result;
