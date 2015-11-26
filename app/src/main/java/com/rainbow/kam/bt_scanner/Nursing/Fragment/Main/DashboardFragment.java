@@ -65,7 +65,10 @@ public class DashboardFragment extends Fragment {
                             break;
                     }
                 } catch (Exception e) {
-
+                    time.setText("시간 : 연결 실패");
+                    stepTextview.setText("연결 실패");
+                    calorieTextview.setText("연결 실패");
+                    distanceTextview.setText("연결 실패");
                 }
 
             }

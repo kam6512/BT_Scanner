@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
     private BluetoothAdapter bluetoothAdapter = null;
     private BluetoothManager bluetoothManager = null;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView.Adapter adapter = null;
     private ArrayList<DeviceItem> deviceItemArrayList = new ArrayList<>();
 
@@ -55,6 +57,8 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         TextView hasCard = (TextView) view.findViewById(R.id.nursing_device_hasCard);
         hasCard.setVisibility(View.INVISIBLE);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.nursing_device_swipeRefreshLayout);
+
         RecyclerView selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.nursing_device_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
@@ -65,7 +69,8 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         getDialog().getWindow().setBackgroundDrawable(
                 new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-        bleActivityManager = new BleActivityManager(TAG, activity, handler, bluetoothAdapter, bluetoothManager, selectDeviceRecyclerView, adapter, deviceItemArrayList, view, progressBar, hasCard, true);
+        bleActivityManager = new BleActivityManager(TAG, activity, handler, bluetoothAdapter, bluetoothManager, swipeRefreshLayout, selectDeviceRecyclerView, adapter, deviceItemArrayList, view, progressBar, hasCard, true);
+
 
         return view;
     }

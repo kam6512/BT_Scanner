@@ -54,14 +54,12 @@ public class DistanceFragment extends Fragment {
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                try {
+
                     bundle = msg.getData();
                     distance = Integer.valueOf(bundle.getString("DIST"));
                     super.handleMessage(msg);
                     distanceCircleCounter.setValues(distance, distance, distance);
-                } catch (NumberFormatException e) {
 
-                }
             }
         };
 

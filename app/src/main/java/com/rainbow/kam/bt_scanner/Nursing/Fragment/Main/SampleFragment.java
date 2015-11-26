@@ -49,16 +49,14 @@ public class SampleFragment extends Fragment {
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                try {
+
                     super.handleMessage(msg);
                     bundle = msg.getData();
                     step = Integer.valueOf(bundle.getString("STEP"), 16);
                     calo = Integer.valueOf(bundle.getString("CALO"), 16);
                     dist = Integer.valueOf(bundle.getString("DIST"));
                     Log.e(TAG, step + " " + calo + " " + dist + " ");
-                } catch (NumberFormatException e) {
 
-                }
             }
         };
     }

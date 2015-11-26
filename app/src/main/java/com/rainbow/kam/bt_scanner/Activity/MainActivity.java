@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
 
-        bleActivityManager = new BleActivityManager(TAG, this, handler, bluetoothAdapter, bluetoothManager, recyclerView, adapter, deviceItemArrayList, coordinatorLayout, progressBar, hasCard, false);
+        bleActivityManager = new BleActivityManager(TAG, this, handler, bluetoothAdapter, bluetoothManager, null, recyclerView, adapter, deviceItemArrayList, coordinatorLayout, progressBar, hasCard, false);
 
     }
 

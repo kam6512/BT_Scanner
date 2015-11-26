@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
- * Created by sion on 2015-11-10.
+ * Created by kam6512 on 2015-11-10.
  */
 public class BandDeviceList {
     private ArrayList<DeviceListAttribute> list = new ArrayList<DeviceListAttribute>();

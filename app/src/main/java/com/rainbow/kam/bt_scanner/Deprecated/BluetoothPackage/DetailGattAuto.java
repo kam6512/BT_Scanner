@@ -214,7 +214,7 @@ public class DetailGattAuto {
                 Log.d(TAG, "Connect request result=" + result);
             }
         } catch (Exception e) {
-
+            activity.finish();
         }
 
     }
@@ -235,7 +235,7 @@ public class DetailGattAuto {
                 //서비스 언바인드로 연결 끊기
                 activity.unbindService(serviceConnection);
             } catch (Exception e) {
-
+                Log.e(TAG,"unregisterReceiver/unbindService fail");
             }
 
         }
@@ -325,7 +325,7 @@ public class DetailGattAuto {
         showBlueToothStat.start();
     }
 
-    Thread showBlueToothStat = new Thread() {
+    final Thread showBlueToothStat = new Thread() {
 
         @Override
         public void run() {
@@ -370,7 +370,7 @@ public class DetailGattAuto {
                                 showBlueToothStat.wait();
 
                             } catch (Exception e) {
-
+                                Log.e("showBlueToothStat", "wait fail");
                             }
                         }
                     }

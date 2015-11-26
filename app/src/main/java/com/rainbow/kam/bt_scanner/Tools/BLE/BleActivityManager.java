@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +47,7 @@ public class BleActivityManager {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothManager bluetoothManager;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView selectDeviceRecyclerView;
     private RecyclerView.Adapter adapter;
     private ArrayList<DeviceItem> deviceItemArrayList;
@@ -59,13 +61,14 @@ public class BleActivityManager {
     private BluetoothAdapter.LeScanCallback leScanCallback;
     private ScanCallback scanCallback;
 
-    public BleActivityManager(String TAG, Activity activity, Handler handler, BluetoothAdapter bluetoothAdapter, BluetoothManager bluetoothManager, RecyclerView selectDeviceRecyclerView, RecyclerView.Adapter adapter,
+    public BleActivityManager(String TAG, Activity activity, Handler handler, BluetoothAdapter bluetoothAdapter, BluetoothManager bluetoothManager, SwipeRefreshLayout swipeRefreshLayout, RecyclerView selectDeviceRecyclerView, RecyclerView.Adapter adapter,
                               ArrayList<DeviceItem> deviceItemArrayList, View view, ProgressBar progressBar, TextView hasCard, boolean isNursing) {
         this.TAG = TAG;
         this.activity = activity;
         this.handler = handler;
         this.bluetoothAdapter = bluetoothAdapter;
         this.bluetoothManager = bluetoothManager;
+        this.swipeRefreshLayout = swipeRefreshLayout;
         this.selectDeviceRecyclerView = selectDeviceRecyclerView;
         this.adapter = adapter;
         this.deviceItemArrayList = deviceItemArrayList;
@@ -99,6 +102,15 @@ public class BleActivityManager {
                     setScannerM();
                 } else {
                     setScanner();
+                }
+
+                if (swipeRefreshLayout != null) {
+                    swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                        @Override
+                        public void onRefresh() {
+                            startScan();
+                        }
+                    });
                 }
 
                 startScan();
@@ -140,6 +152,7 @@ public class BleActivityManager {
                             adapter = new DeviceAdapter(deviceItemArrayList, activity, activity, view, deviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     }, SCAN_PERIOD); //10초 뒤에 OFF
 
@@ -211,7 +224,7 @@ public class BleActivityManager {
                 scanLeDevice(true);
             }
         } else {
-            Snackbar.make(view, "You musst initalize Bluetooth", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(view, "You must initialize Bluetooth", Snackbar.LENGTH_SHORT).show();
         }
 
     }
@@ -241,13 +254,18 @@ public class BleActivityManager {
 
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-                processResult(result);
+                if (result != null) {
+                    processResult(result);
+                }
+
             }
 
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
-                    processResult(result);
+                    if (result != null) {
+                        processResult(result);
+                    }
                 }
             }
 

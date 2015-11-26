@@ -131,7 +131,7 @@ public class DetailServiceFragment extends Fragment {
             animation.setFillAfter(true);
             animView.startAnimation(animation);
         } catch (Exception e) {
-
+            return;
         }
 
     }

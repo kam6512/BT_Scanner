@@ -23,6 +23,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.Nursing.PatientRealmOBJ.Patient;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.Nursing.Activity.StartNursingActivity;
+import com.rainbow.kam.bt_scanner.Tools.Design.RippleView;
 
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
@@ -31,7 +32,7 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class StartNursingFragment extends Fragment implements View.OnClickListener {
+public class StartNursingFragment extends Fragment implements View.OnClickListener, RippleView.OnRippleCompleteListener {
 
     Activity activity;
     public static Handler handler;
@@ -91,6 +92,9 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
             step = (TextInputLayout) view.findViewById(R.id.nursing_adduser_step);
             genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
 
+            RippleView skip = (RippleView) view.findViewById(R.id.nursing_adduser_skip);
+            skip.setOnRippleCompleteListener(this);
+
             StartNursingActivity.startNursingFab.setOnClickListener(this);
 
 
@@ -105,7 +109,6 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
                     realm = Realm.getInstance(getActivity());
                     realm.beginTransaction();
                     realm.allObjects(Patient.class).clear();
-//                    realm.allObjects(UserBand.class).clear();
                     transaction = realm.executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
@@ -123,7 +126,8 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
                         @Override
                         public void onSuccess() {
                             RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
-                            Log.e(StartNursingActivity.TAG, results.size() + " / " + results.get(0).getName() + " / " + results.get(0).getAge() + " / " + results.get(0).getHeight() + " / " + results.get(0).getWeight() + " / " + results.get(0).getStep() + " / " + results.get(0).getDeviceName() + " / " + results.get(0).getDeviceAddress());
+//                            Log.e(StartNursingActivity.TAG, results.size() + " / " + results.get(0).getName() + " / " + results.get(0).getAge() + " / " + results.get(0).getHeight() + " / " + results.get(0).getWeight() + " / " + results.get(0).getStep() + " / " + results.get(0).getDeviceName() + " / " + results.get(0).getDeviceAddress());
+                            Log.e(StartNursingActivity.TAG, " results.size : " + results.size());
 
                             dismissDeviceListDialog();
                         }
@@ -173,7 +177,26 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
                 })
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
-                    public void onClick(MaterialDialog materialDialog, DialogAction dialogAction) {
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                }).show();
+    }
+
+    private void showSkipDialog() {
+        new MaterialDialog.Builder(getActivity()).title("무시하기")
+                .content("개인정보를 입력하지 않더라도 사용할 수 있으나 정확한 운동량 계산과 서버연동이 불가능하오니 이점 유의해두시기 바랍니다.")
+                .positiveText("확인").negativeText("수정")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                        showDeviceListDialog();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
                         materialDialog.dismiss();
                     }
                 }).show();
@@ -240,5 +263,16 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
                     "\n걸음너비 : " + userStep;
             showAcceptDialog(res);
         }
+    }
+
+    @Override
+    public void onComplete(RippleView rippleView) {
+        userName = "N/A";
+        userAge = "20";
+        userHeight = "170";
+        userWeight = "60";
+        userStep = "60";
+        gender = "남성";
+        showSkipDialog();
     }
 }

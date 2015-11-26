@@ -3,13 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/nursing_device_recyclerView"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/nursing_device_swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:foreground="?android:windowContentOverlay">
+        android:layout_height="match_parent">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/nursing_device_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:foreground="?android:windowContentOverlay">
+
+        </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:id="@+id/nursing_device_progress"

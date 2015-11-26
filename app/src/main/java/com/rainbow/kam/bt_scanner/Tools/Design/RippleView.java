@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.support.annotation.ColorRes;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.animation.Animation;
@@ -133,9 +134,19 @@ public class RippleView extends RelativeLayout {
                 timer = 0;
                 durationEmpty = -1;
                 timerEmpty = 0;
-                if (canvas.getSaveCount() != 0) {
+                try {
                     canvas.restore();
+                } catch (IllegalStateException exception) {
+                    if (exception.getMessage() != null && (//
+                            exception.getMessage().contains("Underflow in restore") || //
+                                    exception.getCause().getMessage().contains("Underflow in restore"))) { //
+                        Log.e("RippleView", "Caught a Canvas stack underflow! (java.lang.IllegalStateException: Underflow in restore)");
+                    } else {
+                        // It wasn't a Canvas underflow, so re-throw.
+                        throw exception;
+                    }
                 }
+
 
                 invalidate();
                 if (onRippleCompleteListener != null) {
