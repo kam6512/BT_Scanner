@@ -13,9 +13,11 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.util.Xml;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -112,10 +114,7 @@ public class BLE {
         }
 
         if (bluetoothAdapter == null) bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter == null) {
-            return false;
-        }
-        return true;
+        return bluetoothAdapter != null;
     }
 
     public boolean connect(final String deviceAddress) {
@@ -152,14 +151,14 @@ public class BLE {
     public void readPeriodicalyRssiValue(final boolean repeat) {
         timerEnabled = repeat;
 
-        if (connected == false || bluetoothGatt == null || timerEnabled == false) {
+        if (!connected || bluetoothGatt == null || !timerEnabled) {
             timerEnabled = false;
             return;
         }
         timerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (bluetoothGatt == null || bluetoothAdapter == null || connected == false) {
+                if (bluetoothGatt == null || bluetoothAdapter == null || !connected) {
                     timerEnabled = false;
                     return;
                 }
@@ -197,7 +196,7 @@ public class BLE {
         if (bluetoothGattService == null) {
             return;
         }
-        List<BluetoothGattCharacteristic> bluetoothGattCharacteristics = null;
+        List<BluetoothGattCharacteristic> bluetoothGattCharacteristics;
 
         bluetoothGattCharacteristics = bluetoothGattService.getCharacteristics();
         bleUiCallbacks.uiCharacteristicForService(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristics);
@@ -261,9 +260,18 @@ public class BLE {
 
             if (rawValue.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
-                for (byte bytrChar : rawValue) {
-                    stringBuilder.append(String.format("%c", bytrChar));
+
+                for (byte byteChar : rawValue) {
+//                    Log.e("rawValue",String.format("%c", byteChar));
+                    try {
+                        stringBuilder.append(String.format("%c", byteChar));
+                    } catch (IllegalFormatCodePointException e) {
+
+                        stringBuilder.append((char) byteChar);
+                    }
+
                 }
+
                 strValue = stringBuilder.toString();
             }
         }
@@ -302,6 +310,11 @@ public class BLE {
 
     public void writeDataToCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
         if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
+            Log.e(TAG, "writeDataToCharacteristic null");
+            return;
+        } else {
+            Log.e(TAG, "writeDataToCharacteristic start");
+            bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             bluetoothGattCharacteristic.setValue(dataToWrite);
             bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
         }
@@ -309,6 +322,7 @@ public class BLE {
 
     public void setNotificationForCharacteristic(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
+            Log.e(TAG, "is null");
             return;
         }
         boolean success = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
@@ -319,9 +333,11 @@ public class BLE {
 
         BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(BLEGattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
         if (bluetoothGattDescriptor != null) {
+            Log.e(TAG, "start Notify");
             byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
             bluetoothGattDescriptor.setValue(value);
-            bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            boolean enable = bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            Log.e(TAG, value[0] + value[1] + "writeDescriptor : " + enable);
         }
     }
 
@@ -376,7 +392,7 @@ public class BLE {
             String description = "Device: " + deviceName + " Service: " + serviceName + " Characteristic: " + characteristicName;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                bleUiCallbacks.uiSuccessfulWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description);
+                bleUiCallbacks.uiSuccessfulWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
             } else {
                 bleUiCallbacks.uiFailedWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
             }

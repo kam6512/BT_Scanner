@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".Nursing.MainNursingActivity">
+    <item android:title="DASHBOARD">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menu_nursing_dashboard"
+                    android:icon="@drawable/ic_menu"
+                    android:title="메인"></item>
+                <item
+                    android:id="@+id/menu_nursing_dashboard_step"
+                    android:icon="@drawable/ic_menu"
+                    android:title="걸음"></item>
+                <item
+                    android:id="@+id/menu_nursing_dashboard_calorie"
+                    android:icon="@drawable/ic_menu"
+                    android:title="칼로리"></item>
+                <item
+                    android:id="@+id/menu_nursing_dashboard_distance"
+                    android:icon="@drawable/ic_menu"
+                    android:title="거리"></item>
+                <item
+                    android:id="@+id/menu_nursing_dashboard_sleep"
+                    android:icon="@drawable/ic_menu"
+                    android:title="수면"></item>
+            </group>
+
+        </menu>
+    </item>
+    <item android:title="USER INFO">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menu_nursing_info_user"
+                    android:icon="@drawable/ic_menu"
+                    android:title="스캔"></item>
+                <item
+                    android:id="@+id/menu_nursing_info_prime"
+                    android:icon="@drawable/ic_menu"
+                    android:title="Prime"></item>
+                <item
+                    android:id="@+id/menu_nursing_info_goal"
+                    android:icon="@drawable/ic_menu"
+                    android:title="GOAL"></item>
+            </group>
+
+        </menu>
+    </item>
+    <item android:title="ABOUT">
+        <menu>
+            <item
+                android:id="@+id/menu_nursing_about_dev"
+                android:icon="@drawable/ic_link"
+                android:title="개발자 모드" />
+            <item
+                android:id="@+id/menu_nursing_about_setting"
+                android:icon="@drawable/ic_link"
+                android:title="유저정보 지우기" />
+            <item
+                android:id="@+id/menu_nursing_about_about"
+                android:icon="@drawable/ic_link"
+                android:title="앱 정보" />
+        </menu>
+    </item>
+
+
+</menu>

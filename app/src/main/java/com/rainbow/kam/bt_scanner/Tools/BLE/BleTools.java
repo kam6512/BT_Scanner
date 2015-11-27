@@ -14,7 +14,7 @@ public class BleTools {
     private final String TAG = BleTools.class.getSimpleName();
 
     public static BleAdvertisedData parseAdertisedData(byte[] advertisedData) {
-        List<UUID> uuids = new ArrayList<UUID>();
+        List<UUID> uuids = new ArrayList<>();
         String name = null;
         if (advertisedData == null) {
             return new BleAdvertisedData(uuids, name);
@@ -69,10 +69,6 @@ public class BleTools {
         public BleAdvertisedData(List<UUID> uuids, String name) {
             mUuids = uuids;
             mName = name;
-        }
-
-        public List<UUID> getUuids() {
-            return mUuids;
         }
 
         public String getName() {

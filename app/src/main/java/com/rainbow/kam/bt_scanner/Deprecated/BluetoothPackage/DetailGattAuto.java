@@ -202,7 +202,7 @@ public class DetailGattAuto {
         try {
             //서비스 바인드(연결)
             gattServiceIntent = new Intent(activity, BluetoothService.class);
-            activity.bindService(gattServiceIntent, serviceConnection, activity.BIND_AUTO_CREATE);
+            activity.bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
             isBluetoothServiceClosed = false;
 
@@ -214,7 +214,7 @@ public class DetailGattAuto {
                 Log.d(TAG, "Connect request result=" + result);
             }
         } catch (Exception e) {
-
+            activity.finish();
         }
 
     }
@@ -235,7 +235,7 @@ public class DetailGattAuto {
                 //서비스 언바인드로 연결 끊기
                 activity.unbindService(serviceConnection);
             } catch (Exception e) {
-
+                Log.e(TAG,"unregisterReceiver/unbindService fail");
             }
 
         }
@@ -325,7 +325,7 @@ public class DetailGattAuto {
         showBlueToothStat.start();
     }
 
-    Thread showBlueToothStat = new Thread() {
+    final Thread showBlueToothStat = new Thread() {
 
         @Override
         public void run() {
@@ -370,7 +370,7 @@ public class DetailGattAuto {
                                 showBlueToothStat.wait();
 
                             } catch (Exception e) {
-
+                                Log.e("showBlueToothStat", "wait fail");
                             }
                         }
                     }
