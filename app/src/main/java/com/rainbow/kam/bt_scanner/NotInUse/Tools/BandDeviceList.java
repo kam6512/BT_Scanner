@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by kam6512 on 2015-11-10.
  */
 public class BandDeviceList {
-    private ArrayList<DeviceListAttribute> list = new ArrayList<DeviceListAttribute>();
+    private ArrayList<DeviceListAttribute> list = new ArrayList<>();
 
     public BandDeviceList() {
         list.add(new DeviceListAttribute("Prime", true, true, false, false, false));

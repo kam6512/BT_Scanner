@@ -14,14 +14,11 @@
     app:cardPreventCornerOverlap="false"
     app:contentPadding="0dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@null"
             android:orientation="vertical"
             android:padding="20dp">
@@ -138,7 +135,6 @@
 
         </LinearLayout>
 
-    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_connect"

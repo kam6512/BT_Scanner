@@ -36,7 +36,7 @@ public class DetailServiceFragmentDeprecated extends Fragment {
 
     private RecyclerView recyclerView;
     private DetailAdapter adapter;
-    private ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<ServiceItem>();
+    private ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<>();
     private Animation animation;
     private View animView;
     private int position;
@@ -51,7 +51,7 @@ public class DetailServiceFragmentDeprecated extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new DetailAdapter(serviceItemArrayList, activity, activity, true);
+        adapter = new DetailAdapter(serviceItemArrayList, true);
         recyclerView.setAdapter(adapter);
         return view;
     }
@@ -72,7 +72,7 @@ public class DetailServiceFragmentDeprecated extends Fragment {
         serviceItemArrayList.add(new ServiceItem(name, uuid, type, bluetoothGattService));
 //            }
 //        }
-        adapter = new DetailAdapter(serviceItemArrayList, activity, activity, true);
+        adapter = new DetailAdapter(serviceItemArrayList, true);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
@@ -128,8 +128,7 @@ public class DetailServiceFragmentDeprecated extends Fragment {
             animation.setDuration(1000);
             animation.setFillAfter(true);
             animView.startAnimation(animation);
-        } catch (Exception e) {
-            return;
+        } catch (Exception ignored) {
         }
 
     }

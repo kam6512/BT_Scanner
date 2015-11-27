@@ -51,10 +51,10 @@ public class DetailGattAuto {
     //블루투스 서비스의 BluetoothGattCharacteristic을 담을 리스트
     //ArrayList<서비스리스트 ArrayList<Characteristic>>구조이다.
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> rootGattCharacteristics =
-            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+            new ArrayList<>();
     private BluetoothGattCharacteristic notifyCharacteristic;
-    private ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
-    private ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
+    private ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();  //서비스 리스트
+    private ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>(); //Characteristic 리스트
 
     //블루투스 서비스목록의 태그
     private final String LIST_NAME = "NAME";
@@ -244,23 +244,23 @@ public class DetailGattAuto {
 
     //Gatt를 찾은 브로드캐스트를 수신시 서비스를 GET하고 내부 Characteristic등을 분석
     private void setGattServices(List<BluetoothGattService> gattServices) {
-        String uuid = null;
+        String uuid;
         String unknownServiceString = "unknown_service";
         String unknownCharaString = "unknown_characteristic";
 
 //        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
-        gattServiceData = new ArrayList<HashMap<String, String>>();  //서비스 리스트
+        gattServiceData = new ArrayList<>();  //서비스 리스트
 
 //        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
-        gattCharacteristicData = new ArrayList<ArrayList<HashMap<String, String>>>(); //Characteristic 리스트
+        gattCharacteristicData = new ArrayList<>(); //Characteristic 리스트
 
-        rootGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>(); //ArrayList<서비스리스트 ArrayList<Characteristic>> 이하 root로 표기
+        rootGattCharacteristics = new ArrayList<>(); //ArrayList<서비스리스트 ArrayList<Characteristic>> 이하 root로 표기
 
         //서비스 수집
         for (BluetoothGattService bluetoothGattService : gattServices) {// 인자로 받은 BluetoothGattService 리스트중 BluetoothGattService를 하나씩 뽑아
 
             //틀을 만들고
-            HashMap<String, String> currentServiceData = new HashMap<String, String>();
+            HashMap<String, String> currentServiceData = new HashMap<>();
             //UUID를 블루투스 서비스에서 가져온다
             uuid = bluetoothGattService.getUuid().toString();
 
@@ -273,13 +273,13 @@ public class DetailGattAuto {
 
             //Characteristic그룹을 넣을 리스트르 만들고
             ArrayList<HashMap<String, String>> gattCharacteristicGroupData =
-                    new ArrayList<HashMap<String, String>>();
+                    new ArrayList<>();
             //Characteristic가 들어갈 리스트도 만들어 서비스에서 Characteristic들을 가져온다
             List<BluetoothGattCharacteristic> gattCharacteristics =
                     bluetoothGattService.getCharacteristics();
             //Characteristic가 들어갈 다른 빈 리스트
             ArrayList<BluetoothGattCharacteristic> charas =
-                    new ArrayList<BluetoothGattCharacteristic>();
+                    new ArrayList<>();
 
 
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {//서비스안의 BluetoothGattCharacteristic을 수집한다
@@ -288,7 +288,7 @@ public class DetailGattAuto {
                 charas.add(gattCharacteristic);
 
                 //Characteristic의 속성들이 들어갈 틀을 만든다
-                HashMap<String, String> currentCharaData = new HashMap<String, String>();
+                HashMap<String, String> currentCharaData = new HashMap<>();
 
                 //UUID를 서비스가 아닌 Characteristic의 UUID를 넣는다.
                 uuid = gattCharacteristic.getUuid().toString();
@@ -339,10 +339,6 @@ public class DetailGattAuto {
                     for (int j = 0; j < gattCharacteristicData.get(i).size(); j++) {
                         Log.e("showBlueToothStat", j + "is " + " data[" + i + "].index");
 
-//                        if (i == gattCharacteristicData.size()) {
-//                            showBlueToothStat.interrupt();
-//                                return;
-//                        }
 
                         final BluetoothGattCharacteristic characteristic =
                                 rootGattCharacteristics.get(i).get(j); //배열에서 가져오기
@@ -355,13 +351,11 @@ public class DetailGattAuto {
                                 notifyCharacteristic = null;
                             }
                             bluetoothService.readCharacteristic(characteristic);
-//                        Log.e("showBlueToothStat", String.valueOf(characteristic.getValue()));
                         }
                         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
                             notifyCharacteristic = characteristic;
                             bluetoothService.setCharacteristicNotification(
                                     characteristic, true);
-//                        Log.e("showBlueToothStat", "set");
                         }
                         synchronized (showBlueToothStat) {
                             try {
@@ -375,7 +369,6 @@ public class DetailGattAuto {
                         }
                     }
                     Log.e("showBlueToothStat", "end");
-//                    device.stopHandling();
                     DetailGattAuto.this.destroy();
                     isDataFind = true;
                     return;

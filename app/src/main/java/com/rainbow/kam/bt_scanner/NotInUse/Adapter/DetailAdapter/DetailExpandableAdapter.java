@@ -17,6 +17,7 @@ import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by kam6512 on 2015-10-26.
@@ -118,14 +119,14 @@ public class DetailExpandableAdapter extends BaseExpandableListAdapter {
             }
             if (to[i] == R.id.detail_parent_list_item_service_UUID) {
                 String value = BLEGattAttributes.getService(textView.getText().toString().substring(0, 8));
-                if (value != "N/A") {
+                if (!Objects.equals(value, "N/A")) {
                     TextView title = (TextView) view.findViewById(to[i - 1]);
                     title.setText(value);
                 }
                 textView.setText("UUID : " + "0x" + textView.getText().toString().substring(4, 8).toUpperCase());
             } else if (to[i] == R.id.detail_child_list_item_characteristics_UUID) {
                 String value = BLEGattAttributes.getCharacteristic(textView.getText().toString().substring(0, 8));
-                if (value != "N/A") {
+                if (!Objects.equals(value, "N/A")) {
                     TextView title = (TextView) view.findViewById(to[i - 1]);
                     title.setText(value);
                 }

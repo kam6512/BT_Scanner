@@ -335,11 +335,9 @@ public class BluetoothService extends Service implements Serializable {
     private boolean refreshDeviceGattCache(BluetoothGatt bluetoothGatt) {
         try {
             Log.i(TAG, "refresh");
-            BluetoothGatt localGatt = bluetoothGatt;
-            Method localMethod = localGatt.getClass().getMethod("refresh");
+            Method localMethod = bluetoothGatt.getClass().getMethod("refresh");
             if (localMethod != null) {
-                boolean b = ((Boolean) localMethod.invoke(localGatt));
-                return b;
+                return ((Boolean) localMethod.invoke(bluetoothGatt));
             }
         } catch (Exception localException) {
             Log.e(TAG, "An exception occured while refreshing device");

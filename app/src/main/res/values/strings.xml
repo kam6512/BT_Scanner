@@ -3,8 +3,28 @@
     <string name="action_settings">Settings</string>
     <string name="has_not_card">블루루스 BLE 기기가 탐색되지 않았습니다</string>
     <string name="has_not_card_nurs">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
+
     <string name="menu_scan">스캔</string>
     <string name="menu_sample">샘플</string>
     <string name="menu_help">HELP</string>
     <string name="menu_link">link</string>
+
+    <string name="menu_nursing_dashboard">DASHBOARD</string>
+    <string name="menu_nursing_dashboard_main">메인</string>
+    <string name="menu_nursing_dashboard_step">걸음</string>
+    <string name="menu_nursing_dashboard_calo">칼로리</string>
+    <string name="menu_nursing_dashboard_dist">거리</string>
+    <string name="menu_nursing_dashboard_etc">수면</string>
+
+    <string name="menu_nursing_info">USER INFO</string>
+    <string name="menu_nursing_info_scan">스캔</string>
+    <string name="menu_nursing_info_prime">Prime</string>
+    <string name="menu_nursing_info_goal">GOAL</string>
+
+    <string name="menu_nursing_about">ABOUT</string>
+    <string name="menu_nursing_about_dev">개발자 모드</string>
+    <string name="menu_nursing_about_reset">유저정보 지우기</string>
+    <string name="menu_nursing_about_info">앱 정보</string>
+
+
 </resources>
