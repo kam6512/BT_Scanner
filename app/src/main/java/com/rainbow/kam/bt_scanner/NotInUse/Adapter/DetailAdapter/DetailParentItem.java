@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Deprecated.Adapter.DetailAdapter;
+package com.rainbow.kam.bt_scanner.NotInUse.Adapter.DetailAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

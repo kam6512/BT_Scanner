@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Deprecated.Tools;
+package com.rainbow.kam.bt_scanner.NotInUse.Tools;
 
 import android.app.Activity;
 import android.app.ActivityManager;
