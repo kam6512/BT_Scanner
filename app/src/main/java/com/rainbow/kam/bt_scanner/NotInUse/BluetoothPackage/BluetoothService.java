@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage;
+package com.rainbow.kam.bt_scanner.NotInUse.BluetoothPackage;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -17,7 +17,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.Tools.BLE.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

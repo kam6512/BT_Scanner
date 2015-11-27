@@ -1,6 +1,4 @@
-package com.rainbow.kam.bt_scanner.Deprecated.Adapter.DetailAdapter;
-
-import java.util.List;
+package com.rainbow.kam.bt_scanner.NotInUse.Adapter.DetailAdapter;
 
 /**
  * Created by kam6512 on 2015-10-26.

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.Deprecated.Adapter.DetailAdapter;
+package com.rainbow.kam.bt_scanner.NotInUse.Adapter.DetailAdapter;
 
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
@@ -10,9 +10,9 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-import com.rainbow.kam.bt_scanner.Deprecated.BluetoothPackage.BluetoothService;
+import com.rainbow.kam.bt_scanner.NotInUse.BluetoothPackage.BluetoothService;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.BLE.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
