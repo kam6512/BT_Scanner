@@ -1,8 +1,7 @@
-package com.rainbow.kam.bt_scanner.Activity;
+package com.rainbow.kam.bt_scanner.activity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,18 +22,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.Adapter.MainAdapter.DeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.main.DeviceItem;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.Tools.BLE.BleActivityManager;
+import com.rainbow.kam.bt_scanner.tools.ble.BleActivityManager;
 
 import java.util.ArrayList;
 
 /**
  * Created by kam6512 on 2015-10-22.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements  View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+
 
     private static final String TAG = "MainActivity"; //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1; //result 플래그
@@ -45,12 +44,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static Handler handler;  //핸들러 - Find 메세지 핸들링
 
     private DrawerLayout drawerLayout;
-
     private CoordinatorLayout coordinatorLayout;
 
+    private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter = null; //리사이클러 어댑터
     private ArrayList<DeviceItem> deviceItemArrayList = new ArrayList<>(); //어댑터 데이터 클래스(틀)
 
+    private FloatingActionButton fabSync;
+    private ProgressBar progressBar;
+    private TextView hasCard;
 
     private BleActivityManager bleActivityManager;
 
@@ -59,7 +61,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //툴바 적용
+        setToolbar();
+        setMaterialDesignView();
+        setRecyclerView();
+        setOtherView();
+
+        //핸들러 초기화
+        handler = new Handler();
+
+
+        bleActivityManager = new BleActivityManager(TAG, this, handler, bluetoothAdapter, bluetoothManager, null, recyclerView, adapter, deviceItemArrayList, coordinatorLayout, progressBar, hasCard, false);
+    }
+
+    private void setToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
@@ -67,105 +81,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
 
-
+    private void setMaterialDesignView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
-            setupDrawerContent(navigationView);
+            navigationView.setNavigationItemSelectedListener(this);
         }
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
+    }
 
-        initBluetooth();
-
-        //핸들러 초기화
-        handler = new Handler();
-
-        FloatingActionButton fabSync = (FloatingActionButton) findViewById(R.id.fab_sync);
-        fabSync.setOnClickListener(this);
-
-
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.main_progress);
-        progressBar.setVisibility(View.INVISIBLE);
-
-        TextView hasCard = (TextView) findViewById(R.id.hasCard);
-        hasCard.setVisibility(View.INVISIBLE);
-
-        //리사이클러 그룹 초기화
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+    private void setRecyclerView() {
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
-
-        bleActivityManager = new BleActivityManager(TAG, this, handler, bluetoothAdapter, bluetoothManager, null, recyclerView, adapter, deviceItemArrayList, coordinatorLayout, progressBar, hasCard, false);
-
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_ENABLE_BT:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        //블루투스 켜짐
-                        break;
-                    default:
-                        Log.d(TAG, "Bluetooth is not enabled");
-                        //블루투스 에러
-                        break;
-                }
-                break;
-        }
+    private void setOtherView() {
+        fabSync = (FloatingActionButton) findViewById(R.id.fab_sync);
+        fabSync.setOnClickListener(this);
+
+        progressBar = (ProgressBar) findViewById(R.id.main_progress);
+        progressBar.setVisibility(View.INVISIBLE);
+
+        hasCard = (TextView) findViewById(R.id.hasCard);
+        hasCard.setVisibility(View.INVISIBLE);
     }
 
-    private void setupDrawerContent(final NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
-                        switch (menuItem.getItemId()) {
-                            case R.id.nav_scan:
-                                Snackbar.make(getWindow().getDecorView(), "Scanner Layout", Snackbar.LENGTH_LONG).show();
-                                return true;
-                            case R.id.nav_nursing:
-//                                Intent startNursing = new Intent(MainActivity.this, MainNursingActivity.class);
-//                                startActivity(startNursing);
-                                finish();
-                                return true;
-                            case R.id.nav_link1:
-                                Intent browser1 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.android.com/"));
-                                startActivity(browser1);
-                                return true;
-                            case R.id.nav_link2:
-                                Intent browser2 = new Intent(Intent.ACTION_VIEW, Uri.parse("http://developer.android.com/"));
-                                startActivity(browser2);
-                                return true;
-                            default:
-                                return true;
-                        }
-                    }
-                });
-    }
-
-    private void initBluetooth() {
-        try {
-            //블루투스 매니저/어댑터 초기화
-            bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            bluetoothAdapter = bluetoothManager.getAdapter();
-            if (bluetoothAdapter == null) {
-                throw new Exception();
-
-            }
-        } catch (Exception e) {
-            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
-            finish();
-        }
-    }
-
-
-    public boolean enableBluetooth() {//블루투스 가동여부
+    private boolean enableBluetooth() {//블루투스 가동여부
         Log.d(TAG, "enableBluetooth");
 
         if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
@@ -180,6 +125,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        //블루투스 켜짐
+                        break;
+                    default:
+                        //블루투스 에러
+                        Log.d(TAG, "Bluetooth is not enabled");
+                        finish();
+                        break;
+                }
+                break;
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -194,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v) { //버튼 클릭 리스너
+    public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_sync: //블루투스 기기 찾기(4.0)
                 if (enableBluetooth()) {
@@ -212,6 +174,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 break;
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+        menuItem.setChecked(true);
+        switch (menuItem.getItemId()) {
+            case R.id.nav_scan:
+                Snackbar.make(getWindow().getDecorView(), "Scanner Layout", Snackbar.LENGTH_LONG).show();
+                return true;
+            case R.id.nav_nursing:
+                finish();
+                return true;
+            case R.id.nav_link1:
+                Intent browser1 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.android.com/"));
+                startActivity(browser1);
+                return true;
+            case R.id.nav_link2:
+                Intent browser2 = new Intent(Intent.ACTION_VIEW, Uri.parse("http://developer.android.com/"));
+                startActivity(browser2);
+                return true;
+            default:
+                return true;
         }
     }
 
