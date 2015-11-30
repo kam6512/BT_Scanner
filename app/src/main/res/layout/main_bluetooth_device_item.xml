@@ -14,14 +14,11 @@
     app:cardPreventCornerOverlap="false"
     app:contentPadding="0dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@null"
             android:orientation="vertical"
             android:padding="20dp">
@@ -35,7 +32,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Name : "
+                    android:text="@string/detail_name"
                     android:textColor="#4169e1" />
 
                 <TextView
@@ -58,7 +55,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Address : "
+                    android:text="@string/detail_address"
                     android:textColor="#dc143c" />
 
                 <TextView
@@ -82,7 +79,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Bond State : " />
+                    android:text="@string/bondstate" />
 
                 <TextView
                     android:id="@+id/item_bond"
@@ -103,7 +100,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Type : " />
+                    android:text="@string/detail_type" />
 
                 <TextView
                     android:id="@+id/item_type"
@@ -124,7 +121,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="RSSI : " />
+                    android:text="@string/detail_rssi" />
 
                 <TextView
                     android:id="@+id/item_rssi"
@@ -138,7 +135,6 @@
 
         </LinearLayout>
 
-    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_connect"

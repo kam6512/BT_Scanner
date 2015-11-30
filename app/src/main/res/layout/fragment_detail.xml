@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:layout_weight="0"
-                android:text="Peripheral:"
+                android:text="@string/Peripheral"
                 android:textColor="#666"
                 android:textSize="12sp" />
 
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_weight="0"
-                android:text="Address:"
+                android:text="@string/detail_address"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:layout_weight="0"
-                android:text="Service:"
+                android:text="@string/detail_service"
                 android:textColor="#666"
                 android:textSize="12sp" />
 
@@ -102,7 +102,7 @@
                 android:layout_gravity="end"
                 android:layout_marginBottom="7dp"
                 android:layout_weight="0"
-                android:text="UUID:"
+                android:text="@string/detail_uuid"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
@@ -129,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:layout_weight="0"
-                android:text="Characteristic:"
+                android:text="@string/detail_char"
                 android:textColor="#666"
                 android:textSize="12sp" />
 
@@ -155,7 +155,7 @@
                 android:layout_gravity="end"
                 android:layout_marginBottom="7dp"
                 android:layout_weight="0"
-                android:text="UUID:"
+                android:text="@string/detail_uuid"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
@@ -182,7 +182,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:layout_weight="0"
-                android:text="Data Type:"
+                android:text="@string/detail_type"
                 android:textColor="#666"
                 android:textSize="12sp" />
 
@@ -207,7 +207,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:layout_weight="0"
-                android:text="Properties:"
+                android:text="@string/Peripheral"
                 android:textColor="#666"
                 android:textSize="12sp" />
 
@@ -232,7 +232,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="ToggleButton"
+            android:text="@string/tg"
             android:textOff="Notification"
             android:textOn="Notification" />
 
@@ -242,7 +242,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
             android:layout_weight="1"
-            android:text="Read" />
+            android:text="@string/read" />
 
         <Button
             android:id="@+id/characteristic_detail_write_btn"
@@ -250,7 +250,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
             android:layout_weight="1"
-            android:text="Write" />
+            android:text="@string/write" />
 
     </LinearLayout>
 
@@ -258,7 +258,8 @@
         android:id="@+id/characteristic_detail_hex_value"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:ems="10">
+        android:ems="10"
+        android:inputType="">
 
         <requestFocus />
     </EditText>
@@ -279,7 +280,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:layout_weight="0"
-                android:text="String:"
+                android:text="@string/string"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
@@ -302,7 +303,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
-                android:text="Decimal:"
+                android:text="@string/decimal"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
@@ -326,7 +327,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:layout_weight="0"
-                android:text="Updated:"
+                android:text="@string/updated"
                 android:textColor="#888"
                 android:textSize="10sp" />
 

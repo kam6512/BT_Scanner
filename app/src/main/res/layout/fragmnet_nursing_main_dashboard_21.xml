@@ -33,9 +33,9 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="10dp"
                 android:background="@null"
-                android:text="Device Time" />
+                android:text="@string/dashboard_time" />
 
-            <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+            <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerHorizontal="true"
@@ -74,7 +74,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -91,7 +91,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_margin="10dp"
                         android:background="@null"
-                        android:text="STEP"
+                        android:text="@string/dashboard_step"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -125,7 +125,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -142,7 +142,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_margin="10dp"
                         android:background="@null"
-                        android:text="CALORIE"
+                        android:text="@string/dashboard_calo"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -184,7 +184,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -201,7 +201,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_margin="10dp"
                         android:background="@null"
-                        android:text="DISTANCE"
+                        android:text="@string/dashboard_dist"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
@@ -235,7 +235,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -252,7 +252,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_margin="10dp"
                         android:background="@null"
-                        android:text="ETC"
+                        android:text="@string/dashboard_etc"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView

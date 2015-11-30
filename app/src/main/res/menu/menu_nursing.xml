@@ -2,66 +2,66 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".nursing.MainNursingActivity">
-    <item android:title="DASHBOARD">
+    <item android:title="@string/menu_nursing_dashboard">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/menu_nursing_dashboard"
                     android:icon="@drawable/ic_menu"
-                    android:title="메인"></item>
+                    android:title="@string/menu_nursing_dashboard_main"/>
                 <item
                     android:id="@+id/menu_nursing_dashboard_step"
                     android:icon="@drawable/ic_menu"
-                    android:title="걸음"></item>
+                    android:title="@string/menu_nursing_dashboard_step"/>
                 <item
                     android:id="@+id/menu_nursing_dashboard_calorie"
                     android:icon="@drawable/ic_menu"
-                    android:title="칼로리"></item>
+                    android:title="@string/menu_nursing_dashboard_calo"/>
                 <item
                     android:id="@+id/menu_nursing_dashboard_distance"
                     android:icon="@drawable/ic_menu"
-                    android:title="거리"></item>
+                    android:title="@string/menu_nursing_dashboard_dist"/>
                 <item
                     android:id="@+id/menu_nursing_dashboard_sleep"
                     android:icon="@drawable/ic_menu"
-                    android:title="수면"></item>
+                    android:title="@string/menu_nursing_dashboard_etc"/>
             </group>
 
         </menu>
     </item>
-    <item android:title="USER INFO">
+    <item android:title="@string/menu_nursing_info">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/menu_nursing_info_user"
                     android:icon="@drawable/ic_menu"
-                    android:title="스캔"></item>
+                    android:title="@string/menu_nursing_info_scan"/>
                 <item
                     android:id="@+id/menu_nursing_info_prime"
                     android:icon="@drawable/ic_menu"
-                    android:title="Prime"></item>
+                    android:title="@string/menu_nursing_info_prime"/>
                 <item
                     android:id="@+id/menu_nursing_info_goal"
                     android:icon="@drawable/ic_menu"
-                    android:title="GOAL"></item>
+                    android:title="@string/menu_nursing_info_goal"/>
             </group>
 
         </menu>
     </item>
-    <item android:title="ABOUT">
+    <item android:title="@string/menu_nursing_about">
         <menu>
             <item
                 android:id="@+id/menu_nursing_about_dev"
                 android:icon="@drawable/ic_link"
-                android:title="개발자 모드" />
+                android:title="@string/menu_nursing_about_dev"/>
             <item
                 android:id="@+id/menu_nursing_about_setting"
                 android:icon="@drawable/ic_link"
-                android:title="유저정보 지우기" />
+                android:title="@string/menu_nursing_about_reset"/>
             <item
                 android:id="@+id/menu_nursing_about_about"
                 android:icon="@drawable/ic_link"
-                android:title="앱 정보" />
+                android:title="@string/menu_nursing_about_info"/>
         </menu>
     </item>
 

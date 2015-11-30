@@ -27,7 +27,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
-            android:text="detail_child_list_item_characteristics_title"
+            android:text="@string/detail_child_list_item_characteristics_title"
             android:textSize="20sp"
             android:textColor="#fff" />
 
@@ -40,7 +40,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
-            android:text="detail_child_list_item_characteristics_UUID"
+            android:text="@string/detail_child_list_item_characteristics_UUID"
             android:textColor="#fff" />
 
         <TextView
@@ -52,7 +52,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
-            android:text="detail_child_list_item_characteristics_value"
+            android:text="@string/detail_child_list_item_characteristics_value"
             android:textColor="#fff" />
     </LinearLayout>
 

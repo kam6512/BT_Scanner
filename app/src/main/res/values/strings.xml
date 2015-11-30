@@ -3,8 +3,64 @@
     <string name="action_settings">Settings</string>
     <string name="has_not_card">블루루스 BLE 기기가 탐색되지 않았습니다</string>
     <string name="has_not_card_nurs">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
+
     <string name="menu_scan">스캔</string>
     <string name="menu_sample">샘플</string>
     <string name="menu_help">HELP</string>
     <string name="menu_link">link</string>
+
+    <string name="menu_nursing_dashboard">DASHBOARD</string>
+    <string name="menu_nursing_dashboard_main">메인</string>
+    <string name="menu_nursing_dashboard_step">걸음</string>
+    <string name="menu_nursing_dashboard_calo">칼로리</string>
+    <string name="menu_nursing_dashboard_dist">거리</string>
+    <string name="menu_nursing_dashboard_etc">수면</string>
+
+    <string name="menu_nursing_info">USER INFO</string>
+    <string name="menu_nursing_info_scan">스캔</string>
+    <string name="menu_nursing_info_prime">Prime</string>
+    <string name="menu_nursing_info_goal">GOAL</string>
+
+    <string name="menu_nursing_about">ABOUT</string>
+    <string name="menu_nursing_about_dev">개발자 모드</string>
+    <string name="menu_nursing_about_reset">유저정보 지우기</string>
+    <string name="menu_nursing_about_info">앱 정보</string>
+    <string name="detail_name">Name :</string>
+    <string name="detail_rssi">RSSI :</string>
+    <string name="detail_address">Address :</string>
+    <string name="detail_state">state :</string>
+    <string name="ble">BLE</string>
+    <string name="rssi">rssi</string>
+    <string name="info">info</string>
+    <string name="calendar">calendar</string>
+    <string name="detail_child_list_item_characteristics_title">detail_child_list_item_characteristics_title</string>
+    <string name="detail_child_list_item_characteristics_UUID">detail_child_list_item_characteristics_UUID</string>
+    <string name="detail_child_list_item_characteristics_value">detail_child_list_item_characteristics_value</string>
+    <string name="detail_parent_list_item_service_title">detail_parent_list_item_service_title</string>
+    <string name="detail_parent_list_item_service_UUID">detail_parent_list_item_service_UUID</string>
+    <string name="detail_parent_list_item_service_type">detail_parent_list_item_service_type</string>
+    <string name="Peripheral">Peripheral:</string>
+    <string name="detail_service">Service:</string>
+    <string name="detail_uuid">UUID:</string>
+    <string name="detail_char">Characteristic:</string>
+    <string name="detail_type">Data Type:</string>
+    <string name="tg">ToggleButton</string>
+    <string name="read">Read</string>
+    <string name="write">Write</string>
+    <string name="string">String:</string>
+    <string name="decimal">Decimal:</string>
+    <string name="updated">Updated:</string>
+    <string name="pilot">A Pilot Program By</string>
+    <string name="logo">Rainbow - Wireless</string>
+    <string name="dashboard_time">Device Time</string>
+    <string name="dashboard_step">STEP</string>
+    <string name="dashboard_calo">CALORIE</string>
+    <string name="dashboard_dist">DISTANCE</string>
+    <string name="dashboard_etc">ETC</string>
+    <string name="bondstate">Bond State :</string>
+    <string name="today">today</string>
+    <string name="yesterday">yesterday</string>
+    <string name="goal">GOAL</string>
+
+
 </resources>

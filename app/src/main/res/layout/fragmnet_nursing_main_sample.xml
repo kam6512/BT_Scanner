@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
 
-        <com.rainbow.kam.bt_scanner.tools.Design.CircleCounter
+        <com.rainbow.kam.bt_scanner.tools.design.CircleCounter
             android:id="@+id/counter"
             android:layout_width="300dp"
             android:layout_height="300dp"
@@ -49,11 +49,9 @@
                     android:background="@null"
                     android:orientation="horizontal">
 
-                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
                         android:background="@null"
                         android:src="@drawable/ic_directions_walk_white_36dp"
                         app:cb_color="@color/stepColor"
@@ -63,7 +61,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="today" />
+                        android:text="@string/today" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -83,11 +81,9 @@
                     android:background="@null"
                     android:orientation="horizontal">
 
-                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
                         android:background="@null"
                         android:src="@drawable/ic_directions_walk_white_36dp"
                         app:cb_color="@color/stepColor"
@@ -97,7 +93,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="yesterday" />
+                        android:text="@string/yesterday" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -117,11 +113,9 @@
                     android:background="@null"
                     android:orientation="horizontal">
 
-                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
                         android:background="@null"
                         android:src="@drawable/ic_directions_walk_white_36dp"
                         app:cb_color="@color/stepColor"
@@ -131,7 +125,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="GOAL" />
+                        android:text="@string/goal" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 

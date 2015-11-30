@@ -16,11 +16,9 @@
         android:background="@null"
         android:orientation="horizontal">
 
-        <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
+        <com.rainbow.kam.bt_scanner.tools.design.CircleButton
             android:layout_width="64dip"
             android:layout_height="64dip"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:background="@null"
             android:src="@drawable/ic_directions_walk_white_36dp"
             app:cb_color="@color/stepColor"
@@ -31,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="info" />
+            android:text="@string/info" />
 
         <TextView
             android:id="@+id/dashboard_calendar"
@@ -39,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="end"
-            android:text="calendar"
+            android:text="@string/calendar"
             android:layout_weight="1" />
     </LinearLayout>
 </android.support.v7.widget.CardView>

@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
 
-        <com.rainbow.kam.bt_scanner.tools.Design.CircleCounter
+        <com.rainbow.kam.bt_scanner.tools.design.CircleCounter
             android:id="@+id/distance_counter"
             android:layout_width="300dp"
             android:layout_height="300dp"

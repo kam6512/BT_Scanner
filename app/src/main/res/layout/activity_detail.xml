@@ -31,8 +31,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_margin="20dp">
+                android:layout_margin="20dp"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="100dp"
@@ -44,7 +44,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
                         android:layout_margin="7dp"
-                        android:text="Name :"
+                        android:text="@string/detail_name"
                         android:textColor="#fff" />
 
                     <TextView
@@ -52,7 +52,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
                         android:layout_margin="7dp"
-                        android:text="RSSI :"
+                        android:text="@string/detail_rssi"
                         android:textColor="#fff" />
 
                     <TextView
@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
                         android:layout_margin="7dp"
-                        android:text="Address :"
+                        android:text="@string/detail_address"
                         android:textColor="#fff" />
 
                     <TextView
@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
                         android:layout_margin="7dp"
-                        android:text="state :"
+                        android:text="@string/detail_state"
                         android:textColor="#fff" />
                 </LinearLayout>
 
@@ -82,29 +82,25 @@
                         android:id="@+id/detail_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:text="Name" />
+                        android:layout_margin="7dp" />
 
                     <TextView
                         android:id="@+id/detail_rssi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:text="RSSI" />
+                        android:layout_margin="7dp" />
 
                     <TextView
                         android:id="@+id/detail_address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:text="Address" />
+                        android:layout_margin="7dp" />
 
                     <TextView
                         android:id="@+id/detail_state"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:text="state" />
+                        android:layout_margin="7dp" />
                 </LinearLayout>
             </LinearLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
