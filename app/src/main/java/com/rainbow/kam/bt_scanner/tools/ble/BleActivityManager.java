@@ -147,20 +147,39 @@ public class BleActivityManager {
                             adapter = new DeviceAdapter(deviceItemArrayList, activity, deviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
-                            swipeRefreshLayout.setRefreshing(false);
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
+
                         }
                     }, SCAN_PERIOD); //10초 뒤에 OFF
 
                     //시작
                     isScanning = true;
                     bleScanner.startScan(scanCallback);
-                    progressBar.setVisibility(View.VISIBLE);
-                    hasCard.setVisibility(View.INVISIBLE);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.VISIBLE);
+                            hasCard.setVisibility(View.INVISIBLE);
+                        }
+                    });
+
                 } else {    //중지
                     isScanning = false;
                     bleScanner.stopScan(scanCallback);
-                    progressBar.setVisibility(View.INVISIBLE);
-                    hasCard.setVisibility(View.INVISIBLE);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            hasCard.setVisibility(View.INVISIBLE);
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
+
                 }
             } catch (Exception e) {
                 Toast.makeText(activity, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(LE Fail)", Toast.LENGTH_LONG).show();
@@ -190,13 +209,24 @@ public class BleActivityManager {
                     //시작
                     isScanning = true;
                     bluetoothAdapter.startLeScan(leScanCallback);
-                    progressBar.setVisibility(View.VISIBLE);
-                    hasCard.setVisibility(View.INVISIBLE);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.VISIBLE);
+                            hasCard.setVisibility(View.INVISIBLE);
+                        }
+                    });
                 } else {    //중지
                     isScanning = false;
                     bluetoothAdapter.stopLeScan(leScanCallback);
-                    progressBar.setVisibility(View.INVISIBLE);
-                    hasCard.setVisibility(View.INVISIBLE);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            hasCard.setVisibility(View.INVISIBLE);
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
                 }
             } catch (Exception e) {
                 Toast.makeText(activity, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(LE Fail)", Toast.LENGTH_LONG).show();
