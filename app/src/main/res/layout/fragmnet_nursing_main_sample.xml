@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
 
-        <com.rainbow.kam.bt_scanner.Tools.Design.CircleCounter
+        <com.rainbow.kam.bt_scanner.tools.Design.CircleCounter
             android:id="@+id/counter"
             android:layout_width="300dp"
             android:layout_height="300dp"
@@ -49,7 +49,7 @@
                     android:background="@null"
                     android:orientation="horizontal">
 
-                    <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -83,7 +83,7 @@
                     android:background="@null"
                     android:orientation="horizontal">
 
-                    <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -117,7 +117,7 @@
                     android:background="@null"
                     android:orientation="horizontal">
 
-                    <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"

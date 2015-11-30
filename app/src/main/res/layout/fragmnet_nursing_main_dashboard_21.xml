@@ -35,7 +35,7 @@
                 android:background="@null"
                 android:text="Device Time" />
 
-            <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+            <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerHorizontal="true"
@@ -74,7 +74,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -125,7 +125,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -184,7 +184,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"
@@ -235,7 +235,7 @@
                     android:layout_weight="1"
                     android:background="@null">
 
-                    <com.rainbow.kam.bt_scanner.Tools.Design.CircleButton
+                    <com.rainbow.kam.bt_scanner.tools.Design.CircleButton
                         android:layout_width="64dip"
                         android:layout_height="64dip"
                         android:layout_centerHorizontal="true"

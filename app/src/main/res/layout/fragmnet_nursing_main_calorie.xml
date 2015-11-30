@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
 
-        <com.rainbow.kam.bt_scanner.Tools.Design.CircleCounter
+        <com.rainbow.kam.bt_scanner.tools.Design.CircleCounter
             android:id="@+id/calorie_counter"
             android:layout_width="300dp"
             android:layout_height="300dp"
