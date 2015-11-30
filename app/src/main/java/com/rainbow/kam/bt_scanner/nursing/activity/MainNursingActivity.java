@@ -160,7 +160,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 //            realm.clear(Band.class);
             startActivity(new Intent(MainNursingActivity.this, StartNursingActivity.class));
 
-            realm.commitTransaction();
+//            realm.commitTransaction();
 
 
         }
