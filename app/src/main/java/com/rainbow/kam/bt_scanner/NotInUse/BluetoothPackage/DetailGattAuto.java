@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 
-import com.rainbow.kam.bt_scanner.adapter.main.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class DetailGattAuto {
 
     private Activity activity;
     private Context context;
-    private DeviceAdapter.Device device;
+    private MainDeviceAdapter.Device device;
 
     //뷰에 적용할 임시 테스트 String
     private String deviceState;
@@ -65,7 +65,7 @@ public class DetailGattAuto {
     private int index = 0;
 
 
-    public DetailGattAuto(Activity activity, Context context, DeviceAdapter.Device device, String deviceState, String deviceAddress) {
+    public DetailGattAuto(Activity activity, Context context, MainDeviceAdapter.Device device, String deviceState, String deviceAddress) {
         //액티비티 / 컨택스트
         this.activity = activity;
         this.context = context;

@@ -3,18 +3,18 @@ package com.rainbow.kam.bt_scanner.adapter.main;
 /**
  * Created by kam6512 on 2015-10-14.
  */
-public class DeviceItem { //카드 뷰 틀
+public class MainDeviceItem { //카드 뷰 틀
     private String extraName;
     private String extraAddress;
     private int extraBondState;
     private int extraType;
     private int extraRssi;
 
-    public DeviceItem(String extraName,
-                      String extraAddress,
-                      int extraBondState,
-                      int extraType,
-                      int extraRssi) {
+    public MainDeviceItem(String extraName,
+                          String extraAddress,
+                          int extraBondState,
+                          int extraType,
+                          int extraRssi) {
         this.extraName = extraName;
         this.extraAddress = extraAddress;
         this.extraBondState = extraBondState;

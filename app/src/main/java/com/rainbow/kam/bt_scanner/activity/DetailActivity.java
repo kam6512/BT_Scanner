@@ -1,14 +1,18 @@
 package com.rainbow.kam.bt_scanner.activity;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,6 +28,7 @@ import com.rainbow.kam.bt_scanner.tools.ble.BLE;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 
@@ -48,6 +53,9 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
 
     private BLE ble;
 
+    private Toolbar toolbar;
+    private ActionBar actionBar;
+
     private TextView deviceNameTextView;
     private TextView deviceAddressTextView;
     private TextView deviceRSSITextView;
@@ -60,12 +68,14 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     private DetailCharacteristicFragment characteristicFragment;
     private DetailFragment detailFragment;
 
-    public static Handler handler;
+    public static DetailActivityHandler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        handler = new DetailActivityHandler(this);
 
         Intent intent = getIntent();
         deviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -77,39 +87,38 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
 
         fragmentManager = getSupportFragmentManager();
 
-        handler = new Handler() {
-            @Override
-            public void handleMessage(final Message msg) {
-                super.handleMessage(msg);
-                fragmentTransaction = fragmentManager.beginTransaction();
-                final int position = msg.arg1;
-                switch (msg.what) {
-                    case 0:
-                        fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
-                        break;
-                    case 1:
-                        fragmentTransaction.hide(serviceFragment);
-                        fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
-
-                        BluetoothGattService bluetoothGattService = serviceFragment.getService(position);
-                        ble.getCharacteristicsForService(bluetoothGattService);
-
-
-                        break;
-                    case 2:
-                        fragmentTransaction.hide(characteristicFragment);
-                        fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
-
-                        BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristicFragment.getCharacteristic(position);
-                        uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristic);
-
-                        break;
-                }
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-        };
         handler.sendEmptyMessage(0);
+    }
+
+    @SuppressLint("CommitTransaction")
+    private void handleMessage(Message msg) {
+        final int position = msg.arg1;
+        fragmentTransaction = fragmentManager.beginTransaction();
+
+        switch (msg.what) {
+            case 0:
+                fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
+                break;
+            case 1:
+                fragmentTransaction.hide(serviceFragment);
+                fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
+
+                BluetoothGattService bluetoothGattService = serviceFragment.getService(position);
+                ble.getCharacteristicsForService(bluetoothGattService);
+
+                break;
+            case 2:
+                fragmentTransaction.hide(characteristicFragment);
+                fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
+
+                BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristicFragment.getCharacteristic(position);
+                uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristic);
+
+                break;
+        }
+
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     private void setToolbar() {
@@ -121,10 +130,13 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         deviceAddressTextView.setText(deviceAddress);
         deviceRSSITextView.setText(deviceRSSI);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(deviceName);
+        actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(deviceName);
+        }
     }
 
     private void setFragments() {
@@ -182,6 +194,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     public void onBackPressed() {
         fragmentTransaction = fragmentManager.beginTransaction();
         if (listType.equals(ListType.GATT_SERVICES)) {
+            fragmentTransaction.commit();
             finish();
         }
         if (listType.equals(ListType.GATT_CHARACTERISTICS)) {
@@ -197,6 +210,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             detailFragment.clearCharacteristic();
             fragmentTransaction.show(characteristicFragment);
             fragmentTransaction.remove(detailFragment);
+            fragmentTransaction.commit();
             return;
         }
         fragmentTransaction.commit();
@@ -212,7 +226,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                deviceStateTextView.setText("connected");
+                deviceStateTextView.setText(R.string.connected);
             }
         });
     }
@@ -222,12 +236,12 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                deviceStateTextView.setText("disconnected");
+                deviceStateTextView.setText(R.string.disconnected);
                 try {
                     serviceFragment.clearAdapter();
                     characteristicFragment.clearAdapter();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Toast.makeText(DetailActivity.this, R.string.disconnected, Toast.LENGTH_SHORT).show();
                 }
 
                 listType = ListType.GATT_SERVICES;
@@ -270,12 +284,15 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             @Override
             public void run() {
                 listType = ListType.GATT_CHARACTERISTICS;
-                characteristicFragment.clearAdapter();
-                getSupportActionBar().setTitle(BLEGattAttributes.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())));
-                for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars) {
-                    characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+                if (characteristicFragment != null) {
+                    characteristicFragment.clearAdapter();
+                    for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars) {
+                        characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+                    }
+                    characteristicFragment.noti();
                 }
-                characteristicFragment.noti();
+
+                actionBar.setTitle(BLEGattAttributes.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())));
             }
         });
     }
@@ -287,8 +304,10 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             public void run() {
                 Log.e(TAG, "uiCharacteristicsDetails");
                 listType = ListType.GATT_CHARACTERISTIC_DETAILS;
-                detailFragment.setCharacteristic(characteristic);
-                detailFragment.onStartDetail();
+                if (detailFragment != null) {
+                    detailFragment.setCharacteristic(characteristic);
+                    detailFragment.onStartDetail();
+                }
             }
         });
     }
@@ -344,5 +363,23 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
 
             }
         });
+    }
+
+    private static class DetailActivityHandler extends Handler {
+
+        private final WeakReference<DetailActivity> activityWeakReference;
+
+        public DetailActivityHandler(DetailActivity activity) {
+            activityWeakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            DetailActivity detailActivity = activityWeakReference.get();
+            if (detailActivity != null) {
+                detailActivity.handleMessage(msg);
+            }
+        }
     }
 }

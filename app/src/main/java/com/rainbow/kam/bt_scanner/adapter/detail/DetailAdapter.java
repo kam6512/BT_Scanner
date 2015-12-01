@@ -1,6 +1,7 @@
 package com.rainbow.kam.bt_scanner.adapter.detail;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -31,15 +32,18 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private View view;
 
     private ServiceViewHolder selecteServiceViewHolder = null;
-
-    public DetailAdapter(ArrayList<ServiceItem> serviceItemArrayList, boolean isRoot) {
-        this.serviceItemArrayList = serviceItemArrayList;
-        this.isRoot = isRoot;
-    }
+    private Handler handler;
 
     public DetailAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList) {
         this.characteristicItemArrayList = characteristicItemArrayList;
         this.isRoot = false;
+        handler = DetailActivity.handler;
+    }
+
+    public DetailAdapter(ArrayList<ServiceItem> serviceItemArrayList, boolean isRoot) {
+        this.serviceItemArrayList = serviceItemArrayList;
+        this.isRoot = isRoot;
+        handler = DetailActivity.handler;
     }
 
 
@@ -141,8 +145,10 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onClick(View v) {
                     selecteServiceViewHolder = ServiceViewHolder.this;
-                    Message message = Message.obtain(DetailActivity.handler, 1, getLayoutPosition(),0);
-                    DetailActivity.handler.sendMessage(message);
+
+
+                    Message message = Message.obtain(handler, 1, getLayoutPosition(), 0);
+                    handler.sendMessage(message);
                 }
             });
             service_title = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
@@ -173,9 +179,9 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e(TAG, getLayoutPosition()+"");
-                    Message message = Message.obtain(DetailActivity.handler, 2, getLayoutPosition(),0);
-                    DetailActivity.handler.sendMessage(message);
+                    Log.e(TAG, getLayoutPosition() + "");
+                    Message message = Message.obtain(DetailActivity.handler, 2, getLayoutPosition(), 0);
+                    handler.sendMessage(message);
                 }
             });
             characteristic_title = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);

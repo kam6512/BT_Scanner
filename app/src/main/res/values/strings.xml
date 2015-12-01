@@ -25,6 +25,7 @@
     <string name="menu_nursing_about_dev">개발자 모드</string>
     <string name="menu_nursing_about_reset">유저정보 지우기</string>
     <string name="menu_nursing_about_info">앱 정보</string>
+
     <string name="detail_name">Name :</string>
     <string name="detail_rssi">RSSI :</string>
     <string name="detail_address">Address :</string>
@@ -61,6 +62,15 @@
     <string name="today">today</string>
     <string name="yesterday">yesterday</string>
     <string name="goal">GOAL</string>
+    <string name="bt_not_init">블루투스가 시작되지 않았습니다.</string>
+    <string name="bt_must_start">블루투스를 시작해야 합니다.</string>
+    <string name="bt_fail">기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(init Fail)</string>
+    <string name="device_name_prime">Prime</string>
+
+    <string name="connected">connected</string>
+    <string name="disconnected">disconnected</string>
+
+
 
 
 </resources>

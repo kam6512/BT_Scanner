@@ -24,8 +24,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.adapter.main.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.main.DeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.main.MainDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.main.MainDeviceItem;
 
 import java.util.ArrayList;
 
@@ -49,7 +49,7 @@ public class BleActivityManager {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView selectDeviceRecyclerView;
     private RecyclerView.Adapter adapter;
-    private ArrayList<DeviceItem> deviceItemArrayList;
+    private ArrayList<MainDeviceItem> mainDeviceItemArrayList;
 
     private View view;
     private ProgressBar progressBar;
@@ -61,7 +61,7 @@ public class BleActivityManager {
     private ScanCallback scanCallback;
 
     public BleActivityManager(String TAG, Activity activity, Handler handler, BluetoothAdapter bluetoothAdapter, BluetoothManager bluetoothManager, SwipeRefreshLayout swipeRefreshLayout, RecyclerView selectDeviceRecyclerView, RecyclerView.Adapter adapter,
-                              ArrayList<DeviceItem> deviceItemArrayList, View view, ProgressBar progressBar, TextView hasCard, boolean isNursing) {
+                              ArrayList<MainDeviceItem> mainDeviceItemArrayList, View view, ProgressBar progressBar, TextView hasCard, boolean isNursing) {
         this.TAG = TAG;
         this.activity = activity;
         this.handler = handler;
@@ -70,7 +70,7 @@ public class BleActivityManager {
         this.swipeRefreshLayout = swipeRefreshLayout;
         this.selectDeviceRecyclerView = selectDeviceRecyclerView;
         this.adapter = adapter;
-        this.deviceItemArrayList = deviceItemArrayList;
+        this.mainDeviceItemArrayList = mainDeviceItemArrayList;
         this.view = view;
         this.progressBar = progressBar;
         this.hasCard = hasCard;
@@ -125,7 +125,6 @@ public class BleActivityManager {
 
     public void onDestroyView() {
         scanLeDevice(false);
-        adapter = null;
     }
 
     public void scanLeDevice(final boolean enable) {//저전력 스캔
@@ -138,13 +137,13 @@ public class BleActivityManager {
                         public void run() {
 
                             isScanning = false;
-                            bleScanner.startScan(scanCallback);
+                            bleScanner.stopScan(scanCallback);
                             progressBar.setVisibility(View.INVISIBLE);
 
-                            if (deviceItemArrayList.size() < 1) {
+                            if (mainDeviceItemArrayList.size() < 1) {
                                 hasCard.setVisibility(View.VISIBLE);
                             }
-                            adapter = new DeviceAdapter(deviceItemArrayList, activity, deviceItemArrayList.size(), isNursing);
+//                            adapter = new MainDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
                             activity.runOnUiThread(new Runnable() {
@@ -197,10 +196,10 @@ public class BleActivityManager {
                             bluetoothAdapter.stopLeScan(leScanCallback);
                             progressBar.setVisibility(View.INVISIBLE);
 
-                            if (deviceItemArrayList.size() < 1) {
+                            if (mainDeviceItemArrayList.size() < 1) {
                                 hasCard.setVisibility(View.VISIBLE);
                             }
-                            adapter = new DeviceAdapter(deviceItemArrayList, activity, deviceItemArrayList.size(), isNursing);
+//                            adapter = new MainDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
                         }
@@ -223,7 +222,7 @@ public class BleActivityManager {
                         @Override
                         public void run() {
                             progressBar.setVisibility(View.INVISIBLE);
-                            hasCard.setVisibility(View.INVISIBLE);
+                            hasCard.setVisibility(View.VISIBLE);
                             swipeRefreshLayout.setRefreshing(false);
                         }
                     });
@@ -240,7 +239,7 @@ public class BleActivityManager {
             if (getScanning()) {  //스캔 시작
                 scanLeDevice(false);
             } else { //재 스캔시(10초이내)
-                deviceItemArrayList.clear();
+                mainDeviceItemArrayList.clear();
 
                 if (adapter != null) {
                     adapter.notifyDataSetChanged();
@@ -311,14 +310,14 @@ public class BleActivityManager {
 
 
                             if (deviceName.equals("Prime")) {
-                                deviceItemArrayList.add(new DeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
+                                mainDeviceItemArrayList.add(new MainDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
                             }
 
-                            for (int i = 0; i < deviceItemArrayList.size(); i++) {
-                                for (int j = 1; j < deviceItemArrayList.size(); j++) {
-                                    if (deviceItemArrayList.get(i).getExtraextraAddress().trim().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim())) {
+                            for (int i = 0; i < mainDeviceItemArrayList.size(); i++) {
+                                for (int j = 1; j < mainDeviceItemArrayList.size(); j++) {
+                                    if (mainDeviceItemArrayList.get(i).getExtraextraAddress().trim().equals(mainDeviceItemArrayList.get(j).getExtraextraAddress().trim())) {
                                         if (i != j) {
-                                            deviceItemArrayList.remove(j);
+                                            mainDeviceItemArrayList.remove(j);
                                         }
                                     }
 
@@ -354,14 +353,14 @@ public class BleActivityManager {
                             }
 
                             if (deviceName.equals("Prime")) {
-                                deviceItemArrayList.add(new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                                mainDeviceItemArrayList.add(new MainDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                             }
 
-                            for (int i = 0; i < deviceItemArrayList.size(); i++) {
-                                for (int j = 1; j < deviceItemArrayList.size(); j++) {
-                                    if (deviceItemArrayList.get(i).getExtraextraAddress().trim().equals(deviceItemArrayList.get(j).getExtraextraAddress().trim())) {
+                            for (int i = 0; i < mainDeviceItemArrayList.size(); i++) {
+                                for (int j = 1; j < mainDeviceItemArrayList.size(); j++) {
+                                    if (mainDeviceItemArrayList.get(i).getExtraextraAddress().trim().equals(mainDeviceItemArrayList.get(j).getExtraextraAddress().trim())) {
                                         if (i != j) {
-                                            deviceItemArrayList.remove(j);
+                                            mainDeviceItemArrayList.remove(j);
                                         }
                                     }
 

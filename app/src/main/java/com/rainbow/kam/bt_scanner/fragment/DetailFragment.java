@@ -77,7 +77,7 @@ public class DetailFragment extends Fragment {
         strValue = "";
         lastUpdateTime = "-";
         notificationEnabled = false;
-        onStartDetail();
+        bindView();
     }
 
     public BluetoothGattCharacteristic getCharacteristic(int index) {
@@ -116,9 +116,8 @@ public class DetailFragment extends Fragment {
         if ((!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) || (notificationEnabled)) {
             return;
         }
-
         notificationEnabled = true;
-        onStartDetail();
+        bindView();
     }
 
     public byte[] parseHexStringToBytes(final String hex) {
@@ -204,8 +203,8 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
-    public void onStartDetail() {
-        Log.e("DetailFragment", "onStartDetail");
+    public void bindView() {
+
         fieldReference.deviceName.setText(ble.getBluetoothDevice().getName());
         fieldReference.deviceAddress.setText(ble.getBluetoothDevice().getAddress());
 

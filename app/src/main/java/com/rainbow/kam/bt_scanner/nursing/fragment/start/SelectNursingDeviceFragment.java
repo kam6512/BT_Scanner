@@ -18,7 +18,7 @@ import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.rainbow.kam.bt_scanner.adapter.main.DeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.main.MainDeviceItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.ble.BleActivityManager;
 
@@ -36,7 +36,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView.Adapter adapter = null;
-    private ArrayList<DeviceItem> deviceItemArrayList = new ArrayList<>();
+    private ArrayList<MainDeviceItem> mainDeviceItemArrayList = new ArrayList<>();
 
     private BleActivityManager bleActivityManager;
 
@@ -69,7 +69,7 @@ public class SelectNursingDeviceFragment extends DialogFragment {
         getDialog().getWindow().setBackgroundDrawable(
                 new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-        bleActivityManager = new BleActivityManager(TAG, activity, handler, bluetoothAdapter, bluetoothManager, swipeRefreshLayout, selectDeviceRecyclerView, adapter, deviceItemArrayList, view, progressBar, hasCard, true);
+        bleActivityManager = new BleActivityManager(TAG, activity, handler, bluetoothAdapter, bluetoothManager, swipeRefreshLayout, selectDeviceRecyclerView, adapter, mainDeviceItemArrayList, view, progressBar, hasCard, true);
 
 
         return view;

@@ -48,12 +48,6 @@ public class DetailServiceFragment extends Fragment {
         return view;
     }
 
-    public void clearAdapter() {
-        adapter.clearList(0);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-    }
-
     public void addService(BluetoothGattService bluetoothGattService) {
 
         String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
@@ -73,4 +67,12 @@ public class DetailServiceFragment extends Fragment {
     public void noti() {
         adapter.notifyDataSetChanged();
     }
+
+    public void clearAdapter() {
+        adapter.clearList(0);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+
 }
