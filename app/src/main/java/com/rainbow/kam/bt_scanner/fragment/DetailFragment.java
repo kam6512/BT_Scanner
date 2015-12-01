@@ -46,12 +46,8 @@ public class DetailFragment extends Fragment {
         private Button writeBtn;
     }
 
-    private Activity activity;
-    private View view;
-
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
     private BLE ble;
-    private byte[] rawValue = null;
     private int intValue = 0;
     private String asciiValue = "";
     private String strValue = "";
@@ -71,7 +67,6 @@ public class DetailFragment extends Fragment {
 
     public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
         this.bluetoothGattCharacteristic = characteristic;
-        rawValue = null;
         intValue = 0;
         asciiValue = "";
         strValue = "";
@@ -95,7 +90,6 @@ public class DetailFragment extends Fragment {
 
         this.intValue = intValue;
         this.strValue = strValue;
-        this.rawValue = rawValue;
         if (rawValue != null && rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
             for (byte byteChar : rawValue) {
@@ -120,32 +114,50 @@ public class DetailFragment extends Fragment {
         bindView();
     }
 
-    public byte[] parseHexStringToBytes(final String hex) {
-        try {
-            String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
-            byte[] bytes = new byte[tmp.length() / 2]; // every two letters in the string are one byte finally
+    public static byte[] parseHexStringToBytes(String hex) {
+        hex = hex.toLowerCase(Locale.getDefault());
+        String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
+        byte[] bytes = new byte[tmp.length() / 2];
+        String part;
+        int checksum = 0;
 
-            String part;
-            int checksum = 0;
-            for (int i = 0; i < bytes.length; ++i) {
-                part = "0x" + tmp.substring(i * 2, i * 2 + 2);
-                bytes[i] = Long.decode(part).byteValue();
-                checksum = (checksum ^ bytes[i]);
-                Log.e("part", "part : " + part);
+        for (int i = 0; i < bytes.length; ++i) {
+            part = "0x" + tmp.substring(i * 2, i * 2 + 2);
+            bytes[i] = Integer.decode(part).byteValue();
+            if (i > 1 && i != bytes.length - 1) {
+                if (bytes[i] < 0x00) {
+                    checksum = checksum ^ bytes[i] + 256;
+                } else {
+                    checksum ^= bytes[i];
+                }
             }
-            Log.e("cS", "checkSum : " + checksum);
-            return bytes;
-        } catch (Exception e) {
-            return null;
+        }
+        String cs = setWidth(Integer.toHexString(checksum));
+        Log.e("CheckSum", cs);
+        String res = (hex + cs).substring(2).replaceAll("[^[0-9][a-f]]", "");
+        byte[] resBytes = new byte[res.length() / 2];
+        String resPart;
+
+        for (int i = 0; i < resBytes.length; ++i) {
+            resPart = "0x" + res.substring(i * 2, i * 2 + 2);
+            resBytes[i] = Long.decode(resPart).byteValue();
         }
 
+        return resBytes;
+    }
+
+    public static String setWidth(String format) {
+        if (format.trim().length() == 2) {
+            return format;
+        } else {
+            return "0" + format.trim();
+        }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        activity = getActivity();
-        view = inflater.inflate(R.layout.fragment_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_detail, container, false);
         fieldReference = new FieldReference();
 
         fieldReference.deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
@@ -180,7 +192,6 @@ public class DetailFragment extends Fragment {
             public void onClick(View v) {
                 EditText hex = (EditText) v.getTag();
                 String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
-                Log.e("writeBtn", newValue);
 
                 byte[] dataToWrite = parseHexStringToBytes(newValue);
 

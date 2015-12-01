@@ -96,10 +96,10 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         fragmentTransaction = fragmentManager.beginTransaction();
 
         switch (msg.what) {
-            case 0:
+            case 0: //init fragment [Service]
                 fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
                 break;
-            case 1:
+            case 1: //add fragment [Characteristic]
                 fragmentTransaction.hide(serviceFragment);
                 fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
 
@@ -107,7 +107,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                 ble.getCharacteristicsForService(bluetoothGattService);
 
                 break;
-            case 2:
+            case 2: // add fragment [DetailCharacteristic]
                 fragmentTransaction.hide(characteristicFragment);
                 fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
 
@@ -302,11 +302,10 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.e(TAG, "uiCharacteristicsDetails");
                 listType = ListType.GATT_CHARACTERISTIC_DETAILS;
                 if (detailFragment != null) {
                     detailFragment.setCharacteristic(characteristic);
-                    detailFragment.onStartDetail();
+                    detailFragment.bindView();
                 }
             }
         });
@@ -321,7 +320,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             @Override
             public void run() {
                 detailFragment.newValueForCharacterictic(ch, strValue, intValue, rawValue, timestamp);
-                detailFragment.onStartDetail();
+                detailFragment.bindView();
             }
         });
     }
@@ -332,13 +331,14 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             @Override
             public void run() {
                 byte[] res = characteristic.getValue();
+                detailFragment.setNotificationEnabledForService(characteristic);
+                /*
                 for (int i = 0; i < res.length; i++) {
                     int lsb = characteristic.getValue()[i] & 0xff;
                     Log.e(TAG, "res = " + res[i] + " lsb = " + lsb + "\n");
-                }
+                }*/
 
                 Toast.makeText(getApplicationContext(), "uiGotNotification " + res[0], Toast.LENGTH_LONG).show();
-                detailFragment.setNotificationEnabledForService(characteristic);
             }
         });
     }
