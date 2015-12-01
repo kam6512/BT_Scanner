@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 
-import com.rainbow.kam.bt_scanner.adapter.main.MainDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 
 import java.util.ArrayList;

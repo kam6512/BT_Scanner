@@ -24,8 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.adapter.main.MainDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.main.MainDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
 
 import java.util.ArrayList;
 

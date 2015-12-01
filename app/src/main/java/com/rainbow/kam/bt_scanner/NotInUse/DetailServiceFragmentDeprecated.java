@@ -17,8 +17,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 
-import com.rainbow.kam.bt_scanner.adapter.detail.DetailAdapter;
-import com.rainbow.kam.bt_scanner.adapter.detail.ServiceItem;
+import com.rainbow.kam.bt_scanner.adapter.dev.detail.DetailAdapter;
+import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 
