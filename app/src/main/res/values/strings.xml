@@ -69,8 +69,21 @@
 
     <string name="connected">connected</string>
     <string name="disconnected">disconnected</string>
-
-
+    <string name="permission_thanks">권한 획득, 감사합니다.</string>
+    <string name="permission_request"><![CDATA[[권한] 탭 -> [위치] 권한을 허용해주십시오]]></string>
+    <string name="permission_denial">권한의 획득을 거부</string>
+    <string name="accept">확인</string>
+    <string name="fix">수정</string>
+    <string name="skip_warning">개인정보를 입력하지 않더라도 사용할 수 있으나 정확한 운동량 계산과 서버연동이 불가능하오니 이점 유의해두시기 바랍니다.</string>
+    <string name="skip">무시하기</string>
+    <string name="username_default">N/A</string>
+    <string name="userage_default">20</string>
+    <string name="userheight_default">170</string>
+    <string name="userweight_default">60</string>
+    <string name="userstep_default">60</string>
+    <string name="usergender_default">남성</string>
+    <string name="gender_man">남성</string>
+    <string name="gender_woman">여성</string>
 
 
 </resources>

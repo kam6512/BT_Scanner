@@ -76,12 +76,12 @@ public class StepFragment extends Fragment {
 //        recyclerView.setAdapter(adapter);
 //        adapter.notifyDataSetChanged();
 
-        new MaterialDialog.Builder(activity).title("step").adapter(adapter, new MaterialDialog.ListCallback() {
-            @Override
-            public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
-
-            }
-        }).show();
+//        new MaterialDialog.Builder(activity).title("step").adapter(adapter, new MaterialDialog.ListCallback() {
+//            @Override
+//            public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
+//
+//            }
+//        }).show();
     }
 
     @Override

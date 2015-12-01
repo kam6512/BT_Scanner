@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.ble;
+package com.rainbow.kam.bt_scanner.NotInUse.Tools;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -143,7 +143,7 @@ public class BleActivityManager {
                             if (mainDeviceItemArrayList.size() < 1) {
                                 hasCard.setVisibility(View.VISIBLE);
                             }
-//                            adapter = new MainDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
+//                            adapter = new SelectedDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
                             activity.runOnUiThread(new Runnable() {
@@ -199,7 +199,7 @@ public class BleActivityManager {
                             if (mainDeviceItemArrayList.size() < 1) {
                                 hasCard.setVisibility(View.VISIBLE);
                             }
-//                            adapter = new MainDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
+//                            adapter = new SelectedDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
                         }

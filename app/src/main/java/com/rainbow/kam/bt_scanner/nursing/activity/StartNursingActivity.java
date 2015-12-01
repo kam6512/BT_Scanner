@@ -15,8 +15,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.nursing.fragment.start.StartNursingFragment;
+import com.rainbow.kam.bt_scanner.nursing.fragment.start.StartNursingFragmentAddUser;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.nursing.fragment.start.StartNursingFragmentLogo;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 /**
@@ -24,21 +25,15 @@ import com.rainbow.kam.bt_scanner.tools.PermissionV21;
  */
 public class StartNursingActivity extends AppCompatActivity {
 
-
     public static final String TAG = StartNursingActivity.class.getSimpleName();
-
     public static FloatingActionButton startNursingFab;
-
-    public static int indexByStart = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        PermissionV21.check(this);
-
         setContentView(R.layout.activity_nursing_start);
 
+        PermissionV21.check(this);
 
         startNursingFab = (FloatingActionButton) findViewById(R.id.nursing_next_fab);
         startNursingFab.setOnClickListener(new View.OnClickListener() {
@@ -51,20 +46,20 @@ public class StartNursingActivity extends AppCompatActivity {
 
     }
 
-    private void inflateFragment(boolean isStart) {
-        StartNursingFragment startNusingFragment = new StartNursingFragment();
+    private void inflateFragment(boolean isLogo) {
+
+        StartNursingFragmentLogo startNursingFragmentLogo = new StartNursingFragmentLogo();
+        StartNursingFragmentAddUser startNusingFragment = new StartNursingFragmentAddUser();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        if (isStart) {
-            fragmentTransaction.add(R.id.nursing_start_frame, startNusingFragment);
 
+        if (isLogo) {
+            fragmentTransaction.add(R.id.nursing_start_frame, startNursingFragmentLogo);
         } else {
             fragmentTransaction.replace(R.id.nursing_start_frame, startNusingFragment);
         }
-
         fragmentTransaction.commit();
     }
-
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -72,8 +67,6 @@ public class StartNursingActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
-        indexByStart = 0;
-
     }
 
     @Override
@@ -82,10 +75,10 @@ public class StartNursingActivity extends AppCompatActivity {
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                         || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    Snackbar.make(getWindow().getDecorView(), "권한 획득, 감사합니다.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
                 } else {
                     onBackPressed();
-                    Toast.makeText(getApplicationContext(), "[권한] 탭 -> [위치] 권한을 허용해주십시오", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
 
                     Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
                     myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
@@ -94,7 +87,7 @@ public class StartNursingActivity extends AppCompatActivity {
                 }
                 break;
             default:
-                Toast.makeText(getApplicationContext(), "권한의 획득을 거부", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
                 break;
         }
     }

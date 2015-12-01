@@ -18,7 +18,7 @@
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <ProgressBar
-        android:id="@+id/nursing_device_progress"
+        android:id="@+id/nursing_searching_progress_bar"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_centerHorizontal="true"
@@ -27,7 +27,7 @@
         android:indeterminate="true" />
 
     <TextView
-        android:id="@+id/nursing_device_hasCard"
+        android:id="@+id/nursing_no_device_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"

@@ -1,8 +1,10 @@
-package com.rainbow.kam.bt_scanner.adapter.main;
+package com.rainbow.kam.bt_scanner.nursing.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,27 +14,26 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.DetailActivity;
+import com.rainbow.kam.bt_scanner.nursing.fragment.start.StartNursingFragmentAddUser;
 
 import java.util.ArrayList;
 
 /**
  * Created by Kam6512 on 2015-10-14.
  */
-public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SelectedDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "SelectedDeviceAdapter";
 
 
-    private ArrayList<MainDeviceItem> mainDeviceItemArrayList;
+    private ArrayList<SelectedDeviceItem> selectedDeviceItemArrayList;
     private Activity activity;
     private DeviceViewHolder deviceViewHolder;
 
-//    private boolean isNursing = false;
 
-    public MainDeviceAdapter(ArrayList<MainDeviceItem> mainDeviceItemArrayList, Activity activity/*, boolean isNursing*/) { //초기화
-        this.mainDeviceItemArrayList = mainDeviceItemArrayList;
+    public SelectedDeviceAdapter(ArrayList<SelectedDeviceItem> selectedDeviceItemArrayList, Activity activity) { //초기화
+        this.selectedDeviceItemArrayList = selectedDeviceItemArrayList;
         this.activity = activity;
-//        this.isNursing = isNursing;
     }
 
     @Override
@@ -48,12 +49,12 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         deviceViewHolder = (DeviceViewHolder) holder;
-        deviceViewHolder.bindViews(mainDeviceItemArrayList.get(position));
+        deviceViewHolder.bindViews(selectedDeviceItemArrayList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return mainDeviceItemArrayList.size();
+        return selectedDeviceItemArrayList.size();
     }
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder { //뷰 초기화
@@ -79,33 +80,22 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             deviceItemCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    /*if (isNursing) {
-
-                        Bundle info = getInfomation();
-                        Message message = new Message();
-                        message.setData(info);
-                        StartNursingFragmentAddUser.handler.sendMessage(message);
-
-                    } else {
-
-                    }*/
-                    Intent intent = new Intent(activity, DetailActivity.class);
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, extraName.getText().toString());
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, extraAddress.getText().toString());
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, extraRssi.getText().toString());
-                    activity.startActivity(intent);
-
+                    Bundle info = getInfomation();
+                    Message message = new Message();
+                    message.setData(info);
+                    Handler handler = StartNursingFragmentAddUser.handler;
+                    handler.sendMessage(message);
                 }
             });
         }
 
-        private void bindViews(MainDeviceItem mainDeviceItem) {
+        private void bindViews(SelectedDeviceItem selectedDeviceItem) {
 
-            extraName.setText(mainDeviceItem.getExtraName());
-            extraAddress.setText(mainDeviceItem.getExtraextraAddress());
-            extraBondState.setText(String.valueOf(mainDeviceItem.getExtraBondState()));
-            extraType.setText(String.valueOf(mainDeviceItem.getExtraType()));
-            extraRssi.setText(String.valueOf(mainDeviceItem.getExtraRssi()));
+            extraName.setText(selectedDeviceItem.getExtraName());
+            extraAddress.setText(selectedDeviceItem.getExtraextraAddress());
+            extraBondState.setText(String.valueOf(selectedDeviceItem.getExtraBondState()));
+            extraType.setText(String.valueOf(selectedDeviceItem.getExtraType()));
+            extraRssi.setText(String.valueOf(selectedDeviceItem.getExtraRssi()));
 
         }
 

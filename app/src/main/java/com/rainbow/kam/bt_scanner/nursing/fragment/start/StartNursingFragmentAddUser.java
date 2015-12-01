@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,8 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.nursing.activity.StartNursingActivity;
 import com.rainbow.kam.bt_scanner.tools.design.RippleView;
 
+import java.lang.ref.WeakReference;
+
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
 import io.realm.RealmResults;
@@ -30,14 +31,12 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class StartNursingFragment extends Fragment implements View.OnClickListener, RippleView.OnRippleCompleteListener {
+public class StartNursingFragmentAddUser extends Fragment implements View.OnClickListener, RippleView.OnRippleCompleteListener {
 
-    Activity activity;
-    public static Handler handler;
+    private Activity activity;
+    public static StartNursingFragmentHandler handler;
     private FragmentManager fm;
-    private SelectNursingDeviceFragment dialogFragment;
-
-//    private Animation animation;
+    private StartNursingDialog dialogFragment;
 
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
@@ -47,100 +46,33 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
     private String userHeight;
     private String userWeight;
     private String userStep;
-    private String gender;
+    private String userGender;
 
     private Realm realm;
     private RealmAsyncTask transaction;
-
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view;
-        if (StartNursingActivity.indexByStart == 0) {
+        view = inflater.inflate(R.layout.fragment_nursing_start_adduser, container, false);
 
-            view = inflater.inflate(R.layout.fragment_nursing_start_splash, container, false);
+        name = (TextInputLayout) view.findViewById(R.id.nursing_adduser_name);
+        age = (TextInputLayout) view.findViewById(R.id.nursing_adduser_age);
+        height = (TextInputLayout) view.findViewById(R.id.nursing_adduser_height);
+        weight = (TextInputLayout) view.findViewById(R.id.nursing_adduser_weight);
+        step = (TextInputLayout) view.findViewById(R.id.nursing_adduser_step);
+        genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
 
-//            LinearLayout pilotLayout = (LinearLayout) view.findViewById(R.id.nursing_start_pilot);
+        StartNursingActivity.startNursingFab.setOnClickListener(this);
 
-//            animation = AnimationUtils.loadAnimation(getActivity(), R.anim.show_fab);
-//            pilotLayout.startAnimation(animation);
-//            StartNursingActivity.nursingHandler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                startNursingFab.setVisibility(View.VISIBLE);
-//                startNursingFab.startAnimation(animation);
-//
-//                }
-//            }, 200);
+        RippleView skip = (RippleView) view.findViewById(R.id.nursing_adduser_skip);
+        skip.setOnRippleCompleteListener(this);
 
-            StartNursingActivity.indexByStart++;
+        fm = getFragmentManager();
+        handler = new StartNursingFragmentHandler(this);
 
-        } else {
-
-            fm = getFragmentManager();
-
-            view = inflater.inflate(R.layout.fragment_nursing_start_adduser, container, false);
-
-            name = (TextInputLayout) view.findViewById(R.id.nursing_adduser_name);
-            age = (TextInputLayout) view.findViewById(R.id.nursing_adduser_age);
-            height = (TextInputLayout) view.findViewById(R.id.nursing_adduser_height);
-            weight = (TextInputLayout) view.findViewById(R.id.nursing_adduser_weight);
-            step = (TextInputLayout) view.findViewById(R.id.nursing_adduser_step);
-            genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
-
-            RippleView skip = (RippleView) view.findViewById(R.id.nursing_adduser_skip);
-            skip.setOnRippleCompleteListener(this);
-
-            StartNursingActivity.startNursingFab.setOnClickListener(this);
-
-
-            handler = new Handler() {
-                @Override
-                public void handleMessage(final Message msg) {
-                    super.handleMessage(msg);
-
-
-                    final Bundle callbackBundle = msg.getData();
-                    Realm.removeDefaultConfiguration();
-                    realm = Realm.getInstance(getActivity());
-                    realm.beginTransaction();
-                    realm.allObjects(Patient.class).clear();
-                    transaction = realm.executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-                            Patient patient = realm.createObject(Patient.class);
-                            patient.setName(userName);
-                            patient.setAge(userAge);
-                            patient.setHeight(userHeight);
-                            patient.setWeight(userWeight);
-                            patient.setStep(userStep);
-                            patient.setGender(gender);
-                            patient.setDeviceName(callbackBundle.getString("name"));
-                            patient.setDeviceAddress(callbackBundle.getString("address"));
-                        }
-                    }, new Realm.Transaction.Callback() {
-                        @Override
-                        public void onSuccess() {
-                            RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
-                            Log.e(StartNursingActivity.TAG, " results.size : " + results.size());
-
-                            dismissDeviceListDialog();
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Toast.makeText(getContext(), "fail " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                    realm.commitTransaction();
-
-
-                }
-            };
-        }
         return view;
     }
 
@@ -153,12 +85,49 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (realm != null) {
-            realm.close();
-        }
         if (transaction != null && !transaction.isCancelled()) {
             transaction.cancel();
         }
+        if (realm != null) {
+            realm.close();
+        }
+    }
+
+    private void handleMessage(Message msg) {
+        final Bundle callbackBundle = msg.getData();
+
+        Realm.removeDefaultConfiguration();
+        realm = Realm.getInstance(getActivity());
+        realm.beginTransaction();
+        realm.allObjects(Patient.class).clear();
+
+        transaction = realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                Patient patient = realm.createObject(Patient.class);
+                patient.setName(userName);
+                patient.setAge(userAge);
+                patient.setHeight(userHeight);
+                patient.setWeight(userWeight);
+                patient.setStep(userStep);
+                patient.setGender(userGender);
+                patient.setDeviceName(callbackBundle.getString("name"));
+                patient.setDeviceAddress(callbackBundle.getString("address"));
+            }
+        }, new Realm.Transaction.Callback() {
+            @Override
+            public void onSuccess() {
+                RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
+//                Log.e(StartNursingActivity.TAG, " results.size : " + results.size());
+                dismissDeviceListDialog();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "fail " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+        realm.commitTransaction();
     }
 
     private void showAcceptDialog(String res) {
@@ -181,9 +150,17 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
     }
 
     private void showSkipDialog() {
-        new MaterialDialog.Builder(getActivity()).title("무시하기")
-                .content("개인정보를 입력하지 않더라도 사용할 수 있으나 정확한 운동량 계산과 서버연동이 불가능하오니 이점 유의해두시기 바랍니다.")
-                .positiveText("확인").negativeText("수정")
+
+        userName = activity.getString(R.string.username_default);
+        userAge = activity.getString(R.string.userage_default);
+        userHeight = activity.getString(R.string.userheight_default);
+        userWeight = activity.getString(R.string.userweight_default);
+        userStep = activity.getString(R.string.userstep_default);
+        userGender = activity.getString(R.string.usergender_default);
+
+        new MaterialDialog.Builder(activity).title(R.string.skip)
+                .content(R.string.skip_warning)
+                .positiveText(R.string.accept).negativeText(R.string.fix)
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
@@ -201,7 +178,7 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
 
     private void showDeviceListDialog() {
         if (fm != null) {
-            dialogFragment = new SelectNursingDeviceFragment();
+            dialogFragment = new StartNursingDialog();
             dialogFragment.show(fm, "DeviceDialog");
         }
     }
@@ -220,17 +197,16 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
         userHeight = height.getEditText().getText().toString();
         userWeight = weight.getEditText().getText().toString();
         userStep = step.getEditText().getText().toString();
-        gender = "";
 
         switch (genderGroup.getCheckedRadioButtonId()) {
             case R.id.radio_man:
-                gender = "남성";
+                userGender = activity.getString(R.string.gender_man);
                 break;
             case R.id.radio_woman:
-                gender = "여성";
+                userGender = activity.getString(R.string.gender_woman);
                 break;
             default:
-                gender = "남성";
+                userGender = activity.getString(R.string.gender_man);
                 break;
         }
 
@@ -253,7 +229,7 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
             step.setErrorEnabled(false);
 
             String res = "이름 : " + userName +
-                    "\n성별 : " + gender +
+                    "\n성별 : " + userGender +
                     "\n나이 : " + userAge +
                     "\n키 : " + userHeight +
                     "\n몸무게 : " + userWeight +
@@ -264,12 +240,23 @@ public class StartNursingFragment extends Fragment implements View.OnClickListen
 
     @Override
     public void onComplete(RippleView rippleView) {
-        userName = "N/A";
-        userAge = "20";
-        userHeight = "170";
-        userWeight = "60";
-        userStep = "60";
-        gender = "남성";
         showSkipDialog();
+    }
+
+    private static class StartNursingFragmentHandler extends Handler {
+        private final WeakReference<StartNursingFragmentAddUser> fragmentWeakReference;
+
+        private StartNursingFragmentHandler(StartNursingFragmentAddUser startNursingFragmentAddUser) {
+            fragmentWeakReference = new WeakReference<>(startNursingFragmentAddUser);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            StartNursingFragmentAddUser startNursingFragmentAddUser = fragmentWeakReference.get();
+            if (startNursingFragmentAddUser != null) {
+                startNursingFragmentAddUser.handleMessage(msg);
+            }
+        }
     }
 }

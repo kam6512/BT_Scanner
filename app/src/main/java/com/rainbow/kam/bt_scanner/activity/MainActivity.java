@@ -9,10 +9,13 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -181,6 +184,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         finish();
                         break;
                 }
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
+                } else {
+                    onBackPressed();
+                    Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
+
+                    Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                    myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+                    myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivityForResult(myAppSettings, 0);
+                }
+                break;
+            default:
+                Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
