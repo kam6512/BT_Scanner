@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.start;
+package com.rainbow.kam.bt_scanner.fragment.nurs.splash;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,13 +12,13 @@ import com.rainbow.kam.bt_scanner.R;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class StartNursingFragmentLogo extends Fragment {
+public class SplashNursingFragmentLogo extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view;
-        view = inflater.inflate(R.layout.fragment_nursing_start_splash, container, false);
+        view = inflater.inflate(R.layout.fragment_nursing_splash, container, false);
 
         return view;
     }

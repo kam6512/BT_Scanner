@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
+import com.rainbow.kam.bt_scanner.activity.nurs.SplashNursingActivity;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
 import com.rainbow.kam.bt_scanner.R;
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
-        startActivity(new Intent(this, MainNursingActivity.class));
+        startActivity(new Intent(this, SplashNursingActivity.class));
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }

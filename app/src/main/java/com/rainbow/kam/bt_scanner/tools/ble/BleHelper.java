@@ -38,7 +38,7 @@ public class BleHelper {
         return parseHexStringToBytes("0xf30101");
     }
 
-    private static byte[] SET_DEVICE_TIME_NOW() {
+    public static byte[] SET_DEVICE_TIME_NOW() {
         String setDate = "0xC207";
         Calendar cal = new GregorianCalendar();
         String year = setWidth(String.format("%2s", Integer.toHexString(cal.get(Calendar.YEAR) - 2000)));

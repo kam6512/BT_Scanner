@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@null">
+    android:background="@color/nursingPrimary">
 
     <ImageView
         android:id="@+id/imageView"
@@ -10,35 +10,35 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:src="@mipmap/ic_launcher"
-        android:scaleType="center" />
+        android:scaleType="center"
+        android:src="@mipmap/ic_launcher" />
 
     <LinearLayout
-        android:id="@+id/nursing_start_pilot"
-        android:orientation="vertical"
+        android:id="@+id/nursing_splash_pilot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="64dp"
             android:text="@string/pilot"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/nursingPrimary_light"
-            android:layout_gravity="center_horizontal" />
+            android:textColor="@color/nursingPrimary_light" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:padding="10dp"
             android:text="@string/logo"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/nursingPrimary_light"
-            android:layout_gravity="center_horizontal" />
+            android:textColor="@color/nursingPrimary_light" />
     </LinearLayout>
 
 

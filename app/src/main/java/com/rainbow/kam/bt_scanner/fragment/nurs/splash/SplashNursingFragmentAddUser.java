@@ -1,14 +1,17 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.start;
+package com.rainbow.kam.bt_scanner.fragment.nurs.splash;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +20,10 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
+import com.rainbow.kam.bt_scanner.activity.nurs.SplashNursingActivity;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.nurs.StartNursingActivity;
 import com.rainbow.kam.bt_scanner.tools.design.RippleView;
 
 import java.lang.ref.WeakReference;
@@ -31,15 +35,17 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class StartNursingFragmentAddUser extends Fragment implements View.OnClickListener, RippleView.OnRippleCompleteListener {
+public class SplashNursingFragmentAddUser extends Fragment implements View.OnClickListener, RippleView.OnRippleCompleteListener {
 
     private Activity activity;
-    public static StartNursingFragmentHandler handler;
+    public static SplashNursingFragmentHandler handler;
+
     private FragmentManager fm;
-    private StartNursingDialog dialogFragment;
+    private SplashNursingDialog dialogFragment;
 
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
+    private FloatingActionButton nextFab;
 
     private String userName;
     private String userAge;
@@ -56,7 +62,7 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view;
-        view = inflater.inflate(R.layout.fragment_nursing_start_adduser, container, false);
+        view = inflater.inflate(R.layout.fragment_nursing_splash_adduser, container, false);
 
         name = (TextInputLayout) view.findViewById(R.id.nursing_adduser_name);
         age = (TextInputLayout) view.findViewById(R.id.nursing_adduser_age);
@@ -65,13 +71,14 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
         step = (TextInputLayout) view.findViewById(R.id.nursing_adduser_step);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
 
-        StartNursingActivity.startNursingFab.setOnClickListener(this);
+        nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
+        nextFab.setOnClickListener(this);
 
         RippleView skip = (RippleView) view.findViewById(R.id.nursing_adduser_skip);
         skip.setOnRippleCompleteListener(this);
 
         fm = getFragmentManager();
-        handler = new StartNursingFragmentHandler(this);
+        handler = new SplashNursingFragmentHandler(this);
 
         return view;
     }
@@ -118,7 +125,6 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
             @Override
             public void onSuccess() {
                 RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
-//                Log.e(StartNursingActivity.TAG, " results.size : " + results.size());
                 dismissDeviceListDialog();
             }
 
@@ -178,7 +184,7 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
 
     private void showDeviceListDialog() {
         if (fm != null) {
-            dialogFragment = new StartNursingDialog();
+            dialogFragment = new SplashNursingDialog();
             dialogFragment.show(fm, "DeviceDialog");
         }
     }
@@ -188,6 +194,7 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
             dialogFragment.dismiss();
         }
         getActivity().finish();
+        startActivity(new Intent(getActivity(), MainNursingActivity.class));
     }
 
     @Override
@@ -211,15 +218,15 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
         }
 
 
-        if (userName == null || userName.equals("") || userName.length() <= 1) {
+        if (TextUtils.isEmpty(userName)) {
             name.setError("Name is missing");
-        } else if (userAge == null || userAge.equals("") || userAge.length() <= 0) {
+        } else if (TextUtils.isEmpty(userAge)) {
             age.setError("Age is missing");
-        } else if (userHeight == null || userHeight.equals("") || userHeight.length() <= 0) {
+        } else if (TextUtils.isEmpty(userHeight)) {
             height.setError("Height is missing");
-        } else if (userWeight == null || userWeight.equals("") || userWeight.length() <= 0) {
+        } else if (TextUtils.isEmpty(userWeight)) {
             weight.setError("weight is missing");
-        } else if (userStep.equals("") || userStep.length() <= 0) {
+        } else if (TextUtils.isEmpty(userStep)) {
             step.setError("step is missing");
         } else {
             name.setErrorEnabled(false);
@@ -228,13 +235,13 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
             weight.setErrorEnabled(false);
             step.setErrorEnabled(false);
 
-            String res = "이름 : " + userName +
+            String dialogContent = "이름 : " + userName +
                     "\n성별 : " + userGender +
                     "\n나이 : " + userAge +
                     "\n키 : " + userHeight +
                     "\n몸무게 : " + userWeight +
                     "\n걸음너비 : " + userStep;
-            showAcceptDialog(res);
+            showAcceptDialog(dialogContent);
         }
     }
 
@@ -243,19 +250,19 @@ public class StartNursingFragmentAddUser extends Fragment implements View.OnClic
         showSkipDialog();
     }
 
-    private static class StartNursingFragmentHandler extends Handler {
-        private final WeakReference<StartNursingFragmentAddUser> fragmentWeakReference;
+    private static class SplashNursingFragmentHandler extends Handler {
+        private final WeakReference<SplashNursingFragmentAddUser> fragmentWeakReference;
 
-        private StartNursingFragmentHandler(StartNursingFragmentAddUser startNursingFragmentAddUser) {
-            fragmentWeakReference = new WeakReference<>(startNursingFragmentAddUser);
+        private SplashNursingFragmentHandler(SplashNursingFragmentAddUser splashNursingFragmentAddUser) {
+            fragmentWeakReference = new WeakReference<>(splashNursingFragmentAddUser);
         }
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            StartNursingFragmentAddUser startNursingFragmentAddUser = fragmentWeakReference.get();
-            if (startNursingFragmentAddUser != null) {
-                startNursingFragmentAddUser.handleMessage(msg);
+            SplashNursingFragmentAddUser splashNursingFragmentAddUser = fragmentWeakReference.get();
+            if (splashNursingFragmentAddUser != null) {
+                splashNursingFragmentAddUser.handleMessage(msg);
             }
         }
     }

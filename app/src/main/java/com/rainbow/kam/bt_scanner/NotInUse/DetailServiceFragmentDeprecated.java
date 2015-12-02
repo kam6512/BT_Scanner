@@ -93,7 +93,7 @@ public class DetailServiceFragmentDeprecated extends Fragment {
         Log.e("animation", "start position : " + position);
         AnimationSet animationSet = new AnimationSet(true);
         animationSet.setInterpolator(new AccelerateInterpolator());
-        Bundle bundle = transitionViewHolder.getParams();
+//        Bundle bundle = transitionViewHolder.getParams();
         animation = new TranslateAnimation(
                 Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.0f,
@@ -118,7 +118,7 @@ public class DetailServiceFragmentDeprecated extends Fragment {
             Log.e("animation", "reset position : " + position);
             AnimationSet animationSet = new AnimationSet(true);
             animationSet.setInterpolator(new AccelerateInterpolator());
-            Bundle bundle = transitionViewHolder.getParams();
+//            Bundle bundle = transitionViewHolder.getParams();
             animation = new TranslateAnimation(
                     Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.0f,

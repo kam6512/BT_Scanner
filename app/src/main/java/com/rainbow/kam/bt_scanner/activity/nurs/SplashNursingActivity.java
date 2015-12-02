@@ -4,69 +4,73 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.fragment.nurs.start.StartNursingFragmentAddUser;
+import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.fragment.nurs.start.StartNursingFragmentLogo;
+import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentLogo;
+import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class StartNursingActivity extends AppCompatActivity {
+public class SplashNursingActivity extends AppCompatActivity {
 
-    public static final String TAG = StartNursingActivity.class.getSimpleName();
-    public static FloatingActionButton startNursingFab;
+    private static final String TAG = SplashNursingActivity.class.getSimpleName();
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nursing_start);
+        setContentView(R.layout.activity_nursing_splash);
+        try {
+            realm = Realm.getInstance(this);
 
-        PermissionV21.check(this);
-
-        startNursingFab = (FloatingActionButton) findViewById(R.id.nursing_next_fab);
-        startNursingFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                inflateFragment(false);
+            RealmResults<Patient> results = realm.where(Patient.class).findAll();
+            Patient patient = results.get(0);
+            if (patient.getStep() == null) {
+                throw new Exception();
             }
-        });
-        inflateFragment(true);
+            finish();
+            startActivity(new Intent(SplashNursingActivity.this, MainNursingActivity.class));
 
-    }
+        } catch (Exception e) {
 
-    private void inflateFragment(boolean isLogo) {
+            PermissionV21.check(this);
+            Realm.removeDefaultConfiguration();
+            final SplashNursingFragmentAddUser splashNursingFragmentAddUser =
+                    new SplashNursingFragmentAddUser();
+            final SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
 
-        StartNursingFragmentLogo startNursingFragmentLogo = new StartNursingFragmentLogo();
-        StartNursingFragmentAddUser startNusingFragment = new StartNursingFragmentAddUser();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        if (isLogo) {
-            fragmentTransaction.add(R.id.nursing_start_frame, startNursingFragmentLogo);
-        } else {
-            fragmentTransaction.replace(R.id.nursing_start_frame, startNusingFragment);
+            fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentAddUser);
+            fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentLogo);
+            fragmentTransaction.commit();
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.remove(splashNursingFragmentLogo);
+                    fragmentTransaction.commit();
+                }
+            }, 3000);
         }
-        fragmentTransaction.commit();
-    }
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
     }
 
     @Override

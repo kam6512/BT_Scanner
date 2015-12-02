@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.start;
+package com.rainbow.kam.bt_scanner.fragment.nurs.splash;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class StartNursingDialog extends DialogFragment {
+public class SplashNursingDialog extends DialogFragment {
 
     private final String TAG = "SelectDialog"; //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1;
@@ -65,7 +65,7 @@ public class StartNursingDialog extends DialogFragment {
     ProgressBar searchingProgressBar;
     TextView noDeviceTextView;
 
-    public StartNursingDialog() {
+    public SplashNursingDialog() {
     }
 
 
@@ -79,7 +79,7 @@ public class StartNursingDialog extends DialogFragment {
         window.setBackgroundDrawable(
                 new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-        view = inflater.inflate(R.layout.fragment_nursing_start_add_device, container, false);
+        view = inflater.inflate(R.layout.fragment_nursing_splash_add_device, container, false);
         activity = getActivity();
 
         handler = new Handler();

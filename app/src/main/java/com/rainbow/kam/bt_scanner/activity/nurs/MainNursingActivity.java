@@ -151,18 +151,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
         } catch (Exception e) {
 
-            Realm.removeDefaultConfiguration();
-
-//            realm = Realm.getInstance(this);
-//            realm.beginTransaction();
-//
-//            isNewUser = true;
-//            realm.clear(Band.class);
-            startActivity(new Intent(MainNursingActivity.this, StartNursingActivity.class));
-
-//            realm.commitTransaction();
-
-
         }
     }
 
@@ -243,8 +231,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         addBandData(Message.obtain(message));
 
                         bleProcess = ETC;
-//                        dataToWrite = BleHelper.();
-//                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                        dataToWrite = BleHelper.SET_DEVICE_TIME_NOW();
+                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
                     case 3:
@@ -558,7 +546,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
 
 
-        stepFragment.setArrayList(this, arrayList);
+//        stepFragment.setArrayList(this, arrayList);
 //        calorieFragment.setArrayList(arrayList);
 //        distanceFragment.setArrayList(arrayList);
 
@@ -776,8 +764,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         case 2:
                             for (int i = 0; i < res.length; i++) {
                                 int lsb = characteristic.getValue()[i] & 0xff;
-                                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
-                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
+//                                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
+//                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
 
                             }
 

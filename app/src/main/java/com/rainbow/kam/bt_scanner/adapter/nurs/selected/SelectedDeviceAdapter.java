@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.fragment.nurs.start.StartNursingFragmentAddUser;
+import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
 
 import java.util.ArrayList;
 
@@ -81,7 +81,7 @@ public class SelectedDeviceAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     Bundle info = getInfomation();
                     Message message = new Message();
                     message.setData(info);
-                    Handler handler = StartNursingFragmentAddUser.handler;
+                    Handler handler = SplashNursingFragmentAddUser.handler;
                     handler.sendMessage(message);
                 }
             });
