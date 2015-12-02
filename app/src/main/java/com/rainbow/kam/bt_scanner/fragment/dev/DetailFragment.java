@@ -59,8 +59,8 @@ public class DetailFragment extends Fragment {
         super();
     }
 
-    @SuppressLint("ValidFragment")
-    public DetailFragment(BLE ble) {
+
+    public void setBle(BLE ble) {
         this.ble = ble;
     }
 
@@ -71,7 +71,7 @@ public class DetailFragment extends Fragment {
         strValue = "";
         lastUpdateTime = "-";
         notificationEnabled = false;
-        bindView();
+//        bindView();
     }
 
     public BluetoothGattCharacteristic getCharacteristic(int index) {
@@ -215,50 +215,53 @@ public class DetailFragment extends Fragment {
 
     public void bindView() {
 
-        fieldReference.deviceName.setText(ble.getBluetoothDevice().getName());
-        fieldReference.deviceAddress.setText(ble.getBluetoothDevice().getAddress());
+        if (ble != null) {
+            fieldReference.deviceName.setText(ble.getBluetoothDevice().getName());
+            fieldReference.deviceAddress.setText(ble.getBluetoothDevice().getAddress());
 
-        String tmp = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-        fieldReference.serviceUuid.setText(tmp);
-        fieldReference.serviceName.setText(BLEGattAttributes.resolveServiceName(tmp));
+            String tmp = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
+            fieldReference.serviceUuid.setText(tmp);
+            fieldReference.serviceName.setText(BLEGattAttributes.resolveServiceName(tmp));
 
-        String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-        String name = BLEGattAttributes.resolveCharacteristicName(uuid);
+            String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
+            String name = BLEGattAttributes.resolveCharacteristicName(uuid);
 
-        fieldReference.charName.setText(name);
-        fieldReference.charUuid.setText(uuid);
+            fieldReference.charName.setText(name);
+            fieldReference.charUuid.setText(uuid);
 
-        int format = ble.getValueFormat(bluetoothGattCharacteristic);
-        fieldReference.charDataType.setText(BLEGattAttributes.resolveValueTypeDescription(format));
-        int props = bluetoothGattCharacteristic.getProperties();
-        String propertiesString = String.format("0x%04X [", props);
-        if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
-            propertiesString += "read ";
+            int format = ble.getValueFormat(bluetoothGattCharacteristic);
+            fieldReference.charDataType.setText(BLEGattAttributes.resolveValueTypeDescription(format));
+            int props = bluetoothGattCharacteristic.getProperties();
+            String propertiesString = String.format("0x%04X [", props);
+            if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
+                propertiesString += "read ";
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
+                propertiesString += "write ";
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                propertiesString += "notify ";
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+                propertiesString += "indicate ";
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
+                propertiesString += "write_no_response ";
+            }
+            fieldReference.charProperties.setText(propertiesString + "]");
+
+            fieldReference.notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
+            fieldReference.notificationBtn.setChecked(notificationEnabled);
+            fieldReference.readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
+            fieldReference.writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
+            fieldReference.charHexValue.setEnabled(fieldReference.writeBtn.isEnabled());
+
+            fieldReference.charHexValue.setText(asciiValue);
+            fieldReference.charStrValue.setText(strValue);
+            fieldReference.charDecValue.setText(String.format("%d", intValue));
+            fieldReference.charDateValue.setText(lastUpdateTime);
         }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
-            propertiesString += "write ";
-        }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-            propertiesString += "notify ";
-        }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
-            propertiesString += "indicate ";
-        }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
-            propertiesString += "write_no_response ";
-        }
-        fieldReference.charProperties.setText(propertiesString + "]");
 
-        fieldReference.notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
-        fieldReference.notificationBtn.setChecked(notificationEnabled);
-        fieldReference.readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
-        fieldReference.writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
-        fieldReference.charHexValue.setEnabled(fieldReference.writeBtn.isEnabled());
-
-        fieldReference.charHexValue.setText(asciiValue);
-        fieldReference.charStrValue.setText(strValue);
-        fieldReference.charDecValue.setText(String.format("%d", intValue));
-        fieldReference.charDateValue.setText(lastUpdateTime);
 
     }
 

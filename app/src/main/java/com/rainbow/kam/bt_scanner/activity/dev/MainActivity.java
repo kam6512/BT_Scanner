@@ -34,6 +34,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
 import com.rainbow.kam.bt_scanner.R;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BluetoothLeScanner bleScanner;
     private ScanCallback scanCallback;
 
-    public static Handler handler;
+//    public static Handler handler;
 
     private DrawerLayout drawerLayout;
     private CoordinatorLayout coordinatorLayout;
@@ -84,35 +85,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setRecyclerView();
         setOtherView();
 
-        handler = new Handler();
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
         try {
             bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
+
             if (bluetoothAdapter == null) {
                 throw new Exception();
-            } else {
-
-                if (isBuildVersionLM) {
-                    bleScanner = bluetoothAdapter.getBluetoothLeScanner();
-                    if (bleScanner == null) {
-                        throw new Exception();
-                    } else {
-                        setScannerL();
-                    }
-                } else {
-                    setScanner();
-                }
-
-                startScan();
             }
+
+            if (isBuildVersionLM) {
+                bleScanner = bluetoothAdapter.getBluetoothLeScanner();
+                if (bleScanner == null) {
+                    throw new Exception();
+                } else {
+                    setScannerL();
+                }
+            } else {
+                setScanner();
+            }
+
+            startScan();
 
         } catch (Exception e) {
             Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
@@ -129,26 +130,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() { //꺼짐
         super.onDestroy();
-        scanLeDevice(false);
+        scanDevice(false);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fabSearch:
-                if (enableBluetooth()) {
-
-                    if (isScanning) {  //스캔 시작
-                        scanLeDevice(false);
-                    } else {
-                        scanLeDevice(true);
-                        mainDeviceItemArrayList.clear();
-                        if (adapter != null) adapter.notifyDataSetChanged();
-                    }
-                } else {
-                    Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
-                }
-
+                startScan();
                 break;
         }
     }
@@ -156,7 +145,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
-        drawerLayout.closeDrawer(GravityCompat.END);
+        startActivity(new Intent(this, MainNursingActivity.class));
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -190,24 +180,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
-                } else {
-                    onBackPressed();
-                    Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
+        if (requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
+                startScan();
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
 
-                    Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                    myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
-                    myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivityForResult(myAppSettings, 0);
-                }
-                break;
-            default:
-                Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
-                break;
+                Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+                myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(myAppSettings, 0);
+
+                finish();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -248,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 
-    private boolean enableBluetooth() {//블루투스 가동여부
+    private boolean isBluetoothOn() {//블루투스 가동여부
 
         if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
             return true;
@@ -261,27 +250,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void startScan() {
-        if (enableBluetooth()) {
-            if (isScanning) {  //스캔 시작
-                scanLeDevice(false);
-            } else { //재 스캔시(10초이내)
-                mainDeviceItemArrayList.clear();
+        if (isBluetoothOn()) {
 
+            if (isScanning) {  //스캔 시작
+                scanDevice(false);
+            } else { //재 스캔시(10초이내)
                 if (adapter != null) {
+                    mainDeviceItemArrayList.clear();
                     adapter.notifyDataSetChanged();
                 }
-
-                scanLeDevice(true);
+                scanDevice(true);
             }
         } else {
             Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
         }
     }
 
-    public void scanLeDevice(final boolean enable) {//저전력 스캔
+    public void scanDevice(final boolean enable) {//저전력 스캔\
+        long SCAN_PERIOD = 5000;
         if (enable) {   //시작중이면
-            long SCAN_PERIOD = 5000;
-            handler.postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (isBuildVersionLM) {
@@ -300,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                 }
-            }, SCAN_PERIOD); //10초 뒤에 OFF
+            }, SCAN_PERIOD); //5초 뒤에 OFF
 
             //시작
             if (isBuildVersionLM) {

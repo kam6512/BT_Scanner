@@ -55,8 +55,7 @@ public class DetailServiceFragment extends Fragment {
         String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "Secondary";
 
         serviceItemArrayList.add(new ServiceItem(name, uuid, type, bluetoothGattService));
-        adapter = new DetailAdapter(serviceItemArrayList, true);
-        recyclerView.setAdapter(adapter);
+
         adapter.notifyDataSetChanged();
     }
 

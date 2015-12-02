@@ -596,7 +596,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         Log.e(TAG, "Disconnected");
                         if (!materialDialog.isShowing()) {
                             if (!isFinishing() || !isDestroyed()) {
-                                materialDialog.show();
+//                                materialDialog.show();
                             }
 
                         } else {

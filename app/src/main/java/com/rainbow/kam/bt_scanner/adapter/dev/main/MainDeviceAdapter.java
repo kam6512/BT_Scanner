@@ -27,12 +27,9 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Activity activity;
     private DeviceViewHolder deviceViewHolder;
 
-//    private boolean isNursing = false;
-
-    public MainDeviceAdapter(ArrayList<MainDeviceItem> mainDeviceItemArrayList, Activity activity/*, boolean isNursing*/) { //초기화
+    public MainDeviceAdapter(ArrayList<MainDeviceItem> mainDeviceItemArrayList, Activity activity) { //초기화
         this.mainDeviceItemArrayList = mainDeviceItemArrayList;
         this.activity = activity;
-//        this.isNursing = isNursing;
     }
 
     @Override
@@ -79,41 +76,21 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             deviceItemCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    /*if (isNursing) {
-
-                        Bundle info = getInfomation();
-                        Message message = new Message();
-                        message.setData(info);
-                        StartNursingFragmentAddUser.handler.sendMessage(message);
-
-                    } else {
-
-                    }*/
                     Intent intent = new Intent(activity, DetailActivity.class);
                     intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, extraName.getText().toString());
                     intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, extraAddress.getText().toString());
                     intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, extraRssi.getText().toString());
                     activity.startActivity(intent);
-
                 }
             });
         }
 
         private void bindViews(MainDeviceItem mainDeviceItem) {
-
             extraName.setText(mainDeviceItem.getExtraName());
             extraAddress.setText(mainDeviceItem.getExtraextraAddress());
             extraBondState.setText(String.valueOf(mainDeviceItem.getExtraBondState()));
             extraType.setText(String.valueOf(mainDeviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(mainDeviceItem.getExtraRssi()));
-
-        }
-
-        private Bundle getInfomation() {
-            Bundle info = new Bundle();
-            info.putString("name", extraName.getText().toString());
-            info.putString("address", extraAddress.getText().toString());
-            return info;
         }
     }
 }

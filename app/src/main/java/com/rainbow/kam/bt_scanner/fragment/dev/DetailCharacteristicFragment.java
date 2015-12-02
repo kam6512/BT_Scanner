@@ -44,12 +44,7 @@ public class DetailCharacteristicFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new DetailAdapter(characteristicItemArrayList);
-        if (adapter != null && recyclerView != null){
-            Log.e("a/r","not null");
-        }else{
-            Log.e("a/r","is null");
-        }
-            recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
         return view;
     }
 
@@ -59,11 +54,8 @@ public class DetailCharacteristicFragment extends Fragment {
         String name = BLEGattAttributes.resolveCharacteristicName(uuid);
 
         characteristicItemArrayList.add(new CharacteristicItem(name, uuid, "0", bluetoothGattCharacteristic));
-//        adapter = new DetailAdapter(characteristicItemArrayList);
-//        recyclerView.setAdapter(adapter);
+
         adapter.notifyDataSetChanged();
-
-
     }
 
     public BluetoothGattCharacteristic getCharacteristic(int index) {

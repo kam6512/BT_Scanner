@@ -68,19 +68,17 @@ public class StartNursingDialog extends DialogFragment {
     public StartNursingDialog() {
     }
 
+
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         Window window = getDialog().getWindow();
 
         window.requestFeature(Window.FEATURE_NO_TITLE);
         window.setBackgroundDrawable(
                 new ColorDrawable(android.graphics.Color.TRANSPARENT));
-    }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_nursing_start_add_device, container, false);
         activity = getActivity();
 
