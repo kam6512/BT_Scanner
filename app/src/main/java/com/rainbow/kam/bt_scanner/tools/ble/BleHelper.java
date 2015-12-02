@@ -11,10 +11,7 @@ import java.util.Locale;
 /**
  * Created by sion on 2015-11-04.
  */
-public class WrapperBleByPrime {
-
-    public static BandDeviceList bandDeviceList = new BandDeviceList();
-
+public class BleHelper {
     public static byte[] READ_DEVICE_TIME() {
         return parseHexStringToBytes("0x8900");
     }

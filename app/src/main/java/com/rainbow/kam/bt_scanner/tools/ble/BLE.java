@@ -35,7 +35,6 @@ public class BLE {
 
     private Activity activity;
     private boolean connected = false;
-    private String deviceAddress = "";
 
     private BluetoothManager bluetoothManager = null;
     private BluetoothAdapter bluetoothAdapter = null;
@@ -117,7 +116,6 @@ public class BLE {
         if (bluetoothAdapter == null || deviceAddress == null) {
             return false;
         }
-        this.deviceAddress = deviceAddress;
         if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
             return bluetoothGatt.connect();
         } else {

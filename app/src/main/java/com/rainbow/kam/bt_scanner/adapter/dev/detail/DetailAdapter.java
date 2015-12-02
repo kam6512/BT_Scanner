@@ -31,7 +31,7 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private boolean isRoot = true;
     private View view;
 
-    private ServiceViewHolder selecteServiceViewHolder = null;
+    private ServiceViewHolder selectServiceViewHolder = null;
     private Handler handler;
 
     public DetailAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList) {
@@ -67,29 +67,29 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch (getItemViewType(position)) {
             case TYPE_SERVICE:
                 ServiceViewHolder serviceViewHolder = (ServiceViewHolder) holder;
-                serviceViewHolder.service_title.setText(serviceItemArrayList.get(position).getTitle());
-                serviceViewHolder.service_uuid.setText(serviceItemArrayList.get(position).getUuid());
-                serviceViewHolder.service_type.setText(serviceItemArrayList.get(position).getType());
+                serviceViewHolder.serviceTitle.setText(serviceItemArrayList.get(position).getTitle());
+                serviceViewHolder.serviceUuid.setText(serviceItemArrayList.get(position).getUuid());
+                serviceViewHolder.serviceType.setText(serviceItemArrayList.get(position).getType());
 
 
-                String title = BLEGattAttributes.getService(serviceViewHolder.service_uuid.getText().toString().substring(0, 8));
-                serviceViewHolder.service_title.setText(title);
-                serviceViewHolder.service_uuid.setText("UUID : " + "0x" + serviceViewHolder.service_uuid.getText().toString().substring(4, 8).toUpperCase());
+                String title = BLEGattAttributes.getService(serviceViewHolder.serviceUuid.getText().toString().substring(0, 8));
+                serviceViewHolder.serviceTitle.setText(title);
+                serviceViewHolder.serviceUuid.setText("UUID : " + "0x" + serviceViewHolder.serviceUuid.getText().toString().substring(4, 8).toUpperCase());
 
 
                 break;
             case TYPE_CHARACTERISTIC:
                 CharacteristicViewHolder characteristicViewHolder = (CharacteristicViewHolder) holder;
-                characteristicViewHolder.characteristic_title.setText(characteristicItemArrayList.get(position).getTitle());
-                characteristicViewHolder.characteristic_uuid.setText(characteristicItemArrayList.get(position).getUuid());
-                characteristicViewHolder.characteristic_value.setText(characteristicItemArrayList.get(position).getValue());
+                characteristicViewHolder.characteristicTitle.setText(characteristicItemArrayList.get(position).getTitle());
+                characteristicViewHolder.characteristicUuid.setText(characteristicItemArrayList.get(position).getUuid());
+                characteristicViewHolder.characteristicValue.setText(characteristicItemArrayList.get(position).getValue());
                 break;
         }
     }
 
     public ServiceViewHolder getServiceViewHolder() {
-        if (selecteServiceViewHolder != null) {
-            return selecteServiceViewHolder;
+        if (selectServiceViewHolder != null) {
+            return selectServiceViewHolder;
         } else {
             Log.e(TAG, "selecteServiceViewHolder is null");
             return null;
@@ -133,9 +133,9 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class ServiceViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView service_title;
-        private TextView service_uuid;
-        private TextView service_type;
+        private TextView serviceTitle;
+        private TextView serviceUuid;
+        private TextView serviceType;
         private View view;
 
         public ServiceViewHolder(View itemView) {
@@ -144,25 +144,24 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    selecteServiceViewHolder = ServiceViewHolder.this;
-
-
+                    selectServiceViewHolder = ServiceViewHolder.this;
                     Message message = Message.obtain(handler, 1, getLayoutPosition(), 0);
                     handler.sendMessage(message);
                 }
             });
-            service_title = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
-            service_uuid = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_UUID);
-            service_type = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
+            serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
+            serviceUuid = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_UUID);
+            serviceType = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
         }
 
-        public Bundle getParams() {
-            Bundle bundle = new Bundle();
-            bundle.putFloat("X", view.getX());
-            bundle.putFloat("Y", view.getY());
-            return bundle;
-        }
-
+        /*
+                public Bundle getParams() {
+                    Bundle bundle = new Bundle();
+                    bundle.putFloat("X", view.getX());
+                    bundle.putFloat("Y", view.getY());
+                    return bundle;
+                }
+        */
         public View getView() {
             return view;
         }
@@ -170,9 +169,9 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private class CharacteristicViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView characteristic_title;
-        private TextView characteristic_uuid;
-        private TextView characteristic_value;
+        private TextView characteristicTitle;
+        private TextView characteristicUuid;
+        private TextView characteristicValue;
 
         public CharacteristicViewHolder(View itemView) {
             super(itemView);
@@ -184,9 +183,9 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     handler.sendMessage(message);
                 }
             });
-            characteristic_title = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);
-            characteristic_uuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
-            characteristic_value = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_value);
+            characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);
+            characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
+            characteristicValue = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_value);
         }
     }
 }

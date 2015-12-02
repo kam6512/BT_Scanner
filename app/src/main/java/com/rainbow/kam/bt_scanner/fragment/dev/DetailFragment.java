@@ -18,6 +18,7 @@ import android.widget.ToggleButton;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.ble.BLE;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.ble.BleHelper;
 
 import java.util.Locale;
 
@@ -113,46 +114,6 @@ public class DetailFragment extends Fragment {
         bindView();
     }
 
-    public static byte[] parseHexStringToBytes(String hex) {
-        hex = hex.toLowerCase(Locale.getDefault());
-        String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
-        byte[] bytes = new byte[tmp.length() / 2];
-        String part;
-        int checksum = 0;
-
-        for (int i = 0; i < bytes.length; ++i) {
-            part = "0x" + tmp.substring(i * 2, i * 2 + 2);
-            bytes[i] = Integer.decode(part).byteValue();
-            if (i > 1 && i != bytes.length - 1) {
-                if (bytes[i] < 0x00) {
-                    checksum = checksum ^ bytes[i] + 256;
-                } else {
-                    checksum ^= bytes[i];
-                }
-            }
-        }
-        String cs = setWidth(Integer.toHexString(checksum));
-        Log.e("CheckSum", cs);
-        String res = (hex + cs).substring(2).replaceAll("[^[0-9][a-f]]", "");
-        byte[] resBytes = new byte[res.length() / 2];
-        String resPart;
-
-        for (int i = 0; i < resBytes.length; ++i) {
-            resPart = "0x" + res.substring(i * 2, i * 2 + 2);
-            resBytes[i] = Long.decode(resPart).byteValue();
-        }
-
-        return resBytes;
-    }
-
-    public static String setWidth(String format) {
-        if (format.trim().length() == 2) {
-            return format;
-        } else {
-            return "0" + format.trim();
-        }
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -192,8 +153,7 @@ public class DetailFragment extends Fragment {
                 EditText hex = (EditText) v.getTag();
                 String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
 
-                byte[] dataToWrite = parseHexStringToBytes(newValue);
-
+                byte[] dataToWrite = BleHelper.parseHexStringToBytes(newValue);
                 ble.writeDataToCharacteristic(bluetoothGattCharacteristic, dataToWrite);
             }
         });
@@ -225,12 +185,12 @@ public class DetailFragment extends Fragment {
 
             String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = BLEGattAttributes.resolveCharacteristicName(uuid);
-
             fieldReference.charName.setText(name);
             fieldReference.charUuid.setText(uuid);
 
             int format = ble.getValueFormat(bluetoothGattCharacteristic);
             fieldReference.charDataType.setText(BLEGattAttributes.resolveValueTypeDescription(format));
+
             int props = bluetoothGattCharacteristic.getProperties();
             String propertiesString = String.format("0x%04X [", props);
             if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {

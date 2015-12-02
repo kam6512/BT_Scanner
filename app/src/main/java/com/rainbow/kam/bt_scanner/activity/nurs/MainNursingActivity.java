@@ -49,8 +49,8 @@ import com.rainbow.kam.bt_scanner.patient.Band;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.ble.BLE;
+import com.rainbow.kam.bt_scanner.tools.ble.BleHelper;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
-import com.rainbow.kam.bt_scanner.tools.ble.WrapperBleByPrime;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import java.text.SimpleDateFormat;
@@ -219,7 +219,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 switch (message.what) {
                     case 0:  //Check the time
                         bleProcess = READ_TIME;
-                        dataToWrite = WrapperBleByPrime.READ_DEVICE_TIME();
+                        dataToWrite = BleHelper.READ_DEVICE_TIME();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
@@ -228,7 +228,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         DashboardFragment.handler.sendMessage(message);
 
                         bleProcess = READ_DATA;
-                        dataToWrite = WrapperBleByPrime.READ_STEP_DATA(8);
+                        dataToWrite = BleHelper.READ_STEP_DATA(8);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
@@ -243,7 +243,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         addBandData(Message.obtain(message));
 
                         bleProcess = ETC;
-//                        dataToWrite = WrapperBleByPrime.();
+//                        dataToWrite = BleHelper.();
 //                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
 
@@ -255,7 +255,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                     case -1: //new User
 
-                        dataToWrite = WrapperBleByPrime.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
+                        dataToWrite = BleHelper.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
 
                         break;
@@ -406,7 +406,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             realm.commitTransaction();
                             if (!isCharcteristicRunning) {
 //                                byte[] dataToWrite;
-//                                dataToWrite = WrapperBleByPrime.CLEAR_DATA();
+//                                dataToWrite = BleHelper.CLEAR_DATA();
 //                                ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                             }
 
@@ -682,7 +682,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             for (int i = 0; i < res.length; i++) {
                                 int lsb = characteristic.getValue()[i] & 0xff;
                                 if (i > 1 && i != res.length - 1) {
-                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16);
+                                    result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
 
                                     switch (i) {
                                         default:
@@ -692,7 +692,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                         case 8:
                                             result = result.substring(0, result.length() - 1);
 
-                                            int j = Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16);
+                                            int j = Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
                                             result += weekSet[j - 1];
                                             break;
                                     }
@@ -713,7 +713,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                                 if (i > 1 && i != res.length - 1) {
 
-                                    result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(lsb)), 16) + " / ";
+                                    result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(lsb)), 16) + " / ";
 
                                     switch (i) {
 
@@ -721,14 +721,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                         case 3:
                                         case 4:
 
-                                            step += WrapperBleByPrime.setWidth(Integer.toHexString(lsb));
+                                            step += BleHelper.setWidth(Integer.toHexString(lsb));
                                             break;
 
                                         case 5:
                                         case 6:
                                         case 7:
 
-                                            calo += WrapperBleByPrime.setWidth(Integer.toHexString(lsb));
+                                            calo += BleHelper.setWidth(Integer.toHexString(lsb));
                                             break;
 
                                         case 8:
@@ -776,7 +776,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         case 2:
                             for (int i = 0; i < res.length; i++) {
                                 int lsb = characteristic.getValue()[i] & 0xff;
-                                result += Integer.valueOf(WrapperBleByPrime.setWidth(Integer.toHexString(res[i])), 16);
+                                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
                                 Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
 
                             }
