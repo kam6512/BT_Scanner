@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,16 +88,17 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         handler.sendEmptyMessage(0);
     }
 
-    @SuppressLint("CommitTransaction")
     private void handleMessage(Message msg) {
         final int position = msg.arg1;
         fragmentTransaction = fragmentManager.beginTransaction();
 
         switch (msg.what) {
             case 0: //init fragment [Service]
+                Log.e(TAG, "Service");
                 fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
                 break;
             case 1: //add fragment [Characteristic]
+                Log.e(TAG, "Char");
                 fragmentTransaction.hide(serviceFragment);
                 fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
 
@@ -105,6 +107,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
 
                 break;
             case 2: // add fragment [DetailCharacteristic]
+                Log.e(TAG, "Detail");
                 fragmentTransaction.hide(characteristicFragment);
                 fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
 
@@ -191,7 +194,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     public void onBackPressed() {
         fragmentTransaction = fragmentManager.beginTransaction();
         if (listType.equals(ListType.GATT_SERVICES)) {
-            fragmentTransaction.commit();
             finish();
         }
         if (listType.equals(ListType.GATT_CHARACTERISTICS)) {
@@ -199,7 +201,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             characteristicFragment.clearAdapter();
             fragmentTransaction.show(serviceFragment);
             fragmentTransaction.remove(characteristicFragment);
-            fragmentTransaction.commit();
             return;
         }
         if (listType.equals(ListType.GATT_CHARACTERISTIC_DETAILS)) {
@@ -207,7 +208,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             detailFragment.clearCharacteristic();
             fragmentTransaction.show(characteristicFragment);
             fragmentTransaction.remove(detailFragment);
-            fragmentTransaction.commit();
             return;
         }
         fragmentTransaction.commit();
@@ -280,16 +280,20 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                listType = ListType.GATT_CHARACTERISTICS;
-                if (characteristicFragment != null) {
-                    characteristicFragment.clearAdapter();
-                    for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars) {
-                        characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        listType = ListType.GATT_CHARACTERISTICS;
+                        if (characteristicFragment != null) {
+                            characteristicFragment.clearAdapter();
+                            for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars) {
+                                characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+                            }
+                            characteristicFragment.noti();
+                        }
+                        actionBar.setTitle(BLEGattAttributes.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())));
                     }
-                    characteristicFragment.noti();
-                }
-
-                actionBar.setTitle(BLEGattAttributes.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())));
+                }, 200);
             }
         });
     }
@@ -299,11 +303,16 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                listType = ListType.GATT_CHARACTERISTIC_DETAILS;
-                if (detailFragment != null) {
-                    detailFragment.setCharacteristic(characteristic);
-                    detailFragment.bindView();
-                }
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        listType = ListType.GATT_CHARACTERISTIC_DETAILS;
+                        if (detailFragment != null) {
+                            detailFragment.setCharacteristic(characteristic);
+                            detailFragment.bindView();
+                        }
+                    }
+                }, 200);
             }
         });
     }

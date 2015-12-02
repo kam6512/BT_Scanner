@@ -90,8 +90,7 @@ public class BLE {
         }
 
         final BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter == null) return false;
-        return bluetoothAdapter.isEnabled();
+        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
     }
 
     public void startScanning() {

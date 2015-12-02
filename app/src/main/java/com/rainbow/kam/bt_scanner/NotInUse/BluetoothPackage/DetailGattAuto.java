@@ -33,7 +33,7 @@ public class DetailGattAuto {
 
     private Activity activity;
     private Context context;
-    private MainDeviceAdapter.Device device;
+    private MainDeviceAdapter.DeviceViewHolder device;
 
     //뷰에 적용할 임시 테스트 String
     private String deviceState;
@@ -65,7 +65,7 @@ public class DetailGattAuto {
     private int index = 0;
 
 
-    public DetailGattAuto(Activity activity, Context context, MainDeviceAdapter.Device device, String deviceState, String deviceAddress) {
+    public DetailGattAuto(Activity activity, Context context, MainDeviceAdapter.DeviceViewHolder device, String deviceState, String deviceAddress) {
         //액티비티 / 컨택스트
         this.activity = activity;
         this.context = context;
@@ -235,7 +235,7 @@ public class DetailGattAuto {
                 //서비스 언바인드로 연결 끊기
                 activity.unbindService(serviceConnection);
             } catch (Exception e) {
-                Log.e(TAG,"unregisterReceiver/unbindService fail");
+                Log.e(TAG, "unregisterReceiver/unbindService fail");
             }
 
         }

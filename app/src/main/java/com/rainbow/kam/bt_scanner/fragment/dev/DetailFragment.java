@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.dev;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.support.annotation.Nullable;

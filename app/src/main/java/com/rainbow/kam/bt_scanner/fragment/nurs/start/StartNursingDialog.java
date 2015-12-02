@@ -86,7 +86,7 @@ public class StartNursingDialog extends DialogFragment {
 
         handler = new Handler();
 
-        searchingProgressBar = (ProgressBar) view.findViewById(R.id.nursing_device_progress);
+        searchingProgressBar = (ProgressBar) view.findViewById(R.id.nursing_searching_progress_bar);
         searchingProgressBar.setVisibility(View.INVISIBLE);
 
         noDeviceTextView = (TextView) view.findViewById(R.id.nursing_no_device_textview);

@@ -37,19 +37,19 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public DetailAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList) {
         this.characteristicItemArrayList = characteristicItemArrayList;
         this.isRoot = false;
-        handler = DetailActivity.handler;
+
     }
 
     public DetailAdapter(ArrayList<ServiceItem> serviceItemArrayList, boolean isRoot) {
         this.serviceItemArrayList = serviceItemArrayList;
         this.isRoot = isRoot;
-        handler = DetailActivity.handler;
     }
 
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        handler = DetailActivity.handler;
         switch (viewType) {
             case TYPE_SERVICE:
                 view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
