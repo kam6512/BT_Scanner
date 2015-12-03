@@ -20,7 +20,7 @@ import java.util.ArrayList;
  */
 public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = "SelecteDeviceAdapter";
+    private static final String TAG = "SelectDeviceAdapter";
 
 
     private ArrayList<MainDeviceItem> mainDeviceItemArrayList;

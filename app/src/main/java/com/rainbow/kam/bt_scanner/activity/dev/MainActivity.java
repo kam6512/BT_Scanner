@@ -34,11 +34,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
+import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.nurs.SplashNursingActivity;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
-import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import java.util.ArrayList;
@@ -60,8 +59,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private BluetoothLeScanner bleScanner;
     private ScanCallback scanCallback;
-
-//    public static Handler handler;
 
     private DrawerLayout drawerLayout;
     private CoordinatorLayout coordinatorLayout;

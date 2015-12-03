@@ -50,12 +50,13 @@ public class SplashNursingActivity extends AppCompatActivity {
 
             PermissionV21.check(this);
             Realm.removeDefaultConfiguration();
+
+            final FragmentManager fragmentManager = getSupportFragmentManager();
+            final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
             final SplashNursingFragmentAddUser splashNursingFragmentAddUser =
                     new SplashNursingFragmentAddUser();
             final SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
-
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentAddUser);
             fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentLogo);
@@ -64,10 +65,9 @@ public class SplashNursingActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.remove(splashNursingFragmentLogo);
-                    fragmentTransaction.commit();
+                    getSupportFragmentManager().beginTransaction()
+                            .remove(splashNursingFragmentLogo)
+                            .commit();
                 }
             }, 3000);
         }

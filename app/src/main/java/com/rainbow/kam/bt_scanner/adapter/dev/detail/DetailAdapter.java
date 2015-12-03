@@ -32,7 +32,7 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private View view;
 
     private ServiceViewHolder selectServiceViewHolder = null;
-    private Handler handler;
+    private Handler handler = DetailActivity.handler;
 
     public DetailAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList) {
         this.characteristicItemArrayList = characteristicItemArrayList;
@@ -49,7 +49,7 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        handler = DetailActivity.handler;
+
         switch (viewType) {
             case TYPE_SERVICE:
                 view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
@@ -154,14 +154,6 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             serviceType = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
         }
 
-        /*
-                public Bundle getParams() {
-                    Bundle bundle = new Bundle();
-                    bundle.putFloat("X", view.getX());
-                    bundle.putFloat("Y", view.getY());
-                    return bundle;
-                }
-        */
         public View getView() {
             return view;
         }

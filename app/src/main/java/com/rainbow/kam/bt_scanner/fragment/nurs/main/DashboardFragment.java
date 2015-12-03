@@ -25,7 +25,10 @@ public class DashboardFragment extends Fragment {
 
     private View view;
     private TextView time;
-    private TextView stepTextview, calorieTextview, distanceTextview;
+    private TextView stepTextview;
+    private TextView calorieTextview;
+    private TextView distanceTextview;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -50,18 +53,24 @@ public class DashboardFragment extends Fragment {
     }
 
     public void setStepData(Bundle stepData) {
-        String step = stepData.getString("STEP");
-        String calo = stepData.getString("CALO");
-        String dist = stepData.getString("DIST") + "m";
-        step = Integer.valueOf(step, 16) + "걸음";
-        calo = Integer.valueOf(calo, 16) + "Kcal";
+        try {
+            String step = stepData.getString("STEP");
+            String calo = stepData.getString("CALO");
+            String dist = stepData.getString("DIST") + "m";
+            step = Integer.valueOf(step, 16) + "걸음";
+            calo = Integer.valueOf(calo, 16) + "Kcal";
 
-        stepTextview.setText(step);
-        calorieTextview.setText(calo);
-        distanceTextview.setText(dist);
+            stepTextview.setText(step);
+            calorieTextview.setText(calo);
+            distanceTextview.setText(dist);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            setFail();
+        }
     }
 
-    public void setFail(){
+    public void setFail() {
         time.setText("시간 : 연결 실패");
         stepTextview.setText("연결 실패");
         calorieTextview.setText("연결 실패");

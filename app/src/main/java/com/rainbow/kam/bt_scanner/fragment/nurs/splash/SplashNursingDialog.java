@@ -30,8 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelecteDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelecteDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class SplashNursingDialog extends DialogFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView selectDeviceRecyclerView;
     private RecyclerView.Adapter adapter = null;
-    private ArrayList<SelecteDeviceItem> selecteDeviceItems = new ArrayList<>();
+    private ArrayList<SelectDeviceItem> selectDeviceItems = new ArrayList<>();
 
     ProgressBar searchingProgressBar;
     TextView noDeviceTextView;
@@ -170,7 +170,7 @@ public class SplashNursingDialog extends DialogFragment {
             if (getScanning()) {  //스캔 시작
                 scanLeDevice(false);
             } else { //재 스캔시(10초이내)
-                selecteDeviceItems.clear();
+                selectDeviceItems.clear();
 
                 if (adapter != null) {
                     adapter.notifyDataSetChanged();
@@ -199,10 +199,10 @@ public class SplashNursingDialog extends DialogFragment {
                     isScanning = false;
                     searchingProgressBar.setVisibility(View.INVISIBLE);
 
-                    if (selecteDeviceItems.size() < 1) {
+                    if (selectDeviceItems.size() < 1) {
                         noDeviceTextView.setVisibility(View.VISIBLE);
                     }
-                    adapter = new SelecteDeviceAdapter(selecteDeviceItems, activity);
+                    adapter = new SelectDeviceAdapter(selectDeviceItems, activity);
                     selectDeviceRecyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                     swipeRefreshLayout.setRefreshing(false);
@@ -280,14 +280,14 @@ public class SplashNursingDialog extends DialogFragment {
 
 
                             if (deviceName.equals("Prime")) {
-                                selecteDeviceItems.add(new SelecteDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
+                                selectDeviceItems.add(new SelectDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
                             }
 
-                            for (int i = 0; i < selecteDeviceItems.size(); i++) {
-                                for (int j = 1; j < selecteDeviceItems.size(); j++) {
-                                    if (selecteDeviceItems.get(i).getExtraextraAddress().trim().equals(selecteDeviceItems.get(j).getExtraextraAddress().trim())) {
+                            for (int i = 0; i < selectDeviceItems.size(); i++) {
+                                for (int j = 1; j < selectDeviceItems.size(); j++) {
+                                    if (selectDeviceItems.get(i).getExtraextraAddress().trim().equals(selectDeviceItems.get(j).getExtraextraAddress().trim())) {
                                         if (i != j) {
-                                            selecteDeviceItems.remove(j);
+                                            selectDeviceItems.remove(j);
                                         }
                                     }
 
@@ -323,14 +323,14 @@ public class SplashNursingDialog extends DialogFragment {
                             }
 
                             if (deviceName.equals("Prime")) {
-                                selecteDeviceItems.add(new SelecteDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                                selectDeviceItems.add(new SelectDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                             }
 
-                            for (int i = 0; i < selecteDeviceItems.size(); i++) {
-                                for (int j = 1; j < selecteDeviceItems.size(); j++) {
-                                    if (selecteDeviceItems.get(i).getExtraextraAddress().trim().equals(selecteDeviceItems.get(j).getExtraextraAddress().trim())) {
+                            for (int i = 0; i < selectDeviceItems.size(); i++) {
+                                for (int j = 1; j < selectDeviceItems.size(); j++) {
+                                    if (selectDeviceItems.get(i).getExtraextraAddress().trim().equals(selectDeviceItems.get(j).getExtraextraAddress().trim())) {
                                         if (i != j) {
-                                            selecteDeviceItems.remove(j);
+                                            selectDeviceItems.remove(j);
                                         }
                                     }
 

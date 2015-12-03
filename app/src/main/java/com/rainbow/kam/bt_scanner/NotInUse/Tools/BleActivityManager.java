@@ -142,7 +142,7 @@ public class BleActivityManager {
                             if (mainDeviceItemArrayList.size() < 1) {
                                 hasCard.setVisibility(View.VISIBLE);
                             }
-//                            adapter = new SelecteDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
+//                            adapter = new SelectDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
                             activity.runOnUiThread(new Runnable() {
@@ -198,7 +198,7 @@ public class BleActivityManager {
                             if (mainDeviceItemArrayList.size() < 1) {
                                 hasCard.setVisibility(View.VISIBLE);
                             }
-//                            adapter = new SelecteDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
+//                            adapter = new SelectDeviceAdapter(mainDeviceItemArrayList, activity, mainDeviceItemArrayList.size(), isNursing);
                             selectDeviceRecyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
                         }
