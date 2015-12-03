@@ -20,10 +20,8 @@ public class SampleFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private Activity activity;
     private View view;
     private CircleCounter etcCircleCounter;
-
 
 
     @Override
@@ -43,12 +41,6 @@ public class SampleFragment extends Fragment {
 
 
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        activity = getActivity();
     }
 
 

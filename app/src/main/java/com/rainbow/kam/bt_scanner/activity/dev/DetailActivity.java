@@ -96,7 +96,9 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             case 0: //init fragment [Service]
                 Log.e(TAG, "Service");
                 fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
+
                 break;
+
             case 1: //add fragment [Characteristic]
                 Log.e(TAG, "Char");
                 fragmentTransaction.hide(serviceFragment);
@@ -106,6 +108,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                 ble.getCharacteristicsForService(bluetoothGattService);
 
                 break;
+
             case 2: // add fragment [DetailCharacteristic]
                 Log.e(TAG, "Detail");
                 fragmentTransaction.hide(characteristicFragment);

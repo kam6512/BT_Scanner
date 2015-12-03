@@ -26,7 +26,6 @@ public class StepFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private Activity activity;
     private View view;
 
     private CircleCounter stepCircleCounter;

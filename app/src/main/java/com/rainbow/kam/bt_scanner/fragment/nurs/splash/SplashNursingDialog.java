@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class SplashNursingDialog extends DialogFragment {
 
-    private final String TAG = "SelectDialog"; //로그용 태그
+    private final String TAG = getClass().getSimpleName(); //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1;
     private Activity activity;
     private Handler handler;
@@ -167,7 +167,7 @@ public class SplashNursingDialog extends DialogFragment {
 
     public void startScan() {
         if (isBluetoothOn()) {
-            if (getScanning()) {  //스캔 시작
+            if (isScanning()) {  //스캔 시작
                 scanLeDevice(false);
             } else { //재 스캔시(10초이내)
                 selectDeviceItems.clear();
@@ -236,11 +236,9 @@ public class SplashNursingDialog extends DialogFragment {
         }
     }
 
-
-    public boolean getScanning() {//스캔중
+    public boolean isScanning() {//스캔중
         return isScanning;
     }
-
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setScannerL() {

@@ -20,9 +20,6 @@ public class DashboardFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private Activity activity = getActivity();
-//    public static Handler handler;
-
     private View view;
     private TextView time;
     private TextView stepTextview;

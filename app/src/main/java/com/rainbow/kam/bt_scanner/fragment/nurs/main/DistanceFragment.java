@@ -24,7 +24,6 @@ public class DistanceFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private Activity activity;
     private View view;
     private CircleCounter distanceCircleCounter;
 
@@ -44,12 +43,6 @@ public class DistanceFragment extends Fragment {
         distanceCircleCounter.setThirdColor(getResources().getColor(R.color.dirPrimaryDark));
         distanceCircleCounter.setBackgroundColor(getResources().getColor(R.color.dirColor));
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        activity = getActivity();
     }
 
     public void setDist(int dist) {

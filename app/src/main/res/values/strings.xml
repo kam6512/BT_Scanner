@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">BT_Scanner</string>
     <string name="action_settings">Settings</string>
-    <string name="has_not_card">블루루스 BLE 기기가 탐색되지 않았습니다</string>
-    <string name="has_not_card_nurs">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
+    <string name="device_name_prime">Prime</string>
 
     <string name="menu_scan">스캔</string>
     <string name="menu_sample">샘플</string>
@@ -30,45 +29,60 @@
     <string name="detail_rssi">RSSI :</string>
     <string name="detail_address">Address :</string>
     <string name="detail_state">state :</string>
-    <string name="ble">BLE</string>
-    <string name="rssi">rssi</string>
-    <string name="info">info</string>
-    <string name="calendar">calendar</string>
-    <string name="detail_child_list_item_characteristics_title">detail_child_list_item_characteristics_title</string>
-    <string name="detail_child_list_item_characteristics_UUID">detail_child_list_item_characteristics_UUID</string>
-    <string name="detail_child_list_item_characteristics_value">detail_child_list_item_characteristics_value</string>
-    <string name="detail_parent_list_item_service_title">detail_parent_list_item_service_title</string>
-    <string name="detail_parent_list_item_service_UUID">detail_parent_list_item_service_UUID</string>
-    <string name="detail_parent_list_item_service_type">detail_parent_list_item_service_type</string>
+    <string name="bondstate">Bond State :</string>
+
     <string name="Peripheral">Peripheral:</string>
     <string name="detail_service">Service:</string>
     <string name="detail_uuid">UUID:</string>
     <string name="detail_char">Characteristic:</string>
     <string name="detail_type">Data Type:</string>
-    <string name="tg">ToggleButton</string>
-    <string name="read">Read</string>
-    <string name="write">Write</string>
+
     <string name="string">String:</string>
     <string name="decimal">Decimal:</string>
     <string name="updated">Updated:</string>
+
+    <string name="ble">BLE</string>
+    <string name="rssi">rssi</string>
+    <string name="info">info</string>
+    <string name="calendar">calendar</string>
+
+    <string name="connected">connected</string>
+    <string name="disconnected">disconnected</string>
+
+    <string name="detail_child_list_item_characteristics_title">detail_child_list_item_characteristics_title</string>
+    <string name="detail_child_list_item_characteristics_UUID">detail_child_list_item_characteristics_UUID</string>
+    <string name="detail_child_list_item_characteristics_value">detail_child_list_item_characteristics_value</string>
+
+    <string name="detail_parent_list_item_service_title">detail_parent_list_item_service_title</string>
+    <string name="detail_parent_list_item_service_UUID">detail_parent_list_item_service_UUID</string>
+    <string name="detail_parent_list_item_service_type">detail_parent_list_item_service_type</string>
+
+
+    <string name="tg">ToggleButton</string>
+    <string name="read">Read</string>
+    <string name="write">Write</string>
+
     <string name="pilot">A Pilot Program By</string>
     <string name="logo">Rainbow - Wireless</string>
+
     <string name="dashboard_time">Device Time</string>
+
     <string name="dashboard_step">STEP</string>
     <string name="dashboard_calo">CALORIE</string>
     <string name="dashboard_dist">DISTANCE</string>
     <string name="dashboard_etc">ETC</string>
-    <string name="bondstate">Bond State :</string>
+
     <string name="today">today</string>
     <string name="yesterday">yesterday</string>
     <string name="goal">GOAL</string>
+
     <string name="bt_not_init">블루투스가 시작되지 않았습니다.</string>
     <string name="bt_must_start">블루투스를 시작해야 합니다.</string>
     <string name="bt_fail">기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(init Fail)</string>
-    <string name="device_name_prime">Prime</string>
 
-    <string name="connected">connected</string>
-    <string name="disconnected">disconnected</string>
+    <string name="has_not_card">블루루스 BLE 기기가 탐색되지 않았습니다</string>
+    <string name="has_not_card_nurs">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
+
     <string name="permission_thanks">권한 획득, 감사합니다.</string>
     <string name="permission_request"><![CDATA[[권한] 탭 -> [위치] 권한을 허용해주십시오]]></string>
     <string name="permission_denial">권한의 획득을 거부</string>
@@ -76,6 +90,7 @@
     <string name="fix">수정</string>
     <string name="skip_warning">개인정보를 입력하지 않더라도 사용할 수 있으나 정확한 운동량 계산과 서버연동이 불가능하오니 이점 유의해두시기 바랍니다.</string>
     <string name="skip">무시하기</string>
+
     <string name="username_default">N/A</string>
     <string name="userage_default">20</string>
     <string name="userheight_default">170</string>
@@ -84,6 +99,11 @@
     <string name="usergender_default">남성</string>
     <string name="gender_man">남성</string>
     <string name="gender_woman">여성</string>
+    <string name="reconnect">다시 연결하기</string>
+    <string name="reconnect_accept">재시도</string>
+    <string name="exit">종료</string>
+    <string name="device_disconnected">기기와의 연결이 비활성화 되었습니다</string>
+    <string name="connecting">연결중</string>
 
 
 </resources>

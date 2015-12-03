@@ -257,7 +257,7 @@ public class BleActivityManager {
     }
 
     public boolean enableBluetooth() {//블루투스 가동여부
-        Log.d(TAG, "enableBluetooth");
+        Log.d(TAG, "registerBluetooth");
 
         if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
             Log.d(TAG, "Bluetooth isEnabled");

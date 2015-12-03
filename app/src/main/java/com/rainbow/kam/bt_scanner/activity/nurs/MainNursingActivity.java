@@ -10,12 +10,10 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -54,14 +52,12 @@ import com.rainbow.kam.bt_scanner.tools.ble.BleHelper;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmMigration;
 import io.realm.RealmResults;
 
 /**
@@ -75,19 +71,23 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private Realm realm;
     private Activity activity;
 
+    private Handler handler;
+    private Runnable runnable;
+
     private String patientName = null;
-    public static String patientAge = null;
-    public static String patientHeight = null;
-    public static String patientWeight = null;
-    public static String patientStep = null;
+    private String patientAge = null;
+    private String patientHeight = null;
+    private String patientWeight = null;
+    private String patientStep = null;
     private String patientGender = null;
+
     private String deviceName = null;
     private String deviceAddress = null;
 
     private String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
     private String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
-    public static boolean isCharcteristicRunning = false;
+    private boolean isGattProcessRunning = false;
 
     private enum ListType {
         READ_TIME, READ_STEP_DATA, ETC
@@ -107,6 +107,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
 
     private MaterialDialog materialDialog;
+    private TextView materialContent;
 
     private CoordinatorLayout coordinatorLayout;
     private Toolbar toolbar;
@@ -169,19 +170,26 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         setToolbar();
         setMaterialNavigationView();
         setViewPager();
-        setSnackBar();
+        initDialog();
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        enableBluetooth();
+        registerBluetooth();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        if (ble != null) {
+            disconnectDevice();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
         if (ble != null) {
             disconnectDevice();
         }
@@ -238,33 +246,28 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
     }
 
-    public boolean enableBluetooth() {//블루투스 가동여부
-        Log.d(TAG, "enableBluetooth");
+    public boolean registerBluetooth() {
         BluetoothManager bluetoothManager;
         BluetoothAdapter bluetoothAdapter;
         try {
-            //블루투스 매니저/어댑터 초기화
             bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
             if (bluetoothAdapter == null) {
                 throw new Exception();
             }
-            if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
-                Log.d(TAG, "Bluetooth isEnabled");
+            if (bluetoothAdapter.isEnabled()) {
                 connectDevice();
                 return true;
-            } else {    //블루투스 구동
-                Log.d(TAG, "Bluetooth start");
+            } else {
                 Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(intent, 1);
                 return false;
             }
         } catch (Exception e) {
-            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
             finish();
         }
         return false;
-
     }
 
     private void setToolbar() {
@@ -336,7 +339,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             realm.clear(Patient.class);
                             realm.clear(Band.class);
                             realm.commitTransaction();
-                            if (!isCharcteristicRunning) {
+                            if (!isGattProcessRunning) {
 //                                byte[] dataToWrite;
 //                                dataToWrite = BleHelper.CLEAR_DATA();
 //                                ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
@@ -387,15 +390,16 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    private void setSnackBar() {
+    private void initDialog() {
 
-        materialDialog = new MaterialDialog.Builder(this).title("기기와의 연결이 비활성화 되었습니다").content("다시 연결하기").positiveText("재시도").negativeText("종료")
+        materialDialog = new MaterialDialog.Builder(this).title(R.string.device_disconnected).content(R.string.reconnect).positiveText(R.string.reconnect_accept).negativeText(R.string.exit)
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // TODO
-                        enableBluetooth();
-                        materialDialog.getBuilder().content("연결중").build();
+                        registerBluetooth();
+                        materialContent.setText(R.string.connecting);
+
                     }
                 })
                 .onNeutral(new MaterialDialog.SingleButtonCallback() {
@@ -409,15 +413,16 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // TODO
                         finish();
-                        materialDialog.dismiss();
+                        dialog.dismiss();
                     }
                 }).showListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-
+                        materialContent.setText(R.string.reconnect);
                     }
                 }).autoDismiss(false).cancelable(false).build();
 //        });
+        materialContent = materialDialog.getContentView();
     }
 
     private void connectDevice() {
@@ -428,6 +433,32 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             finish();
         }
         ble.connect(deviceAddress);
+
+        if (materialDialog.isShowing()){
+            materialDialog.dismiss();
+        }
+
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (ble.isConnected()) {
+                    return;
+                } else {
+                    materialContent.setText("연결 실패, 다시 연결 중...");
+//                    disconnectDevice();
+                    if (ble == null) {
+                        ble = new BLE(MainNursingActivity.this, MainNursingActivity.this);
+                    }
+                    if (!ble.initialize()) {
+                        finish();
+                    }
+                    ble.connect(deviceAddress);
+                    handler.postDelayed(this, 500);
+                }
+            }
+        };
+        handler.postDelayed(runnable, 0);
     }
 
     private void disconnectDevice() {
@@ -435,12 +466,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             ble.stopMonitoringRssiValue();
             ble.disconnect();
             ble.close();
-            ble = null;
+//            ble = null;
         }
     }
 
-    private void addBandDataToRealm(int step, int calo, int dist) {
-
+    private void addDataToRealmDB(int step, int calo, int dist) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
@@ -479,11 +509,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             Log.e(TAG, "band [" + i + "] : " + results.size() + " step : " + results.get(i).getStep() + " calo : " + results.get(i).getCalorie() + " dist : " + results.get(i).getDistance() + " calendat : " + results.get(i).getCalendar());
             arrayList.add(new DashboardItem(results.get(i).getStep(), results.get(i).getCalorie(), results.get(i).getDistance(), results.get(i).getCalendar()));
         }
-
-//        stepFragment.setArrayList(this, arrayList);
-//        calorieFragment.setArrayList(arrayList);
-//        distanceFragment.setArrayList(arrayList);
-
     }
 
     @Override
@@ -497,10 +522,12 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e(TAG, "Connected");
+
+                toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
+
                 if (materialDialog.isShowing()) {
                     materialDialog.dismiss();
                 }
-                toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
             }
         });
     }
@@ -513,16 +540,17 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        Log.e(TAG, "Disconnected");
+
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
                         toolbarRssi.setText("No Signal");
-                        Log.e(TAG, "Disconnected");
+
                         if (!materialDialog.isShowing()) {
                             if (!isFinishing() || !isDestroyed()) {
-//                                materialDialog.show();
+                                materialDialog.show();
                             }
-
                         } else {
-                            materialDialog.getBuilder().content("실패");
+                            materialDialog.getBuilder().content("실패").build();
                         }
                     }
                 }, 100);
@@ -536,7 +564,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                BluetoothGattService bluetoothGattService = services.get(4);
+                BluetoothGattService bluetoothGattService = services.get(4); // 0xFFF0
                 ble.getCharacteristicsForService(bluetoothGattService);
             }
         });
@@ -548,8 +576,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 characteristicList = chars;
-                bluetoothGattCharacteristicForWrite = characteristicList.get(0);
-                bluetoothGattCharacteristicForNotify = characteristicList.get(1);
+                bluetoothGattCharacteristicForWrite = characteristicList.get(0); //0xFFF2
+                bluetoothGattCharacteristicForNotify = characteristicList.get(1); //0xFFF1
                 uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristicForNotify);
 
             }
@@ -570,7 +598,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         //Check the time
                         listType = ListType.READ_TIME;
                         byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
-                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                        MainNursingActivity.this.ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
 
                     }
                 }, 1000);
@@ -594,7 +622,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 switch (listType) {
                     case READ_TIME:
                         for (int i = 0; i < characteristicValue.length; i++) {
-                            int lsb = characteristic.getValue()[i] & 0xff;
+//                            int lsb = characteristic.getValue()[i] & 0xff;
                             if (i > 1 && i != characteristicValue.length - 1) {
                                 result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
 
@@ -611,14 +639,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                         break;
                                 }
                             }
-                            Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + " / result " + result);
+//                            Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + " / result " + result);
                         }
 
                         dashboardFragment.setTime(result);
                         listType = ListType.READ_STEP_DATA;
                         dataToWrite = BleHelper.READ_STEP_DATA(8);
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-                        isCharcteristicRunning = true;
+                        isGattProcessRunning = true;
                         break;
 
                     case READ_STEP_DATA:
@@ -673,7 +701,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                             }
                         }
 
-//                        try {
                         stepFragment.setStep(steps);
                         calorieFragment.setCalorie(Integer.valueOf(calo));
                         distanceFragment.setDist(Integer.valueOf(dist));
@@ -685,38 +712,30 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                         bundle.putString("DIST", dist);
                         dashboardFragment.setStepData(bundle);
 
-                        addBandDataToRealm(Integer.valueOf(steps), Integer.valueOf(calo), Integer.valueOf(dist));
-//                        }catch (Exception e){
-//                            Log.e(TAG,e.getMessage());
-//                            dashboardFragment.setFail();
-//                        }
-
+                        addDataToRealmDB(Integer.valueOf(steps), Integer.valueOf(calo), Integer.valueOf(dist));
 
                         listType = ListType.ETC;
-                        dataToWrite = BleHelper.SET_DEVICE_TIME_NOW();
+                        dataToWrite = BleHelper.CALL_DEVICE();
                         ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-                        isCharcteristicRunning = true;
+                        isGattProcessRunning = true;
 
                         break;
 
                     case ETC:
                         for (int i = 0; i < characteristicValue.length; i++) {
                             int lsb = characteristic.getValue()[i] & 0xff;
-//                            result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
                             Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb) + " / result " + result);
 
                         }
-//                        dataToWrite = BleHelper.READ_DEVICE_TIME();
+//                        dataToWrite = BleHelper.CALL_DEVICE();
 //                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-                        isCharcteristicRunning = false;
+                        isGattProcessRunning = false;
 
                         break;
 
                     default:
-                        isCharcteristicRunning = false;
+                        isGattProcessRunning = false;
 
-//                        dataToWrite = BleHelper.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
-//                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
                         break;
                 }
 
@@ -730,7 +749,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e("uiSuccessfulWrite", description);
-                isCharcteristicRunning = false;
+                isGattProcessRunning = false;
             }
         });
     }
@@ -741,7 +760,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e("uiFailedWrite", description);
-                isCharcteristicRunning = false;
+                isGattProcessRunning = false;
             }
         });
     }

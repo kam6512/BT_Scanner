@@ -21,10 +21,8 @@ import java.util.ArrayList;
  * Created by kam6512 on 2015-11-04.
  */
 public class CalorieFragment extends Fragment {
-
     private final String TAG = getClass().getSimpleName();
 
-    private Activity activity;
     private View view;
 
     private CircleCounter calorieCircleCounter;
@@ -47,11 +45,6 @@ public class CalorieFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        activity = getActivity();
-    }
 
     public void setCalorie(int calo) {
         calorieCircleCounter.setValues(calo, calo, calo);
