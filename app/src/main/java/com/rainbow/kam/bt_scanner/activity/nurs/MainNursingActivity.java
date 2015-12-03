@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,7 +40,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.activity.dev.MainActivity;
-import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard.DashboardItem;
+import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse.DashboardItem;
 import com.rainbow.kam.bt_scanner.fragment.nurs.main.CalorieFragment;
 import com.rainbow.kam.bt_scanner.fragment.nurs.main.DashboardFragment;
 import com.rainbow.kam.bt_scanner.fragment.nurs.main.DistanceFragment;
@@ -53,12 +54,14 @@ import com.rainbow.kam.bt_scanner.tools.ble.BleHelper;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmMigration;
 import io.realm.RealmResults;
 
 /**
@@ -67,6 +70,7 @@ import io.realm.RealmResults;
 public class MainNursingActivity extends AppCompatActivity implements BleUiCallbacks {
 
     public static final String TAG = MainNursingActivity.class.getSimpleName();
+    private static final int REQUEST_ENABLE_BT = 1;
 
     private Realm realm;
     private Activity activity;
@@ -80,19 +84,16 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private String deviceName = null;
     private String deviceAddress = null;
 
-    private int bleProcess = 0;
-    private boolean isNewUser = false;
-    public static boolean isCharcteristicRunning = false;
-
     private String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
     private String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
-    private int READ_TIME = 0;
-    private int READ_DATA = 1;
-    private int ETC = 2;
+    public static boolean isCharcteristicRunning = false;
 
-    public static Handler handler;
-    private Runnable runnable;
+    private enum ListType {
+        READ_TIME, READ_STEP_DATA, ETC
+    }
+
+    private ListType listType = ListType.READ_TIME;
 
     private DashboardFragment dashboardFragment;
     private StepFragment stepFragment;
@@ -105,7 +106,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
 
-    //    private Snackbar snackbar;
     private MaterialDialog materialDialog;
 
     private CoordinatorLayout coordinatorLayout;
@@ -147,35 +147,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 throw new Exception();
             }
 
-            PermissionV21.check(this);
 
         } catch (Exception e) {
-
-        }
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult");
-        Toast.makeText(getApplicationContext(), "권한 획득 필요.", Toast.LENGTH_SHORT).show();
-        switch (requestCode) {
-            case 1:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    Snackbar.make(getWindow().getDecorView(), "권한 획득, 감사합니다.", Snackbar.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), "권한 획득, 감사합니다.", Toast.LENGTH_SHORT).show();
-                } else {
-                    finish();
-                    Toast.makeText(getApplicationContext(), "[권한] 탭 -> [위치] 권한을 허용해주십시오", Toast.LENGTH_SHORT).show();
-//                    startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION), 0);
-                    Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                    myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
-                    myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivityForResult(myAppSettings, 0);
-
-                }
-                break;
+            Toast.makeText(this, "DB오류발생!", Toast.LENGTH_SHORT).show();
+        } finally {
+            PermissionV21.check(this);
         }
     }
 
@@ -184,80 +160,17 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nursing_main);
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.nursing_coordinatorLayout);
-        drawerLayout = (DrawerLayout) findViewById(R.id.nursing_drawer_layout);
+        dashboardFragment = new DashboardFragment();
+        stepFragment = new StepFragment();
+        calorieFragment = new CalorieFragment();
+        distanceFragment = new DistanceFragment();
+        sampleFragment = new SampleFragment();
 
         setToolbar();
-        setNavigationView();
+        setMaterialNavigationView();
         setViewPager();
         setSnackBar();
 
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                if (ble == null) {
-                    return;
-                }
-                isCharcteristicRunning = true;
-                Message message = handler.obtainMessage(msg.what, msg.arg1, msg.arg2, msg.obj);
-                message.setData(msg.getData());
-                byte[] dataToWrite;
-                Log.e("what", msg.what + " is what");
-                switch (message.what) {
-                    case 0:  //Check the time
-                        bleProcess = READ_TIME;
-                        dataToWrite = BleHelper.READ_DEVICE_TIME();
-                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-                        break;
-
-                    case 1: //Check the time result And READ_STEP_DATA
-
-                        DashboardFragment.handler.sendMessage(message);
-
-                        bleProcess = READ_DATA;
-                        dataToWrite = BleHelper.READ_STEP_DATA(8);
-                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-                        break;
-
-                    case 2:
-
-                        DashboardFragment.handler.sendMessage(message);
-                        StepFragment.handler.sendMessage(Message.obtain(message));
-                        CalorieFragment.handler.sendMessage(Message.obtain(message));
-                        DistanceFragment.handler.sendMessage(Message.obtain(message));
-                        SampleFragment.handler.sendMessage(Message.obtain(message));
-
-                        addBandData(Message.obtain(message));
-
-                        bleProcess = ETC;
-                        dataToWrite = BleHelper.SET_DEVICE_TIME_NOW();
-                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-                        break;
-
-                    case 3:
-                        DashboardFragment.handler.sendMessage(message);
-
-                        Log.e(TAG, "READ_SPORTS_CURVE_DATA's result = " + msg.obj);
-                        break;
-
-                    case -1: //new User
-
-                        dataToWrite = BleHelper.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
-                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
-
-                        break;
-
-                    case -2://re-connect
-                        disconnectDevice();
-                        connectDevice();
-                        break;
-                    case -10000:
-                        finish();
-                        break;
-                }
-            }
-        };
     }
 
     @Override
@@ -274,7 +187,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -288,15 +200,43 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 1) {
-            connectDevice();
-        } else {
-            Toast.makeText(this, "기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.", Toast.LENGTH_LONG).show();
-            finish();
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        //블루투스 켜짐
+                        break;
+                    default:
+                        //블루투스 에러
+                        Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                        finish();
+                        break;
+                }
+                break;
         }
-
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
+
+                Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+                myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(myAppSettings, 0);
+
+                finish();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public boolean enableBluetooth() {//블루투스 가동여부
         Log.d(TAG, "enableBluetooth");
@@ -342,7 +282,11 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
     }
 
-    private void setNavigationView() {
+    private void setMaterialNavigationView() {
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.nursing_coordinatorLayout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.nursing_drawer_layout);
+
         navigationView = (NavigationView) findViewById(R.id.nursing_nav_view);
         if (navigationView != null) {
             navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -439,11 +383,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
             }
         });
-        dashboardFragment = new DashboardFragment();
-        stepFragment = new StepFragment();
-        calorieFragment = new CalorieFragment();
-        distanceFragment = new DistanceFragment();
-        sampleFragment = new SampleFragment();
 
         tabLayout.setupWithViewPager(viewPager);
     }
@@ -500,12 +439,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
     }
 
-    private void addBandData(Message message) {
+    private void addBandDataToRealm(int step, int calo, int dist) {
 
-        Bundle bundle = message.getData();
-        int step = Integer.valueOf(bundle.getString("STEP", "0"), 16);
-        int calorie = Integer.valueOf(bundle.getString("CALO", "0"), 16);
-        int distance = Integer.valueOf(bundle.getString("DIST", "0"), 16);
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
@@ -524,15 +459,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 Band band = realm.createObject(Band.class);
                 band.setCalendar(today);
                 band.setStep(step);
-                band.setCalorie(calorie);
-                band.setDistance(distance);
+                band.setCalorie(calo);
+                band.setDistance(dist);
             }
         } else {
             Band band = realm.createObject(Band.class);
             band.setCalendar(today);
             band.setStep(step);
-            band.setCalorie(calorie);
-            band.setDistance(distance);
+            band.setCalorie(calo);
+            band.setDistance(dist);
         }
         realm.commitTransaction();
 
@@ -544,7 +479,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             Log.e(TAG, "band [" + i + "] : " + results.size() + " step : " + results.get(i).getStep() + " calo : " + results.get(i).getCalorie() + " dist : " + results.get(i).getDistance() + " calendat : " + results.get(i).getCalendar());
             arrayList.add(new DashboardItem(results.get(i).getStep(), results.get(i).getCalorie(), results.get(i).getDistance(), results.get(i).getCalendar()));
         }
-
 
 //        stepFragment.setArrayList(this, arrayList);
 //        calorieFragment.setArrayList(arrayList);
@@ -627,15 +561,17 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 ble.setNotificationForCharacteristic(bluetoothGattCharacteristicForNotify, true);
-                handler.postDelayed(new Runnable() {
+
+                new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (isNewUser) {
-                            handler.sendEmptyMessage(-1);
-                        } else {
-                            handler.sendEmptyMessage(READ_TIME);
-                        }
+                        //Check the time
+                        listType = ListType.READ_TIME;
+                        byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
+                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+
                     }
                 }, 1000);
             }
@@ -653,143 +589,137 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 String result = "";
-                byte[] res = characteristic.getValue();
+                byte[] characteristicValue = characteristic.getValue();
+                byte[] dataToWrite;
+                switch (listType) {
+                    case READ_TIME:
+                        for (int i = 0; i < characteristicValue.length; i++) {
+                            int lsb = characteristic.getValue()[i] & 0xff;
+                            if (i > 1 && i != characteristicValue.length - 1) {
+                                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
 
-                Bundle bundle = new Bundle();
-                String step = "";
-                String calo = "";
-                String dist = "";
+                                switch (i) {
+                                    default:
+                                        result += timeSet[i - 2] + " ";
 
-                final Message handleMessage = new Message();
+                                        break;
+                                    case 8:
+                                        result = result.substring(0, result.length() - 1);
 
-                if (isNewUser) {
-                    isNewUser = false;
-                } else {
-                    switch (bleProcess) {
-                        case 0:
-                            for (int i = 0; i < res.length; i++) {
-                                int lsb = characteristic.getValue()[i] & 0xff;
-                                if (i > 1 && i != res.length - 1) {
-                                    result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
-
-                                    switch (i) {
-                                        default:
-                                            result += timeSet[i - 2] + " ";
-
-                                            break;
-                                        case 8:
-                                            result = result.substring(0, result.length() - 1);
-
-                                            int j = Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
-                                            result += weekSet[j - 1];
-                                            break;
-                                    }
-                                }
-                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
-                            }
-
-                            handleMessage.what = READ_TIME + 1;
-                            handleMessage.obj = result;
-                            break;
-
-                        case 1:
-
-                            for (int i = 0; i < res.length; i++) {
-
-                                int lsb = characteristic.getValue()[i] & 0xff;
-
-
-                                if (i > 1 && i != res.length - 1) {
-
-                                    result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(lsb)), 16) + " / ";
-
-                                    switch (i) {
-
-                                        case 2:
-                                        case 3:
-                                        case 4:
-
-                                            step += BleHelper.setWidth(Integer.toHexString(lsb));
-                                            break;
-
-                                        case 5:
-                                        case 6:
-                                        case 7:
-
-                                            calo += BleHelper.setWidth(Integer.toHexString(lsb));
-                                            break;
-
-                                        case 8:
-
-                                            dist += Integer.toHexString(lsb);
-                                            break;
-
-                                        case 9:
-
-                                            dist += Integer.toHexString(lsb);
-                                            break;
-
-                                        case 10:
-
-                                            dist += Integer.toHexString(lsb);
-                                            int distance;
-                                            int steps = Integer.valueOf(step, 16);
-                                            int age = Integer.parseInt(patientAge);
-                                            double height = Integer.parseInt(patientHeight);
-                                            if (age <= 15 || age >= 65) {
-                                                distance = (int) ((height * 0.37) * steps);
-                                            } else if (15 < age || age < 45) {
-                                                distance = (int) ((height * 0.45) * steps);
-                                            } else if (45 <= age || age < 65) {
-                                                distance = (int) ((height * 0.40) * steps);
-                                            } else {
-                                                distance = (int) ((height * 0.30) * steps);
-                                            }
-                                            Log.e(TAG, "dist : " + dist + " distance : " + distance + " age : " + age + " steps : " + steps + " height  : " + height);
-
-                                            dist = String.valueOf(distance / 100);  //CM -> M
-                                            break;
-                                    }
-                                    Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
+                                        int j = Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
+                                        result += weekSet[j - 1];
+                                        break;
                                 }
                             }
-
-                            handleMessage.what = READ_DATA + 1;
-                            bundle.putString("STEP", step);
-                            bundle.putString("CALO", calo);
-                            bundle.putString("DIST", dist);
-                            handleMessage.setData(bundle);
-                            break;
-
-                        case 2:
-                            for (int i = 0; i < res.length; i++) {
-                                int lsb = characteristic.getValue()[i] & 0xff;
-//                                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(res[i])), 16);
-//                                Log.e("noty", "res = " + Integer.toHexString(res[i]) + " / lsb = " + Integer.toHexString(lsb) + " / process " + bleProcess + " / result " + result);
-
-                            }
-
-                            handleMessage.what = 3;
-                            handleMessage.obj = result;
-                            break;
-
-                        default:
-                            break;
-                    }
-                    handleMessage.arg1 = 0;
-                    handleMessage.arg2 = 0;
-
-
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            handler.sendMessage(handleMessage);
+                            Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + " / result " + result);
                         }
-                    }, 300);
-//                    Toast.makeText(getApplicationContext(), "uiGotNotification " + res[0], Toast.LENGTH_LONG).show();
-                    isCharcteristicRunning = false;
 
+                        dashboardFragment.setTime(result);
+                        listType = ListType.READ_STEP_DATA;
+                        dataToWrite = BleHelper.READ_STEP_DATA(8);
+                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                        isCharcteristicRunning = true;
+                        break;
+
+                    case READ_STEP_DATA:
+
+                        String step = "";
+                        String calo = "";
+                        String dist = "";
+
+                        int distance = 0;
+                        int steps = 0;
+                        int age = 0;
+
+                        for (int i = 0; i < characteristicValue.length; i++) {
+
+                            int lsb = characteristic.getValue()[i] & 0xff;
+
+                            if (i > 1 && i != characteristicValue.length - 1) {
+
+                                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(lsb)), 16) + " / ";
+
+                                switch (i) {
+                                    case 2:
+                                    case 3:
+                                    case 4:
+                                        step += BleHelper.setWidth(Integer.toHexString(lsb));
+                                        break;
+
+                                    case 5:
+                                    case 6:
+                                    case 7:
+                                        calo += BleHelper.setWidth(Integer.toHexString(lsb));
+                                        break;
+                                    case 10:
+                                        steps = Integer.valueOf(step, 16);
+                                        age = Integer.parseInt(patientAge);
+                                        double height = Integer.parseInt(patientHeight);
+                                        if (age <= 15 || age >= 65) {
+                                            distance = (int) ((height * 0.37) * steps);
+                                        } else if (15 < age || age < 45) {
+                                            distance = (int) ((height * 0.45) * steps);
+                                        } else if (45 <= age || age < 65) {
+                                            distance = (int) ((height * 0.40) * steps);
+                                        } else {
+                                            distance = (int) ((height * 0.30) * steps);
+                                        }
+                                        Log.e(TAG, "dist : " + dist + " distance : " + distance + " age : " + age + " steps : " + steps + " height  : " + height);
+
+                                        dist = String.valueOf(distance / 100);  //CM -> M
+                                        break;
+                                }
+                                Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb) + " / result " + result);
+                            }
+                        }
+
+//                        try {
+                        stepFragment.setStep(steps);
+                        calorieFragment.setCalorie(Integer.valueOf(calo));
+                        distanceFragment.setDist(Integer.valueOf(dist));
+                        sampleFragment.setSample(Integer.valueOf(dist));
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString("STEP", step);
+                        bundle.putString("CALO", calo);
+                        bundle.putString("DIST", dist);
+                        dashboardFragment.setStepData(bundle);
+
+                        addBandDataToRealm(Integer.valueOf(steps), Integer.valueOf(calo), Integer.valueOf(dist));
+//                        }catch (Exception e){
+//                            Log.e(TAG,e.getMessage());
+//                            dashboardFragment.setFail();
+//                        }
+
+
+                        listType = ListType.ETC;
+                        dataToWrite = BleHelper.SET_DEVICE_TIME_NOW();
+                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                        isCharcteristicRunning = true;
+
+                        break;
+
+                    case ETC:
+                        for (int i = 0; i < characteristicValue.length; i++) {
+                            int lsb = characteristic.getValue()[i] & 0xff;
+//                            result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
+                            Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb) + " / result " + result);
+
+                        }
+//                        dataToWrite = BleHelper.READ_DEVICE_TIME();
+//                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                        isCharcteristicRunning = false;
+
+                        break;
+
+                    default:
+                        isCharcteristicRunning = false;
+
+//                        dataToWrite = BleHelper.SET_USER_DATA(Integer.valueOf(patientGender), Integer.valueOf(patientHeight), Integer.valueOf(patientWeight), Integer.valueOf(patientStep), Integer.valueOf(patientStep) + 30);
+//                        ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                        break;
                 }
+
             }
         });
     }
@@ -800,18 +730,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e("uiSuccessfulWrite", description);
-
                 isCharcteristicRunning = false;
-
-                if (isNewUser) {
-
-                    Toast.makeText(getApplicationContext(), "유저등록성공.", Toast.LENGTH_LONG).show();
-                    handler.sendEmptyMessage(READ_TIME);
-
-                } else {
-
-//                    Toast.makeText(getApplicationContext(), "Writing to " + description + " was finished successfully!", Toast.LENGTH_LONG).show();
-                }
             }
         });
     }
@@ -822,14 +741,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 Log.e("uiFailedWrite", description);
-
                 isCharcteristicRunning = false;
-
-                if (isNewUser) {
-
-                    handler.sendEmptyMessage(READ_TIME);
-
-                }
             }
         });
     }
@@ -858,18 +770,27 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return DashboardFragment.newInstance(position + 1);
-
+                    if (!dashboardFragment.isAdded()) {
+                        return dashboardFragment;
+                    }
                 case 1:
-                    return StepFragment.newInstance(position + 1);
+                    if (!stepFragment.isAdded()) {
+                        return stepFragment;
+                    }
                 case 2:
-                    return CalorieFragment.newInstance(position + 1);
+                    if (!calorieFragment.isAdded()) {
+                        return calorieFragment;
+                    }
                 case 3:
-                    return DistanceFragment.newInstance(position + 1);
+                    if (!distanceFragment.isAdded()) {
+                        return distanceFragment;
+                    }
                 default:
-                    return SampleFragment.newInstance(position + 1);
+                    if (!sampleFragment.isAdded()) {
+                        return sampleFragment;
+                    }
             }
-
+            return sampleFragment;
         }
 
         @Override
@@ -882,5 +803,4 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             return tabTitles[position];
         }
     }
-
 }

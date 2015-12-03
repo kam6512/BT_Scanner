@@ -87,7 +87,7 @@ public class BleHelper {
         if (format.trim().length() == 2) {
             return format;
         } else {
-            return format = "0" + format.trim();
+            return "0" + format.trim();
         }
     }
 

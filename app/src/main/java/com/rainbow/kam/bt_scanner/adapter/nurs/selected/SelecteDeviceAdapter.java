@@ -19,18 +19,18 @@ import java.util.ArrayList;
 /**
  * Created by Kam6512 on 2015-10-14.
  */
-public class SelectedDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SelecteDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = "SelectedDeviceAdapter";
+    private static final String TAG = "SelecteDeviceAdapter";
 
 
-    private ArrayList<SelectedDeviceItem> selectedDeviceItemArrayList;
+    private ArrayList<SelecteDeviceItem> selecteDeviceItemArrayList;
     private Activity activity;
     private DeviceViewHolder deviceViewHolder;
 
 
-    public SelectedDeviceAdapter(ArrayList<SelectedDeviceItem> selectedDeviceItemArrayList, Activity activity) { //초기화
-        this.selectedDeviceItemArrayList = selectedDeviceItemArrayList;
+    public SelecteDeviceAdapter(ArrayList<SelecteDeviceItem> selecteDeviceItemArrayList, Activity activity) { //초기화
+        this.selecteDeviceItemArrayList = selecteDeviceItemArrayList;
         this.activity = activity;
     }
 
@@ -47,12 +47,12 @@ public class SelectedDeviceAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         deviceViewHolder = (DeviceViewHolder) holder;
-        deviceViewHolder.bindViews(selectedDeviceItemArrayList.get(position));
+        deviceViewHolder.bindViews(selecteDeviceItemArrayList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return selectedDeviceItemArrayList.size();
+        return selecteDeviceItemArrayList.size();
     }
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder { //뷰 초기화
@@ -87,13 +87,13 @@ public class SelectedDeviceAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             });
         }
 
-        private void bindViews(SelectedDeviceItem selectedDeviceItem) {
+        private void bindViews(SelecteDeviceItem selecteDeviceItem) {
 
-            extraName.setText(selectedDeviceItem.getExtraName());
-            extraAddress.setText(selectedDeviceItem.getExtraextraAddress());
-            extraBondState.setText(String.valueOf(selectedDeviceItem.getExtraBondState()));
-            extraType.setText(String.valueOf(selectedDeviceItem.getExtraType()));
-            extraRssi.setText(String.valueOf(selectedDeviceItem.getExtraRssi()));
+            extraName.setText(selecteDeviceItem.getExtraName());
+            extraAddress.setText(selecteDeviceItem.getExtraextraAddress());
+            extraBondState.setText(String.valueOf(selecteDeviceItem.getExtraBondState()));
+            extraType.setText(String.valueOf(selecteDeviceItem.getExtraType()));
+            extraRssi.setText(String.valueOf(selecteDeviceItem.getExtraRssi()));
 
         }
 

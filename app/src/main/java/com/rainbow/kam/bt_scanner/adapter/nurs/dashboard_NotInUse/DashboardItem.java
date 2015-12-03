@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter.nurs.dashboard;
+package com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse;
 
 /**
  * Created by kam6512 on 2015-11-23.

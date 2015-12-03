@@ -30,8 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectedDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectedDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelecteDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelecteDeviceItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class SplashNursingDialog extends DialogFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView selectDeviceRecyclerView;
     private RecyclerView.Adapter adapter = null;
-    private ArrayList<SelectedDeviceItem> selectedDeviceItems = new ArrayList<>();
+    private ArrayList<SelecteDeviceItem> selecteDeviceItems = new ArrayList<>();
 
     ProgressBar searchingProgressBar;
     TextView noDeviceTextView;
@@ -153,6 +153,37 @@ public class SplashNursingDialog extends DialogFragment {
         scanLeDevice(false);
     }
 
+    private boolean isBluetoothOn() {//블루투스 가동여부
+
+        if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
+            return true;
+        } else {    //블루투스 구동
+            Toast.makeText(activity, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(intent, REQUEST_ENABLE_BT);
+            return false;
+        }
+    }
+
+    public void startScan() {
+        if (isBluetoothOn()) {
+            if (getScanning()) {  //스캔 시작
+                scanLeDevice(false);
+            } else { //재 스캔시(10초이내)
+                selecteDeviceItems.clear();
+
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
+
+                scanLeDevice(true);
+            }
+        } else {
+            Snackbar.make(view, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
+        }
+
+    }
+
     public void scanLeDevice(final boolean enable) {//저전력 스캔
         if (enable) {   //시작중이면
             long SCAN_PERIOD = 5000;
@@ -168,10 +199,10 @@ public class SplashNursingDialog extends DialogFragment {
                     isScanning = false;
                     searchingProgressBar.setVisibility(View.INVISIBLE);
 
-                    if (selectedDeviceItems.size() < 1) {
+                    if (selecteDeviceItems.size() < 1) {
                         noDeviceTextView.setVisibility(View.VISIBLE);
                     }
-                    adapter = new SelectedDeviceAdapter(selectedDeviceItems, activity);
+                    adapter = new SelecteDeviceAdapter(selecteDeviceItems, activity);
                     selectDeviceRecyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                     swipeRefreshLayout.setRefreshing(false);
@@ -205,43 +236,11 @@ public class SplashNursingDialog extends DialogFragment {
         }
     }
 
-    public void startScan() {
-        if (enableBluetooth()) {
-            if (getScanning()) {  //스캔 시작
-                scanLeDevice(false);
-            } else { //재 스캔시(10초이내)
-                selectedDeviceItems.clear();
-
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
-
-                scanLeDevice(true);
-            }
-        } else {
-            Snackbar.make(view, "You must initialize Bluetooth", Snackbar.LENGTH_SHORT).show();
-        }
-
-    }
 
     public boolean getScanning() {//스캔중
         return isScanning;
     }
 
-    public boolean enableBluetooth() {//블루투스 가동여부
-        Log.d(TAG, "enableBluetooth");
-
-        if (bluetoothAdapter.isEnabled()) { //블루투스 이미 켜짐
-            Log.d(TAG, "Bluetooth isEnabled");
-
-            return true;
-        } else {    //블루투스 구동
-            Log.d(TAG, "Bluetooth start");
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
-            return false;
-        }
-    }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setScannerL() {
@@ -281,14 +280,14 @@ public class SplashNursingDialog extends DialogFragment {
 
 
                             if (deviceName.equals("Prime")) {
-                                selectedDeviceItems.add(new SelectedDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
+                                selecteDeviceItems.add(new SelecteDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
                             }
 
-                            for (int i = 0; i < selectedDeviceItems.size(); i++) {
-                                for (int j = 1; j < selectedDeviceItems.size(); j++) {
-                                    if (selectedDeviceItems.get(i).getExtraextraAddress().trim().equals(selectedDeviceItems.get(j).getExtraextraAddress().trim())) {
+                            for (int i = 0; i < selecteDeviceItems.size(); i++) {
+                                for (int j = 1; j < selecteDeviceItems.size(); j++) {
+                                    if (selecteDeviceItems.get(i).getExtraextraAddress().trim().equals(selecteDeviceItems.get(j).getExtraextraAddress().trim())) {
                                         if (i != j) {
-                                            selectedDeviceItems.remove(j);
+                                            selecteDeviceItems.remove(j);
                                         }
                                     }
 
@@ -324,14 +323,14 @@ public class SplashNursingDialog extends DialogFragment {
                             }
 
                             if (deviceName.equals("Prime")) {
-                                selectedDeviceItems.add(new SelectedDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                                selecteDeviceItems.add(new SelecteDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                             }
 
-                            for (int i = 0; i < selectedDeviceItems.size(); i++) {
-                                for (int j = 1; j < selectedDeviceItems.size(); j++) {
-                                    if (selectedDeviceItems.get(i).getExtraextraAddress().trim().equals(selectedDeviceItems.get(j).getExtraextraAddress().trim())) {
+                            for (int i = 0; i < selecteDeviceItems.size(); i++) {
+                                for (int j = 1; j < selecteDeviceItems.size(); j++) {
+                                    if (selecteDeviceItems.get(i).getExtraextraAddress().trim().equals(selecteDeviceItems.get(j).getExtraextraAddress().trim())) {
                                         if (i != j) {
-                                            selectedDeviceItems.remove(j);
+                                            selecteDeviceItems.remove(j);
                                         }
                                     }
 

@@ -21,60 +21,11 @@ public class DashboardFragment extends Fragment {
     private final String TAG = getClass().getSimpleName();
 
     private Activity activity = getActivity();
-    public static Handler handler;
+//    public static Handler handler;
 
     private View view;
     private TextView time;
     private TextView stepTextview, calorieTextview, distanceTextview;
-    public static final String ARG_PAGE = "ARG_PAGE";
-    private int mPage;
-
-
-    public static DashboardFragment newInstance(int page) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
-        DashboardFragment fragment = new DashboardFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPage = getArguments().getInt(ARG_PAGE);
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                try {
-                    switch (msg.what) {
-                        case 1:
-                            time.setText("시간 : " + msg.obj);
-                            break;
-                        case 2:
-                            Bundle bundle = msg.getData();
-                            String step = bundle.getString("STEP");
-                            String calo = bundle.getString("CALO");
-                            String dist = bundle.getString("DIST") + "m";
-                            step = Integer.valueOf(step, 16) + "걸음";
-                            calo = Integer.valueOf(calo, 16) + "Kcal";
-
-                            stepTextview.setText(step);
-                            calorieTextview.setText(calo);
-                            distanceTextview.setText(dist);
-                            break;
-                    }
-                } catch (Exception e) {
-                    time.setText("시간 : 연결 실패");
-                    stepTextview.setText("연결 실패");
-                    calorieTextview.setText("연결 실패");
-                    distanceTextview.setText("연결 실패");
-                }
-
-            }
-        };
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -92,5 +43,28 @@ public class DashboardFragment extends Fragment {
 
 
         return view;
+    }
+
+    public void setTime(String characteristicTime) {
+        time.setText("시간 : " + characteristicTime);
+    }
+
+    public void setStepData(Bundle stepData) {
+        String step = stepData.getString("STEP");
+        String calo = stepData.getString("CALO");
+        String dist = stepData.getString("DIST") + "m";
+        step = Integer.valueOf(step, 16) + "걸음";
+        calo = Integer.valueOf(calo, 16) + "Kcal";
+
+        stepTextview.setText(step);
+        calorieTextview.setText(calo);
+        distanceTextview.setText(dist);
+    }
+
+    public void setFail(){
+        time.setText("시간 : 연결 실패");
+        stepTextview.setText("연결 실패");
+        calorieTextview.setText("연결 실패");
+        distanceTextview.setText("연결 실패");
     }
 }

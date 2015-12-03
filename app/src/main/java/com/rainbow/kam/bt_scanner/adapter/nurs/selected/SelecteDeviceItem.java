@@ -3,18 +3,18 @@ package com.rainbow.kam.bt_scanner.adapter.nurs.selected;
 /**
  * Created by kam6512 on 2015-10-14.
  */
-public class SelectedDeviceItem { //카드 뷰 틀
+public class SelecteDeviceItem { //카드 뷰 틀
     private String extraName;
     private String extraAddress;
     private int extraBondState;
     private int extraType;
     private int extraRssi;
 
-    public SelectedDeviceItem(String extraName,
-                              String extraAddress,
-                              int extraBondState,
-                              int extraType,
-                              int extraRssi) {
+    public SelecteDeviceItem(String extraName,
+                             String extraAddress,
+                             int extraBondState,
+                             int extraType,
+                             int extraRssi) {
         this.extraName = extraName;
         this.extraAddress = extraAddress;
         this.extraBondState = extraBondState;

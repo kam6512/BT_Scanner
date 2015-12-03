@@ -21,45 +21,10 @@ public class SampleFragment extends Fragment {
     private final String TAG = getClass().getSimpleName();
 
     private Activity activity;
-    public static Handler handler;
-    private Bundle bundle;
     private View view;
-    public static final String ARG_PAGE = "ARG_PAGE";
-    private int mPage;
-
     private CircleCounter etcCircleCounter;
 
-    private int step;
-    private int calo;
-    private int dist;
 
-    public static SampleFragment newInstance(int page) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
-        SampleFragment fragment = new SampleFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPage = getArguments().getInt(ARG_PAGE);
-
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-
-                    super.handleMessage(msg);
-                    bundle = msg.getData();
-                    step = Integer.valueOf(bundle.getString("STEP"), 16);
-                    calo = Integer.valueOf(bundle.getString("CALO"), 16);
-                    dist = Integer.valueOf(bundle.getString("DIST"));
-                    Log.e(TAG, step + " " + calo + " " + dist + " ");
-
-            }
-        };
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,12 +42,6 @@ public class SampleFragment extends Fragment {
         etcCircleCounter.setBackgroundColor(getResources().getColor(R.color.etcColor));
 
 
-//        stepCircleCounter.setValues(20, 50, 70);
-//        calorieCircleCounter.setValues(20, 50, 70);
-//        distanceCircleCounter.setValues(20, 50, 70);
-//        etcCircleCounter.setValues(20, 50, 70);
-
-
         return view;
     }
 
@@ -93,4 +52,7 @@ public class SampleFragment extends Fragment {
     }
 
 
+    public void setSample(int sample) {
+        etcCircleCounter.setValues(sample, sample, sample);
+    }
 }

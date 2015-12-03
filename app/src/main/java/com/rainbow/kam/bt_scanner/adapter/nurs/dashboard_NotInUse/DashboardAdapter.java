@@ -82,7 +82,7 @@
 //        }
 //    }
 //}
-package com.rainbow.kam.bt_scanner.adapter.nurs.dashboard;
+package com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

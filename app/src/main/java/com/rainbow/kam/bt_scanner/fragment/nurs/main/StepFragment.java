@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard.DashboardAdapter;
-import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard.DashboardItem;
+import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse.DashboardAdapter;
+import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse.DashboardItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
 
@@ -27,62 +27,29 @@ public class StepFragment extends Fragment {
     private final String TAG = getClass().getSimpleName();
 
     private Activity activity;
-    public static Handler handler;
-    private Bundle bundle;
     private View view;
-    public static final String ARG_PAGE = "ARG_PAGE";
-    private int mPage;
 
     private CircleCounter stepCircleCounter;
-    private RecyclerView recyclerView;
-    private BaseAdapter adapter;
-    private ArrayList<DashboardItem> dashboardList = new ArrayList<>();
-    private int step;
-
-    public static StepFragment newInstance(int page) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
-        StepFragment fragment = new StepFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPage = getArguments().getInt(ARG_PAGE);
-
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                bundle = msg.getData();
-                step = Integer.valueOf(bundle.getString("STEP"), 16);
-                super.handleMessage(msg);
-                stepCircleCounter.setValues(step, step, step);
 
 
-            }
-        };
+    /*
+        public void setArrayList(Activity activity, ArrayList<DashboardItem> dashboardList) {
 
-    }
+            this.activity = activity;
+            this.dashboardList = dashboardList;
 
-    public void setArrayList(Activity activity, ArrayList<DashboardItem> dashboardList) {
+            adapter = new DashboardAdapter(this.dashboardList, activity, activity, view);
+            recyclerView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
 
-        this.activity = activity;
-        this.dashboardList = dashboardList;
+            new MaterialDialog.Builder(activity).title("step").adapter(adapter, new MaterialDialog.ListCallback() {
+                @Override
+                public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
 
-        adapter = new DashboardAdapter(this.dashboardList, activity, activity, view);
-//        recyclerView.setAdapter(adapter);
-//        adapter.notifyDataSetChanged();
-
-//        new MaterialDialog.Builder(activity).title("step").adapter(adapter, new MaterialDialog.ListCallback() {
-//            @Override
-//            public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
-//
-//            }
-//        }).show();
-    }
-
+                }
+            }).show();
+        }
+    */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -96,12 +63,11 @@ public class StepFragment extends Fragment {
         stepCircleCounter.setSecondColor(getResources().getColor(R.color.stepPrimary));
         stepCircleCounter.setThirdColor(getResources().getColor(R.color.stepPrimaryDark));
         stepCircleCounter.setBackgroundColor(getResources().getColor(R.color.stepColor));
-        recyclerView = (RecyclerView) view.findViewById(R.id.step_recycler);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
         return view;
     }
 
+    public void setStep(int step){
+        stepCircleCounter.setValues(step, step, step);
+    }
 
 }

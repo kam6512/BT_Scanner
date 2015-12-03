@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard.DashboardItem;
+import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse.DashboardItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
 
@@ -25,50 +25,10 @@ public class CalorieFragment extends Fragment {
     private final String TAG = getClass().getSimpleName();
 
     private Activity activity;
-    public static Handler handler;
-    private Bundle bundle;
     private View view;
-    public static final String ARG_PAGE = "ARG_PAGE";
-    private int mPage;
 
     private CircleCounter calorieCircleCounter;
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
-    private ArrayList<DashboardItem> dashboardList = new ArrayList<>();
-    private int calorie;
 
-    public static CalorieFragment newInstance(int page) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
-        CalorieFragment fragment = new CalorieFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPage = getArguments().getInt(ARG_PAGE);
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-
-                    bundle = msg.getData();
-                    calorie = Integer.valueOf(bundle.getString("CALO"), 16);
-                    super.handleMessage(msg);
-                    calorieCircleCounter.setValues(calorie, calorie, calorie);
-
-            }
-        };
-
-    }
-
-    public void setArrayList(ArrayList<DashboardItem> dashboardList) {
-        this.dashboardList = dashboardList;
-//        adapter = new DashboardAdapter(this.dashboardList, activity, activity, view);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,10 +44,6 @@ public class CalorieFragment extends Fragment {
         calorieCircleCounter.setSecondColor(getResources().getColor(R.color.caloPrimary));
         calorieCircleCounter.setThirdColor(getResources().getColor(R.color.caloPrimaryDark));
         calorieCircleCounter.setBackgroundColor(getResources().getColor(R.color.caloColor));
-        recyclerView = (RecyclerView) view.findViewById(R.id.calorie_recycler);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
         return view;
     }
 
@@ -95,6 +51,10 @@ public class CalorieFragment extends Fragment {
     public void onResume() {
         super.onResume();
         activity = getActivity();
+    }
+
+    public void setCalorie(int calo) {
+        calorieCircleCounter.setValues(calo, calo, calo);
     }
 
 

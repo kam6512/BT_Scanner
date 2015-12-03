@@ -73,26 +73,25 @@ public class SplashNursingActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
-                } else {
-                    onBackPressed();
-                    Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
+        if (requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
 
-                    Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                    myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
-                    myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivityForResult(myAppSettings, 0);
-                }
-                break;
-            default:
-                Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
-                break;
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
+                Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+                myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(myAppSettings, 0);
+
+                finish();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -102,11 +101,11 @@ public class SplashNursingActivity extends AppCompatActivity {
 
             case 1:
                 if (resultCode == RESULT_OK) {
-                    Log.d(TAG, "Bluetooth is enabled");
                     //블루투스 켜짐
                 } else {
-                    Log.d(TAG, "Bluetooth is not enabled");
                     //블루투스 에러
+                    Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                    finish();
                 }
                 break;
         }
