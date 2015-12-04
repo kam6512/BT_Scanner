@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
-    private boolean isBuildVersionLM = false;
+    private static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+
     private boolean isScanning;
 
     private BluetoothManager bluetoothManager;
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         PermissionV21.check(this);
@@ -83,16 +85,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setRecyclerView();
         setOtherView();
 
+        setScannerCallback();
 
+    }
+
+    private void setScannerCallback() {
+        if (isBuildVersionLM) {
+            setScannerL();
+        } else {
+            setScanner();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-
         try {
+            // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
             bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
 
@@ -104,14 +114,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 if (bleScanner == null) {
                     throw new Exception();
-                } else {
-                    setScannerL();
                 }
-            } else {
-                setScanner();
             }
 
-            startScan();
+            _startScan();
 
         } catch (Exception e) {
             Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
@@ -126,16 +132,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onDestroy() { //꺼짐
-        super.onDestroy();
-        scanDevice(false);
+    protected void onPause() { //꺼짐
+        super.onPause();
+        _stopScan();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fabSearch:
-                startScan();
+                toggleScan();
                 break;
         }
     }
@@ -182,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
-                startScan();
+                _startScan();
             } else {
                 Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
 
@@ -247,73 +253,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void startScan() {
+    private void toggleScan() {
         if (isBluetoothOn()) {
 
             if (isScanning) {  //스캔 시작
-                scanDevice(false);
+                _stopScan();
             } else { //재 스캔시(10초이내)
                 if (adapter != null) {
                     mainDeviceItemArrayList.clear();
                     adapter.notifyDataSetChanged();
                 }
-                scanDevice(true);
+                _startScan();
             }
         } else {
             Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
         }
     }
 
-    public void scanDevice(final boolean enable) {//저전력 스캔\
+    private synchronized void _startScan() {
         long SCAN_PERIOD = 5000;
-        if (enable) {   //시작중이면
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (isBuildVersionLM) {
-                        bleScanner.stopScan(scanCallback);
-                    } else {
-                        bluetoothAdapter.stopLeScan(leScanCallback);
-                    }
 
-                    isScanning = false;
-                    searchingProgressBar.setVisibility(View.INVISIBLE);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                _stopScan();
 
-                    if (mainDeviceItemArrayList.size() < 1) {
-                        noDeviceTextView.setVisibility(View.VISIBLE);
-                    }
-                    adapter = new MainDeviceAdapter(mainDeviceItemArrayList, MainActivity.this);
-                    recyclerView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
+                if (mainDeviceItemArrayList.size() < 1) {
+                    noDeviceTextView.setVisibility(View.VISIBLE);
                 }
-            }, SCAN_PERIOD); //5초 뒤에 OFF
 
-            //시작
-            if (isBuildVersionLM) {
-                bleScanner.startScan(scanCallback);
-            } else {
-                bluetoothAdapter.startLeScan(leScanCallback);
+                adapter = new MainDeviceAdapter(mainDeviceItemArrayList, MainActivity.this);
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
             }
+        }, SCAN_PERIOD); //5초 뒤에 OFF
 
-            isScanning = true;
-            searchingProgressBar.setVisibility(View.VISIBLE);
-            noDeviceTextView.setVisibility(View.INVISIBLE);
-
-
+        //시작
+        if (isBuildVersionLM) {
+            bleScanner.startScan(scanCallback);
         } else {
-            //중지
-            if (isBuildVersionLM) {
-                bleScanner.stopScan(scanCallback);
-            } else {
-                bluetoothAdapter.startLeScan(leScanCallback);
-            }
-
-            isScanning = false;
-            searchingProgressBar.setVisibility(View.INVISIBLE);
-            noDeviceTextView.setVisibility(View.INVISIBLE);
-
+            bluetoothAdapter.startLeScan(leScanCallback);
         }
+
+        isScanning = true;
+        searchingProgressBar.setVisibility(View.VISIBLE);
+        noDeviceTextView.setVisibility(View.INVISIBLE);
     }
+
+    private synchronized void _stopScan() {
+        //중지
+        if (isBuildVersionLM) {
+            bleScanner.stopScan(scanCallback);
+        } else {
+            bluetoothAdapter.startLeScan(leScanCallback);
+        }
+
+        isScanning = false;
+        searchingProgressBar.setVisibility(View.INVISIBLE);
+        noDeviceTextView.setVisibility(View.INVISIBLE);
+
+    }
+
+
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setScannerL() {
