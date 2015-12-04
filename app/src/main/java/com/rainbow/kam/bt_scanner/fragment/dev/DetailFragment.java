@@ -1,11 +1,8 @@
 package com.rainbow.kam.bt_scanner.fragment.dev;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,7 +111,6 @@ public class DetailFragment extends Fragment {
         bindView();
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detail, container, false);

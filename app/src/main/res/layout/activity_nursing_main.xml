@@ -59,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:tabGravity="center"
-                app:tabMode="scrollable"/>
+                app:tabMode="scrollable" />
 
 
         </android.support.design.widget.AppBarLayout>
@@ -71,13 +71,18 @@
             app:layout_anchor="@id/nursing_tabs"
             app:layout_anchorGravity="bottom|center" />
 
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/nursing_viewpager"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/dashboard_device_swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:foreground="?android:windowContentOverlay"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/nursing_viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:foreground="?android:windowContentOverlay" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
     </android.support.design.widget.CoordinatorLayout>
 

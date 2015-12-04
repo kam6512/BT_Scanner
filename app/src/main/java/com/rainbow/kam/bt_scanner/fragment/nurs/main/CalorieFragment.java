@@ -1,21 +1,13 @@
 package com.rainbow.kam.bt_scanner.fragment.nurs.main;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse.DashboardItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
-
-import java.util.ArrayList;
 
 /**
  * Created by kam6512 on 2015-11-04.

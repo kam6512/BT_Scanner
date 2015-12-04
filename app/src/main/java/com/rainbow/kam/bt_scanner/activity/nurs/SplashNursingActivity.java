@@ -11,11 +11,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
 import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentLogo;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
@@ -29,14 +28,13 @@ import io.realm.RealmResults;
 public class SplashNursingActivity extends AppCompatActivity {
 
     private static final String TAG = SplashNursingActivity.class.getSimpleName();
-    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nursing_splash);
         try {
-            realm = Realm.getInstance(this);
+            Realm realm = Realm.getInstance(this);
 
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
             Patient patient = results.get(0);

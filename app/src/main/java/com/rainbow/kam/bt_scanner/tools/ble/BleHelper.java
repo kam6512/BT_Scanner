@@ -2,8 +2,6 @@ package com.rainbow.kam.bt_scanner.tools.ble;
 
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.NotInUse.Tools.BandDeviceList;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;

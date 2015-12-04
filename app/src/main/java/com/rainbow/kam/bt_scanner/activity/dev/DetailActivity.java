@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.activity.dev;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -18,10 +17,10 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment;
-import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.ble.BLE;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;

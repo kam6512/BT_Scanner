@@ -20,10 +20,9 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
-import com.rainbow.kam.bt_scanner.activity.nurs.SplashNursingActivity;
-import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
+import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.design.RippleView;
 
 import java.lang.ref.WeakReference;

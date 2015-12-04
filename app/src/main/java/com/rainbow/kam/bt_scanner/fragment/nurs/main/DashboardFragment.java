@@ -1,10 +1,7 @@
 package com.rainbow.kam.bt_scanner.fragment.nurs.main;
 
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;

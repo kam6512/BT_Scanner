@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter.dev.detail;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;

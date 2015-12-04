@@ -62,8 +62,8 @@ public class SplashNursingDialog extends DialogFragment {
     private RecyclerView.Adapter adapter = null;
     private ArrayList<SelectDeviceItem> selectDeviceItems = new ArrayList<>();
 
-    ProgressBar searchingProgressBar;
-    TextView noDeviceTextView;
+    private ProgressBar searchingProgressBar;
+    private TextView noDeviceTextView;
 
     public SplashNursingDialog() {
     }
