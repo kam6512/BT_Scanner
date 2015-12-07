@@ -104,6 +104,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private DistanceFragment distanceFragment;
     private SampleFragment sampleFragment;
 
+    private BluetoothManager bluetoothManager;
+    private BluetoothAdapter bluetoothAdapter;
+
     private BLE ble;
     private List<BluetoothGattCharacteristic> characteristicList;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
@@ -128,7 +131,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     protected void onStart() {
         super.onStart();
         activity = this;
-
         try {
             realm = Realm.getInstance(activity);
 
@@ -165,12 +167,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nursing_main);
 
-        dashboardFragment = new DashboardFragment();
-        stepFragment = new StepFragment();
-        calorieFragment = new CalorieFragment();
-        distanceFragment = new DistanceFragment();
-        sampleFragment = new SampleFragment();
-
+        setFragments();
         setToolbar();
         setMaterialNavigationView();
         setViewPager();
@@ -251,14 +248,15 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     public boolean registerBluetooth() {
-        BluetoothManager bluetoothManager;
-        BluetoothAdapter bluetoothAdapter;
-        try {
-            bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+
+        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+
+        if (bluetoothManager == null) {
+            Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
+            finish();
+        } else {
             bluetoothAdapter = bluetoothManager.getAdapter();
-            if (bluetoothAdapter == null) {
-                throw new Exception();
-            }
+
             if (bluetoothAdapter.isEnabled()) {
                 connectDevice();
                 return true;
@@ -267,11 +265,16 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 startActivityForResult(intent, 1);
                 return false;
             }
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
-            finish();
         }
         return false;
+    }
+
+    private void setFragments() {
+        dashboardFragment = new DashboardFragment();
+        stepFragment = new StepFragment();
+        calorieFragment = new CalorieFragment();
+        distanceFragment = new DistanceFragment();
+        sampleFragment = new SampleFragment();
     }
 
     private void setToolbar() {
@@ -458,7 +461,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 } else {
                     count++;
                     materialContent.setText("연결 실패, 다시 연결 중... " + count + "회 재시도");
-//                    disconnectDevice();
+
                     if (ble == null) {
                         ble = new BLE(MainNursingActivity.this, MainNursingActivity.this);
                     }
@@ -478,7 +481,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             ble.stopMonitoringRssiValue();
             ble.disconnect();
             ble.close();
-//            ble = null;
         }
     }
 
@@ -489,10 +491,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         switch (listType) {
             case READ_TIME:
                 for (int i = 0; i < characteristicValue.length; i++) {
-//                            int lsb = characteristic.getValue()[i] & 0xff;
                     if (i > 1 && i != characteristicValue.length - 1) {
                         result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
-
                         switch (i) {
                             default:
                                 result += timeSet[i - 2] + " ";
@@ -506,7 +506,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                                 break;
                         }
                     }
-//                            Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + " / result " + result);
                 }
 
                 dashboardFragment.setTime(result);

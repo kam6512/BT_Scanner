@@ -3,6 +3,8 @@ package com.rainbow.kam.bt_scanner.fragment.dev;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.text.TextUtilsCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,25 +26,22 @@ import java.util.Locale;
  */
 public class DetailFragment extends Fragment {
 
-    private class FieldReference {
-        private TextView deviceName;
-        private TextView deviceAddress;
-        private TextView serviceName;
-        private TextView serviceUuid;
-        private TextView charUuid;
-        private TextView charName;
-        private TextView charDataType;
-        private TextView charStrValue;
-        private EditText charHexValue;
-        private TextView charDecValue;
-        private TextView charDateValue;
-        private TextView charProperties;
+    private TextView deviceName;
+    private TextView deviceAddress;
+    private TextView serviceName;
+    private TextView serviceUuid;
+    private TextView charUuid;
+    private TextView charName;
+    private TextView charDataType;
+    private TextView charStrValue;
+    private EditText charHexValue;
+    private TextView charDecValue;
+    private TextView charDateValue;
+    private TextView charProperties;
 
-        private ToggleButton notificationBtn;
-        private Button readBtn;
-        private Button writeBtn;
-    }
-
+    private ToggleButton notificationBtn;
+    private Button readBtn;
+    private Button writeBtn;
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
     private BLE ble;
     private int intValue = 0;
@@ -50,8 +49,6 @@ public class DetailFragment extends Fragment {
     private String strValue = "";
     private String lastUpdateTime = "";
     private boolean notificationEnabled = false;
-
-    FieldReference fieldReference;
 
     public DetailFragment() {
         super();
@@ -69,10 +66,9 @@ public class DetailFragment extends Fragment {
         strValue = "";
         lastUpdateTime = "-";
         notificationEnabled = false;
-//        bindView();
     }
 
-    public BluetoothGattCharacteristic getCharacteristic(int index) {
+    public BluetoothGattCharacteristic getCharacteristic() {
         return bluetoothGattCharacteristic;
     }
 
@@ -114,48 +110,46 @@ public class DetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
-        fieldReference = new FieldReference();
 
-        fieldReference.deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
-        fieldReference.deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
-        fieldReference.serviceName = (TextView) view.findViewById(R.id.characteristic_service_name);
-        fieldReference.serviceUuid = (TextView) view.findViewById(R.id.characteristic_service_uuid);
-        fieldReference.charName = (TextView) view.findViewById(R.id.characteristic_detail_name);
-        fieldReference.charUuid = (TextView) view.findViewById(R.id.characteristic_detail_uuid);
+        deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
+        deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
+        serviceName = (TextView) view.findViewById(R.id.characteristic_service_name);
+        serviceUuid = (TextView) view.findViewById(R.id.characteristic_service_uuid);
+        charName = (TextView) view.findViewById(R.id.characteristic_detail_name);
+        charUuid = (TextView) view.findViewById(R.id.characteristic_detail_uuid);
 
-        fieldReference.charDataType = (TextView) view.findViewById(R.id.characteristic_detail_type);
-        fieldReference.charProperties = (TextView) view.findViewById(R.id.characteristic_detail_properties);
+        charDataType = (TextView) view.findViewById(R.id.characteristic_detail_type);
+        charProperties = (TextView) view.findViewById(R.id.characteristic_detail_properties);
 
-        fieldReference.charStrValue = (TextView) view.findViewById(R.id.characteristic_detail_ascii_value);
-        fieldReference.charDecValue = (TextView) view.findViewById(R.id.characteristic_detail_decimal_value);
-        fieldReference.charHexValue = (EditText) view.findViewById(R.id.characteristic_detail_hex_value);
-        fieldReference.charDateValue = (TextView) view.findViewById(R.id.characteristic_detail_timestamp);
+        charStrValue = (TextView) view.findViewById(R.id.characteristic_detail_ascii_value);
+        charDecValue = (TextView) view.findViewById(R.id.characteristic_detail_decimal_value);
+        charHexValue = (EditText) view.findViewById(R.id.characteristic_detail_hex_value);
+        charDateValue = (TextView) view.findViewById(R.id.characteristic_detail_timestamp);
 
-        fieldReference.notificationBtn = (ToggleButton) view.findViewById(R.id.characteristic_detail_notification_switcher);
-        fieldReference.readBtn = (Button) view.findViewById(R.id.characteristic_detail_read_btn);
-        fieldReference.writeBtn = (Button) view.findViewById(R.id.characteristic_detail_write_btn);
-        fieldReference.writeBtn.setTag(fieldReference.charHexValue);
+        notificationBtn = (ToggleButton) view.findViewById(R.id.characteristic_detail_notification_switcher);
+        readBtn = (Button) view.findViewById(R.id.characteristic_detail_read_btn);
+        writeBtn = (Button) view.findViewById(R.id.characteristic_detail_write_btn);
 
-        fieldReference.readBtn.setOnClickListener(new View.OnClickListener() {
+        readBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ble.requestCharacteristicValue(bluetoothGattCharacteristic);
             }
         });
 
-        fieldReference.writeBtn.setOnClickListener(new View.OnClickListener() {
+        writeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText hex = (EditText) v.getTag();
+                EditText hex = charHexValue;
                 String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
-
-                byte[] dataToWrite = BleHelper.parseHexStringToBytesDEV(newValue);
-//                byte[] dataToWrite = BleHelper.parseHexStringToBytes(newValue);
-                ble.writeDataToCharacteristic(bluetoothGattCharacteristic, dataToWrite);
+                if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
+                    byte[] dataToWrite = BleHelper.parseHexStringToBytesDEV(newValue);
+                    ble.writeDataToCharacteristic(bluetoothGattCharacteristic, dataToWrite);
+                }
             }
         });
 
-        fieldReference.notificationBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        notificationBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked == notificationEnabled) {
@@ -166,27 +160,26 @@ public class DetailFragment extends Fragment {
             }
         });
 
-        view.setTag(fieldReference);
         return view;
     }
 
     public void bindView() {
 
         if (ble != null) {
-            fieldReference.deviceName.setText(ble.getBluetoothDevice().getName());
-            fieldReference.deviceAddress.setText(ble.getBluetoothDevice().getAddress());
+            deviceName.setText(ble.getBluetoothDevice().getName());
+            deviceAddress.setText(ble.getBluetoothDevice().getAddress());
 
             String tmp = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-            fieldReference.serviceUuid.setText(tmp);
-            fieldReference.serviceName.setText(BLEGattAttributes.resolveServiceName(tmp));
+            serviceUuid.setText(tmp);
+            serviceName.setText(BLEGattAttributes.resolveServiceName(tmp));
 
             String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = BLEGattAttributes.resolveCharacteristicName(uuid);
-            fieldReference.charName.setText(name);
-            fieldReference.charUuid.setText(uuid);
+            charName.setText(name);
+            charUuid.setText(uuid);
 
             int format = ble.getValueFormat(bluetoothGattCharacteristic);
-            fieldReference.charDataType.setText(BLEGattAttributes.resolveValueTypeDescription(format));
+            charDataType.setText(BLEGattAttributes.resolveValueTypeDescription(format));
 
             int props = bluetoothGattCharacteristic.getProperties();
             String propertiesString = String.format("0x%04X [", props);
@@ -205,22 +198,18 @@ public class DetailFragment extends Fragment {
             if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
                 propertiesString += "write_no_response ";
             }
-            fieldReference.charProperties.setText(propertiesString + "]");
+            charProperties.setText(propertiesString + "]");
 
-            fieldReference.notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
-            fieldReference.notificationBtn.setChecked(notificationEnabled);
-            fieldReference.readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
-            fieldReference.writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
-//            fieldReference.charHexValue.setEnabled(fieldReference.writeBtn.isEnabled());
-//
-//            fieldReference.charHexValue.setText(asciiValue);
-            fieldReference.charStrValue.setText(strValue);
-            fieldReference.charDecValue.setText(String.format("%d", intValue));
-            fieldReference.charDateValue.setText(lastUpdateTime);
+            notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
+            notificationBtn.setChecked(notificationEnabled);
+            readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
+            writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
+            charHexValue.setEnabled(writeBtn.isEnabled());
+
+//            charHexValue.setText(asciiValue);
+            charStrValue.setText(strValue);
+            charDecValue.setText(String.format("%d", intValue));
+            charDateValue.setText(lastUpdateTime);
         }
-
-
     }
-
-
 }

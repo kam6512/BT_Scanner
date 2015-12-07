@@ -35,62 +35,41 @@ public class SplashNursingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_nursing_splash);
         try {
             Realm realm = Realm.getInstance(this);
-
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
             Patient patient = results.get(0);
+
             if (patient.getStep() == null) {
                 throw new Exception();
             }
+
             finish();
             startActivity(new Intent(SplashNursingActivity.this, MainNursingActivity.class));
 
         } catch (Exception e) {
-
-            PermissionV21.check(this);
-            Realm.removeDefaultConfiguration();
-
-            final FragmentManager fragmentManager = getSupportFragmentManager();
-            final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            final SplashNursingFragmentAddUser splashNursingFragmentAddUser =
-                    new SplashNursingFragmentAddUser();
-            final SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
-
-            fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentAddUser);
-            fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentLogo);
-            fragmentTransaction.commit();
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getSupportFragmentManager().beginTransaction()
-                            .remove(splashNursingFragmentLogo)
-                            .commit();
-                }
-            }, 3000);
+           setFragment();
         }
     }
 
+    private void setFragment(){
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
+        final SplashNursingFragmentAddUser splashNursingFragmentAddUser =
+                new SplashNursingFragmentAddUser();
+        final SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
 
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
-                Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
-                myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivityForResult(myAppSettings, 0);
+        fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentAddUser);
+        fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentLogo);
+        fragmentTransaction.commit();
 
-                finish();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                getSupportFragmentManager().beginTransaction()
+                        .remove(splashNursingFragmentLogo)
+                        .commit();
             }
-        } else {
-            Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
-        }
+        }, 3000);
     }
 
     @Override

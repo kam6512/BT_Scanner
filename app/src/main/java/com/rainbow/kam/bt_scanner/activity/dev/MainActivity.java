@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.activity.dev;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
     private static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    private static long SCAN_PERIOD = 5000;
 
     private boolean isScanning;
 
@@ -88,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onResume() {
         super.onResume();
@@ -236,85 +239,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 
-    private void initBluetoothOn() {//블루투스 가동여부
-
-        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
-        Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
-
-
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, MainActivity.REQUEST_ENABLE_BT);
-
-
-    }
-
-    private void toggleScan() {
-        if (bluetoothAdapter.isEnabled()) {
-
-            if (isScanning) {  //스캔 시작
-                stopScan();
-            } else { //재 스캔시(10초이내)
-                if (adapter != null) {
-                    mainDeviceItemArrayList.clear();
-                    adapter.notifyDataSetChanged();
-                }
-                startScan();
-            }
-        } else {
-            if (isScanning) {  //스캔 시작
-                stopScan();
-            }
-            initBluetoothOn();
-        }
-    }
-
-    private synchronized void startScan() {
-        long SCAN_PERIOD = 5000;
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopScan();
-
-                if (bluetoothAdapter.isEnabled()) {
-                    if (mainDeviceItemArrayList.size() < 1) {
-                        noDeviceTextView.setVisibility(View.VISIBLE);
-                    }
-                    adapter.notifyDataSetChanged();
-                } else {
-                    initBluetoothOn();
-                }
-            }
-        }, SCAN_PERIOD); //5초 뒤에 OFF
-
-        //시작
-        mainDeviceItemArrayList.clear();
-        adapter.notifyDataSetChanged();
-        isScanning = true;
-        searchingProgressBar.setVisibility(View.VISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
-
-        if (isBuildVersionLM) {
-            bleScanner.startScan(scanCallback);
-        } else {
-            bluetoothAdapter.startLeScan(leScanCallback);
-        }
-    }
-
-    private synchronized void stopScan() {
-        //중지
-        if (isBuildVersionLM) {
-            bleScanner.stopScan(scanCallback);
-        } else {
-            bluetoothAdapter.stopLeScan(leScanCallback);
-        }
-
-        isScanning = false;
-        searchingProgressBar.setVisibility(View.INVISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
-
-    }
-
     private void setScannerCallback() {
         if (isBuildVersionLM) {
             setScannerL();
@@ -396,5 +320,78 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void initBluetoothOn() {//블루투스 가동여부
+        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
+        Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
 
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(intent, MainActivity.REQUEST_ENABLE_BT);
+    }
+
+    private void toggleScan() {
+        if (bluetoothAdapter.isEnabled()) {
+
+            if (isScanning) {  //스캔 시작
+                stopScan();
+            } else { //재 스캔시(10초이내)
+                if (adapter != null) {
+                    mainDeviceItemArrayList.clear();
+                    adapter.notifyDataSetChanged();
+                }
+                startScan();
+            }
+        } else {
+            if (isScanning) {  //스캔 시작
+                stopScan();
+            }
+            initBluetoothOn();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private synchronized void startScan() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                stopScan();
+
+                if (bluetoothAdapter.isEnabled()) {
+                    if (mainDeviceItemArrayList.size() < 1) {
+                        noDeviceTextView.setVisibility(View.VISIBLE);
+                    }
+                    adapter.notifyDataSetChanged();
+                } else {
+                    initBluetoothOn();
+                }
+            }
+        }, SCAN_PERIOD); //5초 뒤에 OFF
+
+        //시작
+        mainDeviceItemArrayList.clear();
+        adapter.notifyDataSetChanged();
+        isScanning = true;
+        searchingProgressBar.setVisibility(View.VISIBLE);
+        noDeviceTextView.setVisibility(View.INVISIBLE);
+
+        if (isBuildVersionLM) {
+            bleScanner.startScan(scanCallback);
+        } else {
+            bluetoothAdapter.startLeScan(leScanCallback);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private synchronized void stopScan() {
+        //중지
+        if (isBuildVersionLM) {
+            bleScanner.stopScan(scanCallback);
+        } else {
+            bluetoothAdapter.stopLeScan(leScanCallback);
+        }
+
+        isScanning = false;
+        searchingProgressBar.setVisibility(View.INVISIBLE);
+        noDeviceTextView.setVisibility(View.INVISIBLE);
+
+    }
 }

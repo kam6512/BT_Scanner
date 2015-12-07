@@ -64,7 +64,7 @@ public class DetailCharacteristicFragment extends Fragment {
         return characteristicItemArrayList.get(index).getBluetoothGattCharacteristic();
     }
 
-    public void noti() {
+    public void notifyAdapter() {
         adapter.notifyDataSetChanged();
     }
 

@@ -65,7 +65,7 @@ public class DetailServiceFragment extends Fragment {
         return serviceItemArrayList.get(index).getBluetoothGattService();
     }
 
-    public void noti() {
+    public void notifyAdapter() {
         adapter.notifyDataSetChanged();
     }
 

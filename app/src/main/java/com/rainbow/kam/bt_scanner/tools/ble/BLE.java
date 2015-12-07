@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.tools.ble;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -54,14 +55,6 @@ public class BLE {
         }
     }
 
-    public BluetoothManager getBluetoothManager() {
-        return bluetoothManager;
-    }
-
-    public BluetoothAdapter getBluetoothAdapter() {
-        return bluetoothAdapter;
-    }
-
     public BluetoothDevice getBluetoothDevice() {
         return bluetoothDevice;
     }
@@ -78,28 +71,6 @@ public class BLE {
         return bluetoothGattServices;
     }
 
-    public boolean isConnected() {
-        return connected;
-    }
-
-    public boolean checkBleHardwareAvailable() {
-        final BluetoothManager bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
-        if (bluetoothManager == null) {
-            return false;
-        }
-
-        final BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
-    }
-
-    public void startScanning() {
-        bluetoothAdapter.startLeScan(deviceFoundCallback);
-    }
-
-    public void stopScanning() {
-        bluetoothAdapter.stopLeScan(deviceFoundCallback);
-    }
-
     public boolean initialize() {
         if (bluetoothManager == null) {
             bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -107,8 +78,9 @@ public class BLE {
                 return false;
             }
         }
-
-        if (bluetoothAdapter == null) bluetoothAdapter = bluetoothManager.getAdapter();
+        if (bluetoothAdapter == null) {
+            bluetoothAdapter = bluetoothManager.getAdapter();
+        }
         return bluetoothAdapter != null;
     }
 
@@ -133,6 +105,10 @@ public class BLE {
             bluetoothGatt.disconnect();
         }
         bleUiCallbacks.uiDeviceDisconnected(bluetoothGatt, bluetoothDevice);
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 
     public void close() {
@@ -215,7 +191,6 @@ public class BLE {
 
         UUID uuid = bluetoothGattCharacteristic.getUuid();
 
-
         if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.HEART_RATE_MEASUREMENT))) {
 
             int index = ((rawValue[0] & 0x01) == 1) ? 2 : 1;
@@ -230,32 +205,29 @@ public class BLE {
             strValue = bluetoothGattCharacteristic.getStringValue(0);
 
         } else if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.APPEARANCE))) {
-            intValue = ((int) rawValue[1]) << 8;
+
             intValue = rawValue[0];
             strValue = BLEGattAttributes.resolveAppearance(intValue);
         } else if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.BATTRY))) {
             intValue = rawValue[0];
             strValue = "" + intValue + "% battery level";
         } else {
-            int Value = 0;
-            if (rawValue.length > 0) {
-                intValue = (int) rawValue[0];
-            }
-            if (rawValue.length > 1) {
-                intValue = intValue + ((int) rawValue[1] << 8);
-            }
-            if (rawValue.length > 2) {
-                intValue = intValue + ((int) rawValue[2] << 8);
-            }
-            if (rawValue.length > 3) {
-                intValue = intValue + ((int) rawValue[3] << 8);
-            }
-
+//            if (rawValue.length > 0) {
+//                intValue = (int) rawValue[0];
+//            }
+//            if (rawValue.length > 1) {
+//                intValue = intValue + ((int) rawValue[1] << 8);
+//            }
+//            if (rawValue.length > 2) {
+//                intValue = intValue + ((int) rawValue[2] << 8);
+//            }
+//            if (rawValue.length > 3) {
+//                intValue = intValue + ((int) rawValue[3] << 8);
+//            }
             if (rawValue.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
 
                 for (byte byteChar : rawValue) {
-//                    Log.e("rawValue",String.format("%c", byteChar));
                     try {
                         stringBuilder.append(String.format("%c", byteChar));
                     } catch (IllegalFormatCodePointException e) {
@@ -268,7 +240,7 @@ public class BLE {
                 strValue = stringBuilder.toString();
             }
         }
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
         bleUiCallbacks.uiNewValueForCharacteristic(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristic, strValue, intValue, rawValue, timeStamp);
     }
 
@@ -333,12 +305,14 @@ public class BLE {
         }
     }
 
-    private BluetoothAdapter.LeScanCallback deviceFoundCallback = new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            bleUiCallbacks.uiDeviceFound(device, rssi, scanRecord);
-        }
-    };
+    /*
+        private BluetoothAdapter.LeScanCallback deviceFoundCallback = new BluetoothAdapter.LeScanCallback() {
+            @Override
+            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+                bleUiCallbacks.uiDeviceFound(device, rssi, scanRecord);
+            }
+        };
+    */
 
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -350,6 +324,7 @@ public class BLE {
                 bluetoothGatt.readRemoteRssi();
                 startServiceDiscorvery();
                 startMonitoringRssiValue();
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
                 bleUiCallbacks.uiDeviceDisconnected(bluetoothGatt, bluetoothDevice);

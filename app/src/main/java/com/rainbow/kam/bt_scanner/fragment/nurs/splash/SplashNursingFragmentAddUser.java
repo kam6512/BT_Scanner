@@ -42,6 +42,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     private FragmentManager fm;
     private SplashNursingDialog dialogFragment;
 
+    private View view;
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
     private FloatingActionButton nextFab;
@@ -59,33 +60,16 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        View view;
         view = inflater.inflate(R.layout.fragment_nursing_splash_adduser, container, false);
 
-        name = (TextInputLayout) view.findViewById(R.id.nursing_adduser_name);
-        age = (TextInputLayout) view.findViewById(R.id.nursing_adduser_age);
-        height = (TextInputLayout) view.findViewById(R.id.nursing_adduser_height);
-        weight = (TextInputLayout) view.findViewById(R.id.nursing_adduser_weight);
-        step = (TextInputLayout) view.findViewById(R.id.nursing_adduser_step);
-        genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
+        activity = getActivity();
 
-        nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
-        nextFab.setOnClickListener(this);
+        setUserInput();
+        setBtn();
 
-        RippleView skip = (RippleView) view.findViewById(R.id.nursing_adduser_skip);
-        skip.setOnRippleCompleteListener(this);
-
-        fm = getFragmentManager();
         handler = new SplashNursingFragmentHandler(this);
 
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        activity = getActivity();
     }
 
     @Override
@@ -99,11 +83,27 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         }
     }
 
+    private void setUserInput() {
+        name = (TextInputLayout) view.findViewById(R.id.nursing_adduser_name);
+        age = (TextInputLayout) view.findViewById(R.id.nursing_adduser_age);
+        height = (TextInputLayout) view.findViewById(R.id.nursing_adduser_height);
+        weight = (TextInputLayout) view.findViewById(R.id.nursing_adduser_weight);
+        step = (TextInputLayout) view.findViewById(R.id.nursing_adduser_step);
+        genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
+    }
+
+    private void setBtn() {
+        nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
+        nextFab.setOnClickListener(this);
+
+        RippleView skip = (RippleView) view.findViewById(R.id.nursing_adduser_skip);
+        skip.setOnRippleCompleteListener(this);
+    }
+
     private void handleMessage(Message msg) {
         final Bundle callbackBundle = msg.getData();
 
-        Realm.removeDefaultConfiguration();
-        realm = Realm.getInstance(getActivity());
+        realm = Realm.getInstance(activity);
         realm.beginTransaction();
         realm.allObjects(Patient.class).clear();
 
@@ -133,67 +133,6 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
             }
         });
         realm.commitTransaction();
-    }
-
-    private void showAcceptDialog(String res) {
-        new MaterialDialog.Builder(getActivity()).title("기입 정보가 확실한지 확인해주시기 바랍니다.")
-                .content(res)
-                .positiveText("확인").negativeText("수정")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                        showDeviceListDialog();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                }).show();
-    }
-
-    private void showSkipDialog() {
-
-        userName = activity.getString(R.string.username_default);
-        userAge = activity.getString(R.string.userage_default);
-        userHeight = activity.getString(R.string.userheight_default);
-        userWeight = activity.getString(R.string.userweight_default);
-        userStep = activity.getString(R.string.userstep_default);
-        userGender = activity.getString(R.string.usergender_default);
-
-        new MaterialDialog.Builder(activity).title(R.string.skip)
-                .content(R.string.skip_warning)
-                .positiveText(R.string.accept).negativeText(R.string.fix)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                        showDeviceListDialog();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                }).show();
-    }
-
-    private void showDeviceListDialog() {
-        if (fm != null) {
-            dialogFragment = new SplashNursingDialog();
-            dialogFragment.show(fm, "DeviceDialog");
-        }
-    }
-
-    private void dismissDeviceListDialog() {
-        if (dialogFragment != null) {
-            dialogFragment.dismiss();
-        }
-        getActivity().finish();
-        startActivity(new Intent(getActivity(), MainNursingActivity.class));
     }
 
     @Override
@@ -240,6 +179,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
                     "\n키 : " + userHeight +
                     "\n몸무게 : " + userWeight +
                     "\n걸음너비 : " + userStep;
+
             showAcceptDialog(dialogContent);
         }
     }
@@ -247,6 +187,69 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     @Override
     public void onComplete(RippleView rippleView) {
         showSkipDialog();
+    }
+
+    private void showAcceptDialog(String res) {
+        new MaterialDialog.Builder(activity).title("기입 정보가 확실한지 확인해주시기 바랍니다.")
+                .content(res)
+                .positiveText("확인").negativeText("수정")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                        showDeviceListDialog();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                }).show();
+    }
+
+    private void showSkipDialog() {
+
+        userName = activity.getString(R.string.username_default);
+        userAge = activity.getString(R.string.userage_default);
+        userHeight = activity.getString(R.string.userheight_default);
+        userWeight = activity.getString(R.string.userweight_default);
+        userStep = activity.getString(R.string.userstep_default);
+        userGender = activity.getString(R.string.usergender_default);
+
+        new MaterialDialog.Builder(activity).title(R.string.skip)
+                .content(R.string.skip_warning)
+                .positiveText(R.string.accept).negativeText(R.string.fix)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                        showDeviceListDialog();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                }).show();
+    }
+
+    private void showDeviceListDialog() {
+
+        fm = getFragmentManager();
+        if (fm != null) {
+            dialogFragment = new SplashNursingDialog();
+            dialogFragment.show(fm, "DeviceDialog");
+        }
+    }
+
+    private void dismissDeviceListDialog() {
+        if (dialogFragment != null) {
+            dialogFragment.dismiss();
+        }
+        activity.finish();
+        startActivity(new Intent(activity, MainNursingActivity.class));
     }
 
     private static class SplashNursingFragmentHandler extends Handler {
