@@ -36,16 +36,19 @@ public class DetailCharacteristicFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("Characteristic", "onCreateView");
-        activity = getActivity();
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
+        activity = getActivity();
+        setRecyclerView();
+        return view;
+    }
+
+    private void setRecyclerView() {
         recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new DetailAdapter(characteristicItemArrayList);
         recyclerView.setAdapter(adapter);
-        return view;
     }
 
     public void addCharacteristic(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
@@ -54,7 +57,6 @@ public class DetailCharacteristicFragment extends Fragment {
         String name = BLEGattAttributes.resolveCharacteristicName(uuid);
 
         characteristicItemArrayList.add(new CharacteristicItem(name, uuid, "0", bluetoothGattCharacteristic));
-
         adapter.notifyDataSetChanged();
     }
 

@@ -22,12 +22,11 @@ import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment;
 import com.rainbow.kam.bt_scanner.tools.ble.BLE;
-import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.ble.BleHelper;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by kam6512 on 2015-11-27.
@@ -39,11 +38,11 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
     public static final String EXTRAS_DEVICE_RSSI = "BLE_DEVICE_RSSI";
 
-    private enum ListType {
+    private enum GattType {
         GATT_SERVICES, GATT_CHARACTERISTICS, GATT_CHARACTERISTIC_DETAILS
     }
 
-    private ListType listType = ListType.GATT_SERVICES;
+    private GattType gattType = GattType.GATT_SERVICES;
     private String deviceName;
     private String deviceAddress;
     private String deviceRSSI;
@@ -72,8 +71,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        handler = new DetailActivityHandler(this);
-
         Intent intent = getIntent();
         deviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         deviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
@@ -82,45 +79,8 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         setToolbar();
         setFragments();
 
-        fragmentManager = getSupportFragmentManager();
-
+        handler = new DetailActivityHandler(this);
         handler.sendEmptyMessage(0);
-    }
-
-    private void handleMessage(Message msg) {
-        final int position = msg.arg1;
-        fragmentTransaction = fragmentManager.beginTransaction();
-
-        switch (msg.what) {
-            case 0: //init fragment [Service]
-                Log.e(TAG, "Service");
-                fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
-
-                break;
-
-            case 1: //add fragment [Characteristic]
-                Log.e(TAG, "Char");
-                fragmentTransaction.hide(serviceFragment);
-                fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
-
-                BluetoothGattService bluetoothGattService = serviceFragment.getService(position);
-                ble.getCharacteristicsForService(bluetoothGattService);
-
-                break;
-
-            case 2: // add fragment [DetailCharacteristic]
-                Log.e(TAG, "Detail");
-                fragmentTransaction.hide(characteristicFragment);
-                fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
-
-                BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristicFragment.getCharacteristic(position);
-                uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristic);
-
-                break;
-        }
-
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
     }
 
     private void setToolbar() {
@@ -142,9 +102,44 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     }
 
     private void setFragments() {
+        fragmentManager = getSupportFragmentManager();
+
         serviceFragment = new DetailServiceFragment();
         characteristicFragment = new DetailCharacteristicFragment();
         detailFragment = new DetailFragment();
+    }
+
+    private void handleMessage(Message msg) {
+        final int position = msg.arg1;
+        fragmentTransaction = fragmentManager.beginTransaction();
+
+        switch (msg.what) {
+            case 0: //init fragment [Service]
+                fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
+
+                break;
+
+            case 1: //add fragment [Characteristic]
+                fragmentTransaction.hide(serviceFragment);
+                fragmentTransaction.add(R.id.detail_fragment_view, characteristicFragment);
+
+                BluetoothGattService bluetoothGattService = serviceFragment.getService(position);
+                ble.getCharacteristicsForService(bluetoothGattService);
+
+                break;
+
+            case 2: // add fragment [DetailCharacteristic]
+                fragmentTransaction.hide(characteristicFragment);
+                fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
+
+                BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristicFragment.getCharacteristic(position);
+                uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristic);
+
+                break;
+        }
+
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -166,26 +161,22 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         if (!ble.initialize()) {
             finish();
         }
-        listType = ListType.GATT_SERVICES;
         deviceStateTextView.setText("connecting...");
         ble.connect(deviceAddress);
     }
 
     private void disconnect() {
-        try {
-            serviceFragment.clearAdapter();
-            characteristicFragment.clearAdapter();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (ble != null) {
+            ble.stopMonitoringRssiValue();
+            ble.disconnect();
+            ble.close();
         }
-        ble.stopMonitoringRssiValue();
-        ble.disconnect();
-        ble.close();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            gattType = GattType.GATT_SERVICES;
             finish();
             return true;
         }
@@ -195,19 +186,22 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     @Override
     public void onBackPressed() {
         fragmentTransaction = fragmentManager.beginTransaction();
-        if (listType.equals(ListType.GATT_SERVICES)) {
+        if (gattType.equals(GattType.GATT_SERVICES)) {
+            serviceFragment.clearAdapter();
             finish();
         }
-        if (listType.equals(ListType.GATT_CHARACTERISTICS)) {
+        if (gattType.equals(GattType.GATT_CHARACTERISTICS)) {
             uiAvailableServices(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattServices());
             characteristicFragment.clearAdapter();
+
             fragmentTransaction.show(serviceFragment);
             fragmentTransaction.remove(characteristicFragment);
 
         }
-        if (listType.equals(ListType.GATT_CHARACTERISTIC_DETAILS)) {
+        if (gattType.equals(GattType.GATT_CHARACTERISTIC_DETAILS)) {
             ble.getCharacteristicsForService(ble.getBluetoothGattService());
             detailFragment.clearCharacteristic();
+
             fragmentTransaction.show(characteristicFragment);
             fragmentTransaction.remove(detailFragment);
 
@@ -226,6 +220,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             @Override
             public void run() {
                 deviceStateTextView.setText(R.string.connected);
+                gattType = GattType.GATT_SERVICES;
             }
         });
     }
@@ -235,15 +230,22 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                deviceStateTextView.setText(R.string.disconnected);
-                try {
-                    serviceFragment.clearAdapter();
-                    characteristicFragment.clearAdapter();
-                } catch (Exception e) {
-                    Toast.makeText(DetailActivity.this, R.string.disconnected, Toast.LENGTH_SHORT).show();
-                }
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        deviceStateTextView.setText(R.string.disconnected);
 
-                listType = ListType.GATT_SERVICES;
+                        if (serviceFragment != null && gattType == GattType.GATT_SERVICES) {
+                            serviceFragment.clearAdapter();
+                        }
+                        if (characteristicFragment != null && gattType == GattType.GATT_CHARACTERISTICS) {
+                            characteristicFragment.clearAdapter();
+                        }
+
+                        gattType = GattType.GATT_SERVICES;
+                    }
+                }, 200);
+
 
             }
         });
@@ -268,7 +270,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        listType = ListType.GATT_SERVICES;
                         if (serviceFragment != null) {
                             serviceFragment.clearAdapter();
                             for (BluetoothGattService bluetoothGattService : ble.getBluetoothGattServices()) {
@@ -278,6 +279,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                         }
                     }
                 }, 200);
+                gattType = GattType.GATT_SERVICES;
             }
         });
     }
@@ -290,7 +292,6 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        listType = ListType.GATT_CHARACTERISTICS;
                         if (characteristicFragment != null) {
                             characteristicFragment.clearAdapter();
                             for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars) {
@@ -298,7 +299,8 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                             }
                             characteristicFragment.noti();
                         }
-                        actionBar.setTitle(BLEGattAttributes.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())));
+                        gattType = GattType.GATT_CHARACTERISTICS;
+//                        actionBar.setTitle(BLEGattAttributes.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())));
                     }
                 }, 200);
             }
@@ -313,7 +315,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        listType = ListType.GATT_CHARACTERISTIC_DETAILS;
+                        gattType = GattType.GATT_CHARACTERISTIC_DETAILS;
                         if (detailFragment != null) {
                             detailFragment.setBle(ble);
                             detailFragment.setCharacteristic(characteristic);
@@ -327,12 +329,12 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
 
     @Override
     public void uiNewValueForCharacteristic(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic ch, final String strValue, final int intValue, final byte[] rawValue, final String timestamp) {
-        if (detailFragment == null || detailFragment.getCharacteristic(0) == null) {
-            return;
-        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (detailFragment == null || detailFragment.getCharacteristic(0) == null) {
+                    return;
+                }
                 detailFragment.newValueForCharacterictic(ch, strValue, intValue, rawValue, timestamp);
                 detailFragment.bindView();
             }
@@ -344,21 +346,22 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                byte[] res = characteristic.getValue();
                 detailFragment.setNotificationEnabledForService(characteristic);
-                /*
-                for (int i = 0; i < res.length; i++) {
-                    int lsb = characteristic.getValue()[i] & 0xff;
-                    Log.e(TAG, "res = " + res[i] + " lsb = " + lsb + "\n");
-                }*/
 
-                Toast.makeText(getApplicationContext(), "uiGotNotification " + res[0], Toast.LENGTH_LONG).show();
+                byte[] characteristicValue = characteristic.getValue();
+
+                for (int i = 0; i < characteristicValue.length; i++) {
+                    int lsb = characteristic.getValue()[i] & 0xff;
+                    Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + lsb);
+                }
             }
         });
     }
 
     @Override
-    public void uiSuccessfulWrite(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic ch, final String description) {
+    public void uiSuccessfulWrite(final BluetoothGatt gatt, final BluetoothDevice device,
+                                  final BluetoothGattService service, final BluetoothGattCharacteristic ch,
+                                  final String description) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -369,7 +372,9 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     }
 
     @Override
-    public void uiFailedWrite(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic ch, final String description) {
+    public void uiFailedWrite(final BluetoothGatt gatt, final BluetoothDevice device,
+                              final BluetoothGattService service, final BluetoothGattCharacteristic ch,
+                              final String description) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

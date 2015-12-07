@@ -127,4 +127,19 @@ public class BleHelper {
 
         return resBytes;
     }
+    public static byte[] parseHexStringToBytesDEV(String hex) {
+        hex = hex.toLowerCase(Locale.getDefault());
+        String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
+        byte[] bytes = new byte[tmp.length() / 2];
+        String part = "";
+        int checksum = 0;
+
+        for (int i = 0; i < bytes.length; ++i) {
+            part = "0x" + tmp.substring(i * 2, i * 2 + 2);
+            bytes[i] = Integer.decode(part).byteValue();
+        }
+
+
+        return bytes;
+    }
 }

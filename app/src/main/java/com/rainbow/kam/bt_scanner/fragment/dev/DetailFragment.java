@@ -149,7 +149,8 @@ public class DetailFragment extends Fragment {
                 EditText hex = (EditText) v.getTag();
                 String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
 
-                byte[] dataToWrite = BleHelper.parseHexStringToBytes(newValue);
+                byte[] dataToWrite = BleHelper.parseHexStringToBytesDEV(newValue);
+//                byte[] dataToWrite = BleHelper.parseHexStringToBytes(newValue);
                 ble.writeDataToCharacteristic(bluetoothGattCharacteristic, dataToWrite);
             }
         });
@@ -210,9 +211,9 @@ public class DetailFragment extends Fragment {
             fieldReference.notificationBtn.setChecked(notificationEnabled);
             fieldReference.readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
             fieldReference.writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
-            fieldReference.charHexValue.setEnabled(fieldReference.writeBtn.isEnabled());
-
-            fieldReference.charHexValue.setText(asciiValue);
+//            fieldReference.charHexValue.setEnabled(fieldReference.writeBtn.isEnabled());
+//
+//            fieldReference.charHexValue.setText(asciiValue);
             fieldReference.charStrValue.setText(strValue);
             fieldReference.charDecValue.setText(String.format("%d", intValue));
             fieldReference.charDateValue.setText(lastUpdateTime);

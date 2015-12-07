@@ -27,21 +27,20 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private ArrayList<ServiceItem> serviceItemArrayList;
     private ArrayList<CharacteristicItem> characteristicItemArrayList;
-    private boolean isRoot = true;
-    private View view;
+    private boolean isServiceFragment = true;
 
-    private ServiceViewHolder selectServiceViewHolder = null;
+    private View view;
     private Handler handler = DetailActivity.handler;
 
     public DetailAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList) {
         this.characteristicItemArrayList = characteristicItemArrayList;
-        this.isRoot = false;
+        this.isServiceFragment = false;
 
     }
 
-    public DetailAdapter(ArrayList<ServiceItem> serviceItemArrayList, boolean isRoot) {
+    public DetailAdapter(ArrayList<ServiceItem> serviceItemArrayList, boolean isServiceFragment) {
         this.serviceItemArrayList = serviceItemArrayList;
-        this.isRoot = isRoot;
+        this.isServiceFragment = isServiceFragment;
     }
 
 
@@ -86,19 +85,9 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public ServiceViewHolder getServiceViewHolder() {
-        if (selectServiceViewHolder != null) {
-            return selectServiceViewHolder;
-        } else {
-            Log.e(TAG, "selecteServiceViewHolder is null");
-            return null;
-        }
-
-    }
-
     @Override
     public int getItemViewType(int position) {
-        if (isRoot) {
+        if (isServiceFragment) {
             return TYPE_SERVICE;
         } else {
             return TYPE_CHARACTERISTIC;
@@ -107,7 +96,7 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        if (getItemViewType(0) == 0) {
+        if (getItemViewType(0) == TYPE_SERVICE) {
             return serviceItemArrayList.size();
         } else {
             return characteristicItemArrayList.size();
@@ -143,7 +132,6 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    selectServiceViewHolder = ServiceViewHolder.this;
                     Message message = Message.obtain(handler, 1, getLayoutPosition(), 0);
                     handler.sendMessage(message);
                 }
@@ -169,7 +157,6 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e(TAG, getLayoutPosition() + "");
                     Message message = Message.obtain(DetailActivity.handler, 2, getLayoutPosition(), 0);
                     handler.sendMessage(message);
                 }
