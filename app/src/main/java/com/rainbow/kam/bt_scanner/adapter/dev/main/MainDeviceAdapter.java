@@ -33,12 +33,10 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        DeviceViewHolder createDeviceViewHolder;
-        View root;
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        root = layoutInflater.inflate(R.layout.main_bluetooth_device_item, parent, false);
-        createDeviceViewHolder = new DeviceViewHolder(root);
-        return createDeviceViewHolder;
+        View root = layoutInflater.inflate(R.layout.main_bluetooth_device_item, parent, false);
+
+        return new DeviceViewHolder(root);
     }
 
     @Override

@@ -33,7 +33,6 @@ dependencies {
     compile('com.github.afollestad.material-dialogs:commons:0.8.5.0@aar') {
         transitive = true
     }
-    compile 'com.diogobernardino:williamchart:2.1'
 }
 repositories {
     maven { url "https://jitpack.io" }

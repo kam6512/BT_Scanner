@@ -94,37 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-
-        try {
-            // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
-            bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            bluetoothAdapter = bluetoothManager.getAdapter();
-
-            mainDeviceItemArrayList.clear();
-            adapter.notifyDataSetChanged();
-            if (bluetoothAdapter == null) {
-                throw new Exception();
-            }
-
-            if (isBuildVersionLM) {
-                bleScanner = bluetoothAdapter.getBluetoothLeScanner();
-                if (bleScanner == null) {
-                    throw new Exception();
-                }
-            }
-
-            startScan();
-
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
-
-            if (bluetoothAdapter == null) {
-                Log.e(TAG, "BA null");
-            }
-            if (bluetoothManager == null) {
-                Log.e(TAG, "BM null");
-            }
-        }
+        registerBluetooth();
     }
 
     @Override
@@ -320,6 +290,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public void registerBluetooth() {
+
+        // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
+        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (bluetoothAdapter.isEnabled()) {
+            try {
+                mainDeviceItemArrayList.clear();
+                adapter.notifyDataSetChanged();
+
+                if (isBuildVersionLM) {
+                    bleScanner = bluetoothAdapter.getBluetoothLeScanner();
+                }
+
+                startScan();
+
+            } catch (Exception e) {
+                Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        } else {
+            initBluetoothOn();
+        }
+    }
     private void initBluetoothOn() {//블루투스 가동여부
         Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
         Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();

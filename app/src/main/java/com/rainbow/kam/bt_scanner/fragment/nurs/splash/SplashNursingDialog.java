@@ -29,6 +29,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.adapter.dev.detail.DetailAdapter;
+import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceItem;
 
 import java.util.ArrayList;
@@ -85,23 +88,18 @@ public class SplashNursingDialog extends DialogFragment {
     public void onResume() {
         super.onResume();
 
-        try {
+        bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
 
-            bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
-            bluetoothAdapter = bluetoothManager.getAdapter();
 
-            selectDeviceItems.clear();
-            adapter.notifyDataSetChanged();
-            if (bluetoothAdapter == null) {
-                throw new Exception();
-            }
+        if (bluetoothAdapter.isEnabled()) {
+            try {
+                selectDeviceItems.clear();
+                adapter.notifyDataSetChanged();
 
-            if (isBuildVersionLM) {
-                bleScanner = bluetoothAdapter.getBluetoothLeScanner();
-                if (bleScanner == null) {
-                    throw new Exception();
+                if (isBuildVersionLM) {
+                    bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
-
                 if (swipeRefreshLayout != null) {
                     swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
@@ -111,19 +109,15 @@ public class SplashNursingDialog extends DialogFragment {
                     });
                 }
                 startScan();
-            }
 
-        } catch (Exception e) {
-            Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
 
-            if (bluetoothAdapter == null) {
-                Log.e(TAG, "BA null");
+            } catch (Exception e) {
+                Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
+                Log.e(TAG,e.getMessage());
             }
-            if (bluetoothManager == null) {
-                Log.e(TAG, "BM null");
-            }
+        } else {
+            initBluetoothOn();
         }
-
     }
 
     @Override
@@ -147,6 +141,8 @@ public class SplashNursingDialog extends DialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
+        adapter = new SelectDeviceAdapter(selectDeviceItems, activity);
+        selectDeviceRecyclerView.setAdapter(adapter);
     }
 
     private void setOtherView() {

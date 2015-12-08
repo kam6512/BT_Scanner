@@ -46,11 +46,11 @@ public class SplashNursingActivity extends AppCompatActivity {
             startActivity(new Intent(SplashNursingActivity.this, MainNursingActivity.class));
 
         } catch (Exception e) {
-           setFragment();
+            setFragment();
         }
     }
 
-    private void setFragment(){
+    private void setFragment() {
         final FragmentManager fragmentManager = getSupportFragmentManager();
         final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -65,9 +65,11 @@ public class SplashNursingActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                getSupportFragmentManager().beginTransaction()
-                        .remove(splashNursingFragmentLogo)
-                        .commit();
+               if (!isFinishing()){
+                   getSupportFragmentManager().beginTransaction()
+                           .remove(splashNursingFragmentLogo)
+                           .commit();
+               }
             }
         }, 3000);
     }

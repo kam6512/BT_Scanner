@@ -25,11 +25,15 @@ import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.design.RippleView;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
+import io.realm.RealmConfiguration;
+import io.realm.RealmMigration;
 import io.realm.RealmResults;
+import io.realm.exceptions.RealmMigrationNeededException;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -56,6 +60,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     private Realm realm;
     private RealmAsyncTask transaction;
+    RealmConfiguration realmConfiguration;
 
     @Nullable
     @Override
@@ -101,9 +106,12 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     }
 
     private void handleMessage(Message msg) {
+
         final Bundle callbackBundle = msg.getData();
 
-        realm = Realm.getInstance(activity);
+//        Realm.deleteRealm(new RealmConfiguration.Builder(activity).build());
+        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
+//        realm = Realm.getInstance(this);
         realm.beginTransaction();
         realm.allObjects(Patient.class).clear();
 
@@ -133,6 +141,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
             }
         });
         realm.commitTransaction();
+        realm.close();
     }
 
     @Override

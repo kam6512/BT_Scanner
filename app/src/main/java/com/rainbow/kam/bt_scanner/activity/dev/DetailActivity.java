@@ -33,9 +33,9 @@ import java.util.List;
 public class DetailActivity extends AppCompatActivity implements BleUiCallbacks {
     public static final String TAG = "DetailActivity";
 
-    private static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
-    private static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
-    private static final String EXTRAS_DEVICE_RSSI = "BLE_DEVICE_RSSI";
+    public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
+    public static final String EXTRAS_DEVICE_RSSI = "BLE_DEVICE_RSSI";
 
     private enum GattType {
         GATT_SERVICES, GATT_CHARACTERISTICS, GATT_CHARACTERISTIC_DETAILS
@@ -349,9 +349,9 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
 
                 byte[] characteristicValue = characteristic.getValue();
 
-                for (int i = 0; i < characteristicValue.length; i++) {
-                    int lsb = characteristic.getValue()[i] & 0xff;
-                    Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + lsb);
+                for (byte aCharacteristicValue : characteristicValue) {
+                    int lsb = aCharacteristicValue & 0xff;
+                    Log.e("noty", "characteristicValue = " + Integer.toHexString(aCharacteristicValue) + " / lsb = " + lsb);
                 }
             }
         });

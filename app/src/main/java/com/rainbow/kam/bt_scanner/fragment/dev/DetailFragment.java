@@ -50,63 +50,6 @@ public class DetailFragment extends Fragment {
     private String lastUpdateTime = "";
     private boolean notificationEnabled = false;
 
-    public DetailFragment() {
-        super();
-    }
-
-
-    public void setBle(BLE ble) {
-        this.ble = ble;
-    }
-
-    public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
-        this.bluetoothGattCharacteristic = characteristic;
-        intValue = 0;
-        asciiValue = "";
-        strValue = "";
-        lastUpdateTime = "-";
-        notificationEnabled = false;
-    }
-
-    public BluetoothGattCharacteristic getCharacteristic() {
-        return bluetoothGattCharacteristic;
-    }
-
-    public void clearCharacteristic() {
-        bluetoothGattCharacteristic = null;
-    }
-
-    public void newValueForCharacterictic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final int intValue, final byte[] rawValue, final String timeStamp) {
-        if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
-            return;
-        }
-
-        this.intValue = intValue;
-        this.strValue = strValue;
-        if (rawValue != null && rawValue.length > 0) {
-            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
-            for (byte byteChar : rawValue) {
-                stringBuilder.append(String.format("%02X", byteChar));
-            }
-            asciiValue = "0x" + stringBuilder.toString();
-        } else {
-            asciiValue = "";
-        }
-
-        lastUpdateTime = timeStamp;
-        if (lastUpdateTime == null) {
-            lastUpdateTime = "";
-        }
-    }
-
-    public void setNotificationEnabledForService(final BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        if ((!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) || (notificationEnabled)) {
-            return;
-        }
-        notificationEnabled = true;
-        bindView();
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -162,6 +105,59 @@ public class DetailFragment extends Fragment {
 
         return view;
     }
+
+    public void setBle(BLE ble) {
+        this.ble = ble;
+    }
+
+    public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
+        this.bluetoothGattCharacteristic = characteristic;
+        intValue = 0;
+        asciiValue = "";
+        strValue = "";
+        lastUpdateTime = "-";
+        notificationEnabled = false;
+    }
+
+    public BluetoothGattCharacteristic getCharacteristic() {
+        return bluetoothGattCharacteristic;
+    }
+
+    public void clearCharacteristic() {
+        bluetoothGattCharacteristic = null;
+    }
+
+    public void newValueForCharacterictic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final int intValue, final byte[] rawValue, final String timeStamp) {
+        if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
+            return;
+        }
+
+        this.intValue = intValue;
+        this.strValue = strValue;
+        if (rawValue != null && rawValue.length > 0) {
+            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
+            for (byte byteChar : rawValue) {
+                stringBuilder.append(String.format("%02X", byteChar));
+            }
+            asciiValue = "0x" + stringBuilder.toString();
+        } else {
+            asciiValue = "";
+        }
+
+        lastUpdateTime = timeStamp;
+        if (lastUpdateTime == null) {
+            lastUpdateTime = "";
+        }
+    }
+
+    public void setNotificationEnabledForService(final BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+        if ((!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) || (notificationEnabled)) {
+            return;
+        }
+        notificationEnabled = true;
+        bindView();
+    }
+
 
     public void bindView() {
 
