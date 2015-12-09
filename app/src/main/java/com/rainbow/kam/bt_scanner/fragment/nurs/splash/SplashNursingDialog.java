@@ -29,8 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.dev.detail.DetailAdapter;
-import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceItem;
 

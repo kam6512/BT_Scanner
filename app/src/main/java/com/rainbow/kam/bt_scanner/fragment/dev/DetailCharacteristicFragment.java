@@ -7,14 +7,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicItem;
-import com.rainbow.kam.bt_scanner.adapter.dev.detail.DetailAdapter;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 
 import java.util.ArrayList;
@@ -30,7 +29,8 @@ public class DetailCharacteristicFragment extends Fragment {
     private View view;
 
     private RecyclerView recyclerView;
-    private DetailAdapter adapter;
+    //    private DetailAdapter adapter;
+    private CharacteristicAdapter characteristicAdapter;
     private ArrayList<CharacteristicItem> characteristicItemArrayList = new ArrayList<>();
 
     @Nullable
@@ -47,8 +47,8 @@ public class DetailCharacteristicFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new DetailAdapter(characteristicItemArrayList);
-        recyclerView.setAdapter(adapter);
+        characteristicAdapter = new CharacteristicAdapter(characteristicItemArrayList);
+        recyclerView.setAdapter(characteristicAdapter);
     }
 
     public void addCharacteristic(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
@@ -57,7 +57,7 @@ public class DetailCharacteristicFragment extends Fragment {
         String name = BLEGattAttributes.resolveCharacteristicName(uuid);
 
         characteristicItemArrayList.add(new CharacteristicItem(name, uuid, "0", bluetoothGattCharacteristic));
-        adapter.notifyDataSetChanged();
+        characteristicAdapter.notifyDataSetChanged();
     }
 
     public BluetoothGattCharacteristic getCharacteristic(int index) {
@@ -65,12 +65,12 @@ public class DetailCharacteristicFragment extends Fragment {
     }
 
     public void notifyAdapter() {
-        adapter.notifyDataSetChanged();
+        characteristicAdapter.notifyDataSetChanged();
     }
 
     public void clearAdapter() {
-        adapter.clearList(1);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        characteristicAdapter.clearList();
+        recyclerView.setAdapter(characteristicAdapter);
+        characteristicAdapter.notifyDataSetChanged();
     }
 }

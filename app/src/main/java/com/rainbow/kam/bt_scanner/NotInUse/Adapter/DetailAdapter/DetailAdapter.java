@@ -1,9 +1,8 @@
-package com.rainbow.kam.bt_scanner.adapter.dev.detail;
+package com.rainbow.kam.bt_scanner.NotInUse.Adapter.DetailAdapter;
 
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,8 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.dev.DetailActivity;
+import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicItem;
+import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceItem;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 
 import java.util.ArrayList;

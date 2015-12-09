@@ -59,7 +59,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 /**

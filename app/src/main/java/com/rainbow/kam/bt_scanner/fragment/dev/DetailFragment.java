@@ -3,7 +3,6 @@ package com.rainbow.kam.bt_scanner.fragment.dev;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.text.TextUtilsCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;

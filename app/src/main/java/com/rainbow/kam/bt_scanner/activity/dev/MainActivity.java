@@ -136,10 +136,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case REQUEST_ENABLE_BT:
                 switch (resultCode) {
                     case RESULT_OK:
-                        //블루투스 켜짐
+                        startScan();
                         break;
                     default:
-                        //블루투스 에러
                         Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
                         finish();
                         break;
@@ -241,13 +240,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             private void processResult(final ScanResult result) {
-
                 String deviceName = result.getDevice().getName();
-
                 if (deviceName == null) {
                     deviceName = "N/A";
                 }
-
                 mainDeviceItemArrayList.add(new MainDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
                 deviceListFilter();
             }
@@ -261,7 +257,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
                 String deviceName = device.getName();
-
                 if (deviceName == null) {
                     deviceName = "N/A";
                 }
@@ -290,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @SuppressLint("NewApi")
     public void registerBluetooth() {
 
         // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
@@ -315,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             initBluetoothOn();
         }
     }
+
     private void initBluetoothOn() {//블루투스 가동여부
         Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
         Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
@@ -345,33 +342,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopScan();
+        if (bluetoothAdapter.isEnabled()) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    stopScan();
 
-                if (bluetoothAdapter.isEnabled()) {
+
                     if (mainDeviceItemArrayList.size() < 1) {
                         noDeviceTextView.setVisibility(View.VISIBLE);
                     }
                     adapter.notifyDataSetChanged();
-                } else {
-                    initBluetoothOn();
+
                 }
+            }, SCAN_PERIOD); //5초 뒤에 OFF
+
+            //시작
+            mainDeviceItemArrayList.clear();
+            adapter.notifyDataSetChanged();
+            isScanning = true;
+            searchingProgressBar.setVisibility(View.VISIBLE);
+            noDeviceTextView.setVisibility(View.INVISIBLE);
+
+            if (isBuildVersionLM) {
+                bleScanner.startScan(scanCallback);
+            } else {
+                bluetoothAdapter.startLeScan(leScanCallback);
             }
-        }, SCAN_PERIOD); //5초 뒤에 OFF
-
-        //시작
-        mainDeviceItemArrayList.clear();
-        adapter.notifyDataSetChanged();
-        isScanning = true;
-        searchingProgressBar.setVisibility(View.VISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
-
-        if (isBuildVersionLM) {
-            bleScanner.startScan(scanCallback);
         } else {
-            bluetoothAdapter.startLeScan(leScanCallback);
+            initBluetoothOn();
         }
     }
 

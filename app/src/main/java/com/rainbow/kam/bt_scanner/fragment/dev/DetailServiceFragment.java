@@ -7,12 +7,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.rainbow.kam.bt_scanner.adapter.dev.detail.DetailAdapter;
+import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
@@ -30,7 +29,8 @@ public class DetailServiceFragment extends Fragment {
     private View view;
 
     private RecyclerView recyclerView;
-    private DetailAdapter adapter;
+    //    private DetailAdapter adapter;
+    private ServiceAdapter serviceAdapter;
     private ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<>();
 
     @Nullable
@@ -47,8 +47,8 @@ public class DetailServiceFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new DetailAdapter(serviceItemArrayList, true);
-        recyclerView.setAdapter(adapter);
+        serviceAdapter = new ServiceAdapter(serviceItemArrayList);
+        recyclerView.setAdapter(serviceAdapter);
     }
 
     public void addService(BluetoothGattService bluetoothGattService) {
@@ -58,7 +58,7 @@ public class DetailServiceFragment extends Fragment {
         String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "Secondary";
 
         serviceItemArrayList.add(new ServiceItem(name, uuid, type, bluetoothGattService));
-        adapter.notifyDataSetChanged();
+        serviceAdapter.notifyDataSetChanged();
     }
 
     public BluetoothGattService getService(int index) {
@@ -66,12 +66,12 @@ public class DetailServiceFragment extends Fragment {
     }
 
     public void notifyAdapter() {
-        adapter.notifyDataSetChanged();
+        serviceAdapter.notifyDataSetChanged();
     }
 
     public void clearAdapter() {
-        adapter.clearList(0);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        serviceAdapter.clearList();
+        recyclerView.setAdapter(serviceAdapter);
+        serviceAdapter.notifyDataSetChanged();
     }
 }
