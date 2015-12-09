@@ -314,7 +314,7 @@ public class BleActivityManager {
 
                             for (int i = 0; i < mainDeviceItemArrayList.size(); i++) {
                                 for (int j = 1; j < mainDeviceItemArrayList.size(); j++) {
-                                    if (mainDeviceItemArrayList.get(i).getExtraextraAddress().trim().equals(mainDeviceItemArrayList.get(j).getExtraextraAddress().trim())) {
+                                    if (mainDeviceItemArrayList.get(i).getDeviceAddress().trim().equals(mainDeviceItemArrayList.get(j).getDeviceAddress().trim())) {
                                         if (i != j) {
                                             mainDeviceItemArrayList.remove(j);
                                         }
@@ -357,7 +357,7 @@ public class BleActivityManager {
 
                             for (int i = 0; i < mainDeviceItemArrayList.size(); i++) {
                                 for (int j = 1; j < mainDeviceItemArrayList.size(); j++) {
-                                    if (mainDeviceItemArrayList.get(i).getExtraextraAddress().trim().equals(mainDeviceItemArrayList.get(j).getExtraextraAddress().trim())) {
+                                    if (mainDeviceItemArrayList.get(i).getDeviceAddress().trim().equals(mainDeviceItemArrayList.get(j).getDeviceAddress().trim())) {
                                         if (i != j) {
                                             mainDeviceItemArrayList.remove(j);
                                         }

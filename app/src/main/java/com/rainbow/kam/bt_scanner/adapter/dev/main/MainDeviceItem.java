@@ -4,42 +4,42 @@ package com.rainbow.kam.bt_scanner.adapter.dev.main;
  * Created by kam6512 on 2015-10-14.
  */
 public class MainDeviceItem { //카드 뷰 틀
-    private String extraName;
-    private String extraAddress;
-    private int extraBondState;
-    private int extraType;
-    private int extraRssi;
+    private String deviceName;
+    private String deviceAddress;
+    private int deviceBondState;
+    private int deviceType;
+    private int deviceRssi;
 
-    public MainDeviceItem(String extraName,
-                          String extraAddress,
-                          int extraBondState,
-                          int extraType,
-                          int extraRssi) {
-        this.extraName = extraName;
-        this.extraAddress = extraAddress;
-        this.extraBondState = extraBondState;
-        this.extraType = extraType;
-        this.extraRssi = extraRssi;
+    public MainDeviceItem(String deviceName,
+                          String deviceAddress,
+                          int deviceBondState,
+                          int deviceType,
+                          int deviceRssi) {
+        this.deviceName = deviceName;
+        this.deviceAddress = deviceAddress;
+        this.deviceBondState = deviceBondState;
+        this.deviceType = deviceType;
+        this.deviceRssi = deviceRssi;
     }
 
-    public String getExtraName() {
-        return this.extraName;
+    public String getDeviceName() {
+        return this.deviceName;
     }
 
-    public String getExtraextraAddress() {
-        return this.extraAddress;
+    public String getDeviceAddress() {
+        return this.deviceAddress;
     }
 
-    public int getExtraBondState() {
-        return this.extraBondState;
+    public int getDeviceBondState() {
+        return this.deviceBondState;
     }
 
-    public int getExtraType() {
-        return this.extraType;
+    public int getDeviceType() {
+        return this.deviceType;
     }
 
-    public int getExtraRssi() {
-        return this.extraRssi;
+    public int getDeviceRssi() {
+        return this.deviceRssi;
     }
 
 }

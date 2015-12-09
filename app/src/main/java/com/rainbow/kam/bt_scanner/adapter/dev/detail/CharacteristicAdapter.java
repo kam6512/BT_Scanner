@@ -31,19 +31,15 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.characteristicItemArrayList = characteristicItemArrayList;
     }
 
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-
         view = layoutInflater.inflate(R.layout.detail_bluetooth_characteristics_item, parent, false);
         return new CharacteristicViewHolder(view);
-
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
 
         CharacteristicViewHolder characteristicViewHolder = (CharacteristicViewHolder) holder;
         CharacteristicItem characteristicItem = characteristicItemArrayList.get(position);
@@ -61,9 +57,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public int getItemCount() {
-
         return characteristicItemArrayList.size();
-
     }
 
     @Override
@@ -74,7 +68,6 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void clearList() {
         characteristicItemArrayList.clear();
     }
-
 
     private class CharacteristicViewHolder extends RecyclerView.ViewHolder {
 

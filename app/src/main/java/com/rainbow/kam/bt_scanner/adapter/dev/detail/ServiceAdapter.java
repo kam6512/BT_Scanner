@@ -25,7 +25,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private ArrayList<ServiceItem> serviceItemArrayList;
 
-
     private View view;
     private Handler handler = DetailActivity.handler;
 
@@ -33,11 +32,9 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.serviceItemArrayList = serviceItemArrayList;
     }
 
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-
         view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
         return new ServiceViewHolder(view);
     }
