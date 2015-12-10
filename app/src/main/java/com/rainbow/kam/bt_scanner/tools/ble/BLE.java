@@ -104,7 +104,7 @@ public class BLE {
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
         }
-        bleUiCallbacks.uiDeviceDisconnected(bluetoothGatt, bluetoothDevice);
+        bleUiCallbacks.onDeviceDisconnected(bluetoothGatt, bluetoothDevice);
     }
 
     public boolean isConnected() {
@@ -159,7 +159,7 @@ public class BLE {
             bluetoothGattServices = bluetoothGatt.getServices();
         }
 
-        bleUiCallbacks.uiAvailableServices(bluetoothGatt, bluetoothDevice, bluetoothGattServices);
+        bleUiCallbacks.onServicesFound(bluetoothGatt, bluetoothDevice, bluetoothGattServices);
     }
 
     public void getCharacteristicsForService(final BluetoothGattService bluetoothGattService) {
@@ -169,7 +169,7 @@ public class BLE {
         List<BluetoothGattCharacteristic> bluetoothGattCharacteristics;
 
         bluetoothGattCharacteristics = bluetoothGattService.getCharacteristics();
-        bleUiCallbacks.uiCharacteristicForService(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristics);
+        bleUiCallbacks.onCharacteristicFound(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristics);
         this.bluetoothGattService = bluetoothGattService;
     }
 
@@ -181,14 +181,14 @@ public class BLE {
         bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
     }
 
-    public void getCharacteristisValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+    public void getCharacteristicsValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
             return;
         }
         byte[] rawValue = bluetoothGattCharacteristic.getValue();
         String strValue = null;
         int intValue = 0;
-
+/*
         UUID uuid = bluetoothGattCharacteristic.getUuid();
 
         if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.HEART_RATE_MEASUREMENT))) {
@@ -212,36 +212,34 @@ public class BLE {
             intValue = rawValue[0];
             strValue = "" + intValue + "% battery level";
         } else {
-//            if (rawValue.length > 0) {
-//                intValue = (int) rawValue[0];
-//            }
-//            if (rawValue.length > 1) {
-//                intValue = intValue + ((int) rawValue[1] << 8);
-//            }
-//            if (rawValue.length > 2) {
-//                intValue = intValue + ((int) rawValue[2] << 8);
-//            }
-//            if (rawValue.length > 3) {
-//                intValue = intValue + ((int) rawValue[3] << 8);
-//            }
             if (rawValue.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
-
-                for (byte byteChar : rawValue) {
-                    try {
-                        stringBuilder.append(String.format("%c", byteChar));
-                    } catch (IllegalFormatCodePointException e) {
-
-                        stringBuilder.append((char) byteChar);
-                    }
-
-                }
-
-                strValue = stringBuilder.toString();
+                intValue = (int) rawValue[0];
+            }
+            if (rawValue.length > 1) {
+                intValue = intValue + ((int) rawValue[1] << 8);
+            }
+            if (rawValue.length > 2) {
+                intValue = intValue + ((int) rawValue[2] << 8);
+            }
+            if (rawValue.length > 3) {
+                intValue = intValue + ((int) rawValue[3] << 8);
             }
         }
+        */
+        if (rawValue.length > 0) {
+            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
+            for (byte byteChar : rawValue) {
+                try {
+                    stringBuilder.append(String.format("%c", byteChar));
+                } catch (IllegalFormatCodePointException e) {
+                    stringBuilder.append((char) byteChar);
+                }
+            }
+            strValue = stringBuilder.toString();
+        }
+
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
-        bleUiCallbacks.uiNewValueForCharacteristic(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristic, strValue, intValue, rawValue, timeStamp);
+        bleUiCallbacks.onNewDataFound(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristic, strValue, intValue, rawValue, timeStamp);
     }
 
     public int getValueFormat(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
@@ -309,7 +307,7 @@ public class BLE {
         private BluetoothAdapter.LeScanCallback deviceFoundCallback = new BluetoothAdapter.LeScanCallback() {
             @Override
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                bleUiCallbacks.uiDeviceFound(device, rssi, scanRecord);
+                bleUiCallbacks.onDeviceFound(device, rssi, scanRecord);
             }
         };
     */
@@ -319,7 +317,7 @@ public class BLE {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connected = true;
-                bleUiCallbacks.uiDeviceConnected(bluetoothGatt, bluetoothDevice);
+                bleUiCallbacks.onDeviceConnected(bluetoothGatt, bluetoothDevice);
 
                 bluetoothGatt.readRemoteRssi();
                 startServiceDiscorvery();
@@ -327,7 +325,7 @@ public class BLE {
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
-                bleUiCallbacks.uiDeviceDisconnected(bluetoothGatt, bluetoothDevice);
+                bleUiCallbacks.onDeviceDisconnected(bluetoothGatt, bluetoothDevice);
             }
         }
 
@@ -341,14 +339,14 @@ public class BLE {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                getCharacteristisValue(characteristic);
+                getCharacteristicsValue(characteristic);
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            getCharacteristisValue(characteristic);
-            bleUiCallbacks.uiGotNotification(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic);
+            getCharacteristicsValue(characteristic);
+            bleUiCallbacks.onDataNotify(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic);
         }
 
         @Override
@@ -359,16 +357,16 @@ public class BLE {
             String description = "Device: " + deviceName + " Service: " + serviceName + " Characteristic: " + characteristicName;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                bleUiCallbacks.uiSuccessfulWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
+                bleUiCallbacks.onWriteSuccess(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
             } else {
-                bleUiCallbacks.uiFailedWrite(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
+                bleUiCallbacks.onWriteFail(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
             }
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                bleUiCallbacks.uiNewRssiAvailable(bluetoothGatt, bluetoothDevice, rssi);
+                bleUiCallbacks.onRssiUpdate(bluetoothGatt, bluetoothDevice, rssi);
             }
         }
     };
