@@ -303,14 +303,6 @@ public class BLE {
         }
         return 0;
     }
-    /*
-        private BluetoothAdapter.LeScanCallback deviceFoundCallback = new BluetoothAdapter.LeScanCallback() {
-            @Override
-            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                bleUiCallbacks.onDeviceFound(device, rssi, scanRecord);
-            }
-        };
-    */
 
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override

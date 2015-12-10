@@ -40,10 +40,10 @@ public class SplashNursingActivity extends AppCompatActivity {
 
             if (patient.getStep() == null) {
                 throw new Exception();
+            } else {
+                finish();
+                startActivity(new Intent(SplashNursingActivity.this, MainNursingActivity.class));
             }
-
-            finish();
-            startActivity(new Intent(SplashNursingActivity.this, MainNursingActivity.class));
 
         } catch (Exception e) {
             setFragment();
@@ -58,18 +58,18 @@ public class SplashNursingActivity extends AppCompatActivity {
                 new SplashNursingFragmentAddUser();
         final SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
 
-        fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentAddUser);
-        fragmentTransaction.add(R.id.nursing_start_frame, splashNursingFragmentLogo);
+
+        fragmentTransaction.replace(R.id.nursing_start_frame, splashNursingFragmentLogo);
         fragmentTransaction.commit();
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-               if (!isFinishing()){
-                   getSupportFragmentManager().beginTransaction()
-                           .remove(splashNursingFragmentLogo)
-                           .commit();
-               }
+                if (!isFinishing()) {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.nursing_start_frame, splashNursingFragmentAddUser)
+                            .commit();
+                }
             }
         }, 3000);
     }

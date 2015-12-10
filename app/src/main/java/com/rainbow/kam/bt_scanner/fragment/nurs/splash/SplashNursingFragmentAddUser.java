@@ -60,7 +60,6 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     private Realm realm;
     private RealmAsyncTask transaction;
-    RealmConfiguration realmConfiguration;
 
     @Nullable
     @Override
@@ -109,9 +108,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
         final Bundle callbackBundle = msg.getData();
 
-//        Realm.deleteRealm(new RealmConfiguration.Builder(activity).build());
         realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
-//        realm = Realm.getInstance(this);
         realm.beginTransaction();
         realm.allObjects(Patient.class).clear();
 
