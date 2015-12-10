@@ -15,6 +15,7 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * Created by Kam6512 on 2015-10-14.
@@ -23,25 +24,23 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private static final String TAG = "SelectDeviceAdapter";
 
-
+    private LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
     private ArrayList<SelectDeviceItem> selectDeviceItemArrayList;
     private Activity activity;
     private DeviceViewHolder deviceViewHolder;
 
 
-    public SelectDeviceAdapter(ArrayList<SelectDeviceItem> selectDeviceItemArrayList, Activity activity) { //초기화
-        this.selectDeviceItemArrayList = selectDeviceItemArrayList;
+    public SelectDeviceAdapter(LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap, Activity activity) { //초기화
+        this.itemLinkedHashMap = itemLinkedHashMap;
         this.activity = activity;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        DeviceViewHolder createDeviceViewHolder;
-        View root;
+        selectDeviceItemArrayList = new ArrayList<>(itemLinkedHashMap.values());
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        root = layoutInflater.inflate(R.layout.main_bluetooth_device_item, parent, false);
-        createDeviceViewHolder = new DeviceViewHolder(root);
-        return createDeviceViewHolder;
+        View root = layoutInflater.inflate(R.layout.main_bluetooth_device_item, parent, false);
+        return new DeviceViewHolder(root);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        return selectDeviceItemArrayList.size();
+        return itemLinkedHashMap.size();
     }
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder { //뷰 초기화

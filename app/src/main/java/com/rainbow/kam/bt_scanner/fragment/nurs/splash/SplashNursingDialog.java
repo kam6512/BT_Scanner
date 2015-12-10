@@ -29,10 +29,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
 import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceItem;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -59,7 +61,7 @@ public class SplashNursingDialog extends DialogFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView selectDeviceRecyclerView;
     private RecyclerView.Adapter adapter = null;
-    private ArrayList<SelectDeviceItem> selectDeviceItems = new ArrayList<>();
+    private LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
 
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
@@ -67,7 +69,6 @@ public class SplashNursingDialog extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         view = inflater.inflate(R.layout.fragment_nursing_splash_add_device, container, false);
         activity = getActivity();
 
@@ -80,7 +81,6 @@ public class SplashNursingDialog extends DialogFragment {
         return view;
     }
 
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onResume() {
@@ -89,10 +89,9 @@ public class SplashNursingDialog extends DialogFragment {
         bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
 
-
         if (bluetoothAdapter.isEnabled()) {
             try {
-                selectDeviceItems.clear();
+                itemLinkedHashMap.clear();
                 adapter.notifyDataSetChanged();
 
                 if (isBuildVersionLM) {
@@ -108,10 +107,9 @@ public class SplashNursingDialog extends DialogFragment {
                 }
                 startScan();
 
-
             } catch (Exception e) {
                 Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
-                Log.e(TAG,e.getMessage());
+                Log.e(TAG, e.getMessage());
             }
         } else {
             initBluetoothOn();
@@ -139,8 +137,11 @@ public class SplashNursingDialog extends DialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        adapter = new SelectDeviceAdapter(selectDeviceItems, activity);
+        adapter = new SelectDeviceAdapter(itemLinkedHashMap, activity);
         selectDeviceRecyclerView.setAdapter(adapter);
+
+        itemLinkedHashMap.clear();
+        adapter.notifyDataSetChanged();
     }
 
     private void setOtherView() {
@@ -190,8 +191,9 @@ public class SplashNursingDialog extends DialogFragment {
                     deviceName = "N/A";
                 }
 
-                selectDeviceItems.add(new SelectDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
-                deviceListFilter();
+                if (!itemLinkedHashMap.containsKey(result.getDevice().getAddress())) {
+                    itemLinkedHashMap.put(result.getDevice().getAddress(), new SelectDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
+                }
             }
         };
     }
@@ -207,29 +209,11 @@ public class SplashNursingDialog extends DialogFragment {
                 if (deviceName == null) {
                     deviceName = "N/A";
                 }
-                selectDeviceItems.add(new SelectDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-                deviceListFilter();
-            }
-        };
-    }
-
-    private void deviceListFilter() {
-
-////                    if (deviceName.equals(getString(R.string.device_name_prime))) {
-////                        selectDeviceItems.add(new MainDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-////                    }
-
-        for (int i = 0; i < selectDeviceItems.size(); i++) {
-            for (int j = 1; j < selectDeviceItems.size(); j++) {
-                String tempStrI = selectDeviceItems.get(i).getExtraextraAddress().trim();
-                String tempStrJ = selectDeviceItems.get(j).getExtraextraAddress().trim();
-                if (tempStrI.equals(tempStrJ)) {
-                    if (i != j) {
-                        selectDeviceItems.remove(j);
-                    }
+                if (!itemLinkedHashMap.containsKey(device.getAddress())) {
+                    itemLinkedHashMap.put(device.getAddress(), new SelectDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                 }
             }
-        }
+        };
     }
 
     private void initBluetoothOn() {//블루투스 가동여부
@@ -240,7 +224,6 @@ public class SplashNursingDialog extends DialogFragment {
         startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         if (bluetoothAdapter.isEnabled()) {
@@ -250,7 +233,7 @@ public class SplashNursingDialog extends DialogFragment {
                     stopScan();
 
                     if (bluetoothAdapter.isEnabled()) {
-                        if (selectDeviceItems.size() < 1) {
+                        if (itemLinkedHashMap.size() < 1) {
                             noDeviceTextView.setVisibility(View.VISIBLE);
                         }
                         adapter.notifyDataSetChanged();
@@ -261,7 +244,7 @@ public class SplashNursingDialog extends DialogFragment {
             }, SCAN_PERIOD); //5초 뒤에 OFF
 
             //시작
-            selectDeviceItems.clear();
+            itemLinkedHashMap.clear();
             adapter.notifyDataSetChanged();
             swipeRefreshLayout.setRefreshing(false);
             isScanning = true;
@@ -283,7 +266,6 @@ public class SplashNursingDialog extends DialogFragment {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
-
         //중지
         if (isBuildVersionLM) {
             bleScanner.stopScan(scanCallback);
@@ -294,7 +276,5 @@ public class SplashNursingDialog extends DialogFragment {
         isScanning = false;
         searchingProgressBar.setVisibility(View.INVISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
-
     }
-
 }

@@ -194,6 +194,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setHasFixedSize(true);
         adapter = new MainDeviceAdapter(itemLinkedHashMap, MainActivity.this);
         recyclerView.setAdapter(adapter);
+
+        itemLinkedHashMap.clear();
+        adapter.notifyDataSetChanged();
     }
 
     private void setOtherView() {
