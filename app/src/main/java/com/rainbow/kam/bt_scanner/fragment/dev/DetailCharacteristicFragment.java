@@ -41,7 +41,7 @@ public class DetailCharacteristicFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
-            Activity activity;
+
             try {
                 activity = (Activity) context;
                 onCharacteristicViewCreatedListener = (OnCharacteristicViewCreatedListener) activity;
