@@ -506,7 +506,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 readStep(characteristicValue);
 
                 listType = ListType.ETC;
-                dataToWrite = BleHelper.CALL_DEVICE();
+                dataToWrite = BleHelper.SET_DEVICE_TIME_NOW();
                 ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
                 isGattProcessRunning = true;
 
@@ -526,6 +526,21 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                 break;
         }
+    }
+
+    public void startDeviceWrite() {
+
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                //Check the time
+                listType = ListType.READ_TIME;
+                byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
+                MainNursingActivity.this.ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+            }
+        }, 1000);
     }
 
     private void readTime(byte[] characteristicValue) {
@@ -659,10 +674,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
     }
 
-//    @Override
-//    public void onDeviceFound(BluetoothDevice device, int rssi, byte[] record) {
-//
-//    }
 
     @Override
     public void onDeviceConnected(BluetoothGatt gatt, BluetoothDevice device) {
@@ -722,40 +733,20 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void onCharacteristicFound(BluetoothGatt gatt, BluetoothDevice device, BluetoothGattService service, final List<BluetoothGattCharacteristic> chars) {
+    public void onCharacteristicFound(BluetoothGatt gatt, final BluetoothDevice device, BluetoothGattService service, final List<BluetoothGattCharacteristic> chars) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 characteristicList = chars;
                 bluetoothGattCharacteristicForWrite = characteristicList.get(0); //0xFFF2
                 bluetoothGattCharacteristicForNotify = characteristicList.get(1); //0xFFF1
-//                uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristicForNotify);
+                ble.setNotification(bluetoothGattCharacteristicForNotify, true);
 
+                startDeviceWrite();
             }
         });
     }
 
-//    @Override
-//    public void uiCharacteristicsDetails(BluetoothGatt gatt, BluetoothDevice device, BluetoothGattService service, BluetoothGattCharacteristic characteristic) {
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                ble.setNotification(bluetoothGattCharacteristicForNotify, true);
-//
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        //Check the time
-//                        listType = ListType.READ_TIME;
-//                        byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
-//                        MainNursingActivity.this.ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
-//
-//                    }
-//                }, 1000);
-//            }
-//        });
-//    }
 
     @Override
     public void onNewDataFound(BluetoothGatt gatt, BluetoothDevice device, BluetoothGattService service, BluetoothGattCharacteristic ch, String strValue, int intValue, byte[] rawValue, String timestamp) {

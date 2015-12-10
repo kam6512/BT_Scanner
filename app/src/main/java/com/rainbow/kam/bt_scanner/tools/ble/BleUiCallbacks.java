@@ -29,7 +29,7 @@ public interface BleUiCallbacks {
                                final BluetoothGattService service,
                                final List<BluetoothGattCharacteristic> chars);
 
-//    void uiCharacteristicsDetails(final BluetoothGatt gatt,
+//    void startDeviceWrite(final BluetoothGatt gatt,
 //                                  final BluetoothDevice device,
 //                                  final BluetoothGattService service,
 //                                  final BluetoothGattCharacteristic characteristic);
@@ -84,7 +84,7 @@ public interface BleUiCallbacks {
         }
 
 //        @Override
-//        public void uiCharacteristicsDetails(BluetoothGatt gatt,
+//        public void startDeviceWrite(BluetoothGatt gatt,
 //                                             BluetoothDevice device, BluetoothGattService service,
 //                                             BluetoothGattCharacteristic characteristic) {
 //        }

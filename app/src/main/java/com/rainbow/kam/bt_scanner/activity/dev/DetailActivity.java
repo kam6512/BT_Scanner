@@ -38,6 +38,7 @@ public class DetailActivity extends AppCompatActivity
         OnServiceReadyListener,
         ServiceAdapter.OnServiceItemClickListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener {
+
     public static final String TAG = "DetailActivity";
 
     public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
@@ -309,18 +310,6 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDetailReady() {
-
-        if (detailFragment != null) {
-            detailFragment.setBle(ble);
-            detailFragment.setCharacteristic(bluetoothGattCharacteristic);
-            detailFragment.bindView();
-        }
-        gattType = GattType.GATT_CHARACTERISTIC_DETAILS;
-
-    }
-
-    @Override
     public void onServiceReady() {
         if (!isCallBackReady) {
             isCallBackReady = true;
@@ -352,5 +341,17 @@ public class DetailActivity extends AppCompatActivity
             }
             gattType = GattType.GATT_CHARACTERISTICS;
         }
+    }
+
+    @Override
+    public void onDetailReady() {
+
+        if (detailFragment != null) {
+            detailFragment.setBle(ble);
+            detailFragment.setCharacteristic(bluetoothGattCharacteristic);
+            detailFragment.bindView();
+        }
+        gattType = GattType.GATT_CHARACTERISTIC_DETAILS;
+
     }
 }

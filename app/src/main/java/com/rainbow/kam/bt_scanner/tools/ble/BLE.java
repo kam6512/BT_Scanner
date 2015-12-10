@@ -173,10 +173,10 @@ public class BLE {
         this.bluetoothGattService = bluetoothGattService;
     }
 
-    public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
+    public boolean setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             Log.e(TAG, "is null");
-            return;
+            return false;
         }
         boolean success = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
 
@@ -191,7 +191,9 @@ public class BLE {
             bluetoothGattDescriptor.setValue(value);
             boolean enable = bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
             Log.e(TAG, value[0] + value[1] + "writeDescriptor : " + enable);
+            return enable;
         }
+        return success;
     }
 
     public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
@@ -367,6 +369,7 @@ public class BLE {
                 bleUiCallbacks.onRssiUpdate(bluetoothGatt, bluetoothDevice, rssi);
             }
         }
+
     };
 
 }
