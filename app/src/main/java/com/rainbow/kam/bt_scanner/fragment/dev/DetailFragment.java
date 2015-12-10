@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.dev;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -52,14 +53,30 @@ public class DetailFragment extends Fragment {
 
     private OnDetailViewCreatedListener onDetailViewCreatedListener;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            onDetailViewCreatedListener = (OnDetailViewCreatedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnDetailViewCreatedListener");
+    /*
+        @Override
+        public void onAttach(Activity activity) {
+            super.onAttach(activity);
+            try {
+                onDetailViewCreatedListener = (OnDetailViewCreatedListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(activity.toString() + " must implement OnDetailViewCreatedListener");
+            }
         }
+    */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity) {
+            Activity activity;
+            try {
+                activity = (Activity) context;
+                onDetailViewCreatedListener = (OnDetailViewCreatedListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement OnDetailViewCreatedListener");
+            }
+        }
+
     }
 
     @Override
@@ -224,6 +241,6 @@ public class DetailFragment extends Fragment {
     }
 
     public interface OnDetailViewCreatedListener {
-        public void onDetailViewCreated();
+        void onDetailViewCreated();
     }
 }

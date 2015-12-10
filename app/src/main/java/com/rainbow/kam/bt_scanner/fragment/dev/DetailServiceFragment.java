@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.dev;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -36,12 +37,16 @@ public class DetailServiceFragment extends Fragment {
     private OnServiceViewCreatedListener onServiceViewCreatedListener;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            onServiceViewCreatedListener = (OnServiceViewCreatedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnServiceViewCreatedListener");
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity) {
+            Activity activity;
+            try {
+                activity = (Activity) context;
+                onServiceViewCreatedListener = (OnServiceViewCreatedListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement OnDetailViewCreatedListener");
+            }
         }
     }
 
@@ -49,7 +54,7 @@ public class DetailServiceFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_service, container, false);
-        activity = getActivity();
+
         setRecyclerView();
         onServiceViewCreatedListener.onServiceViewCreated();
         return view;
@@ -60,7 +65,7 @@ public class DetailServiceFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        serviceAdapter = new ServiceAdapter(serviceItemArrayList);
+        serviceAdapter = new ServiceAdapter(serviceItemArrayList, activity);
         recyclerView.setAdapter(serviceAdapter);
     }
 
@@ -89,6 +94,6 @@ public class DetailServiceFragment extends Fragment {
     }
 
     public interface OnServiceViewCreatedListener {
-        public void onServiceViewCreated();
+        void onServiceViewCreated();
     }
 }

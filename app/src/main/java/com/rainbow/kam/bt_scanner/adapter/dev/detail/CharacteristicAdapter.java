@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.adapter.dev.detail;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
@@ -25,10 +26,16 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private ArrayList<CharacteristicItem> characteristicItemArrayList;
 
     private View view;
-    private Handler handler = DetailActivity.handler;
 
-    public CharacteristicAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList) {
+    private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
+
+    public CharacteristicAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList, Activity activity) {
         this.characteristicItemArrayList = characteristicItemArrayList;
+        try {
+            onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnServiceItemClickListener");
+        }
     }
 
     @Override
@@ -80,13 +87,16 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Message message = Message.obtain(handler, 2, getLayoutPosition(), 0);
-                    handler.sendMessage(message);
+                    onCharacteristicItemClickListener.onCharacteristicItemClick(getLayoutPosition());
                 }
             });
             characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);
             characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
             characteristicValue = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_value);
         }
+    }
+
+    public interface OnCharacteristicItemClickListener {
+        void onCharacteristicItemClick(int position);
     }
 }

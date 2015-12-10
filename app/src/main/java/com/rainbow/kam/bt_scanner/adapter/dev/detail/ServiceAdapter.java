@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.adapter.dev.detail;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
@@ -26,10 +27,16 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private ArrayList<ServiceItem> serviceItemArrayList;
 
     private View view;
-    private Handler handler = DetailActivity.handler;
 
-    public ServiceAdapter(ArrayList<ServiceItem> serviceItemArrayList) {
+    private OnServiceItemClickListener onServiceItemClickListener;
+
+    public ServiceAdapter(ArrayList<ServiceItem> serviceItemArrayList, Activity activity) {
         this.serviceItemArrayList = serviceItemArrayList;
+        try {
+            onServiceItemClickListener = (OnServiceItemClickListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnServiceItemClickListener");
+        }
     }
 
     @Override
@@ -85,8 +92,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Message message = Message.obtain(handler, 1, getLayoutPosition(), 0);
-                    handler.sendMessage(message);
+                    onServiceItemClickListener.onServiceItemClick(getLayoutPosition());
                 }
             });
             serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
@@ -97,5 +103,9 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public View getView() {
             return view;
         }
+    }
+
+    public interface OnServiceItemClickListener {
+        void onServiceItemClick(int position);
     }
 }

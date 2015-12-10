@@ -31,7 +31,6 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private boolean isServiceFragment;
 
     private View view;
-    private Handler handler = DetailActivity.handler;
 
     public DetailAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList) {
         this.characteristicItemArrayList = characteristicItemArrayList;
@@ -133,8 +132,8 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Message message = Message.obtain(handler, 1, getLayoutPosition(), 0);
-                    handler.sendMessage(message);
+//                    Message message = Message.obtain(handler, 1, getLayoutPosition(), 0);
+//                    handler.sendMessage(message);
                 }
             });
             serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
@@ -158,8 +157,8 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Message message = Message.obtain(handler, 2, getLayoutPosition(), 0);
-                    handler.sendMessage(message);
+//                    Message message = Message.obtain(handler, 2, getLayoutPosition(), 0);
+//                    handler.sendMessage(message);
                 }
             });
             characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);

@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.dev;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -35,13 +36,18 @@ public class DetailCharacteristicFragment extends Fragment {
 
     private OnCharacteristicViewCreatedListener onCharacteristicViewCreatedListener;
 
+
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            onCharacteristicViewCreatedListener = (OnCharacteristicViewCreatedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnCharacteristicViewCreatedListener");
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity) {
+            Activity activity;
+            try {
+                activity = (Activity) context;
+                onCharacteristicViewCreatedListener = (OnCharacteristicViewCreatedListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement OnDetailViewCreatedListener");
+            }
         }
     }
 
@@ -49,7 +55,7 @@ public class DetailCharacteristicFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
-        activity = getActivity();
+
         setRecyclerView();
         onCharacteristicViewCreatedListener.onCharacteristicViewCreated();
         return view;
@@ -60,7 +66,7 @@ public class DetailCharacteristicFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        characteristicAdapter = new CharacteristicAdapter(characteristicItemArrayList);
+        characteristicAdapter = new CharacteristicAdapter(characteristicItemArrayList, activity);
         recyclerView.setAdapter(characteristicAdapter);
     }
 
@@ -88,6 +94,6 @@ public class DetailCharacteristicFragment extends Fragment {
     }
 
     public interface OnCharacteristicViewCreatedListener {
-        public void onCharacteristicViewCreated();
+        void onCharacteristicViewCreated();
     }
 }
