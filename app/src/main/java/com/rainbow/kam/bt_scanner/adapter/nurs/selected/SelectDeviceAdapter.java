@@ -2,8 +2,6 @@ package com.rainbow.kam.bt_scanner.adapter.nurs.selected;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -29,10 +26,16 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private Activity activity;
     private DeviceViewHolder deviceViewHolder;
 
+    private OnDeviceSelectListener onDeviceSelectListener;
 
     public SelectDeviceAdapter(LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap, Activity activity) { //초기화
         this.itemLinkedHashMap = itemLinkedHashMap;
         this.activity = activity;
+        try {
+            onDeviceSelectListener = (OnDeviceSelectListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnDeviceSelectListener");
+        }
     }
 
     @Override
@@ -77,30 +80,24 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             deviceItemCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Bundle info = getInfomation();
-                    Message message = new Message();
-                    message.setData(info);
-                    Handler handler = SplashNursingFragmentAddUser.handler;
-                    handler.sendMessage(message);
+                    Bundle info = new Bundle();
+                    info.putString("name", extraName.getText().toString());
+                    info.putString("address", extraAddress.getText().toString());
+                    onDeviceSelectListener.onDeviceSelect(info);
                 }
             });
         }
 
         private void bindViews(SelectDeviceItem selectDeviceItem) {
-
             extraName.setText(selectDeviceItem.getExtraName());
             extraAddress.setText(selectDeviceItem.getExtraextraAddress());
             extraBondState.setText(String.valueOf(selectDeviceItem.getExtraBondState()));
             extraType.setText(String.valueOf(selectDeviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(selectDeviceItem.getExtraRssi()));
-
         }
+    }
 
-        private Bundle getInfomation() {
-            Bundle info = new Bundle();
-            info.putString("name", extraName.getText().toString());
-            info.putString("address", extraAddress.getText().toString());
-            return info;
-        }
+    public interface OnDeviceSelectListener {
+        void onDeviceSelect(Bundle bundle);
     }
 }

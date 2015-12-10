@@ -3,7 +3,6 @@ package com.rainbow.kam.bt_scanner.fragment.nurs.splash;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,18 +21,14 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
+import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.design.RippleView;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
 
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
 import io.realm.RealmConfiguration;
-import io.realm.RealmMigration;
 import io.realm.RealmResults;
-import io.realm.exceptions.RealmMigrationNeededException;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -41,7 +36,6 @@ import io.realm.exceptions.RealmMigrationNeededException;
 public class SplashNursingFragmentAddUser extends Fragment implements View.OnClickListener, RippleView.OnRippleCompleteListener {
 
     private Activity activity;
-    public static SplashNursingFragmentHandler handler;
 
     private FragmentManager fm;
     private SplashNursingDialog dialogFragment;
@@ -70,8 +64,6 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
         setUserInput();
         setBtn();
-
-        handler = new SplashNursingFragmentHandler(this);
 
         return view;
     }
@@ -104,9 +96,8 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         skip.setOnRippleCompleteListener(this);
     }
 
-    private void handleMessage(Message msg) {
-
-        final Bundle callbackBundle = msg.getData();
+    public void saveDB(Bundle bundle) {
+        final Bundle callbackBundle = bundle;
 
         realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
         realm.beginTransaction();
@@ -139,6 +130,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         });
         realm.commitTransaction();
         realm.close();
+
     }
 
     @Override
@@ -258,20 +250,5 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         startActivity(new Intent(activity, MainNursingActivity.class));
     }
 
-    private static class SplashNursingFragmentHandler extends Handler {
-        private final WeakReference<SplashNursingFragmentAddUser> fragmentWeakReference;
 
-        private SplashNursingFragmentHandler(SplashNursingFragmentAddUser splashNursingFragmentAddUser) {
-            fragmentWeakReference = new WeakReference<>(splashNursingFragmentAddUser);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            SplashNursingFragmentAddUser splashNursingFragmentAddUser = fragmentWeakReference.get();
-            if (splashNursingFragmentAddUser != null) {
-                splashNursingFragmentAddUser.handleMessage(msg);
-            }
-        }
-    }
 }

@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
 import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentLogo;
 import com.rainbow.kam.bt_scanner.patient.Patient;
@@ -25,9 +26,11 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SplashNursingActivity extends AppCompatActivity {
+public class SplashNursingActivity extends AppCompatActivity implements SelectDeviceAdapter.OnDeviceSelectListener {
 
     private static final String TAG = SplashNursingActivity.class.getSimpleName();
+    SplashNursingFragmentAddUser splashNursingFragmentAddUser;
+    SplashNursingFragmentLogo splashNursingFragmentLogo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +56,9 @@ public class SplashNursingActivity extends AppCompatActivity {
     private void setFragment() {
         final FragmentManager fragmentManager = getSupportFragmentManager();
         final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        final SplashNursingFragmentAddUser splashNursingFragmentAddUser =
+        splashNursingFragmentAddUser =
                 new SplashNursingFragmentAddUser();
-        final SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
-
+        splashNursingFragmentLogo = new SplashNursingFragmentLogo();
 
         fragmentTransaction.replace(R.id.nursing_start_frame, splashNursingFragmentLogo);
         fragmentTransaction.commit();
@@ -88,5 +89,10 @@ public class SplashNursingActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onDeviceSelect(Bundle bundle) {
+        splashNursingFragmentAddUser.saveDB(bundle);
     }
 }
