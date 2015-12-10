@@ -33,12 +33,25 @@ public class DetailCharacteristicFragment extends Fragment {
     private CharacteristicAdapter characteristicAdapter;
     private ArrayList<CharacteristicItem> characteristicItemArrayList = new ArrayList<>();
 
+    private OnCharacteristicViewCreatedListener onCharacteristicViewCreatedListener;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            onCharacteristicViewCreatedListener = (OnCharacteristicViewCreatedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnCharacteristicViewCreatedListener");
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
         activity = getActivity();
         setRecyclerView();
+        onCharacteristicViewCreatedListener.onCharacteristicViewCreated();
         return view;
     }
 
@@ -72,5 +85,9 @@ public class DetailCharacteristicFragment extends Fragment {
         characteristicAdapter.clearList();
         recyclerView.setAdapter(characteristicAdapter);
         characteristicAdapter.notifyDataSetChanged();
+    }
+
+    public interface OnCharacteristicViewCreatedListener {
+        public void onCharacteristicViewCreated();
     }
 }

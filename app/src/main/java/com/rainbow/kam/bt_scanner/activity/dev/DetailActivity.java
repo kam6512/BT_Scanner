@@ -20,22 +20,27 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
+import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment.OnDetailViewCreatedListener;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment;
 import com.rainbow.kam.bt_scanner.tools.ble.BLE;
+import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by kam6512 on 2015-11-27.
  */
-public class DetailActivity extends AppCompatActivity implements BleUiCallbacks {
+public class DetailActivity extends AppCompatActivity implements BleUiCallbacks, OnDetailViewCreatedListener, DetailCharacteristicFragment.OnCharacteristicViewCreatedListener, DetailServiceFragment.OnServiceViewCreatedListener {
     public static final String TAG = "DetailActivity";
 
     public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
     public static final String EXTRAS_DEVICE_RSSI = "BLE_DEVICE_RSSI";
+
+    private static boolean isCallBackReady = false;
 
     private enum GattType {
         GATT_SERVICES, GATT_CHARACTERISTICS, GATT_CHARACTERISTIC_DETAILS
@@ -62,6 +67,10 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     private DetailServiceFragment serviceFragment;
     private DetailCharacteristicFragment characteristicFragment;
     private DetailFragment detailFragment;
+
+    List<BluetoothGattService> bluetoothGattServices;
+    List<BluetoothGattCharacteristic> bluetoothGattCharacteristics;
+    BluetoothGattCharacteristic bluetoothGattCharacteristic;
 
     public static DetailActivityHandler handler;
 
@@ -131,8 +140,9 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
                 fragmentTransaction.hide(characteristicFragment);
                 fragmentTransaction.add(R.id.detail_fragment_view, detailFragment);
 
-                BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristicFragment.getCharacteristic(position);
-                uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristic);
+                bluetoothGattCharacteristic = characteristicFragment.getCharacteristic(position);
+//                uiCharacteristicsDetails(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattService(), bluetoothGattCharacteristic);
+
 
                 break;
         }
@@ -190,7 +200,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
             finish();
         }
         if (gattType.equals(GattType.GATT_CHARACTERISTICS)) {
-            uiAvailableServices(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattServices());
+            onServicesFound(ble.getBluetoothGatt(), ble.getBluetoothDevice(), ble.getBluetoothGattServices());
             characteristicFragment.clearAdapter();
 
             fragmentTransaction.show(serviceFragment);
@@ -208,13 +218,13 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
         fragmentTransaction.commit();
     }
 
-    @Override
-    public void uiDeviceFound(final BluetoothDevice device, final int rssi, final byte[] record) {
+//    @Override
+//    public void onDeviceFound(final BluetoothDevice device, final int rssi, final byte[] record) {
+//
+//    }
 
-    }
-
     @Override
-    public void uiDeviceConnected(final BluetoothGatt gatt, final BluetoothDevice device) {
+    public void onDeviceConnected(final BluetoothGatt gatt, final BluetoothDevice device) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -225,33 +235,26 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     }
 
     @Override
-    public void uiDeviceDisconnected(final BluetoothGatt gatt, final BluetoothDevice device) {
+    public void onDeviceDisconnected(final BluetoothGatt gatt, final BluetoothDevice device) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        deviceStateTextView.setText(R.string.disconnected);
+                deviceStateTextView.setText(R.string.disconnected);
 
-                        if (serviceFragment != null && gattType == GattType.GATT_SERVICES) {
-                            serviceFragment.clearAdapter();
-                        }
-                        if (characteristicFragment != null && gattType == GattType.GATT_CHARACTERISTICS) {
-                            characteristicFragment.clearAdapter();
-                        }
+                if (serviceFragment != null && gattType == GattType.GATT_SERVICES) {
+                    serviceFragment.clearAdapter();
+                }
+                if (characteristicFragment != null && gattType == GattType.GATT_CHARACTERISTICS) {
+                    characteristicFragment.clearAdapter();
+                }
 
-                        gattType = GattType.GATT_SERVICES;
-                    }
-                }, 200);
-
-
+                gattType = GattType.GATT_SERVICES;
             }
         });
     }
 
     @Override
-    public void uiNewRssiAvailable(final BluetoothGatt gatt, BluetoothDevice device, final int rssi) {
+    public void onRssiUpdate(final BluetoothGatt gatt, BluetoothDevice device, final int rssi) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -262,72 +265,19 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     }
 
     @Override
-    public void uiAvailableServices(final BluetoothGatt gatt, final BluetoothDevice device, final List<BluetoothGattService> services) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (serviceFragment != null) {
-                            serviceFragment.clearAdapter();
-                            for (BluetoothGattService bluetoothGattService : services) {
-                                serviceFragment.addService(bluetoothGattService);
-                            }
-                            serviceFragment.notifyAdapter();
-                        }
-                    }
-                }, 200);
-                gattType = GattType.GATT_SERVICES;
-            }
-        });
+    public void onServicesFound(final BluetoothGatt gatt, final BluetoothDevice device, final List<BluetoothGattService> services) {
+        bluetoothGattServices = services;
+        onServiceViewCreated();
     }
 
     @Override
-    public void uiCharacteristicForService(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final List<BluetoothGattCharacteristic> chars) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (characteristicFragment != null) {
-                            characteristicFragment.clearAdapter();
-                            for (BluetoothGattCharacteristic bluetoothGattCharacteristic : chars) {
-                                characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
-                            }
-                            characteristicFragment.notifyAdapter();
-                        }
-                        gattType = GattType.GATT_CHARACTERISTICS;
-//                        actionBar.setTitle(BLEGattAttributes.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())));
-                    }
-                }, 200);
-            }
-        });
+    public void onCharacteristicFound(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final List<BluetoothGattCharacteristic> chars) {
+        bluetoothGattCharacteristics = chars;
+        onCharacteristicViewCreated();
     }
 
     @Override
-    public void uiCharacteristicsDetails(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic characteristic) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (detailFragment != null) {
-                            detailFragment.setBle(ble);
-                            detailFragment.setCharacteristic(characteristic);
-                            detailFragment.bindView();
-                        }
-                        gattType = GattType.GATT_CHARACTERISTIC_DETAILS;
-                    }
-                }, 200);
-            }
-        });
-    }
-
-    @Override
-    public void uiNewValueForCharacteristic(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic ch, final String strValue, final int intValue, final byte[] rawValue, final String timestamp) {
+    public void onNewDataFound(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic ch, final String strValue, final int intValue, final byte[] rawValue, final String timestamp) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -341,7 +291,7 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     }
 
     @Override
-    public void uiGotNotification(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic characteristic) {
+    public void onDataNotify(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic characteristic) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -358,17 +308,63 @@ public class DetailActivity extends AppCompatActivity implements BleUiCallbacks 
     }
 
     @Override
-    public void uiSuccessfulWrite(final BluetoothGatt gatt, final BluetoothDevice device,
-                                  final BluetoothGattService service, final BluetoothGattCharacteristic ch,
-                                  final String description) {
+    public void onWriteSuccess(final BluetoothGatt gatt, final BluetoothDevice device,
+                               final BluetoothGattService service, final BluetoothGattCharacteristic ch,
+                               final String description) {
         Toast.makeText(getApplicationContext(), "Writing to " + description + " was finished successfully!", Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void uiFailedWrite(final BluetoothGatt gatt, final BluetoothDevice device,
-                              final BluetoothGattService service, final BluetoothGattCharacteristic ch,
-                              final String description) {
+    public void onWriteFail(final BluetoothGatt gatt, final BluetoothDevice device,
+                            final BluetoothGattService service, final BluetoothGattCharacteristic ch,
+                            final String description) {
         Toast.makeText(getApplicationContext(), "Writing to " + description + " FAILED!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDetailViewCreated() {
+
+        if (detailFragment != null) {
+            detailFragment.setBle(ble);
+            detailFragment.setCharacteristic(bluetoothGattCharacteristic);
+            detailFragment.bindView();
+        }
+        gattType = GattType.GATT_CHARACTERISTIC_DETAILS;
+
+    }
+
+    @Override
+    public void onCharacteristicViewCreated() {
+        if (!isCallBackReady) {
+            isCallBackReady = true;
+        } else {
+            isCallBackReady = false;
+            if (characteristicFragment != null) {
+                characteristicFragment.clearAdapter();
+                for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
+                    characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+                }
+                characteristicFragment.notifyAdapter();
+            }
+            gattType = GattType.GATT_CHARACTERISTICS;
+        }
+    }
+
+    @Override
+    public void onServiceViewCreated() {
+        if (!isCallBackReady) {
+            isCallBackReady = true;
+        } else {
+            isCallBackReady = false;
+            if (serviceFragment != null) {
+                serviceFragment.clearAdapter();
+                for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
+                    serviceFragment.addService(bluetoothGattService);
+                }
+                serviceFragment.notifyAdapter();
+            }
+            gattType = GattType.GATT_SERVICES;
+        }
     }
 
     private static class DetailActivityHandler extends Handler {

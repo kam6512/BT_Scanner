@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.dev;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -48,6 +49,18 @@ public class DetailFragment extends Fragment {
     private String strValue = "";
     private String lastUpdateTime = "";
     private boolean notificationEnabled = false;
+
+    private OnDetailViewCreatedListener onDetailViewCreatedListener;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            onDetailViewCreatedListener = (OnDetailViewCreatedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnDetailViewCreatedListener");
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -101,6 +114,8 @@ public class DetailFragment extends Fragment {
                 notificationEnabled = isChecked;
             }
         });
+
+        onDetailViewCreatedListener.onDetailViewCreated();
 
         return view;
     }
@@ -201,10 +216,14 @@ public class DetailFragment extends Fragment {
             writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
             charHexValue.setEnabled(writeBtn.isEnabled());
 
-//            charHexValue.setText(asciiValue);
+            charHexValue.setText(asciiValue);
             charStrValue.setText(strValue);
             charDecValue.setText(String.format("%d", intValue));
             charDateValue.setText(lastUpdateTime);
         }
+    }
+
+    public interface OnDetailViewCreatedListener {
+        public void onDetailViewCreated();
     }
 }
