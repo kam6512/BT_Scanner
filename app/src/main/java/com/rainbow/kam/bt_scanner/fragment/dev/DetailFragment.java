@@ -51,16 +51,16 @@ public class DetailFragment extends Fragment {
     private String lastUpdateTime = "";
     private boolean notificationEnabled = false;
 
-    private OnDetailViewCreatedListener onDetailViewCreatedListener;
+    private OnDetailReadyListener onDetailReadyListener;
 
     /*
         @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             try {
-                onDetailViewCreatedListener = (OnDetailViewCreatedListener) activity;
+                onDetailReadyListener = (OnDetailReadyListener) activity;
             } catch (ClassCastException e) {
-                throw new ClassCastException(activity.toString() + " must implement OnDetailViewCreatedListener");
+                throw new ClassCastException(activity.toString() + " must implement OnDetailReadyListener");
             }
         }
     */
@@ -71,9 +71,9 @@ public class DetailFragment extends Fragment {
             Activity activity;
             try {
                 activity = (Activity) context;
-                onDetailViewCreatedListener = (OnDetailViewCreatedListener) activity;
+                onDetailReadyListener = (OnDetailReadyListener) activity;
             } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnDetailViewCreatedListener");
+                throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
             }
         }
 
@@ -105,7 +105,7 @@ public class DetailFragment extends Fragment {
         readBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ble.requestCharacteristicValue(bluetoothGattCharacteristic);
+                ble.readValue(bluetoothGattCharacteristic);
             }
         });
 
@@ -116,7 +116,7 @@ public class DetailFragment extends Fragment {
                 String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
                     byte[] dataToWrite = BleHelper.parseHexStringToBytesDEV(newValue);
-                    ble.writeDataToCharacteristic(bluetoothGattCharacteristic, dataToWrite);
+                    ble.writeValue(bluetoothGattCharacteristic, dataToWrite);
                 }
             }
         });
@@ -127,12 +127,12 @@ public class DetailFragment extends Fragment {
                 if (isChecked == notificationEnabled) {
                     return;
                 }
-                ble.setNotificationForCharacteristic(bluetoothGattCharacteristic, isChecked);
+                ble.setNotification(bluetoothGattCharacteristic, isChecked);
                 notificationEnabled = isChecked;
             }
         });
 
-        onDetailViewCreatedListener.onDetailViewCreated();
+        onDetailReadyListener.onDetailReady();
 
         return view;
     }
@@ -240,7 +240,7 @@ public class DetailFragment extends Fragment {
         }
     }
 
-    public interface OnDetailViewCreatedListener {
-        void onDetailViewCreated();
+    public interface OnDetailReadyListener {
+        void onDetailReady();
     }
 }

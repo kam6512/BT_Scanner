@@ -30,11 +30,10 @@ public class DetailCharacteristicFragment extends Fragment {
     private View view;
 
     private RecyclerView recyclerView;
-    //    private DetailAdapter adapter;
     private CharacteristicAdapter characteristicAdapter;
     private ArrayList<CharacteristicItem> characteristicItemArrayList = new ArrayList<>();
 
-    private OnCharacteristicViewCreatedListener onCharacteristicViewCreatedListener;
+    private OnCharacteristicReadyListener onCharacteristicReadyListener;
 
 
     @Override
@@ -44,9 +43,9 @@ public class DetailCharacteristicFragment extends Fragment {
 
             try {
                 activity = (Activity) context;
-                onCharacteristicViewCreatedListener = (OnCharacteristicViewCreatedListener) activity;
+                onCharacteristicReadyListener = (OnCharacteristicReadyListener) activity;
             } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnDetailViewCreatedListener");
+                throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
             }
         }
     }
@@ -57,7 +56,7 @@ public class DetailCharacteristicFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
 
         setRecyclerView();
-        onCharacteristicViewCreatedListener.onCharacteristicViewCreated();
+        onCharacteristicReadyListener.onCharacteristicReady();
         return view;
     }
 
@@ -93,7 +92,7 @@ public class DetailCharacteristicFragment extends Fragment {
         characteristicAdapter.notifyDataSetChanged();
     }
 
-    public interface OnCharacteristicViewCreatedListener {
-        void onCharacteristicViewCreated();
+    public interface OnCharacteristicReadyListener {
+        void onCharacteristicReady();
     }
 }

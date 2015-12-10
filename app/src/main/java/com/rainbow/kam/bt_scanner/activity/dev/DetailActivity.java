@@ -6,8 +6,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,15 +19,13 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment.OnCharacteristicViewCreatedListener;
+import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment.OnCharacteristicReadyListener;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment.OnDetailViewCreatedListener;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment.OnServiceViewCreatedListener;
+import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment.OnServiceReadyListener;
 import com.rainbow.kam.bt_scanner.tools.ble.BLE;
 import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
@@ -37,9 +33,9 @@ import java.util.List;
  */
 public class DetailActivity extends AppCompatActivity
         implements BleUiCallbacks,
-        OnDetailViewCreatedListener,
-        OnCharacteristicViewCreatedListener,
-        OnServiceViewCreatedListener,
+        DetailFragment.OnDetailReadyListener,
+        OnCharacteristicReadyListener,
+        OnServiceReadyListener,
         ServiceAdapter.OnServiceItemClickListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener {
     public static final String TAG = "DetailActivity";
@@ -48,7 +44,7 @@ public class DetailActivity extends AppCompatActivity
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
     public static final String EXTRAS_DEVICE_RSSI = "BLE_DEVICE_RSSI";
 
-    private static boolean isCallBackReady = false;
+    private boolean isCallBackReady = false;
 
 
     private enum GattType {
@@ -137,7 +133,7 @@ public class DetailActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.detail_fragment_view, characteristicFragment);
 
         bluetoothGattService = serviceFragment.getService(position);
-        ble.getCharacteristicsForService(bluetoothGattService);
+        ble.getCharacteristics(bluetoothGattService);
 
         fragmentTransaction.commit();
     }
@@ -180,6 +176,8 @@ public class DetailActivity extends AppCompatActivity
             ble.disconnect();
             ble.close();
         }
+        isCallBackReady = false;
+        gattType = GattType.GATT_SERVICES;
     }
 
     @Override
@@ -205,7 +203,7 @@ public class DetailActivity extends AppCompatActivity
             fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
         }
         if (gattType.equals(GattType.GATT_CHARACTERISTIC_DETAILS)) {
-            ble.getCharacteristicsForService(ble.getBluetoothGattService());
+            ble.getCharacteristics(ble.getBluetoothGattService());
             detailFragment.clearCharacteristic();
             fragmentTransaction.replace(R.id.detail_fragment_view, characteristicFragment);
         }
@@ -256,13 +254,13 @@ public class DetailActivity extends AppCompatActivity
     @Override
     public void onServicesFound(final BluetoothGatt gatt, final BluetoothDevice device, final List<BluetoothGattService> services) {
         bluetoothGattServices = services;
-        onServiceViewCreated();
+        onServiceReady();
     }
 
     @Override
     public void onCharacteristicFound(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final List<BluetoothGattCharacteristic> chars) {
         bluetoothGattCharacteristics = chars;
-        onCharacteristicViewCreated();
+        onCharacteristicReady();
     }
 
     @Override
@@ -311,7 +309,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDetailViewCreated() {
+    public void onDetailReady() {
 
         if (detailFragment != null) {
             detailFragment.setBle(ble);
@@ -323,7 +321,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onServiceViewCreated() {
+    public void onServiceReady() {
         if (!isCallBackReady) {
             isCallBackReady = true;
         } else {
@@ -338,8 +336,9 @@ public class DetailActivity extends AppCompatActivity
             gattType = GattType.GATT_SERVICES;
         }
     }
+
     @Override
-    public void onCharacteristicViewCreated() {
+    public void onCharacteristicReady() {
         if (!isCallBackReady) {
             isCallBackReady = true;
         } else {

@@ -30,11 +30,10 @@ public class DetailServiceFragment extends Fragment {
     private View view;
 
     private RecyclerView recyclerView;
-    //    private DetailAdapter adapter;
     private ServiceAdapter serviceAdapter;
     private ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<>();
 
-    private OnServiceViewCreatedListener onServiceViewCreatedListener;
+    private OnServiceReadyListener onServiceReadyListener;
 
     @Override
     public void onAttach(Context context) {
@@ -43,9 +42,9 @@ public class DetailServiceFragment extends Fragment {
 
             try {
                 activity = (Activity) context;
-                onServiceViewCreatedListener = (OnServiceViewCreatedListener) activity;
+                onServiceReadyListener = (OnServiceReadyListener) activity;
             } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnDetailViewCreatedListener");
+                throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
             }
         }
     }
@@ -56,7 +55,7 @@ public class DetailServiceFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_detail_service, container, false);
 
         setRecyclerView();
-        onServiceViewCreatedListener.onServiceViewCreated();
+        onServiceReadyListener.onServiceReady();
         return view;
     }
 
@@ -93,7 +92,7 @@ public class DetailServiceFragment extends Fragment {
         serviceAdapter.notifyDataSetChanged();
     }
 
-    public interface OnServiceViewCreatedListener {
-        void onServiceViewCreated();
+    public interface OnServiceReadyListener {
+        void onServiceReady();
     }
 }

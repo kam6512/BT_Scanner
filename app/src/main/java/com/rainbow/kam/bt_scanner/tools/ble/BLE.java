@@ -118,7 +118,7 @@ public class BLE {
         bluetoothGatt = null;
     }
 
-    public void readPeriodicalyRssiValue(final boolean repeat) {
+    public void readRssiValue(final boolean repeat) {
         timerEnabled = repeat;
 
         if (!connected || bluetoothGatt == null || !timerEnabled) {
@@ -134,24 +134,24 @@ public class BLE {
                 }
 
                 bluetoothGatt.readRemoteRssi();
-                readPeriodicalyRssiValue(timerEnabled);
+                readRssiValue(timerEnabled);
             }
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
 
     public void startMonitoringRssiValue() {
-        readPeriodicalyRssiValue(true);
+        readRssiValue(true);
     }
 
     public void stopMonitoringRssiValue() {
-        readPeriodicalyRssiValue(false);
+        readRssiValue(false);
     }
 
-    public void startServiceDiscorvery() {
+    public void startServiceDiscovery() {
         if (bluetoothGatt != null) bluetoothGatt.discoverServices();
     }
 
-    public void getSupportedServices() {
+    public void getServices() {
         if (bluetoothGattServices != null && bluetoothGattServices.size() > 0) {
             bluetoothGattServices.clear();
         }
@@ -162,7 +162,7 @@ public class BLE {
         bleUiCallbacks.onServicesFound(bluetoothGatt, bluetoothDevice, bluetoothGattServices);
     }
 
-    public void getCharacteristicsForService(final BluetoothGattService bluetoothGattService) {
+    public void getCharacteristics(final BluetoothGattService bluetoothGattService) {
         if (bluetoothGattService == null) {
             return;
         }
@@ -173,15 +173,46 @@ public class BLE {
         this.bluetoothGattService = bluetoothGattService;
     }
 
-    public void requestCharacteristicValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+    public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
+        if (bluetoothAdapter == null || bluetoothGatt == null) {
+            Log.e(TAG, "is null");
+            return;
+        }
+        boolean success = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
+
+        if (!success) {
+            Log.e(TAG, "Setting proper notification status for characteristic failed!");
+        }
+
+        BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(BLEGattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
+        if (bluetoothGattDescriptor != null) {
+            Log.e(TAG, "start Notify");
+            byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+            bluetoothGattDescriptor.setValue(value);
+            boolean enable = bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            Log.e(TAG, value[0] + value[1] + "writeDescriptor : " + enable);
+        }
+    }
+
+    public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             return;
         }
-
         bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
     }
 
-    public void getCharacteristicsValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+    public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
+        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
+            Log.e(TAG, "writeValue null");
+        } else {
+            Log.e(TAG, "writeValue start");
+            bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+            bluetoothGattCharacteristic.setValue(dataToWrite);
+            bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
+        }
+    }
+
+    public void onValueFound(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
             return;
         }
@@ -270,39 +301,6 @@ public class BLE {
         }
         return 0;
     }
-
-    public void writeDataToCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
-        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
-            Log.e(TAG, "writeDataToCharacteristic null");
-        } else {
-            Log.e(TAG, "writeDataToCharacteristic start");
-            bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-            bluetoothGattCharacteristic.setValue(dataToWrite);
-            bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
-        }
-    }
-
-    public void setNotificationForCharacteristic(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
-        if (bluetoothAdapter == null || bluetoothGatt == null) {
-            Log.e(TAG, "is null");
-            return;
-        }
-        boolean success = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
-
-        if (!success) {
-            Log.e(TAG, "Seting proper notification status for characteristic failed!");
-        }
-
-        BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(BLEGattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
-        if (bluetoothGattDescriptor != null) {
-            Log.e(TAG, "start Notify");
-            byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-            bluetoothGattDescriptor.setValue(value);
-            boolean enable = bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
-            Log.e(TAG, value[0] + value[1] + "writeDescriptor : " + enable);
-        }
-    }
-
     /*
         private BluetoothAdapter.LeScanCallback deviceFoundCallback = new BluetoothAdapter.LeScanCallback() {
             @Override
@@ -320,7 +318,7 @@ public class BLE {
                 bleUiCallbacks.onDeviceConnected(bluetoothGatt, bluetoothDevice);
 
                 bluetoothGatt.readRemoteRssi();
-                startServiceDiscorvery();
+                startServiceDiscovery();
                 startMonitoringRssiValue();
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -332,20 +330,20 @@ public class BLE {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                getSupportedServices();
+                getServices();
             }
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                getCharacteristicsValue(characteristic);
+                onValueFound(characteristic);
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            getCharacteristicsValue(characteristic);
+            onValueFound(characteristic);
             bleUiCallbacks.onDataNotify(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic);
         }
 
@@ -357,9 +355,9 @@ public class BLE {
             String description = "Device: " + deviceName + " Service: " + serviceName + " Characteristic: " + characteristicName;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                bleUiCallbacks.onWriteSuccess(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
+                bleUiCallbacks.onWriteSuccess(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS = " + status);
             } else {
-                bleUiCallbacks.onWriteFail(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS= " + status);
+                bleUiCallbacks.onWriteFail(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS = " + status);
             }
         }
 

@@ -361,7 +361,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 //                            if (!isGattProcessRunning) {
 //                                byte[] dataToWrite;
 //                                dataToWrite = BleHelper.CLEAR_DATA();
-//                                ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+//                                ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
 //                            }
 
                             Toast.makeText(MainNursingActivity.this, "앱을 재시작합니다", Toast.LENGTH_LONG).show();
@@ -497,7 +497,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                 listType = ListType.READ_STEP_DATA;
                 dataToWrite = BleHelper.READ_STEP_DATA(8);
-                ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
                 isGattProcessRunning = true;
                 break;
 
@@ -507,7 +507,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                 listType = ListType.ETC;
                 dataToWrite = BleHelper.CALL_DEVICE();
-                ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+                ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
                 isGattProcessRunning = true;
 
                 break;
@@ -716,7 +716,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             @Override
             public void run() {
                 BluetoothGattService bluetoothGattService = services.get(4); // 0xFFF0
-                ble.getCharacteristicsForService(bluetoothGattService);
+                ble.getCharacteristics(bluetoothGattService);
             }
         });
     }
@@ -741,7 +741,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 //            @Override
 //            public void run() {
 //
-//                ble.setNotificationForCharacteristic(bluetoothGattCharacteristicForNotify, true);
+//                ble.setNotification(bluetoothGattCharacteristicForNotify, true);
 //
 //                new Handler().postDelayed(new Runnable() {
 //                    @Override
@@ -749,7 +749,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 //                        //Check the time
 //                        listType = ListType.READ_TIME;
 //                        byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
-//                        MainNursingActivity.this.ble.writeDataToCharacteristic(bluetoothGattCharacteristicForWrite, dataToWrite);
+//                        MainNursingActivity.this.ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
 //
 //                    }
 //                }, 1000);
