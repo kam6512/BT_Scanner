@@ -22,20 +22,22 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private static final String TAG = "SelectDeviceAdapter";
 
-    private LinkedHashMap<String, MainDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
+    private LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
     private ArrayList<MainDeviceItem> mainDeviceItemArrayList;
     private Activity activity;
     private DeviceViewHolder deviceViewHolder;
 
 
-    public MainDeviceAdapter(LinkedHashMap<String, MainDeviceItem> itemLinkedHashMap, Activity activity) { //초기화
-        this.itemLinkedHashMap = itemLinkedHashMap;
+    public MainDeviceAdapter(LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap, Activity activity) { //초기화
+        this.mainDeviceItemLinkedHashMap = mainDeviceItemLinkedHashMap;
         this.activity = activity;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        mainDeviceItemArrayList = new ArrayList<>(itemLinkedHashMap.values());
+
+        mainDeviceItemArrayList = new ArrayList<>(mainDeviceItemLinkedHashMap.values());
+
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View root = layoutInflater.inflate(R.layout.main_bluetooth_device_item, parent, false);
         return new DeviceViewHolder(root);
@@ -45,13 +47,11 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         deviceViewHolder = (DeviceViewHolder) holder;
         deviceViewHolder.bindViews(mainDeviceItemArrayList.get(position));
-
-
     }
 
     @Override
     public int getItemCount() {
-        return itemLinkedHashMap.size();
+        return mainDeviceItemLinkedHashMap.size();
     }
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder { //뷰 초기화

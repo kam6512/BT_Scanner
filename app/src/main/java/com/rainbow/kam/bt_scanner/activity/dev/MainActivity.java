@@ -40,7 +40,6 @@ import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -67,8 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter = null;
-
-    private LinkedHashMap<String, MainDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
+    private LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
     private FloatingActionButton fabSearch;
     private ProgressBar searchingProgressBar;
@@ -135,7 +133,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case REQUEST_ENABLE_BT:
                 switch (resultCode) {
                     case RESULT_OK:
-                        startScan();
+                        if (!isScanning) {
+                            startScan();
+                        }
                         break;
                     default:
                         Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
@@ -152,7 +152,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
-                startScan();
+                if (!isScanning) {
+                    startScan();
+                }
             } else {
                 Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
 
@@ -192,10 +194,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new MainDeviceAdapter(itemLinkedHashMap, MainActivity.this);
+        adapter = new MainDeviceAdapter(mainDeviceItemLinkedHashMap, MainActivity.this);
         recyclerView.setAdapter(adapter);
 
-        itemLinkedHashMap.clear();
+        mainDeviceItemLinkedHashMap.clear();
         adapter.notifyDataSetChanged();
     }
 
@@ -242,12 +244,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             private void processResult(final ScanResult result) {
-                String deviceName = result.getDevice().getName();
+                BluetoothDevice bluetoothDevice = result.getDevice();
+
+                String deviceName = bluetoothDevice.getName();
                 if (deviceName == null) {
                     deviceName = "N/A";
                 }
-                if (!itemLinkedHashMap.containsKey(result.getDevice().getAddress())) {
-                    itemLinkedHashMap.put(result.getDevice().getAddress(), new MainDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
+
+                if (!mainDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
+                    mainDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new MainDeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), result.getRssi()));
                 }
             }
         };
@@ -262,8 +267,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (deviceName == null) {
                     deviceName = "N/A";
                 }
-                if (!itemLinkedHashMap.containsKey(device.getAddress())) {
-                    itemLinkedHashMap.put(device.getAddress(), new MainDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                if (!mainDeviceItemLinkedHashMap.containsKey(device.getAddress())) {
+                    mainDeviceItemLinkedHashMap.put(device.getAddress(), new MainDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                 }
             }
         };
@@ -279,16 +284,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (bluetoothAdapter.isEnabled()) {
             try {
-                itemLinkedHashMap.clear();
-//                mainDeviceItemArrayList.clear();
+                mainDeviceItemLinkedHashMap.clear();
                 adapter.notifyDataSetChanged();
 
                 if (isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
-
-                startScan();
-
+                if (!isScanning) {
+                    startScan();
+                }
             } catch (Exception e) {
                 Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
                 finish();
@@ -313,10 +317,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 stopScan();
             } else { //재 스캔시(10초이내)
                 if (adapter != null) {
-                    itemLinkedHashMap.clear();
+                    mainDeviceItemLinkedHashMap.clear();
                     adapter.notifyDataSetChanged();
                 }
+
                 startScan();
+
             }
         } else {
             if (isScanning) {  //스캔 시작
@@ -335,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void run() {
                     stopScan();
 
-                    if (itemLinkedHashMap.size() < 1) {
+                    if (mainDeviceItemLinkedHashMap.size() < 1) {
                         noDeviceTextView.setVisibility(View.VISIBLE);
                     }
                     adapter.notifyDataSetChanged();
@@ -344,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }, SCAN_PERIOD); //5초 뒤에 OFF
 
             //시작
-            itemLinkedHashMap.clear();
+            mainDeviceItemLinkedHashMap.clear();
             adapter.notifyDataSetChanged();
             isScanning = true;
             searchingProgressBar.setVisibility(View.VISIBLE);
@@ -355,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 bluetoothAdapter.startLeScan(leScanCallback);
             }
+
         } else {
             initBluetoothOn();
         }
