@@ -21,6 +21,7 @@ import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 /**
@@ -37,7 +38,7 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nursing_splash);
         try {
-            Realm realm = Realm.getInstance(this);
+            Realm realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
             Patient patient = results.get(0);
 
@@ -72,7 +73,7 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
                             .commit();
                 }
             }
-        }, 3000);
+        }, 2000);
     }
 
     @Override

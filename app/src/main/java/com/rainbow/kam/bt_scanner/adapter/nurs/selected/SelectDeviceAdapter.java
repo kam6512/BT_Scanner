@@ -23,14 +23,11 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
     private ArrayList<SelectDeviceItem> selectDeviceItemArrayList;
-    private Activity activity;
-    private DeviceViewHolder deviceViewHolder;
 
     private OnDeviceSelectListener onDeviceSelectListener;
 
     public SelectDeviceAdapter(LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap, Activity activity) { //초기화
         this.itemLinkedHashMap = itemLinkedHashMap;
-        this.activity = activity;
         try {
             onDeviceSelectListener = (OnDeviceSelectListener) activity;
         } catch (ClassCastException e) {
@@ -48,7 +45,7 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        deviceViewHolder = (DeviceViewHolder) holder;
+        DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
         deviceViewHolder.bindViews(selectDeviceItemArrayList.get(position));
     }
 
