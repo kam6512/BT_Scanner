@@ -59,6 +59,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 /**
@@ -131,7 +132,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         super.onStart();
         activity = this;
         try {
-            realm = Realm.getInstance(activity);
+            realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
 
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
 
@@ -487,6 +488,18 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         }
     }
 
+    public void startDeviceWrite() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                listType = ListType.READ_TIME;
+                byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
+                MainNursingActivity.this.ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+            }
+        }, 1000);
+    }
+
     private void loadNotifyData(BluetoothGattCharacteristic characteristic) {
         byte[] characteristicValue = characteristic.getValue();
         byte[] dataToWrite;
@@ -495,21 +508,20 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                 readTime(characteristicValue);
 
-                listType = ListType.READ_STEP_DATA;
                 dataToWrite = BleHelper.READ_STEP_DATA(8);
                 ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
                 isGattProcessRunning = true;
+                listType = ListType.READ_STEP_DATA;
                 break;
 
             case READ_STEP_DATA:
 
                 readStep(characteristicValue);
 
-                listType = ListType.ETC;
-                dataToWrite = BleHelper.SET_DEVICE_TIME_NOW();
+                dataToWrite = BleHelper.CALL_DEVICE();
                 ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
                 isGattProcessRunning = true;
-
+                listType = ListType.ETC;
                 break;
 
             case ETC:
@@ -518,44 +530,25 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb));
                 }
                 isGattProcessRunning = false;
-
                 break;
 
             default:
                 isGattProcessRunning = false;
-
                 break;
         }
-    }
-
-    public void startDeviceWrite() {
-
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                //Check the time
-                listType = ListType.READ_TIME;
-                byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
-                MainNursingActivity.this.ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
-            }
-        }, 1000);
     }
 
     private void readTime(byte[] characteristicValue) {
         String result = "";
         for (int i = 0; i < characteristicValue.length; i++) {
-            if (i > 1 && i != characteristicValue.length - 1) {
+            if (i > 1 && i != characteristicValue.length - 1) { // 0 : Positive - Negative / 1 : Length / last index : checksum
                 result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
                 switch (i) {
                     default:
                         result += timeSet[i - 2] + " ";
-
                         break;
                     case 8:
                         result = result.substring(0, result.length() - 1);
-
                         int j = Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
                         result += weekSet[j - 1];
                         break;
@@ -567,70 +560,54 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     private void readStep(byte[] characteristicValue) {
-        String result = "";
 
         String hexStep = "";
-        String hexCalo = "";
+        String hexCal = "";
         String hexDist = "";
 
         int distance;
         int step = 0;
         int age;
 
-        for (int i = 0; i < characteristicValue.length; i++) {
-
+        for (int i = 2; i < characteristicValue.length; i++) {
             int lsb = characteristicValue[i] & 0xff;
+            switch (i) {
+                case 2:
+                case 3:
+                case 4:
+                    hexStep += BleHelper.setWidth(Integer.toHexString(lsb));
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    hexCal += BleHelper.setWidth(Integer.toHexString(lsb));
+                    break;
+                case 10:
+                    step = Integer.valueOf(hexStep, 16);
+                    age = Integer.parseInt(patientAge);
+                    double height = Integer.parseInt(patientHeight);
+                    if (age <= 15 || age >= 65) distance = (int) ((height * 0.37) * step);
+                    else if (15 < age || age < 45) distance = (int) ((height * 0.45) * step);
+                    else if (45 <= age || age < 65) distance = (int) ((height * 0.40) * step);
+                    else distance = (int) ((height * 0.30) * step);
 
-            if (i > 1 && i != characteristicValue.length - 1) {
-
-                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(lsb)), 16) + " / ";
-
-                switch (i) {
-                    case 2:
-                    case 3:
-                    case 4:
-                        hexStep += BleHelper.setWidth(Integer.toHexString(lsb));
-                        break;
-
-                    case 5:
-                    case 6:
-                    case 7:
-                        hexCalo += BleHelper.setWidth(Integer.toHexString(lsb));
-                        break;
-                    case 10:
-                        step = Integer.valueOf(hexStep, 16);
-                        age = Integer.parseInt(patientAge);
-                        double height = Integer.parseInt(patientHeight);
-                        if (age <= 15 || age >= 65) {
-                            distance = (int) ((height * 0.37) * step);
-                        } else if (15 < age || age < 45) {
-                            distance = (int) ((height * 0.45) * step);
-                        } else if (45 <= age || age < 65) {
-                            distance = (int) ((height * 0.40) * step);
-                        } else {
-                            distance = (int) ((height * 0.30) * step);
-                        }
-                        Log.e(TAG, "dist : " + hexDist + " distance : " + distance + " age : " + age + " steps : " + step + " height  : " + height);
-
-                        hexDist = String.valueOf(distance / 100);  //CM -> M
-                        break;
-                }
-                Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb) + " / result " + result);
+                    hexDist = String.valueOf(distance / 100);  //CM -> M
+                    break;
             }
         }
 
-        stepFragment.setStep(step);
-        calorieFragment.setCalorie(Integer.valueOf(hexCalo));
-        distanceFragment.setDist(Integer.valueOf(hexDist));
-        sampleFragment.setSample(Integer.valueOf(hexDist));
+        addDataToRealmDB(step, Integer.valueOf(hexCal), Integer.valueOf(hexDist));
 
         Bundle bundle = new Bundle();
         bundle.putString("STEP", hexStep);
-        bundle.putString("CALO", hexCalo);
+        bundle.putString("CALO", hexCal);
         bundle.putString("DIST", hexDist);
         dashboardFragment.setStepData(bundle);
 
-        addDataToRealmDB(step, Integer.valueOf(hexCalo), Integer.valueOf(hexDist));
+        stepFragment.setStep(step);
+        calorieFragment.setCalorie(Integer.valueOf(hexCal));
+        distanceFragment.setDist(Integer.valueOf(hexDist));
+        sampleFragment.setSample(Integer.valueOf(hexDist));
     }
 
     private void addDataToRealmDB(int step, int calo, int dist) {
@@ -639,7 +616,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         Calendar calendar = Calendar.getInstance();
         String today = formatter.format(calendar.getTime());
 
-        realm = Realm.getInstance(this);
+        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
         realm.beginTransaction();
 
         RealmResults<Band> results = realm.where(Band.class).findAll();
@@ -673,7 +650,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             arrayList.add(new DashboardItem(results.get(i).getStep(), results.get(i).getCalorie(), results.get(i).getDistance(), results.get(i).getCalendar()));
         }
     }
-
 
     @Override
     public void onDeviceConnected(BluetoothGatt gatt, BluetoothDevice device) {
@@ -747,12 +723,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         });
     }
 
-
     @Override
     public void onNewDataFound(BluetoothGatt gatt, BluetoothDevice device, BluetoothGattService service, BluetoothGattCharacteristic ch, String strValue, int intValue, byte[] rawValue, String timestamp) {
 
     }
-
 
     @Override
     public void onDataNotify(BluetoothGatt gatt, BluetoothDevice device, BluetoothGattService service, final BluetoothGattCharacteristic characteristic) {
@@ -795,7 +769,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             }
         });
     }
-
 
     private class DashBoardAdapter extends FragmentStatePagerAdapter {
 

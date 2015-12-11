@@ -35,10 +35,8 @@ public class SampleFragment extends Fragment {
         etcCircleCounter.setThirdColor(getResources().getColor(R.color.etcPrimaryDark));
         etcCircleCounter.setBackgroundColor(getResources().getColor(R.color.etcColor));
 
-
         return view;
     }
-
 
     public void setSample(int sample) {
         etcCircleCounter.setValues(sample, sample, sample);

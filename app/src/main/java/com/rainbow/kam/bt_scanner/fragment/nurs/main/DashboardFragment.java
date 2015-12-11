@@ -33,17 +33,19 @@ public class DashboardFragment extends Fragment {
         }
 
         time = (TextView) view.findViewById(R.id.deviceTime);
-
         stepTextview = (TextView) view.findViewById(R.id.dashboard_step);
         calorieTextview = (TextView) view.findViewById(R.id.dashboard_calorie);
         distanceTextview = (TextView) view.findViewById(R.id.dashboard_distance);
-
 
         return view;
     }
 
     public void setTime(String characteristicTime) {
-        time.setText("시간 : " + characteristicTime);
+        try {
+            time.setText("시간 : " + characteristicTime);
+        } catch (Exception e) {
+            setFail();
+        }
     }
 
     public void setStepData(Bundle stepData) {
@@ -51,15 +53,14 @@ public class DashboardFragment extends Fragment {
             String step = stepData.getString("STEP");
             String calo = stepData.getString("CALO");
             String dist = stepData.getString("DIST") + "m";
+
             step = Integer.valueOf(step, 16) + "걸음";
             calo = Integer.valueOf(calo, 16) + "Kcal";
 
             stepTextview.setText(step);
             calorieTextview.setText(calo);
             distanceTextview.setText(dist);
-
         } catch (Exception e) {
-            e.printStackTrace();
             setFail();
         }
     }
