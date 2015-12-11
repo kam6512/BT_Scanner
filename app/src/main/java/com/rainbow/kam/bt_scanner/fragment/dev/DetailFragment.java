@@ -53,17 +53,6 @@ public class DetailFragment extends Fragment {
 
     private OnDetailReadyListener onDetailReadyListener;
 
-    /*
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            try {
-                onDetailReadyListener = (OnDetailReadyListener) activity;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(activity.toString() + " must implement OnDetailReadyListener");
-            }
-        }
-    */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -75,6 +64,8 @@ public class DetailFragment extends Fragment {
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
             }
+        } else {
+            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
 
     }
@@ -158,7 +149,7 @@ public class DetailFragment extends Fragment {
         bluetoothGattCharacteristic = null;
     }
 
-    public void newValueForCharacterictic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final int intValue, final byte[] rawValue, final String timeStamp) {
+    public void newValueForCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final int intValue, final byte[] rawValue, final String timeStamp) {
         if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
             return;
         }

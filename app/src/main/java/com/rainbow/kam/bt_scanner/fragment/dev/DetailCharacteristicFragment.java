@@ -47,6 +47,8 @@ public class DetailCharacteristicFragment extends Fragment {
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
             }
+        } else {
+            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
     }
 

@@ -39,13 +39,14 @@ public class DetailServiceFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
-
             try {
                 activity = (Activity) context;
                 onServiceReadyListener = (OnServiceReadyListener) activity;
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
             }
+        }else{
+            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
     }
 

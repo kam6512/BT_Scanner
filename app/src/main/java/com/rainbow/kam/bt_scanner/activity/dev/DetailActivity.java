@@ -272,7 +272,7 @@ public class DetailActivity extends AppCompatActivity
                 if (detailFragment == null || detailFragment.getCharacteristic() == null) {
                     return;
                 }
-                detailFragment.newValueForCharacterictic(ch, strValue, intValue, rawValue, timestamp);
+                detailFragment.newValueForCharacteristic(ch, strValue, intValue, rawValue, timestamp);
                 detailFragment.bindView();
             }
         });
@@ -311,36 +311,46 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public void onServiceReady() {
-        if (!isCallBackReady) {
-            isCallBackReady = true;
-        } else {
-            isCallBackReady = false;
-            if (serviceFragment != null) {
-                serviceFragment.clearAdapter();
-                for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
-                    serviceFragment.addService(bluetoothGattService);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (!isCallBackReady) {
+                    isCallBackReady = true;
+                } else {
+                    isCallBackReady = false;
+                    if (serviceFragment != null) {
+                        serviceFragment.clearAdapter();
+                        for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
+                            serviceFragment.addService(bluetoothGattService);
+                        }
+                        serviceFragment.notifyAdapter();
+                    }
+                    gattType = GattType.GATT_SERVICES;
                 }
-                serviceFragment.notifyAdapter();
             }
-            gattType = GattType.GATT_SERVICES;
-        }
+        });
     }
 
     @Override
     public void onCharacteristicReady() {
-        if (!isCallBackReady) {
-            isCallBackReady = true;
-        } else {
-            isCallBackReady = false;
-            if (characteristicFragment != null) {
-                characteristicFragment.clearAdapter();
-                for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
-                    characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (!isCallBackReady) {
+                    isCallBackReady = true;
+                } else {
+                    isCallBackReady = false;
+                    if (characteristicFragment != null) {
+                        characteristicFragment.clearAdapter();
+                        for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
+                            characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+                        }
+                        characteristicFragment.notifyAdapter();
+                    }
+                    gattType = GattType.GATT_CHARACTERISTICS;
                 }
-                characteristicFragment.notifyAdapter();
             }
-            gattType = GattType.GATT_CHARACTERISTICS;
-        }
+        });
     }
 
     @Override

@@ -26,7 +26,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private ArrayList<ServiceItem> serviceItemArrayList;
 
-    private View view;
 
     private OnServiceItemClickListener onServiceItemClickListener;
 
@@ -42,7 +41,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
         return new ServiceViewHolder(view);
     }
 
@@ -84,24 +83,18 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private TextView serviceTitle;
         private TextView serviceUuid;
         private TextView serviceType;
-        private View view;
 
         public ServiceViewHolder(View itemView) {
             super(itemView);
-            view = itemView;
+            serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
+            serviceUuid = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_UUID);
+            serviceType = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onServiceItemClickListener.onServiceItemClick(getLayoutPosition());
                 }
             });
-            serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
-            serviceUuid = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_UUID);
-            serviceType = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
-        }
-
-        public View getView() {
-            return view;
         }
     }
 

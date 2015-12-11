@@ -25,7 +25,6 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private ArrayList<CharacteristicItem> characteristicItemArrayList;
 
-    private View view;
 
     private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
@@ -41,7 +40,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        view = layoutInflater.inflate(R.layout.detail_bluetooth_characteristics_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.detail_bluetooth_characteristics_item, parent, false);
         return new CharacteristicViewHolder(view);
     }
 
@@ -84,15 +83,15 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public CharacteristicViewHolder(View itemView) {
             super(itemView);
+            characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);
+            characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
+            characteristicValue = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_value);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onCharacteristicItemClickListener.onCharacteristicItemClick(getLayoutPosition());
                 }
             });
-            characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);
-            characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
-            characteristicValue = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_value);
         }
     }
 
