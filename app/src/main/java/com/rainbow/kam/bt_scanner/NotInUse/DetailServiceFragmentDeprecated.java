@@ -16,7 +16,7 @@ import android.view.animation.Animation;
 import com.rainbow.kam.bt_scanner.NotInUse.Adapter.DetailAdapter.DetailAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceItem;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -63,7 +63,7 @@ public class DetailServiceFragmentDeprecated extends Fragment {
         Log.e("frag", "add Service");
 //            if (serviceItemArrayList.get(i).getBluetoothGattService() == null) {
         String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
-        String name = BLEGattAttributes.resolveServiceName(uuid);
+        String name = GattAttributes.resolveServiceName(uuid);
         String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "Secondary";
         serviceItemArrayList.add(new ServiceItem(name, uuid, type, bluetoothGattService));
 //            }

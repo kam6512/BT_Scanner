@@ -41,7 +41,7 @@
     <string name="decimal">Decimal:</string>
     <string name="updated">Updated:</string>
 
-    <string name="ble">BLE</string>
+    <string name="gattManager">BLE</string>
     <string name="rssi">rssi</string>
     <string name="info">info</string>
     <string name="calendar">calendar</string>

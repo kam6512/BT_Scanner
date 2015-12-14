@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.rainbow.kam.bt_scanner.tools.ble;
+package com.rainbow.kam.bt_scanner.tools.gatt;
 
 import android.util.SparseArray;
 
 import java.util.HashMap;
 
-public class BLEGattAttributes {
+public class GattAttributes {
     //열 속성 해쉬맵
     private static HashMap<String, String> attributes = new HashMap();
 

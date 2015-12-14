@@ -16,9 +16,9 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.ble.BLE;
-import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
-import com.rainbow.kam.bt_scanner.tools.ble.BleHelper;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
+import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
 
 import java.util.Locale;
 
@@ -44,7 +44,7 @@ public class DetailFragment extends Fragment {
     private Button readBtn;
     private Button writeBtn;
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
-    private BLE ble;
+    private GattManager gattManager;
     private int intValue = 0;
     private String asciiValue = "";
     private String strValue = "";
@@ -96,7 +96,7 @@ public class DetailFragment extends Fragment {
         readBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ble.readValue(bluetoothGattCharacteristic);
+                gattManager.readValue(bluetoothGattCharacteristic);
             }
         });
 
@@ -106,8 +106,8 @@ public class DetailFragment extends Fragment {
                 EditText hex = charHexValue;
                 String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
-                    byte[] dataToWrite = BleHelper.parseHexStringToBytesDEV(newValue);
-                    ble.writeValue(bluetoothGattCharacteristic, dataToWrite);
+                    byte[] dataToWrite = PrimeHelper.parseHexStringToBytesDEV(newValue);
+                    gattManager.writeValue(bluetoothGattCharacteristic, dataToWrite);
                 }
             }
         });
@@ -118,7 +118,7 @@ public class DetailFragment extends Fragment {
                 if (isChecked == notificationEnabled) {
                     return;
                 }
-                ble.setNotification(bluetoothGattCharacteristic, isChecked);
+                gattManager.setNotification(bluetoothGattCharacteristic, isChecked);
                 notificationEnabled = isChecked;
             }
         });
@@ -128,8 +128,8 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
-    public void setBle(BLE ble) {
-        this.ble = ble;
+    public void setGattManager(GattManager gattManager) {
+        this.gattManager = gattManager;
     }
 
     public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
@@ -145,9 +145,6 @@ public class DetailFragment extends Fragment {
         return bluetoothGattCharacteristic;
     }
 
-    public void clearCharacteristic() {
-        bluetoothGattCharacteristic = null;
-    }
 
     public void newValueForCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final int intValue, final byte[] rawValue, final String timeStamp) {
         if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
@@ -183,21 +180,21 @@ public class DetailFragment extends Fragment {
 
     public void bindView() {
 
-        if (ble != null) {
-            deviceName.setText(ble.getBluetoothDevice().getName());
-            deviceAddress.setText(ble.getBluetoothDevice().getAddress());
+        if (gattManager != null) {
+            deviceName.setText(gattManager.getBluetoothDevice().getName());
+            deviceAddress.setText(gattManager.getBluetoothDevice().getAddress());
 
             String tmp = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
             serviceUuid.setText(tmp);
-            serviceName.setText(BLEGattAttributes.resolveServiceName(tmp));
+            serviceName.setText(GattAttributes.resolveServiceName(tmp));
 
             String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-            String name = BLEGattAttributes.resolveCharacteristicName(uuid);
+            String name = GattAttributes.resolveCharacteristicName(uuid);
             charName.setText(name);
             charUuid.setText(uuid);
 
-            int format = ble.getValueFormat(bluetoothGattCharacteristic);
-            charDataType.setText(BLEGattAttributes.resolveValueTypeDescription(format));
+            int format = gattManager.getValueFormat(bluetoothGattCharacteristic);
+            charDataType.setText(GattAttributes.resolveValueTypeDescription(format));
 
             int props = bluetoothGattCharacteristic.getProperties();
             String propertiesString = String.format("0x%04X [", props);

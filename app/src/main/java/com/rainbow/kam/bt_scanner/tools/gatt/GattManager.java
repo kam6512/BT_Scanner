@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.ble;
+package com.rainbow.kam.bt_scanner.tools.gatt;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -25,50 +25,33 @@ import java.util.UUID;
 /**
  * Created by kam6512 on 2015-10-29.
  */
-public class BLE {
+public class GattManager {
 
     private final String TAG = getClass().getSimpleName();
 
     private static final int RSSI_UPDATE_TIME_INTERVAL = 2000;
 
-    private BleUiCallbacks bleUiCallbacks = null;
-    private static final BleUiCallbacks NULL_CALLBACK = new BleUiCallbacks.Null();
+    private GattCustomCallbacks gattCustomCallbacks = null;
+    private static final GattCustomCallbacks NULL_CALLBACK = new GattCustomCallbacks.Null();
 
     private Activity activity;
     private boolean connected = false;
 
-    private BluetoothManager bluetoothManager = null;
-    private BluetoothAdapter bluetoothAdapter = null;
-    private BluetoothDevice bluetoothDevice = null;
-    private BluetoothGatt bluetoothGatt = null;
-    private BluetoothGattService bluetoothGattService = null;
-    private List<BluetoothGattService> bluetoothGattServices = null;
+    private BluetoothManager bluetoothManager;
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothDevice bluetoothDevice;
+    private BluetoothGatt bluetoothGatt;
+    private List<BluetoothGattService> bluetoothGattServices;
 
     private Handler timerHandler = new Handler();
     private boolean timerEnabled = false;
 
-    public BLE(Activity activity, BleUiCallbacks bleUiCallbacks) {
+    public GattManager(Activity activity, GattCustomCallbacks gattCustomCallbacks) {
         this.activity = activity;
-        this.bleUiCallbacks = bleUiCallbacks;
-        if (this.bleUiCallbacks == null) {
-            this.bleUiCallbacks = NULL_CALLBACK;
+        this.gattCustomCallbacks = gattCustomCallbacks;
+        if (this.gattCustomCallbacks == null) {
+            this.gattCustomCallbacks = NULL_CALLBACK;
         }
-    }
-
-    public BluetoothDevice getBluetoothDevice() {
-        return bluetoothDevice;
-    }
-
-    public BluetoothGatt getBluetoothGatt() {
-        return bluetoothGatt;
-    }
-
-    public BluetoothGattService getBluetoothGattService() {
-        return bluetoothGattService;
-    }
-
-    public List<BluetoothGattService> getBluetoothGattServices() {
-        return bluetoothGattServices;
     }
 
     public boolean initialize() {
@@ -84,41 +67,35 @@ public class BLE {
         return bluetoothAdapter != null;
     }
 
-    public boolean connect(final String deviceAddress) {
-        if (bluetoothAdapter == null || deviceAddress == null) {
-            return false;
+    public void connect(final String deviceAddress) throws Exception {
+        if (bluetoothAdapter == null) {
+            throw new Exception("Adapter is Null");
+        } else if (deviceAddress == null) {
+            throw new Exception("Address is not available");
         }
         if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
-            return bluetoothGatt.connect();
+            bluetoothGatt.connect();
         } else {
             bluetoothDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
             if (bluetoothDevice == null) {
-                return false;
+                throw new Exception("RemoteDevice is not available");
             }
             bluetoothGatt = bluetoothDevice.connectGatt(activity, false, bluetoothGattCallback);
         }
-        return true;
     }
 
     public void disconnect() {
         if (bluetoothGatt != null) {
+            stopMonitoringRssiValue();
             bluetoothGatt.disconnect();
         }
-        bleUiCallbacks.onDeviceDisconnected(bluetoothGatt, bluetoothDevice);
     }
 
     public boolean isConnected() {
         return connected;
     }
 
-    public void close() {
-        if (bluetoothGatt != null) {
-            bluetoothGatt.close();
-        }
-        bluetoothGatt = null;
-    }
-
-    public void readRssiValue(final boolean repeat) {
+    private void readRssiValue(final boolean repeat) {
         timerEnabled = repeat;
 
         if (!connected || bluetoothGatt == null || !timerEnabled) {
@@ -139,61 +116,31 @@ public class BLE {
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
 
-    public void startMonitoringRssiValue() {
+    private void startMonitoringRssiValue() {
         readRssiValue(true);
     }
 
-    public void stopMonitoringRssiValue() {
+    private void stopMonitoringRssiValue() {
         readRssiValue(false);
     }
 
-    public void startServiceDiscovery() {
+    private void startServiceDiscovery() {
         if (bluetoothGatt != null) bluetoothGatt.discoverServices();
     }
 
-    public void getServices() {
-        if (bluetoothGattServices != null && bluetoothGattServices.size() > 0) {
-            bluetoothGattServices.clear();
-        }
-        if (bluetoothGatt != null) {
-            bluetoothGattServices = bluetoothGatt.getServices();
-        }
-
-        bleUiCallbacks.onServicesFound(bluetoothGatt, bluetoothDevice, bluetoothGattServices);
+    public BluetoothDevice getBluetoothDevice() {
+        return bluetoothDevice;
     }
 
-    public void getCharacteristics(final BluetoothGattService bluetoothGattService) {
-        if (bluetoothGattService == null) {
-            return;
-        }
-        List<BluetoothGattCharacteristic> bluetoothGattCharacteristics;
+    public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
+        bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
 
-        bluetoothGattCharacteristics = bluetoothGattService.getCharacteristics();
-        bleUiCallbacks.onCharacteristicFound(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristics);
-        this.bluetoothGattService = bluetoothGattService;
-    }
-
-    public boolean setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
-        if (bluetoothAdapter == null || bluetoothGatt == null) {
-            Log.e(TAG, "is null");
-            return false;
-        }
-        boolean success = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
-
-        if (!success) {
-            Log.e(TAG, "Setting proper notification status for characteristic failed!");
-        }
-
-        BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(BLEGattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
+        BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
         if (bluetoothGattDescriptor != null) {
-            Log.e(TAG, "start Notify");
             byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
             bluetoothGattDescriptor.setValue(value);
-            boolean enable = bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
-            Log.e(TAG, value[0] + value[1] + "writeDescriptor : " + enable);
-            return enable;
+           bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
         }
-        return success;
     }
 
     public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
@@ -214,51 +161,14 @@ public class BLE {
         }
     }
 
-    public void onValueFound(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+    private void onValueFound(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
             return;
         }
         byte[] rawValue = bluetoothGattCharacteristic.getValue();
         String strValue = null;
         int intValue = 0;
-/*
-        UUID uuid = bluetoothGattCharacteristic.getUuid();
 
-        if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.HEART_RATE_MEASUREMENT))) {
-
-            int index = ((rawValue[0] & 0x01) == 1) ? 2 : 1;
-
-            int format = (index == 1) ? BluetoothGattCharacteristic.FORMAT_UINT8 : BluetoothGattCharacteristic.FORMAT_UINT16;
-
-            intValue = bluetoothGattCharacteristic.getIntValue(format, index);
-            strValue = intValue + "bpm";
-        } else if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.HEART_RATE_MEASUREMENT)) ||
-                uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.MODEL)) ||
-                uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.FIRMWARE))) {
-            strValue = bluetoothGattCharacteristic.getStringValue(0);
-
-        } else if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.APPEARANCE))) {
-
-            intValue = rawValue[0];
-            strValue = BLEGattAttributes.resolveAppearance(intValue);
-        } else if (uuid.equals(UUID.fromString(BLEGattAttributes.Characteristic.BATTRY))) {
-            intValue = rawValue[0];
-            strValue = "" + intValue + "% battery level";
-        } else {
-            if (rawValue.length > 0) {
-                intValue = (int) rawValue[0];
-            }
-            if (rawValue.length > 1) {
-                intValue = intValue + ((int) rawValue[1] << 8);
-            }
-            if (rawValue.length > 2) {
-                intValue = intValue + ((int) rawValue[2] << 8);
-            }
-            if (rawValue.length > 3) {
-                intValue = intValue + ((int) rawValue[3] << 8);
-            }
-        }
-        */
         if (rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
             for (byte byteChar : rawValue) {
@@ -270,9 +180,9 @@ public class BLE {
             }
             strValue = stringBuilder.toString();
         }
-
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
-        bleUiCallbacks.onNewDataFound(bluetoothGatt, bluetoothDevice, bluetoothGattService, bluetoothGattCharacteristic, strValue, intValue, rawValue, timeStamp);
+
+        gattCustomCallbacks.onNewDataFound(bluetoothGattCharacteristic, strValue, intValue, rawValue, timeStamp);
     }
 
     public int getValueFormat(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
@@ -309,7 +219,7 @@ public class BLE {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connected = true;
-                bleUiCallbacks.onDeviceConnected(bluetoothGatt, bluetoothDevice);
+                gattCustomCallbacks.onDeviceConnected();
 
                 bluetoothGatt.readRemoteRssi();
                 startServiceDiscovery();
@@ -317,14 +227,21 @@ public class BLE {
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
-                bleUiCallbacks.onDeviceDisconnected(bluetoothGatt, bluetoothDevice);
+                gattCustomCallbacks.onDeviceDisconnected();
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                getServices();
+                if (bluetoothGattServices != null && bluetoothGattServices.size() > 0) {
+                    bluetoothGattServices.clear();
+                }
+                if (bluetoothGatt != null) {
+                    bluetoothGattServices = bluetoothGatt.getServices();
+                }
+
+                gattCustomCallbacks.onServicesFound(bluetoothGattServices);
             }
         }
 
@@ -338,30 +255,27 @@ public class BLE {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             onValueFound(characteristic);
-            bleUiCallbacks.onDataNotify(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic);
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             String deviceName = gatt.getDevice().getName();
-            String serviceName = BLEGattAttributes.resolveServiceName(characteristic.getService().getUuid().toString().toLowerCase(Locale.getDefault()));
-            String characteristicName = BLEGattAttributes.resolveCharacteristicName(characteristic.getUuid().toString().toLowerCase(Locale.getDefault()));
+            String serviceName = GattAttributes.resolveServiceName(characteristic.getService().getUuid().toString().toLowerCase(Locale.getDefault()));
+            String characteristicName = GattAttributes.resolveCharacteristicName(characteristic.getUuid().toString().toLowerCase(Locale.getDefault()));
             String description = "Device: " + deviceName + " Service: " + serviceName + " Characteristic: " + characteristicName;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                bleUiCallbacks.onWriteSuccess(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS = " + status);
+                gattCustomCallbacks.onWriteSuccess(description + " STATUS = " + status);
             } else {
-                bleUiCallbacks.onWriteFail(bluetoothGatt, bluetoothDevice, bluetoothGattService, characteristic, description + " STATUS = " + status);
+                gattCustomCallbacks.onWriteFail(description + " STATUS = " + status);
             }
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                bleUiCallbacks.onRssiUpdate(bluetoothGatt, bluetoothDevice, rssi);
+                gattCustomCallbacks.onRssiUpdate(rssi);
             }
         }
-
     };
-
 }

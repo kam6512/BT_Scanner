@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceItem;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -54,7 +54,6 @@ public class DetailServiceFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_service, container, false);
-
         setRecyclerView();
         onServiceReadyListener.onServiceReady();
         return view;
@@ -72,15 +71,11 @@ public class DetailServiceFragment extends Fragment {
     public void addService(BluetoothGattService bluetoothGattService) {
 
         String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
-        String name = BLEGattAttributes.resolveServiceName(uuid);
+        String name = GattAttributes.resolveServiceName(uuid);
         String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "Secondary";
 
         serviceItemArrayList.add(new ServiceItem(name, uuid, type, bluetoothGattService));
         serviceAdapter.notifyDataSetChanged();
-    }
-
-    public BluetoothGattService getService(int index) {
-        return serviceItemArrayList.get(index).getBluetoothGattService();
     }
 
     public void notifyAdapter() {

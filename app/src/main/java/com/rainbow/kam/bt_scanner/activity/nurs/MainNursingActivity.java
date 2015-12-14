@@ -2,8 +2,6 @@ package com.rainbow.kam.bt_scanner.activity.nurs;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
@@ -11,10 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -49,9 +45,9 @@ import com.rainbow.kam.bt_scanner.fragment.nurs.main.StepFragment;
 import com.rainbow.kam.bt_scanner.patient.Band;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
-import com.rainbow.kam.bt_scanner.tools.ble.BLE;
-import com.rainbow.kam.bt_scanner.tools.ble.BleHelper;
-import com.rainbow.kam.bt_scanner.tools.ble.BleUiCallbacks;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
+import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,7 +61,7 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class MainNursingActivity extends AppCompatActivity implements BleUiCallbacks {
+public class MainNursingActivity extends AppCompatActivity implements GattCustomCallbacks {
 
     public static final String TAG = MainNursingActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
@@ -103,10 +99,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private DistanceFragment distanceFragment;
     private SampleFragment sampleFragment;
 
-    private BluetoothManager bluetoothManager;
-    private BluetoothAdapter bluetoothAdapter;
-
-    private BLE ble;
+    private GattManager gattManager;
     private List<BluetoothGattCharacteristic> characteristicList;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
@@ -125,7 +118,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     private SwipeRefreshLayout swipeRefreshLayout;
     private ViewPager viewPager;
     private DashBoardAdapter dashBoardAdapter;
-
 
     @Override
     protected void onStart() {
@@ -172,7 +164,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         setMaterialNavigationView();
         setViewPager();
         initDialog();
-
     }
 
     @Override
@@ -184,14 +175,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     @Override
     public void onPause() {
         super.onPause();
-        if (ble != null) {
+        if (gattManager != null) {
             disconnectDevice();
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (ble != null) {
+        if (gattManager != null) {
             disconnectDevice();
         }
     }
@@ -207,25 +198,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQUEST_ENABLE_BT:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        //블루투스 켜짐
-                        break;
-                    default:
-                        //블루투스 에러
-                        Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                        finish();
-                        break;
-                }
-                break;
-        }
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == 1) {
@@ -234,12 +206,6 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
-
-                Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
-                myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivityForResult(myAppSettings, 0);
-
                 finish();
             }
         } else {
@@ -249,13 +215,13 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
     public void registerBluetooth() {
 
-        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 
         if (bluetoothManager == null) {
             Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
             finish();
         } else {
-            bluetoothAdapter = bluetoothManager.getAdapter();
+            BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
             if (bluetoothAdapter.isEnabled()) {
                 connectDevice();
             } else {
@@ -305,7 +271,12 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    connectDevice();
+                    if (!gattManager.isConnected()) {
+                        connectDevice();
+                    } else {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+
                 }
             });
         }
@@ -361,8 +332,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 //                            Realm.deleteRealm(new RealmConfiguration.Builder(activity).build());
 //                            if (!isGattProcessRunning) {
 //                                byte[] dataToWrite;
-//                                dataToWrite = BleHelper.CLEAR_DATA();
-//                                ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+//                                dataToWrite = PrimeHelper.CLEAR_DATA();
+//                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
 //                            }
 
                             Toast.makeText(MainNursingActivity.this, "앱을 재시작합니다", Toast.LENGTH_LONG).show();
@@ -447,44 +418,54 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     private void connectDevice() {
-        if (ble == null) {
-            ble = new BLE(this, this);
+        if (gattManager == null) {
+            gattManager = new GattManager(this, this);
         }
-        if (!ble.initialize()) {
+        if (gattManager.initialize()) {
+            try {
+                gattManager.connect(deviceAddress);
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
+
+            handler = new Handler();
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (gattManager.isConnected() || isFinishing()) {
+                        count = 0;
+
+                    } else {
+                        count++;
+                        materialContent.setText("연결 실패, 다시 연결 중... " + count + "회 재시도");
+
+                        if (gattManager == null) {
+                            gattManager = new GattManager(MainNursingActivity.this, MainNursingActivity.this);
+                        }
+                        if (gattManager.initialize()) {
+                            try {
+                                gattManager.connect(deviceAddress);
+                            } catch (Exception e) {
+                                Log.e(TAG, e.getMessage());
+                            }
+                            handler.postDelayed(this, 500);
+                        } else {
+                            finish();
+                        }
+                    }
+                }
+            };
+            handler.postDelayed(runnable, 0);
+        } else {
             finish();
         }
-        ble.connect(deviceAddress);
 
-        handler = new Handler();
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (ble.isConnected() || isFinishing()) {
-                    count = 0;
-
-                } else {
-                    count++;
-                    materialContent.setText("연결 실패, 다시 연결 중... " + count + "회 재시도");
-
-                    if (ble == null) {
-                        ble = new BLE(MainNursingActivity.this, MainNursingActivity.this);
-                    }
-                    if (!ble.initialize()) {
-                        finish();
-                    }
-                    ble.connect(deviceAddress);
-                    handler.postDelayed(this, 500);
-                }
-            }
-        };
-        handler.postDelayed(runnable, 0);
     }
 
     private void disconnectDevice() {
-        if (ble != null) {
-            ble.stopMonitoringRssiValue();
-            ble.disconnect();
-            ble.close();
+        if (gattManager != null) {
+            gattManager.disconnect();
+
         }
     }
 
@@ -494,10 +475,10 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
             public void run() {
 
                 listType = ListType.READ_TIME;
-                byte[] dataToWrite = BleHelper.READ_DEVICE_TIME();
-                MainNursingActivity.this.ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+                byte[] dataToWrite = PrimeHelper.READ_DEVICE_TIME();
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
             }
-        }, 1000);
+        }, 1000); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
     }
 
     private void loadNotifyData(BluetoothGattCharacteristic characteristic) {
@@ -508,8 +489,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                 readTime(characteristicValue);
 
-                dataToWrite = BleHelper.READ_STEP_DATA(8);
-                ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+                dataToWrite = PrimeHelper.READ_STEP_DATA(8);
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+
                 isGattProcessRunning = true;
                 listType = ListType.READ_STEP_DATA;
                 break;
@@ -518,8 +500,9 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
 
                 readStep(characteristicValue);
 
-                dataToWrite = BleHelper.CALL_DEVICE();
-                ble.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+                dataToWrite = PrimeHelper.CALL_DEVICE();
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+
                 isGattProcessRunning = true;
                 listType = ListType.ETC;
                 break;
@@ -529,6 +512,8 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                     int lsb = characteristic.getValue()[i] & 0xff;
                     Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb));
                 }
+//                dataToWrite = PrimeHelper.CALL_DEVICE();
+//                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
                 isGattProcessRunning = false;
                 break;
 
@@ -542,14 +527,14 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
         String result = "";
         for (int i = 0; i < characteristicValue.length; i++) {
             if (i > 1 && i != characteristicValue.length - 1) { // 0 : Positive - Negative / 1 : Length / last index : checksum
-                result += Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
+                result += Integer.valueOf(PrimeHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
                 switch (i) {
                     default:
                         result += timeSet[i - 2] + " ";
                         break;
                     case 8:
                         result = result.substring(0, result.length() - 1);
-                        int j = Integer.valueOf(BleHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
+                        int j = Integer.valueOf(PrimeHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
                         result += weekSet[j - 1];
                         break;
                 }
@@ -575,12 +560,12 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
                 case 2:
                 case 3:
                 case 4:
-                    hexStep += BleHelper.setWidth(Integer.toHexString(lsb));
+                    hexStep += PrimeHelper.setWidth(Integer.toHexString(lsb));
                     break;
                 case 5:
                 case 6:
                 case 7:
-                    hexCal += BleHelper.setWidth(Integer.toHexString(lsb));
+                    hexCal += PrimeHelper.setWidth(Integer.toHexString(lsb));
                     break;
                 case 10:
                     step = Integer.valueOf(hexStep, 16);
@@ -652,7 +637,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void onDeviceConnected(BluetoothGatt gatt, BluetoothDevice device) {
+    public void onDeviceConnected() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -670,7 +655,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void onDeviceDisconnected(BluetoothGatt gatt, BluetoothDevice device) {
+    public void onDeviceDisconnected() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -697,49 +682,43 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void
-    onServicesFound(BluetoothGatt gatt, BluetoothDevice device, final List<BluetoothGattService> services) {
+    public void onServicesFound(final List<BluetoothGattService> services) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 BluetoothGattService bluetoothGattService = services.get(4); // 0xFFF0
-                ble.getCharacteristics(bluetoothGattService);
-            }
-        });
-    }
-
-    @Override
-    public void onCharacteristicFound(BluetoothGatt gatt, final BluetoothDevice device, BluetoothGattService service, final List<BluetoothGattCharacteristic> chars) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                characteristicList = chars;
-                bluetoothGattCharacteristicForWrite = characteristicList.get(0); //0xFFF2
-                bluetoothGattCharacteristicForNotify = characteristicList.get(1); //0xFFF1
-                ble.setNotification(bluetoothGattCharacteristicForNotify, true);
-
+                characteristicList = bluetoothGattService.getCharacteristics();
+                bluetoothGattCharacteristicForWrite = characteristicList.get(0); // 0xFFF2
+                bluetoothGattCharacteristicForNotify = characteristicList.get(1); // 0xFFF1
+                gattManager.setNotification(bluetoothGattCharacteristicForNotify, true);
                 startDeviceWrite();
             }
         });
     }
 
     @Override
-    public void onNewDataFound(BluetoothGatt gatt, BluetoothDevice device, BluetoothGattService service, BluetoothGattCharacteristic ch, String strValue, int intValue, byte[] rawValue, String timestamp) {
-
-    }
-
-    @Override
-    public void onDataNotify(BluetoothGatt gatt, BluetoothDevice device, BluetoothGattService service, final BluetoothGattCharacteristic characteristic) {
+    public void onNewDataFound(final BluetoothGattCharacteristic ch, String strValue, int intValue, byte[] rawValue, String timestamp) {
+        Log.e("onNewDataFound",
+                gattManager.getBluetoothDevice().getAddress() + "/ \n" +
+                        strValue + "/ \n" +
+                        intValue + "/ \n" +
+                        rawValue[0] + "/ \n" +
+                        timestamp + "/ \n"
+        );
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                loadNotifyData(characteristic);
+                try {
+                    loadNotifyData(ch);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
     @Override
-    public void onWriteSuccess(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic ch, final String description) {
+    public void onWriteSuccess(final String description) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -750,7 +729,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void onWriteFail(final BluetoothGatt gatt, final BluetoothDevice device, final BluetoothGattService service, final BluetoothGattCharacteristic ch, final String description) {
+    public void onWriteFail(final String description) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -761,7 +740,7 @@ public class MainNursingActivity extends AppCompatActivity implements BleUiCallb
     }
 
     @Override
-    public void onRssiUpdate(BluetoothGatt gatt, BluetoothDevice device, final int rssi) {
+    public void onRssiUpdate(final int rssi) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

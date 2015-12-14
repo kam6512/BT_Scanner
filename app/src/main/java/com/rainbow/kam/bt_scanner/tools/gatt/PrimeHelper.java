@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.ble;
+package com.rainbow.kam.bt_scanner.tools.gatt;
 
 import android.util.Log;
 
@@ -9,7 +9,7 @@ import java.util.Locale;
 /**
  * Created by sion on 2015-11-04.
  */
-public class BleHelper {
+public class PrimeHelper {
     public static byte[] READ_DEVICE_TIME() {
         return parseHexStringToBytes("0x8900");
     }
@@ -57,7 +57,6 @@ public class BleHelper {
 
     public static byte[] READ_SPORTS_CURVE_DATA() {
         return parseHexStringToBytes("0xC403031503");
-//        return parseHexStringToBytes("0xC7020108");
     }
 
     public static byte[] OFF_ANTI_LOST() {

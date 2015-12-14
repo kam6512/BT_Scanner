@@ -1,7 +1,5 @@
 package com.rainbow.kam.bt_scanner.NotInUse.Adapter.DetailAdapter;
 
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +10,7 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.dev.DetailActivity;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicItem;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceItem;
-import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
 
@@ -71,7 +69,7 @@ public class DetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 serviceViewHolder.serviceUuid.setText(serviceItem.getUuid());
                 serviceViewHolder.serviceType.setText(serviceItem.getType());
 
-                String title = BLEGattAttributes.getService(serviceItem.getUuid().substring(0, 8));
+                String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
                 serviceViewHolder.serviceTitle.setText(title);
                 serviceViewHolder.serviceUuid.setText("UUID : " + "0x" + serviceItem.getUuid().substring(4, 8).toUpperCase());
                 break;

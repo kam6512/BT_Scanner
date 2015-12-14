@@ -19,7 +19,7 @@ import android.widget.ExpandableListView;
 import com.rainbow.kam.bt_scanner.NotInUse.Adapter.DetailAdapter.DetailExpandableAdapter;
 import com.rainbow.kam.bt_scanner.NotInUse.BluetoothPackage.BluetoothService;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -240,7 +240,7 @@ public class TempActivity extends AppCompatActivity {
             uuid = bluetoothGattService.getUuid().toString();
 
             //틀에 네임태그와 네임을 넣는다
-            currentServiceData.put(LIST_NAME, BLEGattAttributes.lookup(uuid, unknownServiceString));
+            currentServiceData.put(LIST_NAME, GattAttributes.lookup(uuid, unknownServiceString));
             //틀에 UUID를 넣는다
             currentServiceData.put(LIST_UUID, uuid);
             //서비스 리스트에 네임속성이 담긴 틀을 추가한다.
@@ -270,7 +270,7 @@ public class TempActivity extends AppCompatActivity {
 
                 //틀에 네임태그와 네임을 넣는다
                 currentCharaData.put(
-                        LIST_NAME, BLEGattAttributes.lookup(uuid, unknownCharaString));
+                        LIST_NAME, GattAttributes.lookup(uuid, unknownCharaString));
                 //틀에 UUID를 넣는다
                 currentCharaData.put(LIST_UUID, uuid);
                 //틀을 그룹 리스트에 넣는다.

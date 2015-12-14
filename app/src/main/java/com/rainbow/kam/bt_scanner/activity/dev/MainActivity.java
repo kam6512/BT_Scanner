@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @SuppressLint("NewApi")
-    public void registerBluetooth() {
+    private void registerBluetooth() {
 
         // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);

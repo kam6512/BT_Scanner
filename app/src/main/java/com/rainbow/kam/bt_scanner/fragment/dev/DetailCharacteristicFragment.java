@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicItem;
-import com.rainbow.kam.bt_scanner.tools.ble.BLEGattAttributes;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -74,14 +74,10 @@ public class DetailCharacteristicFragment extends Fragment {
     public void addCharacteristic(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
 
         String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-        String name = BLEGattAttributes.resolveCharacteristicName(uuid);
+        String name = GattAttributes.resolveCharacteristicName(uuid);
 
         characteristicItemArrayList.add(new CharacteristicItem(name, uuid, "0", bluetoothGattCharacteristic));
         characteristicAdapter.notifyDataSetChanged();
-    }
-
-    public BluetoothGattCharacteristic getCharacteristic(int index) {
-        return characteristicItemArrayList.get(index).getBluetoothGattCharacteristic();
     }
 
     public void notifyAdapter() {
