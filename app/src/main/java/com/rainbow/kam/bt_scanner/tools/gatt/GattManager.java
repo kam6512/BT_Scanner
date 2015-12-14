@@ -86,7 +86,6 @@ public class GattManager {
 
     public void disconnect() {
         if (bluetoothGatt != null) {
-            stopMonitoringRssiValue();
             bluetoothGatt.disconnect();
         }
     }
@@ -228,6 +227,8 @@ public class GattManager {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
                 gattCustomCallbacks.onDeviceDisconnected();
+
+                stopMonitoringRssiValue();
             }
         }
 

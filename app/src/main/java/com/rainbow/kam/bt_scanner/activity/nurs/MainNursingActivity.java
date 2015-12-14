@@ -104,10 +104,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
 
-    private MaterialDialog materialDialog;
-    private TextView materialContent;
-    private int count = 0;
-
     private CoordinatorLayout coordinatorLayout;
     private Toolbar toolbar;
     private TextView toolbarRssi;
@@ -163,7 +159,29 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         setToolbar();
         setMaterialNavigationView();
         setViewPager();
-        initDialog();
+    }
+
+    private void setFragments() {
+        dashboardFragment = new DashboardFragment();
+        stepFragment = new StepFragment();
+        calorieFragment = new CalorieFragment();
+        distanceFragment = new DistanceFragment();
+        sampleFragment = new SampleFragment();
+    }
+
+    private void setToolbar() {
+        toolbar = (Toolbar) findViewById(R.id.nursing_toolbar);
+        setSupportActionBar(toolbar);
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        toolbarRssi = (TextView) findViewById(R.id.nursing_toolbar_rssi);
+        toolbarBluetoothFlag = (ImageView) findViewById(R.id.nursing_toolbar_bluetoothFlag);
+        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
+
     }
 
     @Override
@@ -175,13 +193,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     @Override
     public void onPause() {
         super.onPause();
-        if (gattManager != null) {
-            disconnectDevice();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
         if (gattManager != null) {
             disconnectDevice();
         }
@@ -238,28 +249,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
-    private void setFragments() {
-        dashboardFragment = new DashboardFragment();
-        stepFragment = new StepFragment();
-        calorieFragment = new CalorieFragment();
-        distanceFragment = new DistanceFragment();
-        sampleFragment = new SampleFragment();
-    }
-
-    private void setToolbar() {
-        toolbar = (Toolbar) findViewById(R.id.nursing_toolbar);
-        setSupportActionBar(toolbar);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        toolbarRssi = (TextView) findViewById(R.id.nursing_toolbar_rssi);
-        toolbarBluetoothFlag = (ImageView) findViewById(R.id.nursing_toolbar_bluetoothFlag);
-        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
-
-    }
 
     private void setMaterialNavigationView() {
 
@@ -381,41 +370,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    private void initDialog() {
-
-        materialDialog = new MaterialDialog.Builder(this).title(R.string.device_disconnected).content(R.string.reconnect).positiveText(R.string.reconnect_accept).negativeText(R.string.exit)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        // TODO
-                        registerBluetooth();
-                        materialContent.setText(R.string.connecting);
-
-                    }
-                })
-                .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        // TODO
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        // TODO
-                        dialog.dismiss();
-                        finish();
-
-                    }
-                }).showListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        materialContent.setText(R.string.reconnect);
-                    }
-                }).autoDismiss(false).cancelable(false).build();
-//        });
-        materialContent = materialDialog.getContentView();
-    }
 
     private void connectDevice() {
         if (gattManager == null) {
@@ -433,22 +387,15 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 @Override
                 public void run() {
                     if (gattManager.isConnected() || isFinishing()) {
-                        count = 0;
 
                     } else {
-                        count++;
-                        materialContent.setText("연결 실패, 다시 연결 중... " + count + "회 재시도");
-
-                        if (gattManager == null) {
-                            gattManager = new GattManager(MainNursingActivity.this, MainNursingActivity.this);
-                        }
                         if (gattManager.initialize()) {
                             try {
                                 gattManager.connect(deviceAddress);
                             } catch (Exception e) {
                                 Log.e(TAG, e.getMessage());
                             }
-                            handler.postDelayed(this, 500);
+                            handler.postDelayed(this, 3000);
                         } else {
                             finish();
                         }
@@ -459,7 +406,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         } else {
             finish();
         }
-
     }
 
     private void disconnectDevice() {
@@ -601,7 +547,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         Calendar calendar = Calendar.getInstance();
         String today = formatter.format(calendar.getTime());
 
-        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
+//        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
         realm.beginTransaction();
 
         RealmResults<Band> results = realm.where(Band.class).findAll();
@@ -645,9 +591,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
                 toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
 
-                if (materialDialog.isShowing() && !isDestroyed()) {
-                    materialDialog.dismiss();
-                }
                 swipeRefreshLayout.setRefreshing(false);
                 System.gc();
             }
@@ -667,13 +610,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
                         toolbarRssi.setText("No Signal");
 
-                        if (!materialDialog.isShowing()) {
-                            if (!isFinishing() || !isDestroyed()) {
-                                materialDialog.show();
-                            }
-                        } else {
-                            materialDialog.getBuilder().content("실패").build();
-                        }
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 }, 100);
@@ -698,13 +634,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onNewDataFound(final BluetoothGattCharacteristic ch, String strValue, int intValue, byte[] rawValue, String timestamp) {
-        Log.e("onNewDataFound",
-                gattManager.getBluetoothDevice().getAddress() + "/ \n" +
-                        strValue + "/ \n" +
-                        intValue + "/ \n" +
-                        rawValue[0] + "/ \n" +
-                        timestamp + "/ \n"
-        );
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
