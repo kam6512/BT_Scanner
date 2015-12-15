@@ -67,7 +67,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     private Activity activity;
 
     private Handler handler;
-    private Runnable runnable;
 
     private String patientName = null;
     private String patientAge = null;
@@ -380,7 +379,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             }
 
             handler = new Handler();
-            runnable = new Runnable() {
+            Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     if (!gattManager.isConnected() || !isFinishing()) {
@@ -430,7 +429,8 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
                 readTime(characteristicValue);
 
-                dataToWrite = PrimeHelper.READ_STEP_DATA(8);
+//                dataToWrite = PrimeHelper.READ_STEP_DATA(8);
+                dataToWrite = PrimeHelper.READ_STEP_DATA();
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
 
                 isGattProcessRunning = true;

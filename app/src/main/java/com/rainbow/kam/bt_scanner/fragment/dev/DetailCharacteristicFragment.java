@@ -76,7 +76,7 @@ public class DetailCharacteristicFragment extends Fragment {
         String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
         String name = GattAttributes.resolveCharacteristicName(uuid);
 
-        characteristicItemArrayList.add(new CharacteristicItem(name, uuid, "0", bluetoothGattCharacteristic));
+        characteristicItemArrayList.add(new CharacteristicItem(name, uuid));
         characteristicAdapter.notifyDataSetChanged();
     }
 

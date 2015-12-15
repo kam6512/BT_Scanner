@@ -93,7 +93,7 @@ public class CircleButton extends ImageView{
 
     private void setColor(int color) {
         this.defaultColor = color;
-        this.pressedColor = getHighlightColor(color, PRESSED_COLOR_LIGHT_UP);
+        this.pressedColor = getHighlightColor(color);
 
         circlePaint.setColor(defaultColor);
         focusPaint.setColor(defaultColor);
@@ -142,22 +142,24 @@ public class CircleButton extends ImageView{
         pressedAnimator.setDuration(pressedAnimationTime);
     }
 
-    private int getHighlightColor(int color, int amount) {
-        return Color.argb(Math.min(255, Color.alpha(color)), Math.min(255, Color.red(color) + amount),
-                Math.min(255, Color.green(color) + amount), Math.min(255, Color.blue(color) + amount));
+    private int getHighlightColor(int color) {
+        return Color.argb(Math.min(255, Color.alpha(color)), Math.min(255, Color.red(color) + PRESSED_COLOR_LIGHT_UP),
+                Math.min(255, Color.green(color) + PRESSED_COLOR_LIGHT_UP), Math.min(255, Color.blue(color) + PRESSED_COLOR_LIGHT_UP));
     }
-//    <FrameLayout
-//    xmlns:android="http://schemas.android.com/apk/res/android"
-//    xmlns:app="http://schemas.android.com/apk/res-auto"
-//    android:layout_width="match_parent"
-//    android:layout_height="match_parent" >
-//
-//    <at.markushi.ui.CircleButton
-//    android:layout_width="64dip"
-//    android:layout_height="64dip"
-//    android:src="@drawable/ic_action_tick"
-//    app:cb_color="#99CC00"
-//    app:cb_pressedRingWidth="8dip" />
-//
-//    </FrameLayout>
+/*
+<FrameLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="match_parent" >
+
+<at.markus.ui.CircleButton
+android:layout_width="64dip"
+android:layout_height="64dip"
+android:src="@drawable/ic_action_tick"
+app:cb_color="#99CC00"
+app:cb_pressedRingWidth="8dip" />
+
+</FrameLayout>
+*/
 }

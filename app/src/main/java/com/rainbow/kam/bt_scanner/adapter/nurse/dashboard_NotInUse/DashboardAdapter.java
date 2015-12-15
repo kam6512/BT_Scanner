@@ -85,8 +85,6 @@
 package com.rainbow.kam.bt_scanner.adapter.nurse.dashboard_NotInUse;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -104,16 +102,11 @@ class DashboardAdapter extends BaseAdapter {
     private static final String TAG = "DashboardAdapter";
 
     private final ArrayList<DashboardItem> dashboardItems; //어댑터에 적용시킬 틀
-    private final Context context;
-    private final Activity activity;
-    private final View view;
 
 
-    public DashboardAdapter(ArrayList<DashboardItem> dashboardItems, Activity activity, Context context, View view) { //초기화
+    public DashboardAdapter(ArrayList<DashboardItem> dashboardItems) { //초기화
         this.dashboardItems = dashboardItems;
-        this.activity = activity;
-        this.context = context;
-        this.view = view;
+
     }
 
     @Override

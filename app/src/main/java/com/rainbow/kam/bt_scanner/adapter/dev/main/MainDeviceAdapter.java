@@ -25,7 +25,6 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
     private ArrayList<MainDeviceItem> mainDeviceItemArrayList;
     private final Activity activity;
-    private DeviceViewHolder deviceViewHolder;
 
 
     public MainDeviceAdapter(LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap, Activity activity) { //초기화
@@ -45,7 +44,7 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        deviceViewHolder = (DeviceViewHolder) holder;
+        DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
         deviceViewHolder.bindViews(mainDeviceItemArrayList.get(position));
     }
 

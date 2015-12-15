@@ -46,7 +46,7 @@ public class GattAttributes {
         public static String SOFTWARE = "00002a28-0000-1000-8000-00805f9b34fb";
 
 
-        public static String BATTRY = "00002a19-0000-1000-8000-00805f9b34fb";
+        public static String BATTERY = "00002a19-0000-1000-8000-00805f9b34fb";
 
         public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
         final static public String BODY_SENSOR_LOCATION = "00002a38-0000-1000-8000-00805f9b34fb";
@@ -69,7 +69,7 @@ public class GattAttributes {
         serviceList.put("00001800", "Generic Access");
         serviceList.put("0000180a", "Device Information");
         serviceList.put("0000180f", "Battery Service");
-        serviceList.put("0000feba", "Unknown Service");
+        serviceList.put("0000FEBA", "Unknown Service");
         serviceList.put("0000fff0", "Unknown Service");
 
         for (String getKey : serviceList.keySet()) {

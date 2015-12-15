@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isScanning;
 
-    private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothAdapter.LeScanCallback leScanCallback;
 
@@ -64,11 +63,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DrawerLayout drawerLayout;
     private CoordinatorLayout coordinatorLayout;
 
-    private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter = null;
     private final LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
-    private FloatingActionButton fabSearch;
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
 
@@ -190,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setRecyclerView() {
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
@@ -202,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setOtherView() {
-        fabSearch = (FloatingActionButton) findViewById(R.id.fabSearch);
+        FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fabSearch);
         fabSearch.setOnClickListener(this);
 
         searchingProgressBar = (ProgressBar) findViewById(R.id.searching_progress_bar);
@@ -279,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void registerBluetooth() {
 
         // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
-        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
 
         if (bluetoothAdapter.isEnabled()) {

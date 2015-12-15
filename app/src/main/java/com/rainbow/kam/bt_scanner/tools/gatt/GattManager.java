@@ -35,7 +35,7 @@ public class GattManager {
     private static final GattCustomCallbacks NULL_CALLBACK = new GattCustomCallbacks.Null();
 
     private final Activity activity;
-    private boolean connected = false;
+    private boolean connected;
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;

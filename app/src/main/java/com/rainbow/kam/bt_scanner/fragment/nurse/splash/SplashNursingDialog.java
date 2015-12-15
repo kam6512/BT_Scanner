@@ -49,7 +49,6 @@ public class SplashNursingDialog extends DialogFragment {
     private View view;
     private boolean isScanning;
 
-    private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothAdapter.LeScanCallback leScanCallback;
 
@@ -57,7 +56,6 @@ public class SplashNursingDialog extends DialogFragment {
     private ScanCallback scanCallback;
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView selectDeviceRecyclerView;
     private RecyclerView.Adapter adapter = null;
     private final LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
 
@@ -84,7 +82,7 @@ public class SplashNursingDialog extends DialogFragment {
     public void onResume() {
         super.onResume();
 
-        bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
 
         if (bluetoothAdapter.isEnabled()) {
@@ -131,7 +129,7 @@ public class SplashNursingDialog extends DialogFragment {
     private void setRecyclerView() {
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.nursing_device_swipeRefreshLayout);
 
-        selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.nursing_device_recyclerView);
+        RecyclerView selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.nursing_device_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);

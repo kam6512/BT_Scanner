@@ -28,8 +28,10 @@ public class PrimeHelper {
     }
 
 
-    public static byte[] READ_STEP_DATA(int week) {
-        return parseHexStringToBytes("0xC601" + String.format("%02d", week));
+//    public static byte[] READ_STEP_DATA(int week) {
+    public static byte[] READ_STEP_DATA() {
+//        return parseHexStringToBytes("0xC601" + String.format("%02d", week));
+        return parseHexStringToBytes("0xC601" + String.format("%02d", 8));
     }
 
     public static byte[] CALL_DEVICE() {

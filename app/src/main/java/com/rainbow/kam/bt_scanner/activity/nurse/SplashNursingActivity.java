@@ -25,7 +25,6 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
 
     private static final String TAG = SplashNursingActivity.class.getSimpleName();
     private SplashNursingFragmentAddUser splashNursingFragmentAddUser;
-    private SplashNursingFragmentLogo splashNursingFragmentLogo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +52,7 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
         final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         splashNursingFragmentAddUser =
                 new SplashNursingFragmentAddUser();
-        splashNursingFragmentLogo = new SplashNursingFragmentLogo();
+        SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
 
         fragmentTransaction.replace(R.id.nursing_start_frame, splashNursingFragmentLogo);
         fragmentTransaction.commit();
@@ -77,6 +76,7 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
             case 1:
                 if (resultCode == RESULT_OK) {
                     //블루투스 켜짐
+                    Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
                 } else {
                     //블루투스 에러
                     Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();

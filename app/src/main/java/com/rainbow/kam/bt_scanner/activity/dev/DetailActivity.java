@@ -67,7 +67,6 @@ public class DetailActivity extends AppCompatActivity
     private TextView deviceStateTextView;
 
     private FragmentManager fragmentManager;
-    private android.support.v4.app.FragmentTransaction fragmentTransaction;
 
     private DetailServiceFragment serviceFragment;
     private DetailCharacteristicFragment characteristicFragment;
@@ -93,9 +92,7 @@ public class DetailActivity extends AppCompatActivity
         setToolbar();
         setFragments();
 
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
-        fragmentTransaction.commit();
+        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceFragment).commit();
     }
 
 
@@ -170,22 +167,20 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        fragmentTransaction = fragmentManager.beginTransaction();
         if (gattType.equals(GattType.GATT_SERVICES)) {
 
             finish();
         }
         if (gattType.equals(GattType.GATT_CHARACTERISTICS)) {
-            fragmentTransaction.replace(R.id.detail_fragment_view, serviceFragment);
+            fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceFragment).commit();
 
             onServiceReady();
         }
         if (gattType.equals(GattType.GATT_CHARACTERISTIC_DETAILS)) {
-            fragmentTransaction.replace(R.id.detail_fragment_view, characteristicFragment);
+            fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, characteristicFragment).commit();
 
             onCharacteristicReady();
         }
-        fragmentTransaction.commit();
     }
 
     @Override
@@ -361,21 +356,16 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public void onServiceItemClick(int position) {
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.detail_fragment_view, characteristicFragment);
+        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, characteristicFragment).commit();
 
         bluetoothGattCharacteristics = bluetoothGattServices.get(position).getCharacteristics();
         onCharacteristicReady();
 
-        fragmentTransaction.commit();
     }
 
     @Override
     public void onCharacteristicItemClick(int position) {
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.detail_fragment_view, detailFragment);
-
+        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, detailFragment).commit();
         bluetoothGattCharacteristic = bluetoothGattCharacteristics.get(position);
-        fragmentTransaction.commit();
     }
 }

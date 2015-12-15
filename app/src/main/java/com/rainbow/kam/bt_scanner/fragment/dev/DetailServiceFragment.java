@@ -74,7 +74,7 @@ public class DetailServiceFragment extends Fragment {
         String name = GattAttributes.resolveServiceName(uuid);
         String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "Secondary";
 
-        serviceItemArrayList.add(new ServiceItem(name, uuid, type, bluetoothGattService));
+        serviceItemArrayList.add(new ServiceItem(name, uuid, type));
         serviceAdapter.notifyDataSetChanged();
     }
 

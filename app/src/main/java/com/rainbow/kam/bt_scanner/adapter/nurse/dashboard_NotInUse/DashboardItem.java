@@ -21,14 +21,15 @@ public class DashboardItem {
         return step;
     }
 
-    public int getCalorie() {
-        return calorie;
-    }
+/*
+public int getCalorie() {
+return calorie;
+}
 
-
-    public int getDistance() {
-        return distance;
-    }
+public int getDistance() {
+return distance;
+}
+*/
 
     public String getCalendar() {
         return calendar;

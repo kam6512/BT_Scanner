@@ -17,7 +17,6 @@ public class DashboardFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private View view;
     private TextView time;
     private TextView stepTextView;
     private TextView calorieTextView;
@@ -26,6 +25,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             view = inflater.inflate(R.layout.fragmnet_nursing_main_dashboard_21, container, false);
         } else {

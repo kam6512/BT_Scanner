@@ -18,7 +18,6 @@ public class SampleFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private View view;
     private CircleCounter etcCircleCounter;
 
     private Context context;
@@ -34,7 +33,7 @@ public class SampleFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        view = inflater.inflate(R.layout.fragmnet_nursing_main_sample, container, false);
+        View view = inflater.inflate(R.layout.fragmnet_nursing_main_sample, container, false);
         etcCircleCounter = (CircleCounter) view.findViewById(R.id.counter);
         etcCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
         etcCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));

@@ -34,15 +34,13 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     private Activity activity;
 
-    private FragmentManager fm;
     private SplashNursingDialog dialogFragment;
 
     private View view;
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
-    private FloatingActionButton nextFab;
 
-    private String userName;
+    private String userName = name.getEditText().getText().toString();
     private String userAge;
     private String userHeight;
     private String userWeight;
@@ -86,7 +84,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     }
 
     private void setBtn() {
-        nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
+        FloatingActionButton nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
         nextFab.setOnClickListener(this);
 
         RippleView skip = (RippleView) view.findViewById(R.id.nursing_add_user_skip);
@@ -132,6 +130,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     @Override
     public void onClick(View v) {
+
         userName = name.getEditText().getText().toString();
         userAge = age.getEditText().getText().toString();
         userHeight = height.getEditText().getText().toString();
@@ -180,7 +179,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     }
 
     @Override
-    public void onComplete(RippleView rippleView) {
+    public void onComplete() {
         showSkipDialog();
     }
 
@@ -232,7 +231,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     private void showDeviceListDialog() {
 
-        fm = getFragmentManager();
+        FragmentManager fm = getFragmentManager();
         if (fm != null) {
             dialogFragment = new SplashNursingDialog();
             dialogFragment.show(fm, "DeviceDialog");

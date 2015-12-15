@@ -49,7 +49,6 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         CharacteristicItem characteristicItem = characteristicItemArrayList.get(position);
         characteristicViewHolder.characteristicTitle.setText(characteristicItem.getTitle());
         characteristicViewHolder.characteristicUuid.setText(characteristicItem.getUuid());
-        characteristicViewHolder.characteristicValue.setText(characteristicItem.getValue());
     }
 
     @Override
@@ -77,14 +76,12 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         private final TextView characteristicTitle;
         private final TextView characteristicUuid;
-        private final TextView characteristicValue;
 
         public CharacteristicViewHolder(View itemView) {
             super(itemView);
             characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);
             characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
-            characteristicValue = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_value);
-            itemView.setOnClickListener(new View.OnClickListener() {
+           itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onCharacteristicItemClickListener.onCharacteristicItemClick(getLayoutPosition());

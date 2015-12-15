@@ -151,7 +151,7 @@ public class RippleView extends RelativeLayout {
 
                 invalidate();
                 if (onRippleCompleteListener != null) {
-                    onRippleCompleteListener.onComplete(this);
+                    onRippleCompleteListener.onComplete();
                 }
             } else {
                 rippleHandler.postDelayed(runnable, frameRate);
@@ -373,7 +373,7 @@ public class RippleView extends RelativeLayout {
     }
 
     public interface OnRippleCompleteListener {
-        void onComplete(RippleView rippleView);
+        void onComplete();
     }
 
     public enum RippleType {
@@ -384,47 +384,49 @@ public class RippleView extends RelativeLayout {
             this.type = type;
         }
     }
-//    Declare a RippleView inside your XML layout file with a content like an ImageView or whatever.
-//
-//    <com.andexert.library.RippleView
-//    android:id="@+id/more"
-//    android:layout_width="?android:actionBarSize"
-//    android:layout_height="?android:actionBarSize"
-//    android:layout_toLeftOf="@+id/more2"
-//    android:layout_margin="5dp"
-//    rv_centered="true">
-//
-//    <ImageView
-//    android:layout_width="?android:actionBarSize"
-//    android:layout_height="?android:actionBarSize"
-//    android:src="@android:drawable/ic_menu_edit"
-//    android:layout_centerInParent="true"
-//    android:padding="10dp"
-//    android:background="@android:color/holo_blue_dark"/>
-//
-//    </com.andexert.library.RippleView>
-//    If you want to know when the Ripple effect is finished, you can set a listener on your view
-//
-//    rippleView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-//
-//        @Override
-//        public void onComplete(RippleView rippleView) {
-//            Log.d("Sample", "Ripple completed");
-//        }
-//
-//    });
-//    Customization
-//
-//    You can change several attributes in the XML file, you have to remove "rv_" if you are using a version below v1.1.1 :
-//
-//    app:rv_alpha [integer def:90 0-255] --> Alpha of the ripple
-//    app:rv_framerate [integer def:10] --> Frame rate of the ripple animation
-//    app:rv_rippleDuration [integer def:400] --> Duration of the ripple animation
-//    app:rv_ripplePadding [dimension def:0] --> Add a padding to the ripple
-//    app:rv_color [color def:@android:color/white] --> Color of the ripple
-//    app:rv_centered [boolean def:false] --> Center ripple in the child view
-//    app:rv_type [enum (simpleRipple, doubleRipple) def:simpleRipple] --> Simple or double ripple
-//    app:rv_zoom [boolean def:false] --> Enable zoom animation
-//    app:rv_zoomDuration [integer def:150] --> Duration of zoom animation
-//    app:rv_zoomScale [float def:1.03] --> Scale of zoom animation
+/*
+Declare a RippleView inside your XML layout file with a content like an ImageView or whatever.
+
+<com.null.library.RippleView
+android:id="@+id/more"
+android:layout_width="?android:actionBarSize"
+android:layout_height="?android:actionBarSize"
+android:layout_toLeftOf="@+id/more2"
+android:layout_margin="5dp"
+rv_centered="true">
+
+<ImageView
+android:layout_width="?android:actionBarSize"
+android:layout_height="?android:actionBarSize"
+android:src="@android:drawable/ic_menu_edit"
+android:layout_centerInParent="true"
+android:padding="10dp"
+android:background="@android:color/holo_blue_dark"/>
+
+</com.null.library.RippleView>
+If you want to know when the Ripple effect is finished, you can set a listener on your view
+
+rippleView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+
+@Override
+public void onComplete(RippleView rippleView) {
+Log.d("Sample", "Ripple completed");
+}
+
+});
+Customization
+
+You can change several attributes in the XML file, you have to remove "rv_" if you are using a version below v1.1.1 :
+
+app:rv_alpha [integer def:90 0-255] --> Alpha of the ripple
+app:rv_frameRate [integer def:10] --> Frame rate of the ripple animation
+app:rv_rippleDuration [integer def:400] --> Duration of the ripple animation
+app:rv_ripplePadding [dimension def:0] --> Add a padding to the ripple
+app:rv_color [color def:@android:color/white] --> Color of the ripple
+app:rv_centered [boolean def:false] --> Center ripple in the child view
+app:rv_type [enum (simpleRipple, doubleRipple) def:simpleRipple] --> Simple or double ripple
+app:rv_zoom [boolean def:false] --> Enable zoom animation
+app:rv_zoomDuration [integer def:150] --> Duration of zoom animation
+app:rv_zoomScale [float def:1.03] --> Scale of zoom animation
+*/
 }
