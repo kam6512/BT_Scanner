@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@null"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
@@ -15,6 +16,7 @@
             android:id="@+id/detail_collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@null"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginEnd="64dp"
@@ -25,84 +27,92 @@
                 android:id="@+id/detail_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:background="@null"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TableLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:orientation="horizontal">
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:background="@null">
 
-                <LinearLayout
-                    android:layout_width="100dp"
+                <TableRow
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:background="@null">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_margin="7dp"
+                        android:layout_gravity="end|center_vertical"
                         android:text="@string/detail_name"
                         android:textColor="#fff" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_margin="7dp"
-                        android:text="@string/detail_rssi"
-                        android:textColor="#fff" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_margin="7dp"
-                        android:text="@string/detail_address"
-                        android:textColor="#fff" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_margin="7dp"
-                        android:text="@string/detail_state"
-                        android:textColor="#fff" />
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/detail_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp" />
+                        android:layout_margin="3dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|center_vertical"
+                        android:text="@string/detail_rssi"
+                        android:textColor="#fff" />
 
                     <TextView
                         android:id="@+id/detail_rssi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp" />
+                        android:layout_margin="3dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|center_vertical"
+                        android:text="@string/detail_address"
+                        android:textColor="#fff" />
 
                     <TextView
                         android:id="@+id/detail_address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp" />
+                        android:layout_margin="3dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|center_vertical"
+                        android:text="@string/detail_state"
+                        android:textColor="#fff" />
 
                     <TextView
                         android:id="@+id/detail_state"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="7dp" />
-                </LinearLayout>
-            </LinearLayout>
+                        android:layout_margin="3dp" />
+                </TableRow>
+            </TableLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
@@ -110,17 +120,8 @@
         android:id="@+id/detail_fragment_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:background="@null"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!--<ExpandableListView-->
-    <!--android:id="@+id/gatt_services_list"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:clickable="true"-->
-    <!--android:dividerHeight="0dp"-->
-    <!--android:focusable="true"-->
-    <!--android:nestedScrollingEnabled="true"-->
-    <!--app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
-
-
+    </FrameLayout>
 </android.support.design.widget.CoordinatorLayout>

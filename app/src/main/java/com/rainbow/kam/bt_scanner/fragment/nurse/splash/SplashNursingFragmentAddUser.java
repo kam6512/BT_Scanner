@@ -40,7 +40,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
 
-    private String userName = name.getEditText().getText().toString();
+    private String userName;
     private String userAge;
     private String userHeight;
     private String userWeight;

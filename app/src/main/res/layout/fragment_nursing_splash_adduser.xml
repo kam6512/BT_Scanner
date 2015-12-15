@@ -109,6 +109,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="50dp"
+            android:background="@null"
             app:cardCornerRadius="2dp"
             app:cardElevation="7dp"
             app:cardPreventCornerOverlap="false"
@@ -126,6 +127,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
+                    android:background="@null"
                     android:text="@string/add_user_skip"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </com.rainbow.kam.bt_scanner.tools.design.RippleView>
@@ -137,6 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
+            android:background="@null"
             android:src="@drawable/ic_launcher_arrow_next"
             app:backgroundTint="@color/accent" />
     </LinearLayout>

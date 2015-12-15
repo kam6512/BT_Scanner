@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:layout_margin="7dp"
     android:background="@null"
     app:cardBackgroundColor="#ff8c00"
     app:cardCornerRadius="2dp"
@@ -14,9 +15,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="20dp">
+        android:layout_marginStart="20dp"
+        android:background="@null"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/detail_child_list_item_characteristics_title"
@@ -24,12 +26,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="10dp"
-            android:layout_marginStart="40dp"
             android:layout_marginEnd="10dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
+            android:background="@null"
             android:text="@string/detail_child_list_item_characteristics_title"
-            android:textSize="20sp"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/detail_child_list_item_characteristics_UUID"
@@ -37,9 +40,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="10dp"
-            android:layout_marginStart="40dp"
             android:layout_marginEnd="10dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
+            android:background="@null"
             android:text="@string/detail_child_list_item_characteristics_UUID"
             android:textColor="#fff" />
     </LinearLayout>

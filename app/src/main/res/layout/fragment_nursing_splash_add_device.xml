@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@null">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/nursing_device_swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@null">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/nursing_device_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@null"
             android:foreground="?android:windowContentOverlay">
 
         </android.support.v7.widget.RecyclerView>
@@ -24,6 +27,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center"
+        android:background="@null"
         android:indeterminate="true" />
 
     <TextView
@@ -33,6 +37,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center"
+        android:background="@null"
         android:indeterminate="true"
         android:text="@string/has_not_card_nursing" />
 </RelativeLayout>

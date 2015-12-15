@@ -23,14 +23,6 @@
             app:range="60"
             app:textColor="#ffffff"
             app:textSize="100sp" />
-
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/distance_recycler"
-            android:layout_gravity="center_horizontal" />
-
-
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

@@ -5,6 +5,7 @@
     android:id="@+id/main_coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@null"
     tools:context=".MainActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -36,6 +37,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@null"
         android:foreground="?android:windowContentOverlay"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -48,8 +50,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/nursingPrimary"
+        android:background="@null"
         android:src="@drawable/search_icon"
+        app:backgroundTint="@color/nursingPrimary"
         app:layout_anchor="@id/toolbar"
         app:layout_anchorGravity="bottom|right|end" />
 

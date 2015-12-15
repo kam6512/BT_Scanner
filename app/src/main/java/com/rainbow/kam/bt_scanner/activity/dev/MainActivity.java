@@ -63,12 +63,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private DrawerLayout drawerLayout;
     private CoordinatorLayout coordinatorLayout;
-
+    private ProgressBar searchingProgressBar;
+    private TextView noDeviceTextView;
     private RecyclerView.Adapter adapter = null;
     private final LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
-    private ProgressBar searchingProgressBar;
-    private TextView noDeviceTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     private void setToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -178,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     private void setMaterialDesignView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
@@ -186,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
     }
+
 
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -199,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter.notifyDataSetChanged();
     }
 
+
     private void setOtherView() {
         FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fabSearch);
         fabSearch.setOnClickListener(this);
@@ -209,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         noDeviceTextView = (TextView) findViewById(R.id.no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
+
 
     private void setScannerCallback() {
         if (isBuildVersionLM) {
@@ -256,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
     }
 
+
     private void setScanner() {
         leScanCallback = new BluetoothAdapter.LeScanCallback() {
             @Override
@@ -271,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
     }
-
 
     @SuppressLint("NewApi")
     private void registerBluetooth() {
@@ -301,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     private void initBluetoothOn() {//블루투스 가동여부
         Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
         Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
@@ -308,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(intent, MainActivity.REQUEST_ENABLE_BT);
     }
+
 
     private void toggleScan() {
         if (isScanning) {  //스캔 시작
@@ -320,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startScan();
         }
     }
+
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
@@ -360,6 +367,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         //중지
@@ -378,4 +386,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchingProgressBar.setVisibility(View.INVISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
+
 }
