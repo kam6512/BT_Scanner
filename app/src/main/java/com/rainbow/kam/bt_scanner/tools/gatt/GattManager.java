@@ -72,6 +72,7 @@ public class GattManager {
         return bluetoothAdapter != null;
     }
 
+
     public void connect(final String deviceAddress) throws Exception {
         if (bluetoothAdapter == null) {
             throw new Exception("Adapter is Null");
@@ -89,15 +90,18 @@ public class GattManager {
         }
     }
 
+
     public void disconnect() {
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
         }
     }
 
+
     public boolean isConnected() {
         return connected;
     }
+
 
     private void readRssiValue(final boolean repeat) {
         timerEnabled = repeat;
@@ -120,13 +124,16 @@ public class GattManager {
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
 
+
     private void startMonitoringRssiValue() {
         readRssiValue(true);
     }
 
+
     private void stopMonitoringRssiValue() {
         readRssiValue(false);
     }
+
 
     private void startServiceDiscovery() {
         if (bluetoothGatt != null) {
@@ -134,9 +141,11 @@ public class GattManager {
         }
     }
 
+
     public BluetoothDevice getBluetoothDevice() {
         return bluetoothDevice;
     }
+
 
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
@@ -150,12 +159,14 @@ public class GattManager {
         }
     }
 
+
     public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null) {
             return;
         }
         bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
     }
+
 
     public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
         if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
@@ -167,6 +178,7 @@ public class GattManager {
             bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
         }
     }
+
 
     private void onValueFound(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
@@ -191,34 +203,6 @@ public class GattManager {
         gattCustomCallbacks.onNewDataFound(bluetoothGattCharacteristic, strValue, rawValue, timeStamp);
     }
 
-    public int getValueFormat(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        int properties = bluetoothGattCharacteristic.getProperties();
-        if ((BluetoothGattCharacteristic.FORMAT_FLOAT & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_FLOAT;
-        }
-        if ((BluetoothGattCharacteristic.FORMAT_SFLOAT & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_SFLOAT;
-        }
-        if ((BluetoothGattCharacteristic.FORMAT_SINT16 & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_SINT16;
-        }
-        if ((BluetoothGattCharacteristic.FORMAT_SINT32 & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_SINT32;
-        }
-        if ((BluetoothGattCharacteristic.FORMAT_SINT8 & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_SINT8;
-        }
-        if ((BluetoothGattCharacteristic.FORMAT_UINT16 & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_UINT16;
-        }
-        if ((BluetoothGattCharacteristic.FORMAT_UINT32 & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_UINT32;
-        }
-        if ((BluetoothGattCharacteristic.FORMAT_UINT8 & properties) != 0) {
-            return BluetoothGattCharacteristic.FORMAT_UINT8;
-        }
-        return 0;
-    }
 
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override

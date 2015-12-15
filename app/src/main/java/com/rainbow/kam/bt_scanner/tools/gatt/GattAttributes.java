@@ -16,52 +16,16 @@
 
 package com.rainbow.kam.bt_scanner.tools.gatt;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.util.SparseArray;
 
 import java.util.HashMap;
 
 public class GattAttributes {
 
-    //열 속성 해쉬맵
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private final static HashMap<String, String> attributes;
-
-    private static class Services {
-        public static String GENERIC_ACCESS = "00001800-0000-1000-8000-00805f9b34fb";
-        public static String DEVICE_INFORMATION = "0000180a-0000-1000-8000-00805f9b34fb";
-        public static String BATTERY_SERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
-        public static String HEART_RATE_MEASUREMENT_SERVICE = "0000180d-0000-1000-8000-00805f9b34fb";
-    }
-
-    private static class Characteristic {
-        public static String DEVICE_NAME = "00002a00-0000-1000-8000-00805f9b34fb";
-        public static String APPEARANCE = "00002a01-0000-1000-8000-00805f9b34fb";
-        public static String PPCP = "00002a04-0000-1000-8000-00805f9b34fb";
-
-        public static String MANUFACTURER = "00002a29-0000-1000-8000-00805f9b34fb";
-        public static String MODEL = "00002a24-0000-1000-8000-00805f9b34fb";
-        public static String SERIAL = "00002a25-0000-1000-8000-00805f9b34fb";
-        public static String HARDWARE = "00002a27-0000-1000-8000-00805f9b34fb";
-        public static String FIRMWARE = "00002a26-0000-1000-8000-00805f9b34fb";
-        public static String SOFTWARE = "00002a28-0000-1000-8000-00805f9b34fb";
-
-
-        public static String BATTERY = "00002a19-0000-1000-8000-00805f9b34fb";
-
-        public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
-        final static public String BODY_SENSOR_LOCATION = "00002a38-0000-1000-8000-00805f9b34fb";
-    }
-
     public static class Descriptor {
         public final static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     }
-
-    //속성 값 GET
-    public static String lookup(String uuid, String defaultName) {
-        String name = attributes.get(uuid);
-        return name == null ? defaultName : name;
-    }
-
 
     public static String getService(String postKey) {
         HashMap<String, String> serviceList = new HashMap<>();
@@ -80,51 +44,12 @@ public class GattAttributes {
         return "N/A";
     }
 
-    public static String getCharacteristic(String postKey) {
-        HashMap<String, String> characteristicList = new HashMap<>();
-
-        characteristicList.put("00002a00", "기기 이름");
-        characteristicList.put("00002a01", "외부 카테고리");
-        characteristicList.put("00002a04", "권장하는 기기 연결 수");
-
-        characteristicList.put("00002a29", "제조사");
-        characteristicList.put("00002a24", "모델 넘버");
-        characteristicList.put("00002a25", "시리얼 넘버");
-        characteristicList.put("00002a27", "하드웨어 업데이트 넘버");
-        characteristicList.put("00002a26", "펌웨어 업데이트 넘버");
-        characteristicList.put("00002a28", "소프트웨어 업데이트 넘버");
-
-        characteristicList.put("00002a19", "배터리 잔량");
-
-        characteristicList.put("0000fa10", "Unknown Characteristic");
-        characteristicList.put("0000fa11", "Unknown Characteristic");
-
-        characteristicList.put("0000fff2", "Unknown Characteristic");
-        characteristicList.put("0000fff1", "Unknown Characteristic");
-        characteristicList.put("0000fff4", "Unknown Characteristic");
-        characteristicList.put("0000fff3", "Unknown Characteristic");
-        characteristicList.put("0000fff5", "Unknown Characteristic");
-
-
-        for (String getKey : characteristicList.keySet()) {
-            if (getKey.equals(postKey)) {
-                return characteristicList.get(getKey);
-            }
-        }
-        return "N/A";
-    }
-
-    /**
-     * =============================================================================================================
-     **/
-
     private final static HashMap<String, String> services = new HashMap<>();
     private final static HashMap<String, String> characteristics = new HashMap<>();
     private final static SparseArray<String> valueFormats = new SparseArray<>();
     private final static SparseArray<String> appearance = new SparseArray<>();
 
     private final static String unknown = "Unknown Service";
-
 
     static public String resolveServiceName(final String uuid) {
         String res = services.get(uuid);
@@ -134,26 +59,15 @@ public class GattAttributes {
         return res;
     }
 
-    static public String resolveValueTypeDescription(final int format) {
-        Integer tmp = format;
-        return valueFormats.get(tmp, "Unknown Format");
-    }
-
     static public String resolveCharacteristicName(final String uuid) {
         String result = characteristics.get(uuid);
         if (result == null) result = "Unknown Characteristic";
         return result;
     }
 
-    static public String resolveUuid(final String uuid) {
-        String result = services.get(uuid);
-        if (result != null) return "Service: " + result;
-
-        result = characteristics.get(uuid);
-        if (result != null) return "Characteristic: " + result;
-
-        result = "Unknown UUID";
-        return result;
+    static public String resolveValueTypeDescription(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+        Integer tmp = getValueFormat(bluetoothGattCharacteristic);
+        return valueFormats.get(tmp, "Unknown Format");
     }
 
     static public String resolveAppearance(int key) {
@@ -161,12 +75,33 @@ public class GattAttributes {
         return appearance.get(tmp, "Unknown Appearance");
     }
 
-    static public boolean isService(final String uuid) {
-        return services.containsKey(uuid);
-    }
-
-    static public boolean isCharacteristic(final String uuid) {
-        return characteristics.containsKey(uuid);
+    private static int getValueFormat(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+        int properties = bluetoothGattCharacteristic.getProperties();
+        if ((BluetoothGattCharacteristic.FORMAT_FLOAT & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_FLOAT;
+        }
+        if ((BluetoothGattCharacteristic.FORMAT_SFLOAT & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_SFLOAT;
+        }
+        if ((BluetoothGattCharacteristic.FORMAT_SINT16 & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_SINT16;
+        }
+        if ((BluetoothGattCharacteristic.FORMAT_SINT32 & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_SINT32;
+        }
+        if ((BluetoothGattCharacteristic.FORMAT_SINT8 & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_SINT8;
+        }
+        if ((BluetoothGattCharacteristic.FORMAT_UINT16 & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_UINT16;
+        }
+        if ((BluetoothGattCharacteristic.FORMAT_UINT32 & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_UINT32;
+        }
+        if ((BluetoothGattCharacteristic.FORMAT_UINT8 & properties) != 0) {
+            return BluetoothGattCharacteristic.FORMAT_UINT8;
+        }
+        return 0;
     }
 
     static {
@@ -295,6 +230,5 @@ public class GattAttributes {
         appearance.put(1155, "Cycling: Cadence Sensor");
         appearance.put(1156, "Cycling: Speed and Cadence Sensor");
         appearance.put(1157, "Cycling: Power Sensor");
-        attributes = new HashMap<>();
     }
 }

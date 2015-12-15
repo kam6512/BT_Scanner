@@ -195,8 +195,7 @@ public class DetailFragment extends Fragment {
             charName.setText(name);
             charUuid.setText(uuid);
 
-            int format = gattManager.getValueFormat(bluetoothGattCharacteristic);
-            charDataType.setText(GattAttributes.resolveValueTypeDescription(format));
+            charDataType.setText(GattAttributes.resolveValueTypeDescription(bluetoothGattCharacteristic));
 
             int props = bluetoothGattCharacteristic.getProperties();
             String propertiesString = String.format("0x%04X [", props);

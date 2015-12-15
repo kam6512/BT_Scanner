@@ -3,8 +3,6 @@ package com.rainbow.kam.bt_scanner.activity.dev;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -27,8 +25,8 @@ import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment.OnCh
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment.OnServiceReadyListener;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 
 import java.util.List;
 

@@ -52,6 +52,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         serviceViewHolder.serviceUuid.setText(serviceItem.getUuid());
         serviceViewHolder.serviceType.setText(serviceItem.getType());
 
+//        String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
         String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
         serviceViewHolder.serviceTitle.setText(title);
         serviceViewHolder.serviceUuid.setText("UUID : " + "0x" + serviceItem.getUuid().substring(4, 8).toUpperCase());
