@@ -98,6 +98,7 @@ public class DetailActivity extends AppCompatActivity
         fragmentTransaction.commit();
     }
 
+
     private void setToolbar() {
         deviceNameTextView = (TextView) findViewById(R.id.detail_name);
         deviceRSSITextView = (TextView) findViewById(R.id.detail_rssi);
@@ -116,6 +117,7 @@ public class DetailActivity extends AppCompatActivity
         }
     }
 
+
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
@@ -125,7 +127,7 @@ public class DetailActivity extends AppCompatActivity
 
         serviceFragment.setRetainInstance(true);
         characteristicFragment.setRetainInstance(true);
-        detailFragment.setRetainInstance(true);
+//        detailFragment.setRetainInstance(true);
     }
 
     @Override
@@ -142,6 +144,7 @@ public class DetailActivity extends AppCompatActivity
         }
     }
 
+
     private void connectDevice() {
         if (gattManager == null) {
             gattManager = new GattManager(this, this);
@@ -157,6 +160,7 @@ public class DetailActivity extends AppCompatActivity
             finish();
         }
     }
+
 
     private void disconnectDevice() {
         if (gattManager != null) {
@@ -227,6 +231,7 @@ public class DetailActivity extends AppCompatActivity
         }
     }
 
+
     private void initBluetoothOn() {//블루투스 가동여부
         Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
 
@@ -271,9 +276,8 @@ public class DetailActivity extends AppCompatActivity
                 if (detailFragment == null || detailFragment.getCharacteristic() == null) {
                     return;
                 }
-                detailFragment.setNotificationEnabledForService(ch);
+                detailFragment.setNotificationEnable(ch);
                 detailFragment.newValueForCharacteristic(ch, strValue, intValue, rawValue, timestamp);
-                detailFragment.bindView();
             }
         });
     }
@@ -301,6 +305,7 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public void onServiceReady() {
+        Log.e(TAG, "onServiceReady");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -323,6 +328,7 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public void onCharacteristicReady() {
+        Log.e(TAG, "onCharacteristicReady");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -345,11 +351,10 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public void onDetailReady() {
-
+        Log.e(TAG, "onDetailReady");
         if (detailFragment != null) {
             detailFragment.setGattManager(gattManager);
             detailFragment.setCharacteristic(bluetoothGattCharacteristic);
-            detailFragment.bindView();
         }
         gattType = GattType.GATT_CHARACTERISTIC_DETAILS;
     }

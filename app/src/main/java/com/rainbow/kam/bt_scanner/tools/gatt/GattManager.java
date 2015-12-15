@@ -80,7 +80,7 @@ public class GattManager {
             if (bluetoothDevice == null) {
                 throw new Exception("RemoteDevice is not available");
             }
-            bluetoothGatt = bluetoothDevice.connectGatt(activity, false, bluetoothGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(activity, true, bluetoothGattCallback);
         }
     }
 
@@ -134,6 +134,7 @@ public class GattManager {
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
 
+        // notification 을 enable 한뒤에 Descriptor 를 write 해주어야 응답함
         BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
         if (bluetoothGattDescriptor != null) {
             byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;

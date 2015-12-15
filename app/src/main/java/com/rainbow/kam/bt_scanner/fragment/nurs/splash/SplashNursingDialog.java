@@ -266,15 +266,19 @@ public class SplashNursingDialog extends DialogFragment {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
-        //중지
-        if (isBuildVersionLM) {
-            bleScanner.stopScan(scanCallback);
+        if (bluetoothAdapter.isEnabled()) {
+            //중지
+            if (isBuildVersionLM) {
+                bleScanner.stopScan(scanCallback);
+            } else {
+                bluetoothAdapter.stopLeScan(leScanCallback);
+            }
+            swipeRefreshLayout.setRefreshing(false);
+            isScanning = false;
+            searchingProgressBar.setVisibility(View.INVISIBLE);
+            noDeviceTextView.setVisibility(View.INVISIBLE);
         } else {
-            bluetoothAdapter.stopLeScan(leScanCallback);
+            initBluetoothOn();
         }
-        swipeRefreshLayout.setRefreshing(false);
-        isScanning = false;
-        searchingProgressBar.setVisibility(View.INVISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 }

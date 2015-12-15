@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -67,12 +68,11 @@ public class DetailFragment extends Fragment {
         } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        final View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
         deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
         deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
@@ -108,6 +108,8 @@ public class DetailFragment extends Fragment {
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
                     byte[] dataToWrite = PrimeHelper.parseHexStringToBytesDEV(newValue);
                     gattManager.writeValue(bluetoothGattCharacteristic, dataToWrite);
+                } else {
+                    Snackbar.make(view, "dataToWrite value is empty!", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
@@ -128,9 +130,11 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
+
     public void setGattManager(GattManager gattManager) {
         this.gattManager = gattManager;
     }
+
 
     public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
         this.bluetoothGattCharacteristic = characteristic;
@@ -139,7 +143,9 @@ public class DetailFragment extends Fragment {
         strValue = "";
         lastUpdateTime = "-";
         notificationEnabled = false;
+        bindView();
     }
+
 
     public BluetoothGattCharacteristic getCharacteristic() {
         return bluetoothGattCharacteristic;
@@ -167,14 +173,15 @@ public class DetailFragment extends Fragment {
         if (lastUpdateTime == null) {
             lastUpdateTime = "";
         }
+        bindView();
     }
 
-    public void setNotificationEnabledForService(final BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+
+    public void setNotificationEnable(final BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if ((!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) || (notificationEnabled)) {
             return;
         }
         notificationEnabled = true;
-        bindView();
     }
 
 
@@ -227,6 +234,7 @@ public class DetailFragment extends Fragment {
             charDateValue.setText(lastUpdateTime);
         }
     }
+
 
     public interface OnDetailReadyListener {
         void onDetailReady();

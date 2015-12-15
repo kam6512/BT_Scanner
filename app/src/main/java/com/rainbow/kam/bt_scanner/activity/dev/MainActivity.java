@@ -325,9 +325,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         } else {
-            if (isScanning) {  //스캔 시작
-                stopScan();
-            }
+//            if (isScanning) {  //스캔 시작
+//                stopScan();
+//            }
             initBluetoothOn();
         }
     }
@@ -357,7 +357,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             noDeviceTextView.setVisibility(View.INVISIBLE);
 
             if (isBuildVersionLM) {
-                bleScanner.startScan(scanCallback);
+                if (bleScanner != null) {
+                    bleScanner.startScan(scanCallback);
+                }
             } else {
                 bluetoothAdapter.startLeScan(leScanCallback);
             }
@@ -369,16 +371,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
-        //중지
-        if (isBuildVersionLM) {
-            bleScanner.stopScan(scanCallback);
+        if (bluetoothAdapter.isEnabled()) {
+            //중지
+            if (isBuildVersionLM) {
+                if (bleScanner != null) {
+                    bleScanner.stopScan(scanCallback);
+                }
+
+            } else {
+                bluetoothAdapter.stopLeScan(leScanCallback);
+            }
+
+            isScanning = false;
+            searchingProgressBar.setVisibility(View.INVISIBLE);
+            noDeviceTextView.setVisibility(View.INVISIBLE);
+
         } else {
-            bluetoothAdapter.stopLeScan(leScanCallback);
+            initBluetoothOn();
         }
-
-        isScanning = false;
-        searchingProgressBar.setVisibility(View.INVISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
-
     }
 }
