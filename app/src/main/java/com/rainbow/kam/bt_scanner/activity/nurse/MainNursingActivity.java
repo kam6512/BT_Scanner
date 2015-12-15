@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -275,7 +273,7 @@ initBluetoothOn();
                 @Override
                 public void onRefresh() {
                     if (!gattManager.isConnected()) {
-//                        connectDevice();
+                        connectDevice();
                     } else {
                         swipeRefreshLayout.setRefreshing(false);
                     }

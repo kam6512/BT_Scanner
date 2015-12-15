@@ -28,6 +28,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -295,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
             }
         } else {
+            Log.e(TAG, "registerBluetooth");
             initBluetoothOn();
         }
     }
@@ -308,24 +310,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void toggleScan() {
-        if (bluetoothAdapter.isEnabled()) {
-
-            if (isScanning) {  //스캔 시작
-                stopScan();
-            } else { //재 스캔시(10초이내)
-                if (adapter != null) {
-                    mainDeviceItemLinkedHashMap.clear();
-                    adapter.notifyDataSetChanged();
-                }
-
-                startScan();
-
+        if (isScanning) {  //스캔 시작
+            stopScan();
+        } else { //재 스캔시(10초이내)
+            if (adapter != null) {
+                mainDeviceItemLinkedHashMap.clear();
+                adapter.notifyDataSetChanged();
             }
-        } else {
-//            if (isScanning) {  //스캔 시작
-//                stopScan();
-//            }
-            initBluetoothOn();
+            startScan();
         }
     }
 
@@ -363,30 +355,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
         } else {
+            Log.e(TAG, "startScan");
             initBluetoothOn();
         }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
-        if (bluetoothAdapter.isEnabled()) {
-            //중지
-            if (isBuildVersionLM) {
-                if (bleScanner != null) {
-                    bleScanner.stopScan(scanCallback);
-                }
-
-            } else {
-                //noinspection deprecation
-                bluetoothAdapter.stopLeScan(leScanCallback);
+        //중지
+        if (isBuildVersionLM) {
+            if (bleScanner != null && bluetoothAdapter.isEnabled()) {
+                bleScanner.stopScan(scanCallback);
             }
 
-            isScanning = false;
-            searchingProgressBar.setVisibility(View.INVISIBLE);
-            noDeviceTextView.setVisibility(View.INVISIBLE);
-
         } else {
-            initBluetoothOn();
+            //noinspection deprecation
+            bluetoothAdapter.stopLeScan(leScanCallback);
         }
+
+        isScanning = false;
+
+        searchingProgressBar.setVisibility(View.INVISIBLE);
+        noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 }
