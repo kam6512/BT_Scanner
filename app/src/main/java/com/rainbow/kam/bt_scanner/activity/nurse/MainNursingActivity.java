@@ -184,6 +184,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     public void onResume() {
         super.onResume();
         registerBluetooth();
+        Log.e(TAG, "onResume");
     }
 
     @Override
@@ -220,21 +221,38 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         }
     }
 
+/*
+private void registerBluetooth() {
+
+BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+
+if (bluetoothManager == null) {
+Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
+finish();
+} else {
+BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+if (bluetoothAdapter.isEnabled()) {
+connectDevice();
+} else {
+initBluetoothOn();
+}
+}
+}
+*/
+
     private void registerBluetooth() {
 
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-
-        if (bluetoothManager == null) {
-            Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
-            finish();
-        } else {
-            BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-            if (bluetoothAdapter.isEnabled()) {
-                connectDevice();
-            } else {
-                initBluetoothOn();
-            }
+        Log.e(TAG, "registerBluetooth");
+        if (gattManager == null) {
+            gattManager = new GattManager(this, this);
         }
+
+        if (gattManager.initialize()) {
+            connectDevice();
+        } else {
+            initBluetoothOn();
+        }
+
     }
 
     private void initBluetoothOn() {//블루투스 가동여부
@@ -257,7 +275,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 @Override
                 public void onRefresh() {
                     if (!gattManager.isConnected()) {
-                        connectDevice();
+//                        connectDevice();
                     } else {
                         swipeRefreshLayout.setRefreshing(false);
                     }
@@ -339,6 +357,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         }
     }
 
+
     private void setViewPager() {
         tabLayout = (TabLayout) findViewById(R.id.nursing_tabs);
         dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
@@ -368,38 +387,32 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
 
     private void connectDevice() {
-        if (gattManager == null) {
-            gattManager = new GattManager(this, this);
-        }
-        if (gattManager.initialize()) {
-            try {
-                gattManager.connect(deviceAddress);
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-            }
+//        if (gattManager == null) {
+//            gattManager = new GattManager(this, this);
+//        }
+        Log.e(TAG, "connectDevice");
 
-            handler = new Handler();
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (!gattManager.isConnected() || !isFinishing()) {
-                        if (gattManager.initialize()) {
-                            try {
-                                gattManager.connect(deviceAddress);
-                            } catch (Exception e) {
-                                Log.e(TAG, e.getMessage());
-                            }
-                            handler.postDelayed(this, 3000);
-                        } else {
-                            finish();
+        handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+
+                if (!gattManager.isConnected() || isFinishing()) {
+                    if (gattManager.initialize()) {
+                        try {
+                            gattManager.connect(deviceAddress);
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
                         }
+                        handler.postDelayed(this, 3000);
+                    } else {
+                        initBluetoothOn();
                     }
+                    Log.e(TAG, "runnable");
                 }
-            };
-            handler.postDelayed(runnable, 0);
-        } else {
-            finish();
-        }
+            }
+        };
+        handler.postDelayed(runnable, 0);
     }
 
     private void disconnectDevice() {
@@ -429,7 +442,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
                 readTime(characteristicValue);
 
-//                dataToWrite = PrimeHelper.READ_STEP_DATA(8);
                 dataToWrite = PrimeHelper.READ_STEP_DATA();
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
 
@@ -441,7 +453,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
                 readStep(characteristicValue);
 
-                dataToWrite = PrimeHelper.CALL_DEVICE();
+                dataToWrite = PrimeHelper.SET_DEVICE_TIME_NOW();
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
 
                 isGattProcessRunning = true;
@@ -588,7 +600,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
 
                 swipeRefreshLayout.setRefreshing(false);
-                System.gc();
             }
         });
     }

@@ -14,6 +14,9 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.rainbow.kam.bt_scanner.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,11 +61,13 @@ public class GattManager {
         if (bluetoothManager == null) {
             bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
             if (bluetoothManager == null) {
+                Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
                 return false;
             }
         }
         if (bluetoothAdapter == null) {
             bluetoothAdapter = bluetoothManager.getAdapter();
+            return bluetoothAdapter.isEnabled();
         }
         return bluetoothAdapter != null;
     }

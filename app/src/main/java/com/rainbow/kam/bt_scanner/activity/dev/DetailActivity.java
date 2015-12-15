@@ -154,7 +154,7 @@ public class DetailActivity extends AppCompatActivity
                 Log.e(TAG, e.getMessage());
             }
         } else {
-            finish();
+            initBluetoothOn();
         }
     }
 
@@ -210,19 +210,13 @@ public class DetailActivity extends AppCompatActivity
     }
 
     private void registerBluetooth() {
-
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-
-        if (bluetoothManager == null) {
-            Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
-            finish();
+        if (gattManager == null) {
+            gattManager = new GattManager(this, this);
+        }
+        if (gattManager.initialize()) {
+            connectDevice();
         } else {
-            BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-            if (bluetoothAdapter.isEnabled()) {
-                connectDevice();
-            } else {
-                initBluetoothOn();
-            }
+            initBluetoothOn();
         }
     }
 
