@@ -21,15 +21,15 @@
     <color name="stepPrimary">#32f1ff</color>
     <color name="stepPrimaryDark">#0078ff</color>
 
-    <color name="caloColor">#ff5675</color>
-    <color name="caloAccent">#ff4500</color>
-    <color name="caloPrimary">#ff88a7</color>
-    <color name="caloPrimaryDark">#dc143c</color>
+    <color name="calorieColor">#ff5675</color>
+    <color name="calorieAccent">#ff4500</color>
+    <color name="caloriePrimary">#ff88a7</color>
+    <color name="caloriePrimaryDark">#dc143c</color>
 
-    <color name="dirColor">#b2fa5c</color>
-    <color name="dirAccent">#32cd32</color>
-    <color name="dirPrimary">#54bd54</color>
-    <color name="dirPrimaryDark">#228b22</color>
+    <color name="distanceColor">#b2fa5c</color>
+    <color name="distanceAccent">#32cd32</color>
+    <color name="distancePrimary">#54bd54</color>
+    <color name="distancePrimaryDark">#228b22</color>
 
     <color name="etcColor">#ffd700</color>
     <color name="etcAccent">#ffc300</color>

@@ -21,17 +21,19 @@ import android.util.SparseArray;
 import java.util.HashMap;
 
 public class GattAttributes {
-    //열 속성 해쉬맵
-    private static HashMap<String, String> attributes = new HashMap();
 
-    public static class Services {
+    //열 속성 해쉬맵
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private final static HashMap<String, String> attributes;
+
+    private static class Services {
         public static String GENERIC_ACCESS = "00001800-0000-1000-8000-00805f9b34fb";
         public static String DEVICE_INFORMATION = "0000180a-0000-1000-8000-00805f9b34fb";
         public static String BATTERY_SERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
         public static String HEART_RATE_MEASUREMENT_SERVICE = "0000180d-0000-1000-8000-00805f9b34fb";
     }
 
-    public static class Characteristic {
+    private static class Characteristic {
         public static String DEVICE_NAME = "00002a00-0000-1000-8000-00805f9b34fb";
         public static String APPEARANCE = "00002a01-0000-1000-8000-00805f9b34fb";
         public static String PPCP = "00002a04-0000-1000-8000-00805f9b34fb";
@@ -51,7 +53,7 @@ public class GattAttributes {
     }
 
     public static class Descriptor {
-        public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+        public final static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     }
 
     //속성 값 GET
@@ -116,12 +118,12 @@ public class GattAttributes {
      * =============================================================================================================
      **/
 
-    private static HashMap<String, String> services = new HashMap<>();
-    private static HashMap<String, String> characteristics = new HashMap<>();
-    private static SparseArray<String> valueFormats = new SparseArray<>();
-    private static SparseArray<String> appearance = new SparseArray<>();
+    private final static HashMap<String, String> services = new HashMap<>();
+    private final static HashMap<String, String> characteristics = new HashMap<>();
+    private final static SparseArray<String> valueFormats = new SparseArray<>();
+    private final static SparseArray<String> appearance = new SparseArray<>();
 
-    public static String unknown = "Unknown Service";
+    private final static String unknown = "Unknown Service";
 
 
     static public String resolveServiceName(final String uuid) {
@@ -282,7 +284,7 @@ public class GattAttributes {
         valueFormats.put(20, "32bit unsigned int");
         valueFormats.put(17, "8bit unsigned int");
 
-         appearance.put(833, "Heart Rate Sensor: Belt");
+        appearance.put(833, "Heart Rate Sensor: Belt");
         appearance.put(832, "Generic Heart Rate Sensor");
         appearance.put(0, "Unknown");
         appearance.put(64, "Generic Phone");
@@ -293,5 +295,6 @@ public class GattAttributes {
         appearance.put(1155, "Cycling: Cadence Sensor");
         appearance.put(1156, "Cycling: Speed and Cadence Sensor");
         appearance.put(1157, "Cycling: Power Sensor");
+        attributes = new HashMap<>();
     }
 }

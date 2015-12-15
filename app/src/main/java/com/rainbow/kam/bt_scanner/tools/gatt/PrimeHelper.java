@@ -7,7 +7,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 /**
- * Created by sion on 2015-11-04.
+ * Created by kam6512 on 2015-11-04.
  */
 public class PrimeHelper {
     public static byte[] READ_DEVICE_TIME() {
@@ -89,17 +89,18 @@ public class PrimeHelper {
     }
 
 
-    public static byte[] parseHexStringToBytes(String hex) {
+    private static byte[] parseHexStringToBytes(String hex) {
         hex = hex.toLowerCase(Locale.getDefault());
         String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
         byte[] bytes = new byte[tmp.length() / 2];
-        String part = "";
+        String part;
         int checksum = 0;
 
         for (int i = 0; i < bytes.length; ++i) {
             part = "0x" + tmp.substring(i * 2, i * 2 + 2);
             bytes[i] = Integer.decode(part).byteValue();
-            if (i > 1) {
+            if (i > 1 && i <= bytes.length - 1) {
+//            if (i > 1) {
                 if (bytes[i] < 0x00) {
 
                     checksum = checksum ^ bytes[i] + 256;
@@ -108,16 +109,17 @@ public class PrimeHelper {
                     checksum ^= bytes[i];
 
                 }
-            } else if (i == bytes.length - 1) {
-
             }
+//            } else if (i == bytes.length - 1) {
+//
+//            }
         }
 
         String cs = setWidth(Integer.toHexString(checksum));
         Log.e("CheckSum", cs);
         String res = (hex + cs).substring(2).replaceAll("[^[0-9][a-f]]", "");
         byte[] resBytes = new byte[res.length() / 2];
-        String resPart = "";
+        String resPart;
 
         for (int i = 0; i < resBytes.length; ++i) {
             resPart = "0x" + res.substring(i * 2, i * 2 + 2);
@@ -126,12 +128,12 @@ public class PrimeHelper {
 
         return resBytes;
     }
+
     public static byte[] parseHexStringToBytesDEV(String hex) {
         hex = hex.toLowerCase(Locale.getDefault());
         String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
         byte[] bytes = new byte[tmp.length() / 2];
-        String part = "";
-        int checksum = 0;
+        String part;
 
         for (int i = 0; i < bytes.length; ++i) {
             part = "0x" + tmp.substring(i * 2, i * 2 + 2);

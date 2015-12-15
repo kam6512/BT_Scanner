@@ -19,7 +19,6 @@ public interface GattCustomCallbacks {
     void onNewDataFound(
             final BluetoothGattCharacteristic ch,
             final String strValue,
-            final int intValue,
             final byte[] rawValue,
             final String timestamp);
 
@@ -48,7 +47,7 @@ public interface GattCustomCallbacks {
 
         @Override
         public void onNewDataFound(
-                                   BluetoothGattCharacteristic ch, String strValue, int intValue,
+                                   BluetoothGattCharacteristic ch, String strValue,
                                    byte[] rawValue, String timestamp) {
         }
 

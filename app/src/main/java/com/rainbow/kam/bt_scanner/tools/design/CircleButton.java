@@ -16,7 +16,7 @@ import com.rainbow.kam.bt_scanner.R;
  * Created by kam6512 on 2015-11-06.
  */
 public class CircleButton extends ImageView{
-    private static final int PRESSED_COLOR_LIGHTUP = 255 / 25;
+    private static final int PRESSED_COLOR_LIGHT_UP = 255 / 25;
     private static final int PRESSED_RING_ALPHA = 75;
     private static final int DEFAULT_PRESSED_RING_WIDTH_DIP = 4;
     private static final int ANIMATION_TIME_ID = android.R.integer.config_shortAnimTime;
@@ -74,8 +74,8 @@ public class CircleButton extends ImageView{
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w, int h, int oldWeight, int oldHeight) {
+        super.onSizeChanged(w, h, oldWeight, oldHeight);
         centerX = w / 2;
         centerY = h / 2;
         outerRadius = Math.min(w, h) / 2;
@@ -91,9 +91,9 @@ public class CircleButton extends ImageView{
         this.invalidate();
     }
 
-    public void setColor(int color) {
+    private void setColor(int color) {
         this.defaultColor = color;
-        this.pressedColor = getHighlightColor(color, PRESSED_COLOR_LIGHTUP);
+        this.pressedColor = getHighlightColor(color, PRESSED_COLOR_LIGHT_UP);
 
         circlePaint.setColor(defaultColor);
         focusPaint.setColor(defaultColor);

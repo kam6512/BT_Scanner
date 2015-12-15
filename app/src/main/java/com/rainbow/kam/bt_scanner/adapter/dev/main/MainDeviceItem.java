@@ -4,11 +4,11 @@ package com.rainbow.kam.bt_scanner.adapter.dev.main;
  * Created by kam6512 on 2015-10-14.
  */
 public class MainDeviceItem { //카드 뷰 틀
-    private String deviceName;
-    private String deviceAddress;
-    private int deviceBondState;
-    private int deviceType;
-    private int deviceRssi;
+    private final String deviceName;
+    private final String deviceAddress;
+    private final int deviceBondState;
+    private final int deviceType;
+    private final int deviceRssi;
 
     public MainDeviceItem(String deviceName,
                           String deviceAddress,

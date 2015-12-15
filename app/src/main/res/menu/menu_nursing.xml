@@ -16,11 +16,11 @@
                 <item
                     android:id="@+id/menu_nursing_dashboard_calorie"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_dashboard_calo"/>
+                    android:title="@string/menu_nursing_dashboard_calorie"/>
                 <item
                     android:id="@+id/menu_nursing_dashboard_distance"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_dashboard_dist"/>
+                    android:title="@string/menu_nursing_dashboard_distance"/>
                 <item
                     android:id="@+id/menu_nursing_dashboard_sleep"
                     android:icon="@drawable/ic_menu"

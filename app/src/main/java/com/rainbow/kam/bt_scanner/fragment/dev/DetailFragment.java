@@ -37,7 +37,6 @@ public class DetailFragment extends Fragment {
     private TextView charDataType;
     private TextView charStrValue;
     private EditText charHexValue;
-    private TextView charDecValue;
     private TextView charDateValue;
     private TextView charProperties;
 
@@ -46,7 +45,6 @@ public class DetailFragment extends Fragment {
     private Button writeBtn;
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
     private GattManager gattManager;
-    private int intValue = 0;
     private String asciiValue = "";
     private String strValue = "";
     private String lastUpdateTime = "";
@@ -85,7 +83,6 @@ public class DetailFragment extends Fragment {
         charProperties = (TextView) view.findViewById(R.id.characteristic_detail_properties);
 
         charStrValue = (TextView) view.findViewById(R.id.characteristic_detail_ascii_value);
-        charDecValue = (TextView) view.findViewById(R.id.characteristic_detail_decimal_value);
         charHexValue = (EditText) view.findViewById(R.id.characteristic_detail_hex_value);
         charDateValue = (TextView) view.findViewById(R.id.characteristic_detail_timestamp);
 
@@ -138,7 +135,6 @@ public class DetailFragment extends Fragment {
 
     public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
         this.bluetoothGattCharacteristic = characteristic;
-        intValue = 0;
         asciiValue = "";
         strValue = "";
         lastUpdateTime = "-";
@@ -152,12 +148,11 @@ public class DetailFragment extends Fragment {
     }
 
 
-    public void newValueForCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final int intValue, final byte[] rawValue, final String timeStamp) {
+    public void newValueForCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final byte[] rawValue, final String timeStamp) {
         if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
             return;
         }
 
-        this.intValue = intValue;
         this.strValue = strValue;
         if (rawValue != null && rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
@@ -185,7 +180,7 @@ public class DetailFragment extends Fragment {
     }
 
 
-    public void bindView() {
+    private void bindView() {
 
         if (gattManager != null) {
             deviceName.setText(gattManager.getBluetoothDevice().getName());
@@ -220,6 +215,7 @@ public class DetailFragment extends Fragment {
             if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
                 propertiesString += "write_no_response ";
             }
+
             charProperties.setText(propertiesString + "]");
 
             notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
@@ -230,7 +226,6 @@ public class DetailFragment extends Fragment {
 
             charHexValue.setText(asciiValue);
             charStrValue.setText(strValue);
-            charDecValue.setText(String.format("%d", intValue));
             charDateValue.setText(lastUpdateTime);
         }
     }

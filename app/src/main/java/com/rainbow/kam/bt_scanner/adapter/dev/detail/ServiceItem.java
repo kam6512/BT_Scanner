@@ -6,10 +6,10 @@ import android.bluetooth.BluetoothGattService;
  * Created by kam6512 on 2015-10-29.
  */
 public class ServiceItem {
-    private String title;
-    private String uuid;
-    private String type;
-    private BluetoothGattService bluetoothGattService;
+    private final String title;
+    private final String uuid;
+    private final String type;
+    private final BluetoothGattService bluetoothGattService;
 
     public ServiceItem(String title, String uuid, String type, BluetoothGattService bluetoothGattService) {
         this.title = title;

@@ -1,14 +1,14 @@
-package com.rainbow.kam.bt_scanner.adapter.nurs.selected;
+package com.rainbow.kam.bt_scanner.adapter.nurse.selected;
 
 /**
  * Created by kam6512 on 2015-10-14.
  */
 public class SelectDeviceItem { //카드 뷰 틀
-    private String extraName;
-    private String extraAddress;
-    private int extraBondState;
-    private int extraType;
-    private int extraRssi;
+    private final String extraName;
+    private final String extraAddress;
+    private final int extraBondState;
+    private final int extraType;
+    private final int extraRssi;
 
     public SelectDeviceItem(String extraName,
                             String extraAddress,
@@ -26,7 +26,7 @@ public class SelectDeviceItem { //카드 뷰 틀
         return this.extraName;
     }
 
-    public String getExtraextraAddress() {
+    public String getExtraAddress() {
         return this.extraAddress;
     }
 

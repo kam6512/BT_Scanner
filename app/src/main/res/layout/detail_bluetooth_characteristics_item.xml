@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="20dp">
+        android:layout_marginStart="20dp">
 
         <TextView
             android:id="@+id/detail_child_list_item_characteristics_title"
@@ -24,8 +24,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginTop="10dp"
             android:text="@string/detail_child_list_item_characteristics_title"
             android:textSize="20sp"
@@ -37,8 +37,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginTop="10dp"
             android:text="@string/detail_child_list_item_characteristics_UUID"
             android:textColor="#fff" />
@@ -49,8 +49,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginTop="10dp"
             android:text="@string/detail_child_list_item_characteristics_value"
             android:textColor="#fff" />

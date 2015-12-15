@@ -11,8 +11,8 @@
     <string name="menu_nursing_dashboard">DASHBOARD</string>
     <string name="menu_nursing_dashboard_main">메인</string>
     <string name="menu_nursing_dashboard_step">걸음</string>
-    <string name="menu_nursing_dashboard_calo">칼로리</string>
-    <string name="menu_nursing_dashboard_dist">거리</string>
+    <string name="menu_nursing_dashboard_calorie">칼로리</string>
+    <string name="menu_nursing_dashboard_distance">거리</string>
     <string name="menu_nursing_dashboard_etc">수면</string>
 
     <string name="menu_nursing_info">USER INFO</string>
@@ -29,7 +29,7 @@
     <string name="detail_rssi">RSSI :</string>
     <string name="detail_address">Address :</string>
     <string name="detail_state">state :</string>
-    <string name="bondstate">Bond State :</string>
+    <string name="bond_state">Bond State :</string>
 
     <string name="Peripheral">Peripheral:</string>
     <string name="detail_service">Service:</string>
@@ -68,8 +68,8 @@
     <string name="dashboard_time">Device Time</string>
 
     <string name="dashboard_step">STEP</string>
-    <string name="dashboard_calo">CALORIE</string>
-    <string name="dashboard_dist">DISTANCE</string>
+    <string name="dashboard_calorie">CALORIE</string>
+    <string name="dashboard_distance">DISTANCE</string>
     <string name="dashboard_etc">ETC</string>
 
     <string name="today">today</string>
@@ -81,7 +81,7 @@
     <string name="bt_fail">기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(init Fail)</string>
 
     <string name="has_not_card">블루루스 BLE 기기가 탐색되지 않았습니다</string>
-    <string name="has_not_card_nurs">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
+    <string name="has_not_card_nursing">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
 
     <string name="permission_thanks">권한 획득, 감사합니다.</string>
     <string name="permission_request"><![CDATA[[권한] 탭 -> [위치] 권한을 허용해주십시오]]></string>
@@ -92,11 +92,11 @@
     <string name="skip">무시하기</string>
 
     <string name="username_default">N/A</string>
-    <string name="userage_default">20</string>
-    <string name="userheight_default">170</string>
-    <string name="userweight_default">60</string>
-    <string name="userstep_default">60</string>
-    <string name="usergender_default">남성</string>
+    <string name="user_age_default">20</string>
+    <string name="user_height_default">170</string>
+    <string name="user_weight_default">60</string>
+    <string name="user_step_default">60</string>
+    <string name="user_gender_default">남성</string>
     <string name="gender_man">남성</string>
     <string name="gender_woman">여성</string>
     <string name="reconnect">다시 연결하기</string>
@@ -104,6 +104,14 @@
     <string name="exit">종료</string>
     <string name="device_disconnected">기기와의 연결이 비활성화 되었습니다</string>
     <string name="connecting">연결중</string>
+    <string name="add_user_name_hint">Name</string>
+    <string name="add_user_age_hint">Age (in full)</string>
+    <string name="add_user_height_hint">Height (Metric)</string>
+    <string name="add_user_weight_hint">Weight (Kg)</string>
+    <string name="add_user_step_hint">Step Stride (Centimeter)</string>
+    <string name="add_user_men">Man</string>
+    <string name="add_user_woman">woman</string>
+    <string name="add_user_skip">Skip</string>
 
 
 </resources>

@@ -14,7 +14,7 @@
 //import java.util.ArrayList;
 //
 ///**
-// * Created by sion on 2015-11-23.
+// * Created by kam6512 on 2015-11-23.
 // */
 //public class DashboardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //    //태그
@@ -23,7 +23,7 @@
 //    private ArrayList<DashboardItem> dashboardItems; //어댑터에 적용시킬 틀
 //    private Context context; //컨택스트
 //    private Activity activity; //액티비티
-//    private View view; //SnackBar대비 뷰
+//    private View view; //SnackBar 대비 뷰
 //    Dash dash;
 //
 //    public DashboardAdapter(ArrayList<DashboardItem> dashboardItems, Activity activity, Context context, View view) { //초기화
@@ -82,7 +82,7 @@
 //        }
 //    }
 //}
-package com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse;
+package com.rainbow.kam.bt_scanner.adapter.nurse.dashboard_NotInUse;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -91,7 +91,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 
@@ -100,14 +99,14 @@ import java.util.ArrayList;
 /**
  * Created by kam6512 on 2015-11-23.
  */
-public class DashboardAdapter extends BaseAdapter {
-    //태그
+class DashboardAdapter extends BaseAdapter {
+
     private static final String TAG = "DashboardAdapter";
 
-    private ArrayList<DashboardItem> dashboardItems; //어댑터에 적용시킬 틀
-    private Context context; //컨택스트
-    private Activity activity; //액티비티
-    private View view; //SnackBar대비 뷰
+    private final ArrayList<DashboardItem> dashboardItems; //어댑터에 적용시킬 틀
+    private final Context context;
+    private final Activity activity;
+    private final View view;
 
 
     public DashboardAdapter(ArrayList<DashboardItem> dashboardItems, Activity activity, Context context, View view) { //초기화
@@ -116,9 +115,6 @@ public class DashboardAdapter extends BaseAdapter {
         this.context = context;
         this.view = view;
     }
-
-    private Toast mToast;
-
 
     @Override
     public int getCount() {

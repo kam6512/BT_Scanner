@@ -276,44 +276,36 @@ public class CircleCounter extends View {
         return this;
     }
 
-    public CircleCounter setFirstWidth(float width) {
+    public void setFirstWidth(float width) {
         mOneWidth = width;
-        return this;
     }
 
-    public CircleCounter setSecondWidth(float width) {
+    public void setSecondWidth(float width) {
         mTwoWidth = width;
-        return this;
     }
 
-    public CircleCounter setThirdWidth(float width) {
+    public void setThirdWidth(float width) {
         mThreeWidth = width;
-        return this;
     }
 
-    public CircleCounter setTextSize(float size) {
+    public void setTextSize(float size) {
         mTextSize = size;
-        return this;
     }
 
-    public CircleCounter setMetricSize(float size) {
+    public void setMetricSize(float size) {
         mMetricSize = size;
-        return this;
     }
 
-    public CircleCounter setFirstColor(int color) {
+    public void setFirstColor(int color) {
         mOneColor = color;
-        return this;
     }
 
-    public CircleCounter setSecondColor(int color) {
+    public void setSecondColor(int color) {
         mTwoColor = color;
-        return this;
     }
 
-    public CircleCounter setThirdColor(int color) {
+    public void setThirdColor(int color) {
         mThreeColor = color;
-        return this;
     }
 
     public CircleCounter setTextColor(int color) {
@@ -338,7 +330,7 @@ public class CircleCounter extends View {
 
     private static class SpeedHandler extends Handler {
 
-        private CircleCounter act;
+        private final CircleCounter act;
 
         public SpeedHandler(CircleCounter act) {
             super();

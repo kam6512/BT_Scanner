@@ -1,24 +1,18 @@
-package com.rainbow.kam.bt_scanner.activity.nurs;
+package com.rainbow.kam.bt_scanner.activity.nurse;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentAddUser;
-import com.rainbow.kam.bt_scanner.fragment.nurs.splash.SplashNursingFragmentLogo;
+import com.rainbow.kam.bt_scanner.adapter.nurse.selected.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.fragment.nurse.splash.SplashNursingFragmentAddUser;
+import com.rainbow.kam.bt_scanner.fragment.nurse.splash.SplashNursingFragmentLogo;
 import com.rainbow.kam.bt_scanner.patient.Patient;
-import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -30,8 +24,8 @@ import io.realm.RealmResults;
 public class SplashNursingActivity extends AppCompatActivity implements SelectDeviceAdapter.OnDeviceSelectListener {
 
     private static final String TAG = SplashNursingActivity.class.getSimpleName();
-    SplashNursingFragmentAddUser splashNursingFragmentAddUser;
-    SplashNursingFragmentLogo splashNursingFragmentLogo;
+    private SplashNursingFragmentAddUser splashNursingFragmentAddUser;
+    private SplashNursingFragmentLogo splashNursingFragmentLogo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

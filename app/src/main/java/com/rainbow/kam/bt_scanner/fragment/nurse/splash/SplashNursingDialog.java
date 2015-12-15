@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.splash;
+package com.rainbow.kam.bt_scanner.fragment.nurse.splash;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -29,11 +29,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.nurse.selected.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.nurse.selected.SelectDeviceItem;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -45,7 +43,7 @@ public class SplashNursingDialog extends DialogFragment {
     private final String TAG = getClass().getSimpleName(); //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1;
     private static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    private static long SCAN_PERIOD = 5000;
+    private final static long SCAN_PERIOD = 5000;
 
     private Activity activity;
     private View view;
@@ -61,7 +59,7 @@ public class SplashNursingDialog extends DialogFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView selectDeviceRecyclerView;
     private RecyclerView.Adapter adapter = null;
-    private LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
 
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
@@ -148,7 +146,7 @@ public class SplashNursingDialog extends DialogFragment {
         searchingProgressBar = (ProgressBar) view.findViewById(R.id.nursing_searching_progress_bar);
         searchingProgressBar.setVisibility(View.INVISIBLE);
 
-        noDeviceTextView = (TextView) view.findViewById(R.id.nursing_no_device_textview);
+        noDeviceTextView = (TextView) view.findViewById(R.id.nursing_no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 
@@ -254,6 +252,7 @@ public class SplashNursingDialog extends DialogFragment {
             if (isBuildVersionLM) {
                 bleScanner.startScan(scanCallback);
             } else {
+                //noinspection deprecation
                 bluetoothAdapter.startLeScan(leScanCallback);
             }
         } else {
@@ -271,6 +270,7 @@ public class SplashNursingDialog extends DialogFragment {
             if (isBuildVersionLM) {
                 bleScanner.stopScan(scanCallback);
             } else {
+                //noinspection deprecation
                 bluetoothAdapter.stopLeScan(leScanCallback);
             }
             swipeRefreshLayout.setRefreshing(false);

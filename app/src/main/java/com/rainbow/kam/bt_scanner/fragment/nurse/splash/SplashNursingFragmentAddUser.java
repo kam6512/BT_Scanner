@@ -1,9 +1,8 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.splash;
+package com.rainbow.kam.bt_scanner.fragment.nurse.splash;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -20,15 +19,13 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.nurs.MainNursingActivity;
-import com.rainbow.kam.bt_scanner.adapter.nurs.selected.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.activity.nurse.MainNursingActivity;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.design.RippleView;
 
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
 import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -80,11 +77,11 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     }
 
     private void setUserInput() {
-        name = (TextInputLayout) view.findViewById(R.id.nursing_adduser_name);
-        age = (TextInputLayout) view.findViewById(R.id.nursing_adduser_age);
-        height = (TextInputLayout) view.findViewById(R.id.nursing_adduser_height);
-        weight = (TextInputLayout) view.findViewById(R.id.nursing_adduser_weight);
-        step = (TextInputLayout) view.findViewById(R.id.nursing_adduser_step);
+        name = (TextInputLayout) view.findViewById(R.id.nursing_add_user_name);
+        age = (TextInputLayout) view.findViewById(R.id.nursing_add_user_age);
+        height = (TextInputLayout) view.findViewById(R.id.nursing_add_user_height);
+        weight = (TextInputLayout) view.findViewById(R.id.nursing_add_user_weight);
+        step = (TextInputLayout) view.findViewById(R.id.nursing_add_user_step);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
     }
 
@@ -92,7 +89,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
         nextFab.setOnClickListener(this);
 
-        RippleView skip = (RippleView) view.findViewById(R.id.nursing_adduser_skip);
+        RippleView skip = (RippleView) view.findViewById(R.id.nursing_add_user_skip);
         skip.setOnRippleCompleteListener(this);
     }
 
@@ -119,7 +116,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         }, new Realm.Transaction.Callback() {
             @Override
             public void onSuccess() {
-                RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
+//                RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
                 dismissDeviceListDialog();
             }
 
@@ -209,11 +206,11 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     private void showSkipDialog() {
 
         userName = activity.getString(R.string.username_default);
-        userAge = activity.getString(R.string.userage_default);
-        userHeight = activity.getString(R.string.userheight_default);
-        userWeight = activity.getString(R.string.userweight_default);
-        userStep = activity.getString(R.string.userstep_default);
-        userGender = activity.getString(R.string.usergender_default);
+        userAge = activity.getString(R.string.user_age_default);
+        userHeight = activity.getString(R.string.user_height_default);
+        userWeight = activity.getString(R.string.user_weight_default);
+        userStep = activity.getString(R.string.user_step_default);
+        userGender = activity.getString(R.string.user_gender_default);
 
         new MaterialDialog.Builder(activity).title(R.string.skip)
                 .content(R.string.skip_warning)

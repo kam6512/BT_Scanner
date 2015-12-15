@@ -31,7 +31,7 @@ public class DetailCharacteristicFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private CharacteristicAdapter characteristicAdapter;
-    private ArrayList<CharacteristicItem> characteristicItemArrayList = new ArrayList<>();
+    private final ArrayList<CharacteristicItem> characteristicItemArrayList = new ArrayList<>();
 
     private OnCharacteristicReadyListener onCharacteristicReadyListener;
 

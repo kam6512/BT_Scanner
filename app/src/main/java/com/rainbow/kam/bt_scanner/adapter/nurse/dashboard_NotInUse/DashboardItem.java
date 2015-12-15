@@ -1,14 +1,14 @@
-package com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse;
+package com.rainbow.kam.bt_scanner.adapter.nurse.dashboard_NotInUse;
 
 /**
  * Created by kam6512 on 2015-11-23.
  */
 public class DashboardItem {
-    private int step;
-    private int calorie;
-    private int distance;
+    private final int step;
+    private final int calorie;
+    private final int distance;
 
-    private String calendar;
+    private final String calendar;
 
     public DashboardItem(int step, int calorie, int distance, String calendar) {
         this.step = step;

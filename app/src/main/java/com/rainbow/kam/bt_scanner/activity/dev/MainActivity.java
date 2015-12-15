@@ -35,7 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.nurs.SplashNursingActivity;
+import com.rainbow.kam.bt_scanner.activity.nurse.SplashNursingActivity;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter = null;
-    private LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
     private FloatingActionButton fabSearch;
     private ProgressBar searchingProgressBar;
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchingProgressBar = (ProgressBar) findViewById(R.id.searching_progress_bar);
         searchingProgressBar.setVisibility(View.INVISIBLE);
 
-        noDeviceTextView = (TextView) findViewById(R.id.no_device_textview);
+        noDeviceTextView = (TextView) findViewById(R.id.no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 
@@ -361,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     bleScanner.startScan(scanCallback);
                 }
             } else {
+                //noinspection deprecation
                 bluetoothAdapter.startLeScan(leScanCallback);
             }
 
@@ -379,6 +380,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
             } else {
+                //noinspection deprecation
                 bluetoothAdapter.stopLeScan(leScanCallback);
             }
 

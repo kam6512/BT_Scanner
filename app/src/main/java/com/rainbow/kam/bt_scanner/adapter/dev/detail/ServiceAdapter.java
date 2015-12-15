@@ -22,7 +22,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private static final int TYPE_SERVICE = 0;
 
-    private ArrayList<ServiceItem> serviceItemArrayList;
+    private final ArrayList<ServiceItem> serviceItemArrayList;
 
 
     private OnServiceItemClickListener onServiceItemClickListener;
@@ -78,9 +78,9 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public class ServiceViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView serviceTitle;
-        private TextView serviceUuid;
-        private TextView serviceType;
+        private final TextView serviceTitle;
+        private final TextView serviceUuid;
+        private final TextView serviceType;
 
         public ServiceViewHolder(View itemView) {
             super(itemView);

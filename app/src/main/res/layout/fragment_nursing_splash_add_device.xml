@@ -27,12 +27,12 @@
         android:indeterminate="true" />
 
     <TextView
-        android:id="@+id/nursing_no_device_textview"
+        android:id="@+id/nursing_no_device_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center"
         android:indeterminate="true"
-        android:text="@string/has_not_card_nurs" />
+        android:text="@string/has_not_card_nursing" />
 </RelativeLayout>

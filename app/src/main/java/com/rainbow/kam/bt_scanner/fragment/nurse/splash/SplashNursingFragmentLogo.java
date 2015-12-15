@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.splash;
+package com.rainbow.kam.bt_scanner.fragment.nurse.splash;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

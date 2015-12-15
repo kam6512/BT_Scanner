@@ -1,7 +1,9 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.main;
+package com.rainbow.kam.bt_scanner.fragment.nurse.main;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,13 @@ public class StepFragment extends Fragment {
 
     private CircleCounter stepCircleCounter;
 
+    private Context context;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
 
     /*
         public void setArrayList(Activity activity, ArrayList<DashboardItem> dashboardList) {
@@ -48,14 +57,14 @@ public class StepFragment extends Fragment {
         stepCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
         stepCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));
         stepCircleCounter.setThirdWidth(getResources().getDimension(R.dimen.third));
-        stepCircleCounter.setFirstColor(getResources().getColor(R.color.stepAccent));
-        stepCircleCounter.setSecondColor(getResources().getColor(R.color.stepPrimary));
-        stepCircleCounter.setThirdColor(getResources().getColor(R.color.stepPrimaryDark));
-        stepCircleCounter.setBackgroundColor(getResources().getColor(R.color.stepColor));
+        stepCircleCounter.setFirstColor(ContextCompat.getColor(context, R.color.stepAccent));
+        stepCircleCounter.setSecondColor(ContextCompat.getColor(context, R.color.stepPrimary));
+        stepCircleCounter.setThirdColor(ContextCompat.getColor(context, R.color.stepPrimaryDark));
+        stepCircleCounter.setBackgroundColor(ContextCompat.getColor(context, R.color.stepColor));
         return view;
     }
 
-    public void setStep(int step){
+    public void setStep(int step) {
         stepCircleCounter.setValues(step, step, step);
     }
 

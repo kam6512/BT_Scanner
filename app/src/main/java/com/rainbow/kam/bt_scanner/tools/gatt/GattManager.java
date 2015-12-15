@@ -34,7 +34,7 @@ public class GattManager {
     private GattCustomCallbacks gattCustomCallbacks = null;
     private static final GattCustomCallbacks NULL_CALLBACK = new GattCustomCallbacks.Null();
 
-    private Activity activity;
+    private final Activity activity;
     private boolean connected = false;
 
     private BluetoothManager bluetoothManager;
@@ -43,7 +43,7 @@ public class GattManager {
     private BluetoothGatt bluetoothGatt;
     private List<BluetoothGattService> bluetoothGattServices;
 
-    private Handler timerHandler = new Handler();
+    private final Handler timerHandler = new Handler();
     private boolean timerEnabled = false;
 
     public GattManager(Activity activity, GattCustomCallbacks gattCustomCallbacks) {
@@ -124,7 +124,9 @@ public class GattManager {
     }
 
     private void startServiceDiscovery() {
-        if (bluetoothGatt != null) bluetoothGatt.discoverServices();
+        if (bluetoothGatt != null) {
+            bluetoothGatt.discoverServices();
+        }
     }
 
     public BluetoothDevice getBluetoothDevice() {
@@ -139,7 +141,7 @@ public class GattManager {
         if (bluetoothGattDescriptor != null) {
             byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
             bluetoothGattDescriptor.setValue(value);
-           bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
         }
     }
 
@@ -167,7 +169,6 @@ public class GattManager {
         }
         byte[] rawValue = bluetoothGattCharacteristic.getValue();
         String strValue = null;
-        int intValue = 0;
 
         if (rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
@@ -182,7 +183,7 @@ public class GattManager {
         }
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
 
-        gattCustomCallbacks.onNewDataFound(bluetoothGattCharacteristic, strValue, intValue, rawValue, timeStamp);
+        gattCustomCallbacks.onNewDataFound(bluetoothGattCharacteristic, strValue, rawValue, timeStamp);
     }
 
     public int getValueFormat(BluetoothGattCharacteristic bluetoothGattCharacteristic) {

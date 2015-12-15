@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.nurs;
+package com.rainbow.kam.bt_scanner.activity.nurse;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -32,22 +31,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.dev.MainActivity;
-import com.rainbow.kam.bt_scanner.adapter.nurs.dashboard_NotInUse.DashboardItem;
-import com.rainbow.kam.bt_scanner.fragment.nurs.main.CalorieFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurs.main.DashboardFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurs.main.DistanceFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurs.main.SampleFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurs.main.StepFragment;
+import com.rainbow.kam.bt_scanner.adapter.nurse.dashboard_NotInUse.DashboardItem;
+import com.rainbow.kam.bt_scanner.fragment.nurse.main.CalorieFragment;
+import com.rainbow.kam.bt_scanner.fragment.nurse.main.DashboardFragment;
+import com.rainbow.kam.bt_scanner.fragment.nurse.main.DistanceFragment;
+import com.rainbow.kam.bt_scanner.fragment.nurse.main.SampleFragment;
+import com.rainbow.kam.bt_scanner.fragment.nurse.main.StepFragment;
 import com.rainbow.kam.bt_scanner.patient.Band;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,7 +60,7 @@ import io.realm.RealmResults;
  */
 public class MainNursingActivity extends AppCompatActivity implements GattCustomCallbacks {
 
-    public static final String TAG = MainNursingActivity.class.getSimpleName();
+    private static final String TAG = MainNursingActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
 
     private Realm realm;
@@ -82,8 +79,8 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     private String deviceName = null;
     private String deviceAddress = null;
 
-    private String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
-    private String[] timeSet = {"년", "월", "일", "시", "분", "초"};
+    private final String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
+    private final String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
     private boolean isGattProcessRunning = false;
 
@@ -224,7 +221,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         }
     }
 
-    public void registerBluetooth() {
+    private void registerBluetooth() {
 
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 
@@ -386,9 +383,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (gattManager.isConnected() || isFinishing()) {
-
-                    } else {
+                    if (!gattManager.isConnected() || !isFinishing()) {
                         if (gattManager.initialize()) {
                             try {
                                 gattManager.connect(deviceAddress);
@@ -415,7 +410,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         }
     }
 
-    public void startDeviceWrite() {
+    private void startDeviceWrite() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -456,7 +451,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             case ETC:
                 for (int i = 0; i < characteristicValue.length; i++) {
                     int lsb = characteristic.getValue()[i] & 0xff;
-                    Log.e("noty", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb));
+                    Log.e("ETC", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb));
                 }
 //                dataToWrite = PrimeHelper.CALL_DEVICE();
 //                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
@@ -531,8 +526,8 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
         Bundle bundle = new Bundle();
         bundle.putString("STEP", hexStep);
-        bundle.putString("CALO", hexCal);
-        bundle.putString("DIST", hexDist);
+        bundle.putString("CALORIE", hexCal);
+        bundle.putString("DISTANCE", hexDist);
         dashboardFragment.setStepData(bundle);
 
         stepFragment.setStep(step);
@@ -541,7 +536,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         sampleFragment.setSample(Integer.valueOf(hexDist));
     }
 
-    private void addDataToRealmDB(int step, int calo, int dist) {
+    private void addDataToRealmDB(int step, int calorie, int distance) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
@@ -560,24 +555,25 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 Band band = realm.createObject(Band.class);
                 band.setCalendar(today);
                 band.setStep(step);
-                band.setCalorie(calo);
-                band.setDistance(dist);
+                band.setCalorie(calorie);
+                band.setDistance(distance);
             }
         } else {
             Band band = realm.createObject(Band.class);
             band.setCalendar(today);
             band.setStep(step);
-            band.setCalorie(calo);
-            band.setDistance(dist);
+            band.setCalorie(calorie);
+            band.setDistance(distance);
         }
         realm.commitTransaction();
 
         results = realm.where(Band.class).findAll();
 
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         ArrayList<DashboardItem> arrayList = new ArrayList<>();
 
         for (int i = 0; i < results.size(); i++) {
-            Log.e(TAG, "band [" + i + "] : " + results.size() + " step : " + results.get(i).getStep() + " calo : " + results.get(i).getCalorie() + " dist : " + results.get(i).getDistance() + " calendat : " + results.get(i).getCalendar());
+            Log.e(TAG, "band [" + i + "] : " + results.size() + " step : " + results.get(i).getStep() + " calorie : " + results.get(i).getCalorie() + " distance : " + results.get(i).getDistance() + " calendar : " + results.get(i).getCalendar());
             arrayList.add(new DashboardItem(results.get(i).getStep(), results.get(i).getCalorie(), results.get(i).getDistance(), results.get(i).getCalendar()));
         }
     }
@@ -633,7 +629,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     }
 
     @Override
-    public void onNewDataFound(final BluetoothGattCharacteristic ch, String strValue, int intValue, byte[] rawValue, String timestamp) {
+    public void onNewDataFound(final BluetoothGattCharacteristic ch, String strValue, byte[] rawValue, String timestamp) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -681,7 +677,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     private class DashBoardAdapter extends FragmentStatePagerAdapter {
 
         final int PAGE_COUNT = 5;
-        private String tabTitles[] = new String[]{"DASHBOARD", "STEP", "CALORIE", "DISTANCE", "ETC"};
+        private final String tabTitles[] = new String[]{"DASHBOARD", "STEP", "CALORIE", "DISTANCE", "ETC"};
 
         public DashBoardAdapter(FragmentManager fm) {
             super(fm);

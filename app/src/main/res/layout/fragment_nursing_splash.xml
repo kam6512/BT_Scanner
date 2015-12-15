@@ -11,7 +11,8 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:scaleType="center"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/logo" />
 
     <LinearLayout
         android:id="@+id/nursing_splash_pilot"

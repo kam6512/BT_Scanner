@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.main;
+package com.rainbow.kam.bt_scanner.fragment.nurse.main;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -19,9 +19,9 @@ public class DashboardFragment extends Fragment {
 
     private View view;
     private TextView time;
-    private TextView stepTextview;
-    private TextView calorieTextview;
-    private TextView distanceTextview;
+    private TextView stepTextView;
+    private TextView calorieTextView;
+    private TextView distanceTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,9 +33,9 @@ public class DashboardFragment extends Fragment {
         }
 
         time = (TextView) view.findViewById(R.id.deviceTime);
-        stepTextview = (TextView) view.findViewById(R.id.dashboard_step);
-        calorieTextview = (TextView) view.findViewById(R.id.dashboard_calorie);
-        distanceTextview = (TextView) view.findViewById(R.id.dashboard_distance);
+        stepTextView = (TextView) view.findViewById(R.id.dashboard_step);
+        calorieTextView = (TextView) view.findViewById(R.id.dashboard_calorie);
+        distanceTextView = (TextView) view.findViewById(R.id.dashboard_distance);
 
         return view;
     }
@@ -49,26 +49,29 @@ public class DashboardFragment extends Fragment {
     }
 
     public void setStepData(Bundle stepData) {
-        try {
-            String step = stepData.getString("STEP");
-            String calo = stepData.getString("CALO");
-            String dist = stepData.getString("DIST") + "m";
+
+        String step = stepData.getString("STEP");
+        String calorie = stepData.getString("CALORIE");
+        String distance = stepData.getString("DISTANCE") + "m";
+
+        if (step != null && calorie != null) {
 
             step = Integer.valueOf(step, 16) + "걸음";
-            calo = Integer.valueOf(calo, 16) + "Kcal";
+            calorie = Integer.valueOf(calorie, 16) + "kcal";
 
-            stepTextview.setText(step);
-            calorieTextview.setText(calo);
-            distanceTextview.setText(dist);
-        } catch (Exception e) {
+            stepTextView.setText(step);
+            calorieTextView.setText(calorie);
+            distanceTextView.setText(distance);
+
+        } else {
             setFail();
         }
     }
 
-    public void setFail() {
+    private void setFail() {
         time.setText("시간 : 연결 실패");
-        stepTextview.setText("연결 실패");
-        calorieTextview.setText("연결 실패");
-        distanceTextview.setText("연결 실패");
+        stepTextView.setText("연결 실패");
+        calorieTextView.setText("연결 실패");
+        distanceTextView.setText("연결 실패");
     }
 }

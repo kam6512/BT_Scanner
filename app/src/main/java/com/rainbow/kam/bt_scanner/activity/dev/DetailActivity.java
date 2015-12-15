@@ -214,7 +214,7 @@ public class DetailActivity extends AppCompatActivity
         }
     }
 
-    public void registerBluetooth() {
+    private void registerBluetooth() {
 
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 
@@ -269,7 +269,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNewDataFound(final BluetoothGattCharacteristic ch, final String strValue, final int intValue, final byte[] rawValue, final String timestamp) {
+    public void onNewDataFound(final BluetoothGattCharacteristic ch, final String strValue, final byte[] rawValue, final String timestamp) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -277,7 +277,7 @@ public class DetailActivity extends AppCompatActivity
                     return;
                 }
                 detailFragment.setNotificationEnable(ch);
-                detailFragment.newValueForCharacteristic(ch, strValue, intValue, rawValue, timestamp);
+                detailFragment.newValueForCharacteristic(ch, strValue, rawValue, timestamp);
             }
         });
     }

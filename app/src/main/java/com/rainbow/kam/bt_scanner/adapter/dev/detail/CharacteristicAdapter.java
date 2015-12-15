@@ -1,8 +1,6 @@
 package com.rainbow.kam.bt_scanner.adapter.dev.detail;
 
 import android.app.Activity;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +21,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private static final int TYPE_CHARACTERISTIC = 1;
 
-    private ArrayList<CharacteristicItem> characteristicItemArrayList;
+    private final ArrayList<CharacteristicItem> characteristicItemArrayList;
 
 
     private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
@@ -77,9 +75,9 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private class CharacteristicViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView characteristicTitle;
-        private TextView characteristicUuid;
-        private TextView characteristicValue;
+        private final TextView characteristicTitle;
+        private final TextView characteristicUuid;
+        private final TextView characteristicValue;
 
         public CharacteristicViewHolder(View itemView) {
             super(itemView);

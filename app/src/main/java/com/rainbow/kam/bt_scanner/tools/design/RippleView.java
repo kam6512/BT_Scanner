@@ -11,6 +11,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.support.annotation.ColorRes;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -82,7 +83,7 @@ public class RippleView extends RelativeLayout {
         rippleHandler = new Handler();
 
         final TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.RippleView);
-        rippleColor = typedArray.getColor(R.styleable.RippleView_rv_color, getResources().getColor(R.color.rippleColor));
+        rippleColor = typedArray.getColor(R.styleable.RippleView_rv_color, ContextCompat.getColor(context, R.color.rippleColor));
         rippleType = typedArray.getInt(R.styleable.RippleView_rv_type, 0);
         hasToZoom = typedArray.getBoolean(R.styleable.RippleView_rv_zoom, false);
         isCentered = typedArray.getBoolean(R.styleable.RippleView_rv_centered, false);
@@ -190,8 +191,8 @@ public class RippleView extends RelativeLayout {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w, int h, int oldWidth, int oldHeight) {
+        super.onSizeChanged(w, h, oldWidth, oldHeight);
         width = w;
         height = h;
 
@@ -201,7 +202,7 @@ public class RippleView extends RelativeLayout {
         scaleAnimation.setRepeatCount(1);
     }
 
-    public void animateRipple(MotionEvent event) {
+    private void animateRipple(MotionEvent event) {
         createAnimation(event.getX(), event.getY());
     }
 
@@ -209,7 +210,7 @@ public class RippleView extends RelativeLayout {
         createAnimation(x, y);
     }
 
-    public void createAnimation(final float x, final float y) {
+    private void createAnimation(final float x, final float y) {
         if (this.isEnabled() && !animationRunning) {
             if (hasToZoom) {
                 this.startAnimation(scaleAnimation);
@@ -288,7 +289,7 @@ public class RippleView extends RelativeLayout {
 
     @ColorRes
     public void setRippleColor(int rippleColor) {
-        this.rippleColor = getResources().getColor(rippleColor);
+        this.rippleColor = ContextCompat.getColor(getContext(), rippleColor);
     }
 
     public int getRippleColor() {
@@ -377,7 +378,7 @@ public class RippleView extends RelativeLayout {
 
     public enum RippleType {
         SIMPLE(0), DOUBLE(1), RECTANGLE(2);
-        int type;
+        final int type;
 
         RippleType(int type) {
             this.type = type;

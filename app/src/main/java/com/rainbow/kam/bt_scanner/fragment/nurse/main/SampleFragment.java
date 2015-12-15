@@ -1,7 +1,9 @@
-package com.rainbow.kam.bt_scanner.fragment.nurs.main;
+package com.rainbow.kam.bt_scanner.fragment.nurse.main;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,13 @@ public class SampleFragment extends Fragment {
     private View view;
     private CircleCounter etcCircleCounter;
 
+    private Context context;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,10 +39,10 @@ public class SampleFragment extends Fragment {
         etcCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
         etcCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));
         etcCircleCounter.setThirdWidth(getResources().getDimension(R.dimen.third));
-        etcCircleCounter.setFirstColor(getResources().getColor(R.color.etcAccent));
-        etcCircleCounter.setSecondColor(getResources().getColor(R.color.etcPrimary));
-        etcCircleCounter.setThirdColor(getResources().getColor(R.color.etcPrimaryDark));
-        etcCircleCounter.setBackgroundColor(getResources().getColor(R.color.etcColor));
+        etcCircleCounter.setFirstColor(ContextCompat.getColor(context, R.color.etcAccent));
+        etcCircleCounter.setSecondColor(ContextCompat.getColor(context, R.color.etcPrimary));
+        etcCircleCounter.setThirdColor(ContextCompat.getColor(context, R.color.etcPrimaryDark));
+        etcCircleCounter.setBackgroundColor(ContextCompat.getColor(context, R.color.etcColor));
 
         return view;
     }

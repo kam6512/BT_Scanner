@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter.nurs.selected;
+package com.rainbow.kam.bt_scanner.adapter.nurse.selected;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -56,13 +56,13 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder { //뷰 초기화
 
-        private TextView extraName;
-        private TextView extraAddress;
-        private TextView extraBondState;
-        private TextView extraType;
-        private TextView extraRssi;
+        private final TextView extraName;
+        private final TextView extraAddress;
+        private final TextView extraBondState;
+        private final TextView extraType;
+        private final TextView extraRssi;
 
-        private CardView deviceItemCardView;
+        private final CardView deviceItemCardView;
 
         public DeviceViewHolder(View itemView) {
             super(itemView);
@@ -87,7 +87,7 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         private void bindViews(SelectDeviceItem selectDeviceItem) {
             extraName.setText(selectDeviceItem.getExtraName());
-            extraAddress.setText(selectDeviceItem.getExtraextraAddress());
+            extraAddress.setText(selectDeviceItem.getExtraAddress());
             extraBondState.setText(String.valueOf(selectDeviceItem.getExtraBondState()));
             extraType.setText(String.valueOf(selectDeviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(selectDeviceItem.getExtraRssi()));

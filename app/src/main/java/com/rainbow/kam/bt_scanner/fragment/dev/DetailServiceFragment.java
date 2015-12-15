@@ -31,7 +31,7 @@ public class DetailServiceFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ServiceAdapter serviceAdapter;
-    private ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<>();
+    private final ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<>();
 
     private OnServiceReadyListener onServiceReadyListener;
 
@@ -45,7 +45,7 @@ public class DetailServiceFragment extends Fragment {
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
             }
-        }else{
+        } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
     }

@@ -152,7 +152,7 @@
                                 android:layout_centerVertical="true"
                                 android:background="@null"
                                 android:src="@drawable/ic_whatshot_white_36dp"
-                                app:cb_color="@color/caloColor"
+                                app:cb_color="@color/calorieColor"
                                 app:cb_pressedRingWidth="8dip" />
 
                             <TextView
@@ -162,7 +162,7 @@
                                 android:layout_centerHorizontal="true"
                                 android:layout_margin="10dp"
                                 android:background="@null"
-                                android:text="@string/dashboard_calo"
+                                android:text="@string/dashboard_calorie"
                                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
                             <TextView
@@ -217,7 +217,7 @@
                                 android:layout_centerVertical="true"
                                 android:background="@null"
                                 android:src="@drawable/ic_directions_white_36dp"
-                                app:cb_color="@color/dirColor"
+                                app:cb_color="@color/distanceColor"
                                 app:cb_pressedRingWidth="8dip" />
 
                             <TextView
@@ -227,7 +227,7 @@
                                 android:layout_centerHorizontal="true"
                                 android:layout_margin="10dp"
                                 android:background="@null"
-                                android:text="@string/dashboard_dist"
+                                android:text="@string/dashboard_distance"
                                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
                             <TextView

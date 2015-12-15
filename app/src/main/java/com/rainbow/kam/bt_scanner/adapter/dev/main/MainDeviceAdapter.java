@@ -24,7 +24,7 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
     private ArrayList<MainDeviceItem> mainDeviceItemArrayList;
-    private Activity activity;
+    private final Activity activity;
     private DeviceViewHolder deviceViewHolder;
 
 
@@ -56,13 +56,13 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder { //뷰 초기화
 
-        private TextView deviceName;
-        private TextView deviceAddress;
-        private TextView deviceBondState;
-        private TextView deviceType;
-        private TextView deviceRssi;
+        private final TextView deviceName;
+        private final TextView deviceAddress;
+        private final TextView deviceBondState;
+        private final TextView deviceType;
+        private final TextView deviceRssi;
 
-        private CardView deviceItemCardView;
+        private final CardView deviceItemCardView;
 
         public DeviceViewHolder(View itemView) {
             super(itemView);
