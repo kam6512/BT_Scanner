@@ -16,11 +16,14 @@ public interface GattCustomCallbacks {
 
     void onServicesFound(final List<BluetoothGattService> services);
 
-    void onNewDataFound(
-            final BluetoothGattCharacteristic ch,
-            final String strValue,
-            final byte[] rawValue,
-            final String timestamp);
+    void onReadSuccess(
+            final BluetoothGattCharacteristic ch);
+
+    void onReadFail();
+
+
+    void onDataNotify(
+            final BluetoothGattCharacteristic ch);
 
     void onWriteSuccess(
             final String description);
@@ -41,14 +44,19 @@ public interface GattCustomCallbacks {
         }
 
         @Override
-        public void onServicesFound(
-                List<BluetoothGattService> services) {
+        public void onServicesFound(List<BluetoothGattService> services) {
         }
 
         @Override
-        public void onNewDataFound(
-                                   BluetoothGattCharacteristic ch, String strValue,
-                                   byte[] rawValue, String timestamp) {
+        public void onReadSuccess(BluetoothGattCharacteristic ch) {
+        }
+
+        @Override
+        public void onReadFail() {
+        }
+
+        @Override
+        public void onDataNotify(BluetoothGattCharacteristic ch) {
         }
 
         @Override

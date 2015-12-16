@@ -204,6 +204,23 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        connectDevice();
+                        break;
+                    default:
+                        Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                        finish();
+                        break;
+                }
+                break;
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == 1) {
@@ -219,33 +236,13 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         }
     }
 
-/*
-private void registerBluetooth() {
-
-BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-
-if (bluetoothManager == null) {
-Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
-finish();
-} else {
-BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-if (bluetoothAdapter.isEnabled()) {
-connectDevice();
-} else {
-initBluetoothOn();
-}
-}
-}
-*/
-
     private void registerBluetooth() {
 
-        Log.e(TAG, "registerBluetooth");
         if (gattManager == null) {
             gattManager = new GattManager(this, this);
         }
 
-        if (gattManager.initialize()) {
+        if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
             initBluetoothOn();
@@ -385,10 +382,6 @@ initBluetoothOn();
 
 
     private void connectDevice() {
-//        if (gattManager == null) {
-//            gattManager = new GattManager(this, this);
-//        }
-        Log.e(TAG, "connectDevice");
 
         handler = new Handler();
         Runnable runnable = new Runnable() {
@@ -396,7 +389,7 @@ initBluetoothOn();
             public void run() {
 
                 if (!gattManager.isConnected() || isFinishing()) {
-                    if (gattManager.initialize()) {
+                    if (gattManager.isBluetoothAvailable()) {
                         try {
                             gattManager.connect(deviceAddress);
                         } catch (Exception e) {
@@ -420,6 +413,7 @@ initBluetoothOn();
         }
     }
 
+
     private void startDeviceWrite() {
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -431,6 +425,7 @@ initBluetoothOn();
             }
         }, 1000); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
     }
+
 
     private void loadNotifyData(BluetoothGattCharacteristic characteristic) {
         byte[] characteristicValue = characteristic.getValue();
@@ -474,6 +469,7 @@ initBluetoothOn();
         }
     }
 
+
     private void readTime(byte[] characteristicValue) {
         String result = "";
         for (int i = 0; i < characteristicValue.length; i++) {
@@ -494,6 +490,7 @@ initBluetoothOn();
         dashboardFragment.setTime(result);
 
     }
+
 
     private void readStep(byte[] characteristicValue) {
 
@@ -545,6 +542,7 @@ initBluetoothOn();
         distanceFragment.setDist(Integer.valueOf(hexDist));
         sampleFragment.setSample(Integer.valueOf(hexDist));
     }
+
 
     private void addDataToRealmDB(int step, int calorie, int distance) {
 
@@ -638,7 +636,17 @@ initBluetoothOn();
     }
 
     @Override
-    public void onNewDataFound(final BluetoothGattCharacteristic ch, String strValue, byte[] rawValue, String timestamp) {
+    public void onReadSuccess(BluetoothGattCharacteristic ch) {
+
+    }
+
+    @Override
+    public void onReadFail() {
+
+    }
+
+    @Override
+    public void onDataNotify(final BluetoothGattCharacteristic ch) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -682,6 +690,7 @@ initBluetoothOn();
             }
         });
     }
+
 
     private class DashBoardAdapter extends FragmentStatePagerAdapter {
 

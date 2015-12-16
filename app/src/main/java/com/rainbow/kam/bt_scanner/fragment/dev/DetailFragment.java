@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.dev;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
@@ -21,6 +22,9 @@ import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.IllegalFormatCodePointException;
 import java.util.Locale;
 
 /**
@@ -148,12 +152,24 @@ public class DetailFragment extends Fragment {
     }
 
 
-    public void newValueForCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final String strValue, final byte[] rawValue, final String timeStamp) {
+    public void newValueForCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
             return;
         }
 
-        this.strValue = strValue;
+        byte[] rawValue = bluetoothGattCharacteristic.getValue();
+        if (rawValue.length > 0) {
+            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
+            for (byte byteChar : rawValue) {
+                try {
+                    stringBuilder.append(String.format("%c", byteChar));
+                } catch (IllegalFormatCodePointException e) {
+                    stringBuilder.append((char) byteChar);
+                }
+            }
+            this.strValue = stringBuilder.toString();
+        }
+
         if (rawValue != null && rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
             for (byte byteChar : rawValue) {
@@ -164,6 +180,7 @@ public class DetailFragment extends Fragment {
             asciiValue = "";
         }
 
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
         lastUpdateTime = timeStamp;
         if (lastUpdateTime == null) {
             lastUpdateTime = "";
@@ -177,6 +194,18 @@ public class DetailFragment extends Fragment {
             return;
         }
         notificationEnabled = true;
+    }
+
+    public void setFail() {
+        if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
+            return;
+        }
+
+        strValue = getActivity().getString(R.string.fail_read_characteristic);
+        asciiValue = getActivity().getString(R.string.fail_read_characteristic);
+        lastUpdateTime = getActivity().getString(R.string.fail_read_characteristic);
+
+        bindView();
     }
 
 

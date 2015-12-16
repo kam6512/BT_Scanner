@@ -55,23 +55,19 @@ public class GattManager {
         if (this.gattCustomCallbacks == null) {
             this.gattCustomCallbacks = NULL_CALLBACK;
         }
-    }
-
-    public boolean initialize() {
         if (bluetoothManager == null) {
+            Log.e(TAG, "GattManager bluetoothManager Null");
             bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
             if (bluetoothManager == null) {
                 Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
-                return false;
+                activity.finish();
             }
         }
         if (bluetoothAdapter == null) {
+            Log.e(TAG, "GattManager bluetoothAdapter Null");
             bluetoothAdapter = bluetoothManager.getAdapter();
-            return bluetoothAdapter.isEnabled();
         }
-        return bluetoothAdapter != null;
     }
-
 
     public void connect(final String deviceAddress) throws Exception {
         if (bluetoothAdapter == null) {
@@ -95,6 +91,18 @@ public class GattManager {
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
         }
+    }
+
+    public boolean isBluetoothAvailable() {
+        if (bluetoothManager == null) {
+            Log.e(TAG, "isBluetoothAvailable bluetoothManager Null");
+            return false;
+        }
+        if (bluetoothAdapter == null) {
+            Log.e(TAG, "isBluetoothAvailable bluetoothAdapter Null");
+            return false;
+        }
+        return bluetoothAdapter.isEnabled();
     }
 
 
@@ -180,30 +188,6 @@ public class GattManager {
     }
 
 
-    private void onValueFound(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
-            return;
-        }
-        byte[] rawValue = bluetoothGattCharacteristic.getValue();
-        String strValue = null;
-
-        if (rawValue.length > 0) {
-            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
-            for (byte byteChar : rawValue) {
-                try {
-                    stringBuilder.append(String.format("%c", byteChar));
-                } catch (IllegalFormatCodePointException e) {
-                    stringBuilder.append((char) byteChar);
-                }
-            }
-            strValue = stringBuilder.toString();
-        }
-        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
-
-        gattCustomCallbacks.onNewDataFound(bluetoothGattCharacteristic, strValue, rawValue, timeStamp);
-    }
-
-
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -234,19 +218,23 @@ public class GattManager {
                 }
 
                 gattCustomCallbacks.onServicesFound(bluetoothGattServices);
+            } else {
+                disconnect();
             }
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                onValueFound(characteristic);
+                gattCustomCallbacks.onReadSuccess(characteristic);
+            } else {
+                gattCustomCallbacks.onReadFail();
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            onValueFound(characteristic);
+            gattCustomCallbacks.onDataNotify(characteristic);
         }
 
         @Override
@@ -267,6 +255,8 @@ public class GattManager {
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onRssiUpdate(rssi);
+            } else {
+                disconnect();
             }
         }
     };

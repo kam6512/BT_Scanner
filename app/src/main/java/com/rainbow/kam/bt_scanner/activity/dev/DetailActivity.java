@@ -141,15 +141,16 @@ public class DetailActivity extends AppCompatActivity
 
 
     private void connectDevice() {
-        if (gattManager == null) {
-            gattManager = new GattManager(this, this);
-        }
-        if (gattManager.initialize()) {
+        if (gattManager.isBluetoothAvailable()) {
             deviceStateTextView.setText("connecting...");
             try {
                 gattManager.connect(deviceAddress);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
+                deviceNameTextView.setText(e.getMessage());
+                deviceAddressTextView.setText(e.getMessage());
+                deviceRSSITextView.setText(e.getMessage());
+                deviceStateTextView.setText(e.getMessage());
             }
         } else {
             initBluetoothOn();
@@ -192,6 +193,23 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 1:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        connectDevice();
+                        break;
+                    default:
+                        Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                        finish();
+                        break;
+                }
+                break;
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == 1) {
@@ -211,7 +229,7 @@ public class DetailActivity extends AppCompatActivity
         if (gattManager == null) {
             gattManager = new GattManager(this, this);
         }
-        if (gattManager.initialize()) {
+        if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
             initBluetoothOn();
@@ -256,7 +274,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNewDataFound(final BluetoothGattCharacteristic ch, final String strValue, final byte[] rawValue, final String timestamp) {
+    public void onReadSuccess(final BluetoothGattCharacteristic ch) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -264,9 +282,27 @@ public class DetailActivity extends AppCompatActivity
                     return;
                 }
                 detailFragment.setNotificationEnable(ch);
-                detailFragment.newValueForCharacteristic(ch, strValue, rawValue, timestamp);
+                detailFragment.newValueForCharacteristic(ch);
             }
         });
+    }
+
+    @Override
+    public void onReadFail() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (detailFragment == null || detailFragment.getCharacteristic() == null) {
+                    return;
+                }
+                detailFragment.setFail();
+            }
+        });
+    }
+
+    @Override
+    public void onDataNotify(BluetoothGattCharacteristic ch) {
+
     }
 
     @Override
