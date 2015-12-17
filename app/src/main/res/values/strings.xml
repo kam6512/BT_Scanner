@@ -31,15 +31,15 @@
     <string name="detail_state">state :</string>
     <string name="bond_state">Bond State :</string>
 
-    <string name="Peripheral">Peripheral:</string>
+    <string name="detail_peripheral">Peripheral:</string>
     <string name="detail_service">Service:</string>
     <string name="detail_uuid">UUID:</string>
     <string name="detail_char">Characteristic:</string>
     <string name="detail_type">Data Type:</string>
 
-    <string name="string">String:</string>
-    <string name="decimal">Decimal:</string>
-    <string name="updated">Updated:</string>
+    <string name="detail_string">String :</string>
+    <string name="detail_decimal">Decimal :</string>
+    <string name="detail_updated">Updated :</string>
 
     <string name="gattManager">BLE</string>
     <string name="rssi">rssi</string>
@@ -48,10 +48,9 @@
 
     <string name="connected">connected</string>
     <string name="disconnected">disconnected</string>
-
-    <string name="detail_child_list_item_characteristics_title">detail_child_list_item_characteristics_title</string>
-    <string name="detail_child_list_item_characteristics_UUID">detail_child_list_item_characteristics_UUID</string>
-    <string name="detail_child_list_item_characteristics_value">detail_child_list_item_characteristics_value</string>
+        <string name="detail_child_list_item_characteristics_title">detail_child_list_item_characteristics_title</string>
+        <string name="detail_child_list_item_characteristics_UUID">detail_child_list_item_characteristics_UUID</string>
+        <string name="detail_child_list_item_characteristics_value">detail_child_list_item_characteristics_value</string>
 
     <string name="detail_parent_list_item_service_title">detail_parent_list_item_service_title</string>
     <string name="detail_parent_list_item_service_UUID">detail_parent_list_item_service_UUID</string>
@@ -113,6 +112,7 @@
     <string name="add_user_woman">woman</string>
     <string name="add_user_skip">Skip</string>
     <string name="bt_on">블루투스 On</string>
+    <string name="fail_read_characteristic">Read Fail!</string>
 
 
 </resources>

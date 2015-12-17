@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@null"
+    style="@style/CoordinatorLayout"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
@@ -37,80 +35,40 @@
                 android:layout_gravity="center_horizontal|center_vertical"
                 android:background="@null">
 
-                <TableRow
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null">
-
+                <TableRow style="@style/DeviceTableRaw">
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end|center_vertical"
-                        android:text="@string/detail_name"
-                        android:textColor="#fff" />
-
+                        style="@style/DeviceLabel"
+                        android:text="@string/detail_name" />
                     <TextView
                         android:id="@+id/detail_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="3dp" />
+                        style="@style/DeviceText" />
                 </TableRow>
 
-                <TableRow
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null">
-
+                <TableRow style="@style/DeviceTableRaw">
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end|center_vertical"
-                        android:text="@string/detail_rssi"
-                        android:textColor="#fff" />
-
+                        style="@style/DeviceLabel"
+                        android:text="@string/detail_rssi" />
                     <TextView
                         android:id="@+id/detail_rssi"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="3dp" />
+                        style="@style/DeviceText" />
                 </TableRow>
 
-                <TableRow
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null">
-
+                <TableRow style="@style/DeviceTableRaw">
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end|center_vertical"
-                        android:text="@string/detail_address"
-                        android:textColor="#fff" />
-
+                        style="@style/DeviceLabel"
+                        android:text="@string/detail_address" />
                     <TextView
                         android:id="@+id/detail_address"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="3dp" />
+                        style="@style/DeviceText" />
                 </TableRow>
 
-                <TableRow
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null">
-
+                <TableRow style="@style/DeviceTableRaw">
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end|center_vertical"
-                        android:text="@string/detail_state"
-                        android:textColor="#fff" />
-
+                        style="@style/DeviceLabel"
+                        android:text="@string/detail_state" />
                     <TextView
                         android:id="@+id/detail_state"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="3dp" />
+                        style="@style/DeviceText" />
                 </TableRow>
             </TableLayout>
         </android.support.design.widget.CollapsingToolbarLayout>

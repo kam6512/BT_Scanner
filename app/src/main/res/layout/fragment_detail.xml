@@ -1,190 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/details_characteristic"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="@android:color/background_light"
     android:clickable="true"
-    android:background="@android:color/background_light">
+    android:orientation="vertical">
 
     <TableLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp">
 
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_weight="0"
-                android:text="@string/Peripheral"
-                android:textColor="#666"
-                android:textSize="12sp" />
+                style="@style/DeviceCharacteristicInfoLabel"
+                android:text="@string/detail_peripheral" />
 
             <TextView
                 android:id="@+id/characteristic_device_name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1" />
+                style="@style/DeviceCharacteristicSubInfo" />
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="0"
-                android:text="@string/detail_address"
-                android:textColor="#888"
-                android:textSize="10sp" />
+                style="@style/DeviceCharacteristicSubInfoLabel"
+                android:text="@string/detail_address" />
 
             <TextView
                 android:id="@+id/characteristic_device_address"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginBottom="7dp"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:textColor="#888"
-                android:textSize="10sp" />
-
+                style="@style/DeviceCharacteristicSubInfo" />
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView20"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_weight="0"
-                android:text="@string/detail_service"
-                android:textColor="#666"
-                android:textSize="12sp" />
+                style="@style/DeviceCharacteristicInfoLabel"
+                android:text="@string/detail_service" />
 
             <TextView
                 android:id="@+id/characteristic_service_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1" />
+                style="@style/DeviceCharacteristicSubInfo" />
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginBottom="7dp"
-                android:layout_weight="0"
-                android:text="@string/detail_uuid"
-                android:textColor="#888"
-                android:textSize="10sp" />
+                style="@style/DeviceCharacteristicSubInfoLabel"
+                android:text="@string/detail_uuid" />
 
             <TextView
                 android:id="@+id/characteristic_service_uuid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:textColor="#888"
-                android:textSize="10sp" />
+                style="@style/DeviceCharacteristicSubInfo" />
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/hr_text_view"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_weight="0"
-                android:text="@string/detail_char"
-                android:textColor="#666"
-                android:textSize="12sp" />
+                style="@style/DeviceCharacteristicInfoLabel"
+                android:text="@string/detail_char" />
 
             <TextView
                 android:id="@+id/characteristic_detail_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1" />
+                style="@style/DeviceCharacteristicSubInfo" />
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow8"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginBottom="7dp"
-                android:layout_weight="0"
-                android:text="@string/detail_uuid"
-                android:textColor="#888"
-                android:textSize="10sp" />
+                style="@style/DeviceCharacteristicSubInfoLabel"
+                android:text="@string/detail_uuid" />
 
             <TextView
                 android:id="@+id/characteristic_detail_uuid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:textColor="#888"
-                android:textSize="10sp" />
+                style="@style/DeviceCharacteristicSubInfo" />
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_weight="0"
-                android:text="@string/detail_type"
-                android:textColor="#666"
-                android:textSize="12sp" />
+                style="@style/DeviceCharacteristicInfoLabel"
+                android:text="@string/detail_type" />
 
             <TextView
                 android:id="@+id/characteristic_detail_type"
@@ -196,20 +99,11 @@
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_weight="0"
-                android:text="@string/Peripheral"
-                android:textColor="#666"
-                android:textSize="12sp" />
+                style="@style/DeviceCharacteristicInfoLabel"
+                android:text="@string/detail_peripheral" />
 
             <TextView
                 android:id="@+id/characteristic_detail_properties"
@@ -229,34 +123,26 @@
 
         <ToggleButton
             android:id="@+id/characteristic_detail_notification_switcher"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            style="@style/DeviceCharacteristicButton"
             android:text="@string/tg"
             android:textOff="Notification"
             android:textOn="Notification" />
 
         <Button
             android:id="@+id/characteristic_detail_read_btn"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:layout_weight="1"
+            style="@style/DeviceCharacteristicButton"
             android:text="@string/read" />
 
         <Button
             android:id="@+id/characteristic_detail_write_btn"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:layout_weight="1"
+            style="@style/DeviceCharacteristicButton"
             android:text="@string/write" />
 
     </LinearLayout>
 
     <EditText
         android:id="@+id/characteristic_detail_hex_value"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="">
@@ -267,50 +153,40 @@
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp">
+        android:layout_margin="4dp">
 
-        <TableRow
-            android:id="@+id/tableRow9"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_weight="0"
-                android:text="@string/string"
+                android:layout_gravity="end"
+                android:text="@string/detail_string"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
             <TextView
                 android:id="@+id/characteristic_detail_ascii_value"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_weight="10" />
+                android:layout_weight="9" />
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow11"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TableRow style="@style/DeviceTableRaw">
 
             <TextView
-                android:id="@+id/textView13"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_weight="0"
-                android:text="@string/updated"
+                android:layout_gravity="end"
+                android:text="@string/detail_updated"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
             <TextView
                 android:id="@+id/characteristic_detail_timestamp"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:layout_weight="9" />
