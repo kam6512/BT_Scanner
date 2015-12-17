@@ -33,7 +33,7 @@ public class DistanceFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        View view = inflater.inflate(R.layout.fragmnet_nursing_main_distance, container, false);
+        View view = inflater.inflate(R.layout.fragment_nursing_main_distance, container, false);
         distanceCircleCounter = (CircleCounter) view.findViewById(R.id.distance_counter);
         distanceCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
         distanceCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));

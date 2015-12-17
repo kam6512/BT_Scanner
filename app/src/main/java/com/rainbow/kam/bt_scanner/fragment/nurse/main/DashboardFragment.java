@@ -27,9 +27,9 @@ public class DashboardFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            view = inflater.inflate(R.layout.fragmnet_nursing_main_dashboard_21, container, false);
+            view = inflater.inflate(R.layout.fragment_nursing_main_dashboard_21, container, false);
         } else {
-            view = inflater.inflate(R.layout.fragmnet_nursing_main_dashboard, container, false);
+            view = inflater.inflate(R.layout.fragment_nursing_main_dashboard, container, false);
         }
 
         time = (TextView) view.findViewById(R.id.deviceTime);

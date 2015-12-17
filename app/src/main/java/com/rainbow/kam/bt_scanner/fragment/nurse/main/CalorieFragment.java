@@ -32,7 +32,7 @@ public class CalorieFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        View view = inflater.inflate(R.layout.fragmnet_nursing_main_calorie, container, false);
+        View view = inflater.inflate(R.layout.fragment_nursing_main_calorie, container, false);
         calorieCircleCounter = (CircleCounter) view.findViewById(R.id.calorie_counter);
         calorieCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
         calorieCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));
