@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.tools.gatt;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -18,9 +17,6 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -37,30 +33,27 @@ public class GattManager {
     private GattCustomCallbacks gattCustomCallbacks = null;
     private static final GattCustomCallbacks NULL_CALLBACK = new GattCustomCallbacks.Null();
 
-    private final Activity activity;
-    private boolean connected;
+    private final Context context;
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
     private BluetoothGatt bluetoothGatt;
-    private List<BluetoothGattService> bluetoothGattServices;
 
     private final Handler timerHandler = new Handler();
     private boolean timerEnabled = false;
 
-    public GattManager(Activity activity, GattCustomCallbacks gattCustomCallbacks) {
-        this.activity = activity;
+    public GattManager(Context context, GattCustomCallbacks gattCustomCallbacks) {
+        this.context = context;
         this.gattCustomCallbacks = gattCustomCallbacks;
         if (this.gattCustomCallbacks == null) {
             this.gattCustomCallbacks = NULL_CALLBACK;
         }
         if (bluetoothManager == null) {
             Log.e(TAG, "GattManager bluetoothManager Null");
-            bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
+            bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             if (bluetoothManager == null) {
-                Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
-                activity.finish();
+                Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
             }
         }
         if (bluetoothAdapter == null) {
@@ -69,10 +62,9 @@ public class GattManager {
         }
     }
 
+
     public void connect(final String deviceAddress) throws Exception {
-        if (bluetoothAdapter == null) {
-            throw new Exception("Adapter is Null");
-        } else if (deviceAddress == null) {
+        if (deviceAddress == null) {
             throw new Exception("Address is not available");
         }
         if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
@@ -82,46 +74,38 @@ public class GattManager {
             if (bluetoothDevice == null) {
                 throw new Exception("RemoteDevice is not available");
             }
-            bluetoothGatt = bluetoothDevice.connectGatt(activity, true, bluetoothGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
         }
     }
 
 
     public void disconnect() {
-        if (bluetoothGatt != null) {
-            bluetoothGatt.disconnect();
-        }
+        bluetoothGatt.disconnect();
     }
 
+
     public boolean isBluetoothAvailable() {
-        if (bluetoothManager == null) {
-            Log.e(TAG, "isBluetoothAvailable bluetoothManager Null");
-            return false;
-        }
-        if (bluetoothAdapter == null) {
-            Log.e(TAG, "isBluetoothAvailable bluetoothAdapter Null");
-            return false;
-        }
         return bluetoothAdapter.isEnabled();
     }
 
 
     public boolean isConnected() {
-        return connected;
+        int state = bluetoothAdapter.getState();
+        return state == BluetoothAdapter.STATE_CONNECTED;
     }
 
 
     private void readRssiValue(final boolean repeat) {
         timerEnabled = repeat;
 
-        if (!connected || bluetoothGatt == null || !timerEnabled) {
+        if (!isConnected() || !timerEnabled) {
             timerEnabled = false;
             return;
         }
         timerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (bluetoothGatt == null || bluetoothAdapter == null || !connected) {
+                if (!isConnected()) {
                     timerEnabled = false;
                     return;
                 }
@@ -144,9 +128,7 @@ public class GattManager {
 
 
     private void startServiceDiscovery() {
-        if (bluetoothGatt != null) {
-            bluetoothGatt.discoverServices();
-        }
+        bluetoothGatt.discoverServices();
     }
 
 
@@ -169,57 +151,44 @@ public class GattManager {
 
 
     public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        if (bluetoothAdapter == null || bluetoothGatt == null) {
-            return;
-        }
         bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
     }
 
 
     public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
-        if (bluetoothAdapter == null || bluetoothGatt == null || bluetoothGattCharacteristic == null) {
-            Log.e(TAG, "writeValue null");
-        } else {
-            Log.e(TAG, "writeValue start");
-            bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-            bluetoothGattCharacteristic.setValue(dataToWrite);
-            bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
-        }
+        bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+        bluetoothGattCharacteristic.setValue(dataToWrite);
+        bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
     }
 
 
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            Log.e(TAG,"staus = " + status + "   newState = " + newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                connected = true;
-                gattCustomCallbacks.onDeviceConnected();
 
                 bluetoothGatt.readRemoteRssi();
                 startServiceDiscovery();
                 startMonitoringRssiValue();
 
+                gattCustomCallbacks.onDeviceConnected();
+
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                connected = false;
-                gattCustomCallbacks.onDeviceDisconnected();
 
                 stopMonitoringRssiValue();
+
+                gattCustomCallbacks.onDeviceDisconnected();
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (bluetoothGattServices != null && bluetoothGattServices.size() > 0) {
-                    bluetoothGattServices.clear();
-                }
-                if (bluetoothGatt != null) {
-                    bluetoothGattServices = bluetoothGatt.getServices();
-                }
-
-                gattCustomCallbacks.onServicesFound(bluetoothGattServices);
+                gattCustomCallbacks.onServicesFound(bluetoothGatt.getServices());
             } else {
-                disconnect();
+                gattCustomCallbacks.onServicesNotFound();
             }
         }
 
@@ -239,24 +208,20 @@ public class GattManager {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            String deviceName = gatt.getDevice().getName();
-            String serviceName = GattAttributes.resolveServiceName(characteristic.getService().getUuid().toString().toLowerCase(Locale.getDefault()));
-            String characteristicName = GattAttributes.resolveCharacteristicName(characteristic.getUuid().toString().toLowerCase(Locale.getDefault()));
-            String description = "Device: " + deviceName + " Service: " + serviceName + " Characteristic: " + characteristicName;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                gattCustomCallbacks.onWriteSuccess(description + " STATUS = " + status);
+                gattCustomCallbacks.onWriteSuccess();
             } else {
-                gattCustomCallbacks.onWriteFail(description + " STATUS = " + status);
+                gattCustomCallbacks.onWriteFail();
             }
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                gattCustomCallbacks.onRssiUpdate(rssi);
+                gattCustomCallbacks.onRSSIUpdate(rssi);
             } else {
-                disconnect();
+                gattCustomCallbacks.onRSSIMiss();
             }
         }
     };

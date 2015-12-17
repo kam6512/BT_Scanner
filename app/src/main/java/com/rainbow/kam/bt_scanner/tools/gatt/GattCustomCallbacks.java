@@ -16,6 +16,8 @@ public interface GattCustomCallbacks {
 
     void onServicesFound(final List<BluetoothGattService> services);
 
+    void onServicesNotFound();
+
     void onReadSuccess(
             final BluetoothGattCharacteristic ch);
 
@@ -25,13 +27,12 @@ public interface GattCustomCallbacks {
     void onDataNotify(
             final BluetoothGattCharacteristic ch);
 
-    void onWriteSuccess(
-            final String description);
+    void onWriteSuccess();
 
-    void onWriteFail(
-            final String description);
+    void onWriteFail();
 
-    void onRssiUpdate(final int rssi);
+    void onRSSIUpdate(final int rssi);
+    void onRSSIMiss();
 
     /* define Null Adapter class for that interface */
     class Null implements GattCustomCallbacks {
@@ -48,6 +49,11 @@ public interface GattCustomCallbacks {
         }
 
         @Override
+        public void onServicesNotFound() {
+
+        }
+
+        @Override
         public void onReadSuccess(BluetoothGattCharacteristic ch) {
         }
 
@@ -60,18 +66,21 @@ public interface GattCustomCallbacks {
         }
 
         @Override
-        public void onWriteSuccess(
-                String description) {
+        public void onWriteSuccess() {
         }
 
         @Override
-        public void onWriteFail(
-                String description) {
+        public void onWriteFail() {
         }
 
         @Override
-        public void onRssiUpdate(
+        public void onRSSIUpdate(
                 int rssi) {
+        }
+
+        @Override
+        public void onRSSIMiss() {
+
         }
     }
 }

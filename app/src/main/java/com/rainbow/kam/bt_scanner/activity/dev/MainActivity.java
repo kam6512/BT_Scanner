@@ -130,9 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case REQUEST_ENABLE_BT:
                 switch (resultCode) {
                     case RESULT_OK:
-                        if (!isScanning) {
-                            startScan();
-                        }
+                        Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
                         break;
                     default:
                         Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
@@ -149,24 +147,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
-                if (!isScanning) {
-                    startScan();
-                }
             } else {
-                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
 
                 Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
                 myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
                 myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivityForResult(myAppSettings, 0);
 
+                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
                 finish();
             }
         } else {
             Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
         }
-    }
 
+    }
 
     private void setToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -284,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (bluetoothAdapter.isEnabled()) {
+        if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
             try {
                 mainDeviceItemLinkedHashMap.clear();
                 adapter.notifyDataSetChanged();
@@ -319,51 +314,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (isScanning) {  //스캔 시작
             stopScan();
         } else { //재 스캔시(10초이내)
-            if (adapter != null) {
-                mainDeviceItemLinkedHashMap.clear();
-                adapter.notifyDataSetChanged();
-            }
-            startScan();
+            registerBluetooth();
         }
     }
 
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        if (bluetoothAdapter.isEnabled()) {
-            long SCAN_PERIOD = 5000;
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    stopScan();
+        long SCAN_PERIOD = 5000;
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                stopScan();
 
-                    if (mainDeviceItemLinkedHashMap.size() < 1) {
-                        noDeviceTextView.setVisibility(View.VISIBLE);
-                    }
-                    adapter.notifyDataSetChanged();
-
+                if (mainDeviceItemLinkedHashMap.size() < 1) {
+                    noDeviceTextView.setVisibility(View.VISIBLE);
                 }
-            }, SCAN_PERIOD); //5초 뒤에 OFF
+                adapter.notifyDataSetChanged();
 
-            //시작
-            mainDeviceItemLinkedHashMap.clear();
-            adapter.notifyDataSetChanged();
-            isScanning = true;
-            searchingProgressBar.setVisibility(View.VISIBLE);
-            noDeviceTextView.setVisibility(View.INVISIBLE);
-
-            if (isBuildVersionLM) {
-                if (bleScanner != null) {
-                    bleScanner.startScan(scanCallback);
-                }
-            } else {
-                //noinspection deprecation
-                bluetoothAdapter.startLeScan(leScanCallback);
             }
+        }, SCAN_PERIOD); //5초 뒤에 OFF
 
+        //시작
+        mainDeviceItemLinkedHashMap.clear();
+        adapter.notifyDataSetChanged();
+        isScanning = true;
+        searchingProgressBar.setVisibility(View.VISIBLE);
+        noDeviceTextView.setVisibility(View.INVISIBLE);
+
+        if (isBuildVersionLM) {
+            if (bleScanner != null) {
+                bleScanner.startScan(scanCallback);
+            }
         } else {
-            Log.e(TAG, "startScan");
-            initBluetoothOn();
+            //noinspection deprecation
+            bluetoothAdapter.startLeScan(leScanCallback);
         }
     }
 
@@ -386,5 +371,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchingProgressBar.setVisibility(View.INVISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
-
 }
+

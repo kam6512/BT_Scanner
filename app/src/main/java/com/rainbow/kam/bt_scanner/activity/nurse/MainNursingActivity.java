@@ -629,10 +629,16 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 characteristicList = bluetoothGattService.getCharacteristics();
                 bluetoothGattCharacteristicForWrite = characteristicList.get(0); // 0xFFF2
                 bluetoothGattCharacteristicForNotify = characteristicList.get(1); // 0xFFF1
+
                 gattManager.setNotification(bluetoothGattCharacteristicForNotify, true);
                 startDeviceWrite();
             }
         });
+    }
+
+    @Override
+    public void onServicesNotFound() {
+
     }
 
     @Override
@@ -660,35 +666,29 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     }
 
     @Override
-    public void onWriteSuccess(final String description) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.e("onWriteSuccess", description);
-                isGattProcessRunning = false;
-            }
-        });
+    public void onWriteSuccess() {
+        isGattProcessRunning = false;
+
     }
 
     @Override
-    public void onWriteFail(final String description) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.e("onWriteFail", description);
-                isGattProcessRunning = false;
-            }
-        });
+    public void onWriteFail() {
+        isGattProcessRunning = false;
     }
 
     @Override
-    public void onRssiUpdate(final int rssi) {
+    public void onRSSIUpdate(final int rssi) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 toolbarRssi.setText(rssi + "db");
             }
         });
+    }
+
+    @Override
+    public void onRSSIMiss() {
+
     }
 
 
