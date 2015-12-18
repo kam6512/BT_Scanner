@@ -1,13 +1,11 @@
 package com.rainbow.kam.bt_scanner.tools.gatt;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
@@ -17,8 +15,6 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 
-import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -109,9 +105,15 @@ public class GattManager {
                     timerEnabled = false;
                     return;
                 }
+                boolean status = bluetoothGatt.readRemoteRssi();
+                if (status) {
+                    readRssiValue(timerEnabled);
+                } else {
+                    timerEnabled = false;
+                    readRssiValue(timerEnabled);
+                    gattCustomCallbacks.onRSSIMiss();
+                }
 
-                bluetoothGatt.readRemoteRssi();
-                readRssiValue(timerEnabled);
             }
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
@@ -128,7 +130,10 @@ public class GattManager {
 
 
     private void startServiceDiscovery() {
-        bluetoothGatt.discoverServices();
+        boolean status = bluetoothGatt.discoverServices();
+        if (!status) {
+            gattCustomCallbacks.onServicesNotFound();
+        }
     }
 
 
@@ -138,34 +143,44 @@ public class GattManager {
 
 
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
-        bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
-
-        // notification 을 enable 한뒤에 Descriptor 를 write 해주어야 응답함
-        BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
-        if (bluetoothGattDescriptor != null) {
-            byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-            bluetoothGattDescriptor.setValue(value);
-            bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+        boolean status = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
+        if (status) {
+            // notification 을 enable 한뒤에 Descriptor 를 write 해주어야 응답함
+            BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
+            if (bluetoothGattDescriptor != null) {
+                byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+                bluetoothGattDescriptor.setValue(value);
+                bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            }
+        } else {
+            gattCustomCallbacks.onWriteFail();
         }
     }
 
 
     public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
+        boolean status = bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
+        if (!status) {
+            gattCustomCallbacks.onReadFail();
+        }
     }
 
 
     public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
         bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
         bluetoothGattCharacteristic.setValue(dataToWrite);
-        bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
+
+        boolean status = bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
+        if (!status) {
+            gattCustomCallbacks.onWriteFail();
+        }
     }
 
 
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            Log.e(TAG,"staus = " + status + "   newState = " + newState);
+            Log.e(TAG, "status = " + status + "   newState = " + newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
 
                 bluetoothGatt.readRemoteRssi();
