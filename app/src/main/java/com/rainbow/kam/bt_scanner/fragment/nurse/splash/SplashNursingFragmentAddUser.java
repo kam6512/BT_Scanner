@@ -1,25 +1,21 @@
 package com.rainbow.kam.bt_scanner.fragment.nurse.splash;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.nurse.MainNursingActivity;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 import com.rainbow.kam.bt_scanner.tools.design.RippleView;
 
@@ -40,6 +36,8 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
 
+    private MaterialDialog materialDialog;
+
     private String userName;
     private String userAge;
     private String userHeight;
@@ -50,16 +48,29 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     private Realm realm;
     private RealmAsyncTask transaction;
 
-    @Nullable
+    private OnDeviceSavedListener onDeviceSavedListener;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity) {
+            try {
+                activity = (Activity) context;
+                onDeviceSavedListener = (OnDeviceSavedListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement OnDeviceSavedListener");
+            }
+        } else {
+            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_nursing_splash_adduser, container, false);
-
-        activity = getActivity();
-
         setUserInput();
         setBtn();
-
+        setDialog();
         return view;
     }
 
@@ -74,6 +85,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         }
     }
 
+
     private void setUserInput() {
         name = (TextInputLayout) view.findViewById(R.id.nursing_add_user_name);
         age = (TextInputLayout) view.findViewById(R.id.nursing_add_user_age);
@@ -83,6 +95,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
     }
 
+
     private void setBtn() {
         FloatingActionButton nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
         nextFab.setOnClickListener(this);
@@ -91,41 +104,23 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         skip.setOnRippleCompleteListener(this);
     }
 
-    public void saveDB(Bundle bundle) {
-        final Bundle callbackBundle = bundle;
 
-        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
-        realm.beginTransaction();
-        realm.allObjects(Patient.class).clear();
-
-        transaction = realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                Patient patient = realm.createObject(Patient.class);
-                patient.setName(userName);
-                patient.setAge(userAge);
-                patient.setHeight(userHeight);
-                patient.setWeight(userWeight);
-                patient.setStep(userStep);
-                patient.setGender(userGender);
-                patient.setDeviceName(callbackBundle.getString("name"));
-                patient.setDeviceAddress(callbackBundle.getString("address"));
-            }
-        }, new Realm.Transaction.Callback() {
-            @Override
-            public void onSuccess() {
-//                RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
-                dismissDeviceListDialog();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(getContext(), "fail " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-        realm.commitTransaction();
-        realm.close();
-
+    private void setDialog() {
+        materialDialog = new MaterialDialog.Builder(activity)
+                .positiveText(R.string.accept).negativeText(R.string.fix)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                        showDeviceListDialog();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                }).build();
     }
 
     @Override
@@ -148,7 +143,6 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
                 userGender = activity.getString(R.string.gender_man);
                 break;
         }
-
 
         if (TextUtils.isEmpty(userName)) {
             name.setError("Name is missing");
@@ -180,29 +174,6 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     @Override
     public void onComplete() {
-        showSkipDialog();
-    }
-
-    private void showAcceptDialog(String res) {
-        new MaterialDialog.Builder(activity).title("기입 정보가 확실한지 확인해주시기 바랍니다.")
-                .content(res)
-                .positiveText("확인").negativeText("수정")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                        showDeviceListDialog();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                }).show();
-    }
-
-    private void showSkipDialog() {
 
         userName = activity.getString(R.string.username_default);
         userAge = activity.getString(R.string.user_age_default);
@@ -211,40 +182,82 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         userStep = activity.getString(R.string.user_step_default);
         userGender = activity.getString(R.string.user_gender_default);
 
-        new MaterialDialog.Builder(activity).title(R.string.skip)
-                .content(R.string.skip_warning)
-                .positiveText(R.string.accept).negativeText(R.string.fix)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                        showDeviceListDialog();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                }).show();
+        showSkipDialog();
     }
+
+
+    private void showAcceptDialog(String res) {
+        materialDialog.setTitle(R.string.accept_ok);
+        materialDialog.setContent(res);
+        materialDialog.show();
+    }
+
+
+    private void showSkipDialog() {
+        materialDialog.setTitle(R.string.skip);
+        materialDialog.setContent(R.string.skip_warning);
+        materialDialog.show();
+    }
+
 
     private void showDeviceListDialog() {
-
-        FragmentManager fm = getFragmentManager();
-        if (fm != null) {
+        if (dialogFragment == null) {
             dialogFragment = new SplashNursingDialog();
-            dialogFragment.show(fm, "DeviceDialog");
         }
+        dialogFragment.show(getFragmentManager(), "DeviceDialog");
     }
+
 
     private void dismissDeviceListDialog() {
         if (dialogFragment != null) {
             dialogFragment.dismiss();
         }
-        activity.finish();
-        startActivity(new Intent(activity, MainNursingActivity.class));
     }
 
 
+    public void saveDB(Bundle bundle) {
+        final Bundle callbackBundle = bundle;
+
+        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
+        realm.beginTransaction();
+        realm.allObjects(Patient.class).clear();
+
+        transaction = realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                Patient patient = realm.createObject(Patient.class);
+                patient.setName(userName);
+                patient.setAge(userAge);
+                patient.setHeight(userHeight);
+                patient.setWeight(userWeight);
+                patient.setStep(userStep);
+                patient.setGender(userGender);
+                patient.setDeviceName(callbackBundle.getString("name"));
+                patient.setDeviceAddress(callbackBundle.getString("address"));
+            }
+        }, new Realm.Transaction.Callback() {
+            @Override
+            public void onSuccess() {
+//                RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
+                dismissDeviceListDialog();
+                onDeviceSavedListener.OnDeviceSaveSuccess();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                onDeviceSavedListener.OnDeviceSaveFail();
+            }
+        });
+
+        realm.commitTransaction();
+        realm.close();
+
+    }
+
+
+    public interface OnDeviceSavedListener {
+        void OnDeviceSaveSuccess();
+
+        void OnDeviceSaveFail();
+    }
 }

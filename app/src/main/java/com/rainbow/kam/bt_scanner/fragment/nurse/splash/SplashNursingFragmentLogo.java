@@ -16,10 +16,6 @@ public class SplashNursingFragmentLogo extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        View view;
-        view = inflater.inflate(R.layout.fragment_nursing_splash, container, false);
-
-        return view;
+        return inflater.inflate(R.layout.fragment_nursing_splash, container, false);
     }
 }

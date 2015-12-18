@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
@@ -21,9 +22,10 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SplashNursingActivity extends AppCompatActivity implements SelectDeviceAdapter.OnDeviceSelectListener {
+public class SplashNursingActivity extends AppCompatActivity implements SelectDeviceAdapter.OnDeviceSelectListener, SplashNursingFragmentAddUser.OnDeviceSavedListener {
 
     private static final String TAG = SplashNursingActivity.class.getSimpleName();
+    private static final int REQUEST_ENABLE_BT = 1;
     private SplashNursingFragmentAddUser splashNursingFragmentAddUser;
 
     @Override
@@ -35,7 +37,7 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
             Patient patient = results.get(0);
 
-            if (patient.getStep() == null) {
+            if (patient == null) {
                 throw new Exception();
             } else {
                 finish();
@@ -47,16 +49,11 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
         }
     }
 
+
     private void setFragment() {
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        splashNursingFragmentAddUser =
-                new SplashNursingFragmentAddUser();
-        SplashNursingFragmentLogo splashNursingFragmentLogo = new SplashNursingFragmentLogo();
+        getSupportFragmentManager().beginTransaction().replace(R.id.nursing_start_frame, new SplashNursingFragmentLogo()).commit();
 
-        fragmentTransaction.replace(R.id.nursing_start_frame, splashNursingFragmentLogo);
-        fragmentTransaction.commit();
-
+        splashNursingFragmentAddUser = new SplashNursingFragmentAddUser();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -66,14 +63,13 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
                             .commit();
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-
-            case 1:
+            case REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_OK) {
                     //블루투스 켜짐
                     Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
@@ -89,5 +85,16 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
     @Override
     public void onDeviceSelect(Bundle bundle) {
         splashNursingFragmentAddUser.saveDB(bundle);
+    }
+
+    @Override
+    public void OnDeviceSaveSuccess() {
+        finish();
+        startActivity(new Intent(this, MainNursingActivity.class));
+    }
+
+    @Override
+    public void OnDeviceSaveFail() {
+        Log.e(TAG, "Realm Save Fail");
     }
 }
