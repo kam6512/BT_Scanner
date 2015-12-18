@@ -116,9 +116,6 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
 
 
     public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (!bluetoothGattCharacteristic.equals(characteristic)) {
-            return;
-        }
         this.bluetoothGattCharacteristic = characteristic;
         asciiValue = "";
         strValue = "";

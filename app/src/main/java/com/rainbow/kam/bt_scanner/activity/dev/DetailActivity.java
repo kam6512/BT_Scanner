@@ -155,14 +155,13 @@ public class DetailActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_ENABLE_BT:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                        finish();
-                        break;
+                if (resultCode == RESULT_OK) {
+                    //블루투스 켜짐
+                    Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
+                } else {
+                    //블루투스 에러
+                    Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                    finish();
                 }
                 break;
         }
@@ -202,6 +201,14 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    private void initBluetoothOn() {//블루투스 가동여부
+        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(intent, REQUEST_ENABLE_BT);
+    }
+
+
     private void connectDevice() {
         deviceStateTextView.setText("connecting...");
         try {
@@ -220,14 +227,6 @@ public class DetailActivity extends AppCompatActivity
         if (gattManager != null && gattManager.isBluetoothAvailable()) {
             gattManager.disconnect();
         }
-    }
-
-
-    private void initBluetoothOn() {//블루투스 가동여부
-        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
-
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
     @Override

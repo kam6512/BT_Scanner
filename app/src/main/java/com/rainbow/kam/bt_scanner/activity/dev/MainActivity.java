@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onResume() {
         super.onResume();
@@ -135,14 +134,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_ENABLE_BT:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                        finish();
-                        break;
+                if (resultCode == RESULT_OK) {
+                    //블루투스 켜짐
+                    Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
+                } else {
+                    //블루투스 에러
+                    Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                    finish();
                 }
                 break;
         }
@@ -354,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bleScanner.startScan(scanCallback);
             }
         } else {
-            //noinspection deprecation
+            //no inspection deprecation
             bluetoothAdapter.startLeScan(leScanCallback);
         }
     }
