@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isScanning;
 
+    private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothAdapter.LeScanCallback leScanCallback;
 
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView.Adapter adapter = null;
     private final LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
-    BluetoothManager bluetoothManager;
+
 
     @Override
     protected void onStart() {
@@ -352,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bleScanner.startScan(scanCallback);
             }
         } else {
-            //no inspection deprecation
+            //noinspection deprecation
             bluetoothAdapter.startLeScan(leScanCallback);
         }
     }

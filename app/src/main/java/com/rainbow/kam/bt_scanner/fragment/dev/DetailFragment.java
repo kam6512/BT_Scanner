@@ -33,7 +33,7 @@ import java.util.Locale;
  */
 public class DetailFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
-    Activity activity;
+    private Activity activity;
 
     private TextView deviceName;
     private TextView deviceAddress;

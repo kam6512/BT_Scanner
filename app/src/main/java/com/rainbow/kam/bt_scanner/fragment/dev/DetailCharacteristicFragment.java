@@ -29,7 +29,6 @@ public class DetailCharacteristicFragment extends Fragment {
 
     private View view;
 
-    private RecyclerView recyclerView;
     private CharacteristicAdapter characteristicAdapter;
     private final ArrayList<CharacteristicItem> characteristicItemArrayList = new ArrayList<>();
 
@@ -61,7 +60,7 @@ public class DetailCharacteristicFragment extends Fragment {
     }
 
     private void setRecyclerView() {
-        recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);

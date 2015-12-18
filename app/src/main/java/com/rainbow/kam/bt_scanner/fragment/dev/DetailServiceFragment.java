@@ -29,7 +29,6 @@ public class DetailServiceFragment extends Fragment {
 
     private View view;
 
-    private RecyclerView recyclerView;
     private ServiceAdapter serviceAdapter;
     private final ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<>();
 
@@ -60,7 +59,7 @@ public class DetailServiceFragment extends Fragment {
     }
 
     private void setRecyclerView() {
-        recyclerView = (RecyclerView) view.findViewById(R.id.detail_service_recyclerView);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_service_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
