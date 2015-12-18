@@ -28,7 +28,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -68,13 +67,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView.Adapter adapter = null;
     private final LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
+    BluetoothManager bluetoothManager;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (isBuildVersionLM) {
+            PermissionV21.check(this);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        PermissionV21.check(this);
 
         setToolbar();
         setMaterialDesignView();
@@ -82,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setOtherView();
 
         setScannerCallback();
+        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -162,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
 
     private void setToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -276,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void registerBluetooth() {
 
         // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+//        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
 
         if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
@@ -287,15 +295,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
-                if (!isScanning) {
-                    startScan();
-                }
+
+                startScan();
+
             } catch (Exception e) {
                 Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
                 finish();
             }
         } else {
-            Log.e(TAG, "registerBluetooth");
             initBluetoothOn();
         }
     }
