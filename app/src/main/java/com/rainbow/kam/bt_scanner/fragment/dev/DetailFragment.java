@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.dev;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
@@ -30,7 +31,9 @@ import java.util.Locale;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+
+    Activity activity;
 
     private TextView deviceName;
     private TextView deviceAddress;
@@ -47,7 +50,8 @@ public class DetailFragment extends Fragment {
     private ToggleButton notificationBtn;
     private Button readBtn;
     private Button writeBtn;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristic;
+    private BluetoothDevice bluetoothDevice;
     private GattManager gattManager;
     private String asciiValue = "";
     private String strValue = "";
@@ -60,7 +64,6 @@ public class DetailFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
-            Activity activity;
             try {
                 activity = (Activity) context;
                 onDetailReadyListener = (OnDetailReadyListener) activity;
@@ -78,53 +81,27 @@ public class DetailFragment extends Fragment {
 
         deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
         deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
+
         serviceName = (TextView) view.findViewById(R.id.characteristic_service_name);
         serviceUuid = (TextView) view.findViewById(R.id.characteristic_service_uuid);
+
         charName = (TextView) view.findViewById(R.id.characteristic_detail_name);
         charUuid = (TextView) view.findViewById(R.id.characteristic_detail_uuid);
 
         charDataType = (TextView) view.findViewById(R.id.characteristic_detail_type);
         charProperties = (TextView) view.findViewById(R.id.characteristic_detail_properties);
 
-        charStrValue = (TextView) view.findViewById(R.id.characteristic_detail_ascii_value);
         charHexValue = (EditText) view.findViewById(R.id.characteristic_detail_hex_value);
+        charStrValue = (TextView) view.findViewById(R.id.characteristic_detail_ascii_value);
         charDateValue = (TextView) view.findViewById(R.id.characteristic_detail_timestamp);
 
-        notificationBtn = (ToggleButton) view.findViewById(R.id.characteristic_detail_notification_switcher);
         readBtn = (Button) view.findViewById(R.id.characteristic_detail_read_btn);
         writeBtn = (Button) view.findViewById(R.id.characteristic_detail_write_btn);
+        notificationBtn = (ToggleButton) view.findViewById(R.id.characteristic_detail_notification_switcher);
 
-        readBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gattManager.readValue(bluetoothGattCharacteristic);
-            }
-        });
-
-        writeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText hex = charHexValue;
-                String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
-                if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
-                    byte[] dataToWrite = PrimeHelper.parseHexStringToBytesDEV(newValue);
-                    gattManager.writeValue(bluetoothGattCharacteristic, dataToWrite);
-                } else {
-                    Snackbar.make(view, "dataToWrite value is empty!", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        notificationBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked == notificationEnabled) {
-                    return;
-                }
-                gattManager.setNotification(bluetoothGattCharacteristic, isChecked);
-                notificationEnabled = isChecked;
-            }
-        });
+        readBtn.setOnClickListener(this);
+        writeBtn.setOnClickListener(this);
+        notificationBtn.setOnCheckedChangeListener(this);
 
         onDetailReadyListener.onDetailReady();
 
@@ -134,21 +111,20 @@ public class DetailFragment extends Fragment {
 
     public void setGattManager(GattManager gattManager) {
         this.gattManager = gattManager;
+        bluetoothDevice = gattManager.getBluetoothDevice();
     }
 
 
     public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (!bluetoothGattCharacteristic.equals(characteristic)) {
+            return;
+        }
         this.bluetoothGattCharacteristic = characteristic;
         asciiValue = "";
         strValue = "";
         lastUpdateTime = "-";
         notificationEnabled = false;
         bindView();
-    }
-
-
-    public BluetoothGattCharacteristic getCharacteristic() {
-        return bluetoothGattCharacteristic;
     }
 
 
@@ -196,14 +172,11 @@ public class DetailFragment extends Fragment {
         notificationEnabled = true;
     }
 
-    public void setFail() {
-        if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
-            return;
-        }
 
-        strValue = getActivity().getString(R.string.fail_read_characteristic);
-        asciiValue = getActivity().getString(R.string.fail_read_characteristic);
-        lastUpdateTime = getActivity().getString(R.string.fail_read_characteristic);
+    public void setFail() {
+        strValue = activity.getString(R.string.fail_read_characteristic);
+        asciiValue = activity.getString(R.string.fail_read_characteristic);
+        lastUpdateTime = activity.getString(R.string.fail_read_characteristic);
 
         bindView();
     }
@@ -211,9 +184,9 @@ public class DetailFragment extends Fragment {
 
     private void bindView() {
 
-        if (gattManager != null) {
-            deviceName.setText(gattManager.getBluetoothDevice().getName());
-            deviceAddress.setText(gattManager.getBluetoothDevice().getAddress());
+        if (gattManager != null || bluetoothDevice != null) {
+            deviceName.setText(bluetoothDevice.getName());
+            deviceAddress.setText(bluetoothDevice.getAddress());
 
             String tmp = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
             serviceUuid.setText(tmp);
@@ -255,6 +228,38 @@ public class DetailFragment extends Fragment {
             charHexValue.setText(asciiValue);
             charStrValue.setText(strValue);
             charDateValue.setText(lastUpdateTime);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.characteristic_detail_read_btn:
+                gattManager.readValue(bluetoothGattCharacteristic);
+                break;
+            case R.id.characteristic_detail_write_btn:
+                EditText hex = charHexValue;
+                String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
+                if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
+                    byte[] dataToWrite = PrimeHelper.parseHexStringToBytesDEV(newValue);
+                    gattManager.writeValue(bluetoothGattCharacteristic, dataToWrite);
+                } else {
+                    Snackbar.make(v, "dataToWrite value is empty!", Snackbar.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        switch (buttonView.getId()) {
+            case R.id.characteristic_detail_notification_switcher:
+                if (isChecked == notificationEnabled) {
+                    return;
+                }
+                gattManager.setNotification(bluetoothGattCharacteristic, isChecked);
+                notificationEnabled = isChecked;
+                break;
         }
     }
 

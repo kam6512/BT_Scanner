@@ -72,10 +72,10 @@ public class DetailServiceFragment extends Fragment {
 
         String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
         String name = GattAttributes.resolveServiceName(uuid);
-        String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "Secondary";
+        String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? activity.getString(R.string.service_type_primary) : activity.getString(R.string.service_type_secondary);
 
         serviceItemArrayList.add(new ServiceItem(name, uuid, type));
-        serviceAdapter.notifyDataSetChanged();
+        notifyAdapter();
     }
 
     public void notifyAdapter() {
@@ -84,8 +84,7 @@ public class DetailServiceFragment extends Fragment {
 
     public void clearAdapter() {
         serviceAdapter.clearList();
-        recyclerView.setAdapter(serviceAdapter);
-        serviceAdapter.notifyDataSetChanged();
+        notifyAdapter();
     }
 
     public interface OnServiceReadyListener {

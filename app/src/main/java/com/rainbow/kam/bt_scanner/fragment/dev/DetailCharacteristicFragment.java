@@ -35,7 +35,6 @@ public class DetailCharacteristicFragment extends Fragment {
 
     private OnCharacteristicReadyListener onCharacteristicReadyListener;
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -56,7 +55,6 @@ public class DetailCharacteristicFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
-
         setRecyclerView();
         onCharacteristicReadyListener.onCharacteristicReady();
         return view;
@@ -77,7 +75,7 @@ public class DetailCharacteristicFragment extends Fragment {
         String name = GattAttributes.resolveCharacteristicName(uuid);
 
         characteristicItemArrayList.add(new CharacteristicItem(name, uuid));
-        characteristicAdapter.notifyDataSetChanged();
+        notifyAdapter();
     }
 
     public void notifyAdapter() {
@@ -86,8 +84,7 @@ public class DetailCharacteristicFragment extends Fragment {
 
     public void clearAdapter() {
         characteristicAdapter.clearList();
-        recyclerView.setAdapter(characteristicAdapter);
-        characteristicAdapter.notifyDataSetChanged();
+        notifyAdapter();
     }
 
     public interface OnCharacteristicReadyListener {
