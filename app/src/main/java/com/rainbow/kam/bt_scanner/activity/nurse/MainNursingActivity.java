@@ -1,14 +1,15 @@
 package com.rainbow.kam.bt_scanner.activity.nurse;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -32,7 +33,6 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.dev.MainActivity;
-import com.rainbow.kam.bt_scanner.adapter.nurse.dashboard_NotInUse.DashboardItem;
 import com.rainbow.kam.bt_scanner.fragment.nurse.main.CalorieFragment;
 import com.rainbow.kam.bt_scanner.fragment.nurse.main.DashboardFragment;
 import com.rainbow.kam.bt_scanner.fragment.nurse.main.DistanceFragment;
@@ -46,7 +46,6 @@ import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -63,7 +62,6 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     private static final int REQUEST_ENABLE_BT = 1;
 
     private Realm realm;
-    private Activity activity;
 
     private Handler handler;
 
@@ -113,9 +111,8 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     @Override
     protected void onStart() {
         super.onStart();
-        activity = this;
         try {
-            realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
+            realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
 
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
 
@@ -133,15 +130,10 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             deviceName = patient.getDeviceName();
             deviceAddress = patient.getDeviceAddress();
 
-            if (patientName == null || patientAge == null || patientHeight == null || patientWeight == null || patientStep == null || deviceName == null || deviceAddress == null) {
-                throw new Exception("Check out the Realm");
-            }
-
-
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         } finally {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 PermissionV21.check(this);
             }
         }
@@ -158,6 +150,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         setViewPager();
     }
 
+
     private void setFragments() {
         dashboardFragment = new DashboardFragment();
         stepFragment = new StepFragment();
@@ -165,6 +158,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         distanceFragment = new DistanceFragment();
         sampleFragment = new SampleFragment();
     }
+
 
     private void setToolbar() {
         toolbar = (Toolbar) findViewById(R.id.nursing_toolbar);
@@ -181,155 +175,72 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        registerBluetooth();
-        Log.e(TAG, "onResume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (gattManager != null) {
-            disconnectDevice();
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_ENABLE_BT:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        connectDevice();
-                        break;
-                    default:
-                        Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                        finish();
-                        break;
-                }
-                break;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == 1) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        } else {
-            Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void registerBluetooth() {
-
-        if (gattManager == null) {
-            gattManager = new GattManager(this, this);
-        }
-
-        if (gattManager.isBluetoothAvailable()) {
-            connectDevice();
-        } else {
-            initBluetoothOn();
-        }
-
-    }
-
-    private void initBluetoothOn() {//블루투스 가동여부
-        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
-        Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
-
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, REQUEST_ENABLE_BT);
-    }
-
 
     private void setMaterialNavigationView() {
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.nursing_coordinatorLayout);
-
         drawerLayout = (DrawerLayout) findViewById(R.id.nursing_drawer_layout);
+
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.dashboard_device_swipeRefreshLayout);
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    if (!gattManager.isConnected()) {
-                        connectDevice();
-                    } else {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (!gattManager.isConnected()) {
+                    connectDevice();
+                } else {
+                    swipeRefreshLayout.setRefreshing(false);
                 }
-            });
-        }
-        navigationView = (NavigationView) findViewById(R.id.nursing_nav_view);
-        if (navigationView != null) {
-            navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(MenuItem menuItem) {
-                    menuItem.setChecked(true);
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    switch (menuItem.getItemId()) {
-                        case R.id.menu_nursing_dashboard:
-                            viewPager.setCurrentItem(0, true);
-                            Snackbar.make(coordinatorLayout, "nursing_dashboard", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_dashboard_step:
-                            viewPager.setCurrentItem(1, true);
-                            Snackbar.make(coordinatorLayout, "nursing_dashboard_step", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_dashboard_calorie:
-                            viewPager.setCurrentItem(2, true);
-                            Snackbar.make(coordinatorLayout, "nursing_dashboard_calorie", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_dashboard_distance:
-                            viewPager.setCurrentItem(3, true);
-                            Snackbar.make(coordinatorLayout, "nursing_dashboard_distance", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_dashboard_sleep:
-                            viewPager.setCurrentItem(4, true);
-                            Snackbar.make(coordinatorLayout, "nursing_dashboard_sleep", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_info_user:
-                            Snackbar.make(coordinatorLayout, "nursing_info_user", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_info_prime:
-                            Snackbar.make(coordinatorLayout, "nursing_info_prime", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_info_goal:
-                            Snackbar.make(coordinatorLayout, "nursing_info_goal", Snackbar.LENGTH_LONG).show();
-                            return true;
-                        case R.id.menu_nursing_about_dev:
-                            Snackbar.make(coordinatorLayout, "nursing_about_dev", Snackbar.LENGTH_LONG).show();
-                            startActivity(new Intent(MainNursingActivity.this, MainActivity.class));
-                            return true;
-                        case R.id.menu_nursing_about_setting:
-                            Snackbar.make(coordinatorLayout, "nursing_about_setting", Snackbar.LENGTH_LONG).show();
 
-                            realm = Realm.getInstance(activity);
-                            realm.beginTransaction();
-                            realm.clear(Patient.class);
-                            realm.clear(Band.class);
-                            realm.commitTransaction();
+            }
+        });
+
+        navigationView = (NavigationView) findViewById(R.id.nursing_nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                drawerLayout.closeDrawer(GravityCompat.START);
+                switch (menuItem.getItemId()) {
+                    case R.id.menu_nursing_dashboard:
+                        viewPager.setCurrentItem(0, true);
+                        Snackbar.make(coordinatorLayout, "nursing_dashboard", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_dashboard_step:
+                        viewPager.setCurrentItem(1, true);
+                        Snackbar.make(coordinatorLayout, "nursing_dashboard_step", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_dashboard_calorie:
+                        viewPager.setCurrentItem(2, true);
+                        Snackbar.make(coordinatorLayout, "nursing_dashboard_calorie", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_dashboard_distance:
+                        viewPager.setCurrentItem(3, true);
+                        Snackbar.make(coordinatorLayout, "nursing_dashboard_distance", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_dashboard_sleep:
+                        viewPager.setCurrentItem(4, true);
+                        Snackbar.make(coordinatorLayout, "nursing_dashboard_sleep", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_info_user:
+                        Snackbar.make(coordinatorLayout, "nursing_info_user", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_info_prime:
+                        Snackbar.make(coordinatorLayout, "nursing_info_prime", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_info_goal:
+                        Snackbar.make(coordinatorLayout, "nursing_info_goal", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    case R.id.menu_nursing_about_dev:
+                        Snackbar.make(coordinatorLayout, "nursing_about_dev", Snackbar.LENGTH_LONG).show();
+                        startActivity(new Intent(MainNursingActivity.this, MainActivity.class));
+                        return true;
+                    case R.id.menu_nursing_about_setting:
+                        Snackbar.make(coordinatorLayout, "nursing_about_setting", Snackbar.LENGTH_LONG).show();
+
+                        realm.beginTransaction();
+                        realm.clear(Patient.class);
+                        realm.clear(Band.class);
+                        realm.commitTransaction();
 //                            Realm.deleteRealm(new RealmConfiguration.Builder(activity).build());
 //                            if (!isGattProcessRunning) {
 //                                byte[] dataToWrite;
@@ -337,22 +248,21 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 //                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
 //                            }
 
-                            Toast.makeText(MainNursingActivity.this, "앱을 재시작합니다", Toast.LENGTH_LONG).show();
-                            System.exit(0);
-                            return true;
-                        case R.id.menu_nursing_about_about:
-                            Snackbar.make(coordinatorLayout, "nursing_about_about", Snackbar.LENGTH_LONG).show();
-                            realm.beginTransaction();
-                            realm.clear(Band.class);
-                            realm.commitTransaction();
-                            return true;
+                        Toast.makeText(MainNursingActivity.this, "앱을 재시작합니다", Toast.LENGTH_LONG).show();
+                        System.exit(0);
+                        return true;
+                    case R.id.menu_nursing_about_about:
+                        Snackbar.make(coordinatorLayout, "nursing_about_about", Snackbar.LENGTH_LONG).show();
+                        realm.beginTransaction();
+                        realm.clear(Band.class);
+                        realm.commitTransaction();
+                        return true;
 
-                        default:
-                            return true;
-                    }
+                    default:
+                        return true;
                 }
-            });
-        }
+            }
+        });
     }
 
 
@@ -383,6 +293,88 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         tabLayout.setupWithViewPager(viewPager);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerBluetooth();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (gattManager != null) {
+            disconnectDevice();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                if (resultCode == RESULT_OK) {
+                    //블루투스 켜짐
+                    Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
+                } else {
+                    //블루투스 에러
+                    Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
+            } else {
+
+                Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+                myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(myAppSettings, 0);
+
+                Toast.makeText(getApplicationContext(), R.string.permission_request, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void registerBluetooth() {
+        if (gattManager == null) {
+            gattManager = new GattManager(this, this);
+        }
+        if (gattManager.isBluetoothAvailable()) {
+            connectDevice();
+        } else {
+            initBluetoothOn();
+        }
+    }
+
+
+    private void initBluetoothOn() {//블루투스 가동여부
+        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
+        Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(intent, REQUEST_ENABLE_BT);
+    }
+
 
     private void connectDevice() {
 
@@ -390,29 +382,23 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-
-                if (!gattManager.isConnected() || isFinishing()) {
-                    if (gattManager.isBluetoothAvailable()) {
-                        try {
-                            gattManager.connect(deviceAddress);
-                        } catch (Exception e) {
-                            Log.e(TAG, e.getMessage());
-                        }
-                        handler.postDelayed(this, 3000);
-                    } else {
-                        initBluetoothOn();
+                if (!gattManager.isConnected()) {
+                    try {
+                        gattManager.connect(deviceAddress);
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
                     }
-                    Log.e(TAG, "runnable");
+                    handler.postDelayed(this, 10000);
                 }
             }
         };
         handler.postDelayed(runnable, 0);
     }
 
-    private void disconnectDevice() {
-        if (gattManager != null) {
-            gattManager.disconnect();
 
+    private void disconnectDevice() {
+        if (gattManager != null && gattManager.isBluetoothAvailable()) {
+            gattManager.disconnect();
         }
     }
 
@@ -432,14 +418,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     private void loadNotifyData(BluetoothGattCharacteristic characteristic) {
         byte[] characteristicValue = characteristic.getValue();
-        byte[] dataToWrite;
+
         switch (listType) {
             case READ_TIME:
-
                 readTime(characteristicValue);
 
-                dataToWrite = PrimeHelper.READ_STEP_DATA();
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
 
                 isGattProcessRunning = true;
                 listType = ListType.READ_STEP_DATA;
@@ -449,20 +433,17 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
                 readStep(characteristicValue);
 
-                dataToWrite = PrimeHelper.SET_DEVICE_TIME_NOW();
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.SET_DEVICE_TIME_NOW());
 
                 isGattProcessRunning = true;
                 listType = ListType.ETC;
                 break;
 
             case ETC:
-                for (int i = 0; i < characteristicValue.length; i++) {
-                    int lsb = characteristic.getValue()[i] & 0xff;
-                    Log.e("ETC", "characteristicValue = " + Integer.toHexString(characteristicValue[i]) + " / lsb = " + Integer.toHexString(lsb));
-                }
-//                dataToWrite = PrimeHelper.CALL_DEVICE();
-//                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
+//                for (int i = 0; i < characteristicValue.length; i++) {
+//                    int lsb = characteristic.getValue()[i] & 0xff;
+//                }
+//                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.CALL_DEVICE());
                 isGattProcessRunning = false;
                 break;
 
@@ -475,23 +456,20 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     private void readTime(byte[] characteristicValue) {
         String result = "";
-        for (int i = 0; i < characteristicValue.length; i++) {
-            if (i > 1 && i != characteristicValue.length - 1) { // 0 : Positive - Negative / 1 : Length / last index : checksum
-                result += Integer.valueOf(PrimeHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
-                switch (i) {
-                    default:
-                        result += timeSet[i - 2] + " ";
-                        break;
-                    case 8:
-                        result = result.substring(0, result.length() - 1);
-                        int j = Integer.valueOf(PrimeHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
-                        result += weekSet[j - 1];
-                        break;
-                }
+        for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
+            result += Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16);
+            switch (i) {
+                default:
+                    result += timeSet[i - 2] + " ";
+                    break;
+                case 8:
+                    result = result.substring(0, result.length() - 1);
+                    int j = Integer.valueOf(PrimeHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
+                    result += weekSet[j - 1];
+                    break;
             }
         }
         dashboardFragment.setTime(result);
-
     }
 
 
@@ -499,13 +477,13 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
         String hexStep = "";
         String hexCal = "";
-        String hexDist = "";
 
+        int step;
+        int kcal;
         int distance;
-        int step = 0;
         int age;
 
-        for (int i = 2; i < characteristicValue.length; i++) {
+        for (int i = 0; i < characteristicValue.length; i++) {
             int lsb = characteristicValue[i] & 0xff;
             switch (i) {
                 case 2:
@@ -518,32 +496,29 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 case 7:
                     hexCal += PrimeHelper.setWidth(Integer.toHexString(lsb));
                     break;
-                case 10:
-                    step = Integer.valueOf(hexStep, 16);
-                    age = Integer.parseInt(patientAge);
-                    double height = Integer.parseInt(patientHeight);
-                    if (age <= 15 || age >= 65) distance = (int) ((height * 0.37) * step);
-                    else if (15 < age || age < 45) distance = (int) ((height * 0.45) * step);
-                    else if (45 <= age || age < 65) distance = (int) ((height * 0.40) * step);
-                    else distance = (int) ((height * 0.30) * step);
-
-                    hexDist = String.valueOf(distance / 100);  //CM -> M
-                    break;
             }
         }
 
-        addDataToRealmDB(step, Integer.valueOf(hexCal), Integer.valueOf(hexDist));
+        age = Integer.parseInt(patientAge);
+        step = Integer.valueOf(hexStep, 16);
+        kcal = Integer.valueOf(hexCal, 16);
 
-        Bundle bundle = new Bundle();
-        bundle.putString("STEP", hexStep);
-        bundle.putString("CALORIE", hexCal);
-        bundle.putString("DISTANCE", hexDist);
-        dashboardFragment.setStepData(bundle);
+        double height = Integer.parseInt(patientHeight);
+        if (age <= 15 || age >= 65) distance = (int) ((height * 0.37) * step);
+        else if (15 < age || age < 45) distance = (int) ((height * 0.45) * step);
+        else if (45 <= age || age < 65) distance = (int) ((height * 0.40) * step);
+        else distance = (int) ((height * 0.30) * step);
+
+        distance = distance / 100;  //CM -> M
+
+        addDataToRealmDB(step, kcal, distance);
+
+        dashboardFragment.setStepData(step, kcal, distance);
 
         stepFragment.setStep(step);
-        calorieFragment.setCalorie(Integer.valueOf(hexCal));
-        distanceFragment.setDist(Integer.valueOf(hexDist));
-        sampleFragment.setSample(Integer.valueOf(hexDist));
+        calorieFragment.setCalorie(kcal);
+        distanceFragment.setDist(distance);
+        sampleFragment.setSample(distance);
     }
 
 
@@ -553,14 +528,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         Calendar calendar = Calendar.getInstance();
         String today = formatter.format(calendar.getTime());
 
-//        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
         realm.beginTransaction();
 
         RealmResults<Band> results = realm.where(Band.class).findAll();
         if (results.size() != 0) {
             if (results.get(results.size() - 1).getCalendar() != null) {
                 if (results.get(results.size() - 1).getCalendar().equals(today)) {
-                    Log.e(TAG, "calendar : " + results.get(results.size() - 1).getCalendar() + " // " + today);
                     results.removeLast();
                 }
                 Band band = realm.createObject(Band.class);
@@ -577,15 +550,18 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             band.setDistance(distance);
         }
         realm.commitTransaction();
+    }
 
-        results = realm.where(Band.class).findAll();
 
-        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-        ArrayList<DashboardItem> arrayList = new ArrayList<>();
+    private void readRealm() {
+        RealmResults<Band> results = realm.where(Band.class).findAll();
 
         for (int i = 0; i < results.size(); i++) {
-            Log.e(TAG, "band [" + i + "] : " + results.size() + " step : " + results.get(i).getStep() + " calorie : " + results.get(i).getCalorie() + " distance : " + results.get(i).getDistance() + " calendar : " + results.get(i).getCalendar());
-            arrayList.add(new DashboardItem(results.get(i).getStep(), results.get(i).getCalorie(), results.get(i).getDistance(), results.get(i).getCalendar()));
+            Log.e(TAG, "band [" + i + "] : " + results.size() +
+                    " step : " + results.get(i).getStep() +
+                    " calorie : " + results.get(i).getCalorie() +
+                    " distance : " + results.get(i).getDistance() +
+                    " calendar : " + results.get(i).getCalendar());
         }
     }
 
@@ -608,17 +584,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.e(TAG, "Disconnected");
+                Log.e(TAG, "Disconnected");
 
-                        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
-                        toolbarRssi.setText("No Signal");
+                toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
+                toolbarRssi.setText("--");
 
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, 100);
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -641,17 +612,17 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onServicesNotFound() {
-
+        dashboardFragment.setFail();
     }
 
     @Override
     public void onReadSuccess(BluetoothGattCharacteristic ch) {
-
+        // Not use in this Activity
     }
 
     @Override
     public void onReadFail() {
-
+        dashboardFragment.setFail();
     }
 
     @Override
@@ -662,7 +633,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 try {
                     loadNotifyData(ch);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    onReadFail();
                 }
             }
         });
@@ -671,12 +642,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     @Override
     public void onWriteSuccess() {
         isGattProcessRunning = false;
-
     }
 
     @Override
     public void onWriteFail() {
         isGattProcessRunning = false;
+        dashboardFragment.setFail();
     }
 
     @Override
@@ -691,7 +662,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onRSSIMiss() {
-
+        // Not use in this Activity
     }
 
 

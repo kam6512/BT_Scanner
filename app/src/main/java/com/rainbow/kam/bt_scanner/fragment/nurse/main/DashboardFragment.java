@@ -48,27 +48,18 @@ public class DashboardFragment extends Fragment {
         }
     }
 
-    public void setStepData(Bundle stepData) {
 
-        String step = stepData.getString("STEP");
-        String calorie = stepData.getString("CALORIE");
-        String distance = stepData.getString("DISTANCE") + "m";
-
-        if (step != null && calorie != null) {
-
-            step = Integer.valueOf(step, 16) + "걸음";
-            calorie = Integer.valueOf(calorie, 16) + "kcal";
-
-            stepTextView.setText(step);
-            calorieTextView.setText(calorie);
-            distanceTextView.setText(distance);
-
-        } else {
+    public void setStepData(int step, int calorie, int distance) {
+        try {
+            stepTextView.setText(step + " 걸음");
+            calorieTextView.setText(calorie + " kcal");
+            distanceTextView.setText(distance + " M");
+        } catch (Exception e) {
             setFail();
         }
     }
 
-    private void setFail() {
+    public void setFail() {
         time.setText("시간 : 연결 실패");
         stepTextView.setText("연결 실패");
         calorieTextView.setText("연결 실패");

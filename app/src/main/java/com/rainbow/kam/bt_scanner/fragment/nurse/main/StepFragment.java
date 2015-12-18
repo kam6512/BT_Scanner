@@ -65,5 +65,4 @@ public class StepFragment extends Fragment {
     public void setStep(int step) {
         stepCircleCounter.setValues(step, step, step);
     }
-
 }
