@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,7 +25,9 @@ public class GattManager {
 
     private final String TAG = getClass().getSimpleName();
 
-    private static final int RSSI_UPDATE_TIME_INTERVAL = 2000;
+    private String deviceAddress;
+
+    private static final int RSSI_UPDATE_TIME_INTERVAL = 5000;
 
     private GattCustomCallbacks gattCustomCallbacks = null;
     private static final GattCustomCallbacks NULL_CALLBACK = new GattCustomCallbacks.Null();
@@ -63,10 +66,11 @@ public class GattManager {
         if (deviceAddress == null) {
             throw new Exception("Address is not available");
         }
-        if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
+        this.deviceAddress = deviceAddress;
+        if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(this.deviceAddress)) {
             bluetoothGatt.connect();
         } else {
-            bluetoothDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
+            bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.deviceAddress);
             if (bluetoothDevice == null) {
                 throw new Exception("RemoteDevice is not available");
             }
@@ -86,14 +90,18 @@ public class GattManager {
 
 
     public boolean isConnected() {
-        int state = bluetoothAdapter.getState();
-        return state == BluetoothAdapter.STATE_CONNECTED;
+        List<BluetoothDevice> bluetoothDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
+        for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+            if (this.deviceAddress.equals(bluetoothDevice.getAddress())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
     private void readRssiValue(final boolean repeat) {
         timerEnabled = repeat;
-
         if (!isConnected() || !timerEnabled) {
             timerEnabled = false;
             return;
@@ -101,19 +109,8 @@ public class GattManager {
         timerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (!isConnected()) {
-                    timerEnabled = false;
-                    return;
-                }
-                boolean status = bluetoothGatt.readRemoteRssi();
-                if (status) {
-                    readRssiValue(timerEnabled);
-                } else {
-                    timerEnabled = false;
-                    readRssiValue(timerEnabled);
-                    gattCustomCallbacks.onRSSIMiss();
-                }
-
+                bluetoothGatt.readRemoteRssi();
+                readRssiValue(timerEnabled);
             }
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
@@ -183,7 +180,7 @@ public class GattManager {
             Log.e(TAG, "status = " + status + "   newState = " + newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
 
-                bluetoothGatt.readRemoteRssi();
+//                bluetoothGatt.readRemoteRssi();
                 startServiceDiscovery();
                 startMonitoringRssiValue();
 
@@ -235,6 +232,7 @@ public class GattManager {
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onRSSIUpdate(rssi);
+                Log.e(TAG, "RSSI : " + rssi);
             } else {
                 gattCustomCallbacks.onRSSIMiss();
             }
