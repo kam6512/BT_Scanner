@@ -112,7 +112,7 @@
     <string name="add_user_woman">woman</string>
     <string name="add_user_skip">Skip</string>
     <string name="bt_on">블루투스 On</string>
-    <string name="fail_read_characteristic">Read Fail!</string>
+    <string name="fail_characteristic">Fail!</string>
     <string name="service_type_primary">primary</string>
     <string name="service_type_secondary">Secondary</string>
     <string name="accept_ok">기입 정보가 확실한지 확인해주시기 바랍니다.</string>
