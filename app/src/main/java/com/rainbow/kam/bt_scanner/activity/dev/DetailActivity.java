@@ -257,8 +257,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onServicesNotFound() {
-        Toast.makeText(this, getResources().getText(R.string.fail_read_characteristic), Toast.LENGTH_SHORT).show();
+    public void onServicesNotFound() {Toast.makeText(this,getResources().getText(R.string.fail_characteristic),Toast.LENGTH_SHORT).show();
     }
 
     @Override

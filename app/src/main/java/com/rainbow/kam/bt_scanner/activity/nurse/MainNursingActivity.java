@@ -60,20 +60,15 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     private static final String TAG = MainNursingActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int CONNECT_TIME_INTERVAL = 5000;
 
     private Realm realm;
 
     private Handler handler;
 
-    private String patientName = null;
-    private String patientAge = null;
-    private String patientHeight = null;
-    private String patientWeight = null;
-    private String patientStep = null;
-    private String patientGender = null;
-
-    private String deviceName = null;
-    private String deviceAddress = null;
+    private String patientAge;
+    private String patientHeight;
+    private String deviceAddress;
 
     private final String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
     private final String[] timeSet = {"년", "월", "일", "시", "분", "초"};
@@ -98,15 +93,11 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
 
     private CoordinatorLayout coordinatorLayout;
-    private Toolbar toolbar;
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private TabLayout tabLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ViewPager viewPager;
-    private DashBoardAdapter dashBoardAdapter;
 
     @Override
     protected void onStart() {
@@ -117,17 +108,8 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             RealmResults<Patient> results = realm.where(Patient.class).findAll();
 
             Patient patient = results.get(0);
-            patientName = patient.getName();
             patientAge = patient.getAge();
             patientHeight = patient.getHeight();
-            patientWeight = patient.getWeight();
-            patientStep = patient.getStep();
-            if (patient.getGender().equals("남성")) {
-                patientGender = "1";
-            } else {
-                patientGender = "0";
-            }
-            deviceName = patient.getDeviceName();
             deviceAddress = patient.getDeviceAddress();
 
         } catch (Exception e) {
@@ -161,7 +143,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
 
     private void setToolbar() {
-        toolbar = (Toolbar) findViewById(R.id.nursing_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.nursing_toolbar);
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -190,11 +172,10 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 } else {
                     swipeRefreshLayout.setRefreshing(false);
                 }
-
             }
         });
 
-        navigationView = (NavigationView) findViewById(R.id.nursing_nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nursing_nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -241,21 +222,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                         realm.clear(Patient.class);
                         realm.clear(Band.class);
                         realm.commitTransaction();
-//                            Realm.deleteRealm(new RealmConfiguration.Builder(activity).build());
-//                            if (!isGattProcessRunning) {
-//                                byte[] dataToWrite;
-//                                dataToWrite = PrimeHelper.CLEAR_DATA();
-//                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, dataToWrite);
-//                            }
 
                         Toast.makeText(MainNursingActivity.this, "앱을 재시작합니다", Toast.LENGTH_LONG).show();
-                        System.exit(0);
+                        finish();
                         return true;
                     case R.id.menu_nursing_about_about:
                         Snackbar.make(coordinatorLayout, "nursing_about_about", Snackbar.LENGTH_LONG).show();
-                        realm.beginTransaction();
-                        realm.clear(Band.class);
-                        realm.commitTransaction();
                         return true;
 
                     default:
@@ -267,8 +239,8 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
 
     private void setViewPager() {
-        tabLayout = (TabLayout) findViewById(R.id.nursing_tabs);
-        dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.nursing_tabs);
+        DashBoardAdapter dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.nursing_viewpager);
         viewPager.setAdapter(dashBoardAdapter);
         viewPager.setOffscreenPageLimit(5);
@@ -388,7 +360,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());
                     }
-                    handler.postDelayed(this, 10000);
+                    handler.postDelayed(this, CONNECT_TIME_INTERVAL);
                 }
             }
         };
@@ -612,7 +584,13 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onServicesNotFound() {
-        dashboardFragment.setFail();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                isGattProcessRunning = false;
+                dashboardFragment.setFail();
+            }
+        });
     }
 
     @Override
@@ -622,7 +600,13 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onReadFail() {
-        dashboardFragment.setFail();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                isGattProcessRunning = false;
+                dashboardFragment.setFail();
+            }
+        });
     }
 
     @Override
@@ -646,8 +630,13 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onWriteFail() {
-        isGattProcessRunning = false;
-        dashboardFragment.setFail();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                isGattProcessRunning = false;
+                dashboardFragment.setFail();
+            }
+        });
     }
 
     @Override
@@ -662,7 +651,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onRSSIMiss() {
-        // Not use in this Activity
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                toolbarRssi.setText("--");
+            }
+        });
     }
 
 
@@ -679,27 +673,21 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if (!dashboardFragment.isAdded()) {
-                        return dashboardFragment;
-                    }
+                    return dashboardFragment;
+
                 case 1:
-                    if (!stepFragment.isAdded()) {
-                        return stepFragment;
-                    }
+                    return stepFragment;
+
                 case 2:
-                    if (!calorieFragment.isAdded()) {
-                        return calorieFragment;
-                    }
+                    return calorieFragment;
+
                 case 3:
-                    if (!distanceFragment.isAdded()) {
-                        return distanceFragment;
-                    }
+                    return distanceFragment;
+
                 default:
-                    if (!sampleFragment.isAdded()) {
-                        return sampleFragment;
-                    }
+                    return sampleFragment;
+
             }
-            return sampleFragment;
         }
 
         @Override

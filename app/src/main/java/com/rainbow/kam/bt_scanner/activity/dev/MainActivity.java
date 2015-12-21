@@ -321,7 +321,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
@@ -354,7 +353,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             bluetoothAdapter.startLeScan(leScanCallback);
         }
     }
-
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
