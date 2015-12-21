@@ -50,9 +50,11 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
     private ToggleButton notificationBtn;
     private Button readBtn;
     private Button writeBtn;
+
     private BluetoothGattCharacteristic bluetoothGattCharacteristic;
     private BluetoothDevice bluetoothDevice;
     private GattManager gattManager;
+
     private String asciiValue = "";
     private String strValue = "";
     private String lastUpdateTime = "";
@@ -171,9 +173,9 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
 
 
     public void setFail() {
-        strValue = activity.getString(R.string.fail_read_characteristic);
-        asciiValue = activity.getString(R.string.fail_read_characteristic);
-        lastUpdateTime = activity.getString(R.string.fail_read_characteristic);
+        strValue = activity.getString(R.string.fail_characteristic);
+        asciiValue = activity.getString(R.string.fail_characteristic);
+        lastUpdateTime = activity.getString(R.string.fail_characteristic);
 
         bindView();
     }
@@ -235,8 +237,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
                 gattManager.readValue(bluetoothGattCharacteristic);
                 break;
             case R.id.characteristic_detail_write_btn:
-                EditText hex = charHexValue;
-                String newValue = hex.getText().toString().toLowerCase(Locale.getDefault());
+                String newValue = charHexValue.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
                     byte[] dataToWrite = PrimeHelper.parseHexStringToBytesDEV(newValue);
                     gattManager.writeValue(bluetoothGattCharacteristic, dataToWrite);

@@ -67,9 +67,11 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_nursing_splash_add_user, container, false);
+
         setUserInput();
         setBtn();
         setDialog();
+
         return view;
     }
 

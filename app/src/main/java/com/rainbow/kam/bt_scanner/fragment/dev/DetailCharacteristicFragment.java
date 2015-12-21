@@ -59,6 +59,7 @@ public class DetailCharacteristicFragment extends Fragment {
         return view;
     }
 
+
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
@@ -67,6 +68,7 @@ public class DetailCharacteristicFragment extends Fragment {
         characteristicAdapter = new CharacteristicAdapter(characteristicItemArrayList, activity);
         recyclerView.setAdapter(characteristicAdapter);
     }
+
 
     public void addCharacteristic(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
 
@@ -77,14 +79,17 @@ public class DetailCharacteristicFragment extends Fragment {
         notifyAdapter();
     }
 
+
     public void notifyAdapter() {
         characteristicAdapter.notifyDataSetChanged();
     }
+
 
     public void clearAdapter() {
         characteristicAdapter.clearList();
         notifyAdapter();
     }
+
 
     public interface OnCharacteristicReadyListener {
         void onCharacteristicReady();

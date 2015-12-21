@@ -23,6 +23,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private final ArrayList<CharacteristicItem> characteristicItemArrayList;
 
+
     private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
     public CharacteristicAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList, Activity activity) {
@@ -30,7 +31,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         try {
             onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnCharacteristicItemClickListener");
+            throw new ClassCastException(activity.toString() + " must implement OnServiceItemClickListener");
         }
     }
 

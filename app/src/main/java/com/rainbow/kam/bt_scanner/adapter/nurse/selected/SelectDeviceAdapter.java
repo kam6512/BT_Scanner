@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.adapter.nurse.selected;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

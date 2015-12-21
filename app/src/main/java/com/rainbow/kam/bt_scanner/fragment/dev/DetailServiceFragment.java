@@ -49,7 +49,6 @@ public class DetailServiceFragment extends Fragment {
         }
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_service, container, false);
@@ -57,6 +56,7 @@ public class DetailServiceFragment extends Fragment {
         onServiceReadyListener.onServiceReady();
         return view;
     }
+
 
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_service_recyclerView);
@@ -66,6 +66,7 @@ public class DetailServiceFragment extends Fragment {
         serviceAdapter = new ServiceAdapter(serviceItemArrayList, activity);
         recyclerView.setAdapter(serviceAdapter);
     }
+
 
     public void addService(BluetoothGattService bluetoothGattService) {
 
@@ -77,14 +78,17 @@ public class DetailServiceFragment extends Fragment {
         notifyAdapter();
     }
 
+
     public void notifyAdapter() {
         serviceAdapter.notifyDataSetChanged();
     }
+
 
     public void clearAdapter() {
         serviceAdapter.clearList();
         notifyAdapter();
     }
+
 
     public interface OnServiceReadyListener {
         void onServiceReady();

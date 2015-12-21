@@ -48,7 +48,6 @@ public class DashboardFragment extends Fragment {
         }
     }
 
-
     public void setStepData(int step, int calorie, int distance) {
         try {
             stepTextView.setText(step + " 걸음");

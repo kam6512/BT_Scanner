@@ -49,6 +49,8 @@ public class SplashNursingDialog extends DialogFragment {
     private View view;
     private boolean isScanning;
 
+    BluetoothManager bluetoothManager;
+
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothAdapter.LeScanCallback leScanCallback;
 
@@ -62,17 +64,23 @@ public class SplashNursingDialog extends DialogFragment {
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.activity = activity;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_nursing_splash_add_device, container, false);
-        activity = getActivity();
 
         setWindowSetting();
         setRecyclerView();
         setOtherView();
 
         setScannerCallback();
+
+        bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
 
         return view;
     }
@@ -195,28 +203,30 @@ public class SplashNursingDialog extends DialogFragment {
 
     @SuppressLint("NewApi")
     private void registerBluetooth() {
+        try {
+            bluetoothAdapter = bluetoothManager.getAdapter();
 
-        // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
-        BluetoothManager bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
+            if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
+                try {
+                    itemLinkedHashMap.clear();
+                    adapter.notifyDataSetChanged();
 
-        if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
-            try {
-                itemLinkedHashMap.clear();
-                adapter.notifyDataSetChanged();
+                    if (isBuildVersionLM) {
+                        bleScanner = bluetoothAdapter.getBluetoothLeScanner();
+                    }
 
-                if (isBuildVersionLM) {
-                    bleScanner = bluetoothAdapter.getBluetoothLeScanner();
+                    startScan();
+
+                } catch (Exception e) {
+                    Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
+                    Log.e(TAG, e.getMessage());
                 }
-
-                startScan();
-
-            } catch (Exception e) {
-                Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
-                Log.e(TAG, e.getMessage());
+            } else {
+                initBluetoothOn();
             }
-        } else {
-            initBluetoothOn();
+        } catch (Exception e) {
+            Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -249,7 +259,9 @@ public class SplashNursingDialog extends DialogFragment {
         itemLinkedHashMap.clear();
         adapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
+
         isScanning = true;
+
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
 
@@ -275,8 +287,10 @@ public class SplashNursingDialog extends DialogFragment {
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
 
-        isScanning = false;
         swipeRefreshLayout.setRefreshing(false);
+
+        isScanning = false;
+
         searchingProgressBar.setVisibility(View.INVISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }

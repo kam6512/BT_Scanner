@@ -24,7 +24,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final ArrayList<ServiceItem> serviceItemArrayList;
 
-
     private OnServiceItemClickListener onServiceItemClickListener;
 
 
