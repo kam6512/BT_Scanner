@@ -26,7 +26,6 @@
         android:layout_height="32dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_gravity="center"
         android:background="@null"
         android:indeterminate="true" />
 
@@ -36,7 +35,6 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_gravity="center"
         android:background="@null"
         android:indeterminate="true"
         android:text="@string/has_not_card_nursing" />

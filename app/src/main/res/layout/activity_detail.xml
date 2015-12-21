@@ -36,36 +36,44 @@
                 android:background="@null">
 
                 <TableRow style="@style/DeviceTableRaw">
+
                     <TextView
                         style="@style/DeviceLabel"
                         android:text="@string/detail_name" />
+
                     <TextView
                         android:id="@+id/detail_name"
                         style="@style/DeviceText" />
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
+
                     <TextView
                         style="@style/DeviceLabel"
                         android:text="@string/detail_rssi" />
+
                     <TextView
                         android:id="@+id/detail_rssi"
                         style="@style/DeviceText" />
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
+
                     <TextView
                         style="@style/DeviceLabel"
                         android:text="@string/detail_address" />
+
                     <TextView
                         android:id="@+id/detail_address"
                         style="@style/DeviceText" />
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
+
                     <TextView
                         style="@style/DeviceLabel"
                         android:text="@string/detail_state" />
+
                     <TextView
                         android:id="@+id/detail_state"
                         style="@style/DeviceText" />
