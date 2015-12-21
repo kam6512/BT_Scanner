@@ -77,10 +77,7 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             deviceItemCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Bundle info = new Bundle();
-                    info.putString("name", extraName.getText().toString());
-                    info.putString("address", extraAddress.getText().toString());
-                    onDeviceSelectListener.onDeviceSelect(info);
+                    onDeviceSelectListener.onDeviceSelect(extraName.getText().toString(), extraAddress.getText().toString());
                 }
             });
         }
@@ -95,6 +92,6 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     public interface OnDeviceSelectListener {
-        void onDeviceSelect(Bundle bundle);
+        void onDeviceSelect(String name, String address);
     }
 }

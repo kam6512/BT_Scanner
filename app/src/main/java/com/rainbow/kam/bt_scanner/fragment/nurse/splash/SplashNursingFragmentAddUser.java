@@ -17,7 +17,6 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.patient.Patient;
-import com.rainbow.kam.bt_scanner.tools.design.RippleView;
 
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
@@ -26,7 +25,7 @@ import io.realm.RealmConfiguration;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SplashNursingFragmentAddUser extends Fragment implements View.OnClickListener, RippleView.OnRippleCompleteListener {
+public class SplashNursingFragmentAddUser extends Fragment implements View.OnClickListener {
 
     private Activity activity;
 
@@ -67,7 +66,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_nursing_splash_adduser, container, false);
+        view = inflater.inflate(R.layout.fragment_nursing_splash_add_user, container, false);
         setUserInput();
         setBtn();
         setDialog();
@@ -100,8 +99,8 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         FloatingActionButton nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
         nextFab.setOnClickListener(this);
 
-        RippleView skip = (RippleView) view.findViewById(R.id.nursing_add_user_skip);
-        skip.setOnRippleCompleteListener(this);
+        FloatingActionButton skip = (FloatingActionButton) view.findViewById(R.id.nursing_skip_fab);
+        skip.setOnClickListener(this);
     }
 
 
@@ -125,7 +124,19 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.nursing_next_fab:
+                onAccept();
+                break;
+            case R.id.nursing_skip_fab:
+                onSkip();
+                break;
+        }
 
+    }
+
+
+    private void onAccept() {
         userName = name.getEditText().getText().toString();
         userAge = age.getEditText().getText().toString();
         userHeight = height.getEditText().getText().toString();
@@ -172,9 +183,8 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
         }
     }
 
-    @Override
-    public void onComplete() {
 
+    private void onSkip() {
         userName = activity.getString(R.string.username_default);
         userAge = activity.getString(R.string.user_age_default);
         userHeight = activity.getString(R.string.user_height_default);
@@ -215,8 +225,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     }
 
 
-    public void saveDB(Bundle bundle) {
-        final Bundle callbackBundle = bundle;
+    public void saveDB(final String name, final String address) {
 
         realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
         realm.beginTransaction();
@@ -232,8 +241,8 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
                 patient.setWeight(userWeight);
                 patient.setStep(userStep);
                 patient.setGender(userGender);
-                patient.setDeviceName(callbackBundle.getString("name"));
-                patient.setDeviceAddress(callbackBundle.getString("address"));
+                patient.setDeviceName(name);
+                patient.setDeviceAddress(address);
             }
         }, new Realm.Transaction.Callback() {
             @Override
