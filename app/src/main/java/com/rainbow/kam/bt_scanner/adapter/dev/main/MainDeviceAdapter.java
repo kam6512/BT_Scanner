@@ -24,12 +24,18 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
     private ArrayList<MainDeviceItem> mainDeviceItemArrayList;
-    private final Activity activity;
+
+    private OnDeviceItemClickListener onDeviceItemClickListener;
 
 
     public MainDeviceAdapter(LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap, Activity activity) { //초기화
         this.mainDeviceItemLinkedHashMap = mainDeviceItemLinkedHashMap;
-        this.activity = activity;
+
+        try {
+            onDeviceItemClickListener = (OnDeviceItemClickListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnDeviceItemClickListener");
+        }
     }
 
     @Override
@@ -76,11 +82,10 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             deviceItemCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(activity, DetailActivity.class);
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, deviceName.getText().toString());
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, deviceAddress.getText().toString());
-                    intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, deviceRssi.getText().toString());
-                    activity.startActivity(intent);
+
+                    onDeviceItemClickListener.onDeviceItemClick(deviceName.getText().toString(),
+                            deviceAddress.getText().toString(),
+                            deviceRssi.getText().toString());
                 }
             });
         }
@@ -92,5 +97,11 @@ public class MainDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             deviceType.setText(String.valueOf(mainDeviceItem.getDeviceType()));
             deviceRssi.setText(String.valueOf(mainDeviceItem.getDeviceRssi()));
         }
+    }
+
+    public interface OnDeviceItemClickListener {
+        void onDeviceItemClick(String deviceName,
+                               String deviceAddress,
+                               String deviceRssi);
     }
 }

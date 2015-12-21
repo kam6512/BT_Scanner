@@ -46,7 +46,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2015-10-22.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, MainDeviceAdapter.OnDeviceItemClickListener {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView noDeviceTextView;
     private RecyclerView.Adapter adapter = null;
     private final LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
-
 
 
     @Override
@@ -281,13 +280,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @SuppressLint("NewApi")
     private void registerBluetooth() {
+        try {
+            bluetoothAdapter = bluetoothManager.getAdapter();
 
-        // onCreate 에서 세팅시 pause/resume 사이에 bluetooth 를 꺼버리면 .....
-//        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
+            if (bluetoothManager != null && bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
 
-        if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
-            try {
                 mainDeviceItemLinkedHashMap.clear();
                 adapter.notifyDataSetChanged();
 
@@ -297,12 +294,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 startScan();
 
-            } catch (Exception e) {
-                Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
-                finish();
+            } else {
+                initBluetoothOn();
             }
-        } else {
-            initBluetoothOn();
+        } catch (Exception e) {
+            Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 
@@ -376,6 +373,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         searchingProgressBar.setVisibility(View.INVISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onDeviceItemClick(String deviceName, String deviceAddress, String deviceRssi) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, deviceName);
+        intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, deviceAddress);
+        intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, deviceRssi);
+        startActivity(intent);
     }
 }
 
