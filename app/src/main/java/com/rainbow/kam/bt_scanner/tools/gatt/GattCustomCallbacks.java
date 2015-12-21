@@ -34,53 +34,55 @@ public interface GattCustomCallbacks {
     void onRSSIUpdate(final int rssi);
     void onRSSIMiss();
 
-    /* define Null Adapter class for that interface */
-    class Null implements GattCustomCallbacks {
-        @Override
-        public void onDeviceConnected() {
-        }
+/*
+/* define Null Adapter class for that interface * /
+class Null implements GattCustomCallbacks {
+@Override
+public void onDeviceConnected() {
+}
 
-        @Override
-        public void onDeviceDisconnected() {
-        }
+@Override
+public void onDeviceDisconnected() {
+}
 
-        @Override
-        public void onServicesFound(List<BluetoothGattService> services) {
-        }
+@Override
+public void onServicesFound(List<BluetoothGattService> services) {
+}
 
-        @Override
-        public void onServicesNotFound() {
+@Override
+public void onServicesNotFound() {
 
-        }
+}
 
-        @Override
-        public void onReadSuccess(BluetoothGattCharacteristic ch) {
-        }
+@Override
+public void onReadSuccess(BluetoothGattCharacteristic ch) {
+}
 
-        @Override
-        public void onReadFail() {
-        }
+@Override
+public void onReadFail() {
+}
 
-        @Override
-        public void onDataNotify(BluetoothGattCharacteristic ch) {
-        }
+@Override
+public void onDataNotify(BluetoothGattCharacteristic ch) {
+}
 
-        @Override
-        public void onWriteSuccess() {
-        }
+@Override
+public void onWriteSuccess() {
+}
 
-        @Override
-        public void onWriteFail() {
-        }
+@Override
+public void onWriteFail() {
+}
 
-        @Override
-        public void onRSSIUpdate(
-                int rssi) {
-        }
+@Override
+public void onRSSIUpdate(
+int rssi) {
+}
 
-        @Override
-        public void onRSSIMiss() {
+@Override
+public void onRSSIMiss() {
 
-        }
-    }
+}
+}
+*/
 }

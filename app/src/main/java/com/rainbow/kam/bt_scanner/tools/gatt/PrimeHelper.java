@@ -10,6 +10,9 @@ import java.util.Locale;
  * Created by kam6512 on 2015-11-04.
  */
 public class PrimeHelper {
+
+    private static byte[] data;
+
     public static byte[] READ_DEVICE_TIME() {
         return parseHexStringToBytes("0x8900");
     }
@@ -28,7 +31,7 @@ public class PrimeHelper {
     }
 
 
-//    public static byte[] READ_STEP_DATA(int week) {
+    //    public static byte[] READ_STEP_DATA(int week) {
     public static byte[] READ_STEP_DATA() {
 //        return parseHexStringToBytes("0xC601" + String.format("%02d", week));
         return parseHexStringToBytes("0xC601" + String.format("%02d", 8));

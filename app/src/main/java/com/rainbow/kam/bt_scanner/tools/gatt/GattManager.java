@@ -9,7 +9,9 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,12 +27,12 @@ public class GattManager {
 
     private final String TAG = getClass().getSimpleName();
 
-    private String deviceAddress;
+//    private String deviceAddress;
 
     private static final int RSSI_UPDATE_TIME_INTERVAL = 5000;
 
-    private GattCustomCallbacks gattCustomCallbacks = null;
-    private static final GattCustomCallbacks NULL_CALLBACK = new GattCustomCallbacks.Null();
+    private GattCustomCallbacks gattCustomCallbacks;
+//    private static final GattCustomCallbacks NULL_CALLBACK = new GattCustomCallbacks.Null();
 
     private final Context context;
 
@@ -45,41 +47,42 @@ public class GattManager {
     public GattManager(Context context, GattCustomCallbacks gattCustomCallbacks) {
         this.context = context;
         this.gattCustomCallbacks = gattCustomCallbacks;
-        if (this.gattCustomCallbacks == null) {
-            this.gattCustomCallbacks = NULL_CALLBACK;
-        }
-        if (bluetoothManager == null) {
-            Log.e(TAG, "GattManager bluetoothManager Null");
+//        if (this.gattCustomCallbacks == null) {
+//            this.gattCustomCallbacks = NULL_CALLBACK;
+//        }
+        if (bluetoothManager == null || bluetoothAdapter == null) {
             bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            bluetoothAdapter = bluetoothManager.getAdapter();
             if (bluetoothManager == null) {
                 Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
             }
-        }
-        if (bluetoothAdapter == null) {
-            Log.e(TAG, "GattManager bluetoothAdapter Null");
-            bluetoothAdapter = bluetoothManager.getAdapter();
         }
     }
 
 
     public void connect(final String deviceAddress) throws Exception {
-        if (deviceAddress == null) {
+        if (TextUtils.isEmpty(deviceAddress)) {
             throw new Exception("Address is not available");
         }
-        this.deviceAddress = deviceAddress;
-        if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(this.deviceAddress)) {
+        if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
             bluetoothGatt.connect();
         } else {
-            bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.deviceAddress);
+            bluetoothDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
             if (bluetoothDevice == null) {
                 throw new Exception("RemoteDevice is not available");
             }
             bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
         }
+//        if ( bluetoothDevice.createBond()){
+//            Log.e(TAG, "Success");
+//        }else {
+//            Log.e(TAG,"Fail");
+//        }
     }
 
 
     public void disconnect() {
+
         bluetoothGatt.disconnect();
     }
 
@@ -90,9 +93,9 @@ public class GattManager {
 
 
     public boolean isConnected() {
-        List<BluetoothDevice> bluetoothDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
-        for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
-            if (this.deviceAddress.equals(bluetoothDevice.getAddress())) {
+        List<BluetoothDevice> bluetoothDevicesTemp = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
+        for (BluetoothDevice bluetoothDeviceTemp : bluetoothDevicesTemp) {
+            if (bluetoothDevice.getAddress().equals(bluetoothDeviceTemp.getAddress())) {
                 return true;
             }
         }
@@ -102,7 +105,7 @@ public class GattManager {
 
     private void readRssiValue(final boolean repeat) {
         timerEnabled = repeat;
-        if (!isConnected() || !timerEnabled) {
+        if (!isConnected()) {
             timerEnabled = false;
             return;
         }
@@ -140,18 +143,16 @@ public class GattManager {
 
 
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
-        boolean status = bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
-        if (status) {
-            // notification 을 enable 한뒤에 Descriptor 를 write 해주어야 응답함
-            BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
-            if (bluetoothGattDescriptor != null) {
-                byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-                bluetoothGattDescriptor.setValue(value);
-                bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
-            }
-        } else {
-            gattCustomCallbacks.onWriteFail();
+        bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
+
+        // notification 을 enable 한뒤에 Descriptor 를 write 해주어야 응답함
+        BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
+        if (bluetoothGattDescriptor != null) {
+            byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+            bluetoothGattDescriptor.setValue(value);
+            bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
         }
+
     }
 
 
@@ -164,13 +165,18 @@ public class GattManager {
 
 
     public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
-        bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-        bluetoothGattCharacteristic.setValue(dataToWrite);
+        if (dataToWrite.length != 0) {
+            bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+            bluetoothGattCharacteristic.setValue(dataToWrite);
 
-        boolean status = bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
-        if (!status) {
+            boolean status = bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
+            if (!status) {
+                gattCustomCallbacks.onWriteFail();
+            }
+        } else {
             gattCustomCallbacks.onWriteFail();
         }
+
     }
 
 
@@ -180,12 +186,10 @@ public class GattManager {
             Log.e(TAG, "status = " + status + "   newState = " + newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
 
-//                bluetoothGatt.readRemoteRssi();
                 startServiceDiscovery();
                 startMonitoringRssiValue();
 
                 gattCustomCallbacks.onDeviceConnected();
-
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 
