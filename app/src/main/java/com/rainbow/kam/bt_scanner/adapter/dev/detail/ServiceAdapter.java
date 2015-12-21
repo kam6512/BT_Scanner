@@ -27,6 +27,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private OnServiceItemClickListener onServiceItemClickListener;
 
+
     public ServiceAdapter(ArrayList<ServiceItem> serviceItemArrayList, Activity activity) {
         this.serviceItemArrayList = serviceItemArrayList;
         try {
@@ -36,12 +37,14 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
         return new ServiceViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
@@ -52,36 +55,41 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         serviceViewHolder.serviceUuid.setText(serviceItem.getUuid());
         serviceViewHolder.serviceType.setText(serviceItem.getType());
 
-//        String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
         String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
         serviceViewHolder.serviceTitle.setText(title);
         serviceViewHolder.serviceUuid.setText("UUID : " + "0x" + serviceItem.getUuid().substring(4, 8).toUpperCase());
     }
+
 
     @Override
     public int getItemViewType(int position) {
         return TYPE_SERVICE;
     }
 
+
     @Override
     public int getItemCount() {
         return serviceItemArrayList.size();
     }
+
 
     @Override
     public long getItemId(int position) {
         return position;
     }
 
+
     public void clearList() {
         serviceItemArrayList.clear();
     }
+
 
     public class ServiceViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView serviceTitle;
         private final TextView serviceUuid;
         private final TextView serviceType;
+
 
         public ServiceViewHolder(View itemView) {
             super(itemView);

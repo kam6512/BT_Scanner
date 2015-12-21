@@ -81,8 +81,8 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
     }
 
     @Override
-    public void onDeviceSelect(Bundle bundle) {
-        splashNursingFragmentAddUser.saveDB(bundle);
+    public void onDeviceSelect(String name, String address) {
+        splashNursingFragmentAddUser.saveDB(name, address);
     }
 
     @Override
