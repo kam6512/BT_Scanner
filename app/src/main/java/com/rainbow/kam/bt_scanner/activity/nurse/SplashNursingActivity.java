@@ -8,7 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.nurse.selected.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.SelectDeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.nurse.splash.SplashNursingFragmentAddUser;
 import com.rainbow.kam.bt_scanner.fragment.nurse.splash.SplashNursingFragmentLogo;
 import com.rainbow.kam.bt_scanner.patient.Patient;

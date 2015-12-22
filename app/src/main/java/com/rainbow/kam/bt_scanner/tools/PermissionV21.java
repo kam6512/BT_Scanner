@@ -13,6 +13,8 @@ import android.widget.Toast;
  */
 public class PermissionV21 {
 
+    public static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+
     @TargetApi(Build.VERSION_CODES.M)
     public static void check(Activity activity) {
         final int REQUEST_ENABLE_BT = 1;

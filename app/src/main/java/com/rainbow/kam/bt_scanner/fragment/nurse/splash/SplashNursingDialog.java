@@ -30,8 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.nurse.selected.SelectDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.nurse.selected.SelectDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.dev.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.dev.SelectDeviceItem;
+import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,8 +44,6 @@ public class SplashNursingDialog extends DialogFragment {
 
     private final String TAG = getClass().getSimpleName(); //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-
     private Activity activity;
     private View view;
     private boolean isScanning;
@@ -138,7 +137,7 @@ public class SplashNursingDialog extends DialogFragment {
 
 
     private void setScannerCallback() {
-        if (isBuildVersionLM) {
+        if (PermissionV21.isBuildVersionLM) {
             setScannerL();
         } else {
             setScanner();
@@ -211,7 +210,7 @@ public class SplashNursingDialog extends DialogFragment {
                     itemLinkedHashMap.clear();
                     adapter.notifyDataSetChanged();
 
-                    if (isBuildVersionLM) {
+                    if (PermissionV21.isBuildVersionLM) {
                         bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                     }
 
@@ -265,7 +264,7 @@ public class SplashNursingDialog extends DialogFragment {
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
 
-        if (isBuildVersionLM) {
+        if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
             }
@@ -278,7 +277,7 @@ public class SplashNursingDialog extends DialogFragment {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         //중지
-        if (isBuildVersionLM) {
+        if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
                 bleScanner.stopScan(scanCallback);
             }

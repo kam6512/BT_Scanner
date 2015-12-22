@@ -36,8 +36,8 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.nurse.SplashNursingActivity;
-import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.dev.main.MainDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.SelectDeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import java.util.LinkedHashMap;
@@ -46,11 +46,11 @@ import java.util.List;
 /**
  * Created by kam6512 on 2015-10-22.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, MainDeviceAdapter.OnDeviceItemClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, SelectDeviceAdapter.OnDeviceSelectListener {
 
-    private static final String TAG = "MainActivity";
+    private final String TAG = getClass().getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+
 
     private boolean isScanning;
 
@@ -66,16 +66,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
     private RecyclerView.Adapter adapter = null;
-    private final LinkedHashMap<String, MainDeviceItem> mainDeviceItemLinkedHashMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, SelectDeviceItem> selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (isBuildVersionLM) {
+        if (PermissionV21.isBuildVersionLM) {
             PermissionV21.check(this);
         }
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,17 +92,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
         registerBluetooth();
     }
 
+
     @Override
     protected void onPause() { //꺼짐
         super.onPause();
         stopScan();
     }
+
 
     @Override
     public void onClick(View v) {
@@ -112,13 +116,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
-        startActivity(new Intent(this, SplashNursingActivity.class));
         drawerLayout.closeDrawer(GravityCompat.START);
+        startActivity(new Intent(this, SplashNursingActivity.class));
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -129,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -146,9 +153,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1) {
+        if (requestCode == REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
@@ -195,11 +203,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new MainDeviceAdapter(mainDeviceItemLinkedHashMap, MainActivity.this);
+        adapter = new SelectDeviceAdapter(selectDeviceItemLinkedHashMap, MainActivity.this);
         recyclerView.setAdapter(adapter);
-
-        mainDeviceItemLinkedHashMap.clear();
-        adapter.notifyDataSetChanged();
     }
 
 
@@ -216,12 +221,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setScannerCallback() {
-        if (isBuildVersionLM) {
+        if (PermissionV21.isBuildVersionLM) {
             setScannerL();
         } else {
             setScanner();
         }
     }
+
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setScannerL() {
@@ -233,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
 
+
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
@@ -242,9 +249,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
 
+
             @Override
             public void onScanFailed(int errorCode) {
             }
+
 
             private void processResult(final ScanResult result) {
                 BluetoothDevice bluetoothDevice = result.getDevice();
@@ -254,8 +263,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     deviceName = "N/A";
                 }
 
-                if (!mainDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-                    mainDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new MainDeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), result.getRssi()));
+                if (!selectDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
+                    selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new SelectDeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), result.getRssi()));
                 }
             }
         };
@@ -271,12 +280,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (deviceName == null) {
                     deviceName = "N/A";
                 }
-                if (!mainDeviceItemLinkedHashMap.containsKey(device.getAddress())) {
-                    mainDeviceItemLinkedHashMap.put(device.getAddress(), new MainDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                if (!selectDeviceItemLinkedHashMap.containsKey(device.getAddress())) {
+                    selectDeviceItemLinkedHashMap.put(device.getAddress(), new SelectDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                 }
             }
         };
     }
+
 
     @SuppressLint("NewApi")
     private void registerBluetooth() {
@@ -285,10 +295,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (bluetoothManager != null && bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
 
-                mainDeviceItemLinkedHashMap.clear();
+                selectDeviceItemLinkedHashMap.clear();
                 adapter.notifyDataSetChanged();
 
-                if (isBuildVersionLM) {
+                if (PermissionV21.isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
 
@@ -321,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
@@ -329,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 stopScan();
 
-                if (mainDeviceItemLinkedHashMap.size() < 1) {
+                if (selectDeviceItemLinkedHashMap.size() < 1) {
                     noDeviceTextView.setVisibility(View.VISIBLE);
                 }
                 adapter.notifyDataSetChanged();
@@ -338,13 +349,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
-        mainDeviceItemLinkedHashMap.clear();
+        selectDeviceItemLinkedHashMap.clear();
         adapter.notifyDataSetChanged();
         isScanning = true;
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
 
-        if (isBuildVersionLM) {
+        if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
             }
@@ -354,10 +365,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         //중지
-        if (isBuildVersionLM) {
+        if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
                 bleScanner.stopScan(scanCallback);
             }
@@ -373,12 +385,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 
+
     @Override
-    public void onDeviceItemClick(String deviceName, String deviceAddress, String deviceRssi) {
+    public void onDeviceSelect(String name, String address) {
         Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, deviceName);
-        intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, deviceAddress);
-        intent.putExtra(DetailActivity.EXTRAS_DEVICE_RSSI, deviceRssi);
+        intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, name);
+        intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, address);
         startActivity(intent);
     }
 }

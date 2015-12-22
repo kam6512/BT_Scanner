@@ -20,8 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicAdapter;
-import com.rainbow.kam.bt_scanner.adapter.dev.detail.ServiceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.detail.CharacteristicAdapter;
+import com.rainbow.kam.bt_scanner.adapter.detail.ServiceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment.OnCharacteristicReadyListener;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
@@ -40,16 +40,14 @@ public class DetailActivity extends AppCompatActivity
         DetailFragment.OnDetailReadyListener,
         OnCharacteristicReadyListener,
         OnServiceReadyListener,
-        ServiceAdapter.OnServiceItemClickListener,
-        CharacteristicAdapter.OnCharacteristicItemClickListener {
-
+        CharacteristicAdapter.OnCharacteristicItemClickListener,
+        ServiceAdapter.OnServiceItemClickListener {
     public static final String TAG = "DetailActivity";
 
     private static final int REQUEST_ENABLE_BT = 1;
 
     public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
-    public static final String EXTRAS_DEVICE_RSSI = "BLE_DEVICE_RSSI";
 
     private static final String RSSI_UNIT = "db";
 
@@ -77,6 +75,7 @@ public class DetailActivity extends AppCompatActivity
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristic;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +84,7 @@ public class DetailActivity extends AppCompatActivity
         Intent intent = getIntent();
         deviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         deviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        deviceRSSI = intent.getStringExtra(EXTRAS_DEVICE_RSSI) + RSSI_UNIT;
+        deviceRSSI = "- - -" + RSSI_UNIT;
 
         setToolbar();
         setFragments();
@@ -124,11 +123,13 @@ public class DetailActivity extends AppCompatActivity
         characteristicFragment.setRetainInstance(true);
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
         registerBluetooth();
     }
+
 
     @Override
     protected void onPause() {
@@ -136,11 +137,13 @@ public class DetailActivity extends AppCompatActivity
         disconnectDevice();
     }
 
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         isCallBackReady = true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -150,6 +153,7 @@ public class DetailActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -166,6 +170,7 @@ public class DetailActivity extends AppCompatActivity
                 break;
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -188,6 +193,7 @@ public class DetailActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void registerBluetooth() {
         if (gattManager == null) {
@@ -229,6 +235,7 @@ public class DetailActivity extends AppCompatActivity
         }
     }
 
+
     @Override
     public void onDeviceConnected() {
         runOnUiThread(new Runnable() {
@@ -238,6 +245,7 @@ public class DetailActivity extends AppCompatActivity
             }
         });
     }
+
 
     @Override
     public void onDeviceDisconnected() {
@@ -250,15 +258,19 @@ public class DetailActivity extends AppCompatActivity
         });
     }
 
+
     @Override
     public void onServicesFound(final List<BluetoothGattService> services) {
         bluetoothGattServices = services;
         onServiceReady();
     }
 
+
     @Override
-    public void onServicesNotFound() {Toast.makeText(this,getResources().getText(R.string.fail_characteristic),Toast.LENGTH_SHORT).show();
+    public void onServicesNotFound() {
+        Toast.makeText(this, getResources().getText(R.string.fail_characteristic), Toast.LENGTH_SHORT).show();
     }
+
 
     @Override
     public void onReadSuccess(final BluetoothGattCharacteristic ch) {
@@ -271,6 +283,7 @@ public class DetailActivity extends AppCompatActivity
         });
     }
 
+
     @Override
     public void onReadFail() {
         runOnUiThread(new Runnable() {
@@ -281,20 +294,24 @@ public class DetailActivity extends AppCompatActivity
         });
     }
 
+
     @Override
     public void onDataNotify(BluetoothGattCharacteristic ch) {
         // Not use in this Activity
     }
+
 
     @Override
     public void onWriteSuccess() {
         Toast.makeText(this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
     }
 
+
     @Override
     public void onWriteFail() {
         Toast.makeText(this, "onWriteFail", Toast.LENGTH_SHORT).show();
     }
+
 
     @Override
     public void onRSSIUpdate(final int rssi) {
@@ -307,6 +324,7 @@ public class DetailActivity extends AppCompatActivity
         });
     }
 
+
     @Override
     public void onRSSIMiss() {
         runOnUiThread(new Runnable() {
@@ -318,6 +336,7 @@ public class DetailActivity extends AppCompatActivity
         });
     }
 
+
     @Override
     public void onServiceItemClick(int position) {
         fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicFragment).commit();
@@ -325,11 +344,13 @@ public class DetailActivity extends AppCompatActivity
         onCharacteristicReady();
     }
 
+
     @Override
     public void onCharacteristicItemClick(int position) {
         fragmentManager.beginTransaction().addToBackStack("detail").replace(R.id.detail_fragment_view, detailFragment).commit();
         bluetoothGattCharacteristic = bluetoothGattCharacteristics.get(position);
     }
+
 
     @Override
     public void onServiceReady() {
@@ -350,6 +371,7 @@ public class DetailActivity extends AppCompatActivity
         });
     }
 
+
     @Override
     public void onCharacteristicReady() {
         runOnUiThread(new Runnable() {
@@ -368,6 +390,7 @@ public class DetailActivity extends AppCompatActivity
             }
         });
     }
+
 
     @Override
     public void onDetailReady() {

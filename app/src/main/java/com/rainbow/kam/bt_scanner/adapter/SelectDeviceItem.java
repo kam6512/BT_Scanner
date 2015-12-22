@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter.nurse.selected;
+package com.rainbow.kam.bt_scanner.adapter.dev;
 
 /**
  * Created by kam6512 on 2015-10-14.
