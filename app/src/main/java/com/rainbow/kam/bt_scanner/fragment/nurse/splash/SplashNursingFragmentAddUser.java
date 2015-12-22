@@ -29,7 +29,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     private Activity activity;
 
-    private SplashNursingDialog dialogFragment;
+    private SplashNursingSelectDialog nursingSelectDialog;
 
     private View view;
     private TextInputLayout name, age, height, weight, step;
@@ -98,8 +98,8 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
 
     private void setBtn() {
-        FloatingActionButton nextFab = (FloatingActionButton) view.findViewById(R.id.nursing_next_fab);
-        nextFab.setOnClickListener(this);
+        FloatingActionButton accept = (FloatingActionButton) view.findViewById(R.id.nursing_accept_fab);
+        accept.setOnClickListener(this);
 
         FloatingActionButton skip = (FloatingActionButton) view.findViewById(R.id.nursing_skip_fab);
         skip.setOnClickListener(this);
@@ -127,7 +127,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.nursing_next_fab:
+            case R.id.nursing_accept_fab:
                 onAccept();
                 break;
             case R.id.nursing_skip_fab:
@@ -213,16 +213,16 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
 
     private void showDeviceListDialog() {
-        if (dialogFragment == null) {
-            dialogFragment = new SplashNursingDialog();
+        if (nursingSelectDialog == null) {
+            nursingSelectDialog = new SplashNursingSelectDialog();
         }
-        dialogFragment.show(getFragmentManager(), "DeviceDialog");
+        nursingSelectDialog.show(getFragmentManager(), "DeviceDialog");
     }
 
 
     private void dismissDeviceListDialog() {
-        if (dialogFragment != null) {
-            dialogFragment.dismiss();
+        if (nursingSelectDialog != null) {
+            nursingSelectDialog.dismiss();
         }
     }
 

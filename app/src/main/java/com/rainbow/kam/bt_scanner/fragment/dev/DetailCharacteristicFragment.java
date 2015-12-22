@@ -13,8 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicAdapter;
-import com.rainbow.kam.bt_scanner.adapter.dev.detail.CharacteristicItem;
+import com.rainbow.kam.bt_scanner.adapter.detail.CharacteristicAdapter;
+import com.rainbow.kam.bt_scanner.adapter.detail.CharacteristicItem;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;

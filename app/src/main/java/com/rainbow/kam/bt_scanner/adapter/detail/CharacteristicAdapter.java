@@ -26,6 +26,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
+
     public CharacteristicAdapter(ArrayList<CharacteristicItem> characteristicItemArrayList, Activity activity) {
         this.characteristicItemArrayList = characteristicItemArrayList;
         try {
@@ -35,12 +36,14 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.detail_bluetooth_characteristics_item, parent, false);
         return new CharacteristicViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
@@ -51,6 +54,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         characteristicViewHolder.characteristicUuid.setText(characteristicItem.getUuid());
     }
 
+
     @Override
     public int getItemViewType(int position) {
 
@@ -58,30 +62,35 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     }
 
+
     @Override
     public int getItemCount() {
         return characteristicItemArrayList.size();
     }
+
 
     @Override
     public long getItemId(int position) {
         return position;
     }
 
+
     public void clearList() {
         characteristicItemArrayList.clear();
     }
+
 
     private class CharacteristicViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView characteristicTitle;
         private final TextView characteristicUuid;
 
+
         public CharacteristicViewHolder(View itemView) {
             super(itemView);
             characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_title);
             characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
-           itemView.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onCharacteristicItemClickListener.onCharacteristicItemClick(getLayoutPosition());

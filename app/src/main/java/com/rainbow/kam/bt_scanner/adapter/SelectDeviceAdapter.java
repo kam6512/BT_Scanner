@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter.dev;
+package com.rainbow.kam.bt_scanner.adapter;
 
 import android.app.Activity;
 import android.support.v7.widget.CardView;

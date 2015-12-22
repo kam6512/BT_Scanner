@@ -30,8 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.dev.SelectDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.dev.SelectDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.SelectDeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.SelectDeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import java.util.LinkedHashMap;
@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class SplashNursingDialog extends DialogFragment {
+public class SplashNursingSelectDialog extends DialogFragment {
 
     private final String TAG = getClass().getSimpleName(); //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1;
@@ -48,8 +48,7 @@ public class SplashNursingDialog extends DialogFragment {
     private View view;
     private boolean isScanning;
 
-    BluetoothManager bluetoothManager;
-
+    private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothAdapter.LeScanCallback leScanCallback;
 
@@ -63,11 +62,13 @@ public class SplashNursingDialog extends DialogFragment {
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
 
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         this.activity = activity;
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -84,11 +85,13 @@ public class SplashNursingDialog extends DialogFragment {
         return view;
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
         registerBluetooth();
     }
+
 
     @Override
     public void onPause() { //꺼짐
@@ -144,6 +147,7 @@ public class SplashNursingDialog extends DialogFragment {
         }
     }
 
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setScannerL() {
         scanCallback = new ScanCallback() {
@@ -154,6 +158,7 @@ public class SplashNursingDialog extends DialogFragment {
                 }
             }
 
+
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
@@ -163,9 +168,11 @@ public class SplashNursingDialog extends DialogFragment {
                 }
             }
 
+
             @Override
             public void onScanFailed(int errorCode) {
             }
+
 
             private void processResult(final ScanResult result) {
 
@@ -199,6 +206,7 @@ public class SplashNursingDialog extends DialogFragment {
             }
         };
     }
+
 
     @SuppressLint("NewApi")
     private void registerBluetooth() {
@@ -238,6 +246,7 @@ public class SplashNursingDialog extends DialogFragment {
         startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
@@ -273,6 +282,7 @@ public class SplashNursingDialog extends DialogFragment {
             bluetoothAdapter.startLeScan(leScanCallback);
         }
     }
+
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {

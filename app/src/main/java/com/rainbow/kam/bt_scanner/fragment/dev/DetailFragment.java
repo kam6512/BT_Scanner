@@ -62,6 +62,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
 
     private OnDetailReadyListener onDetailReadyListener;
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -183,7 +184,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
 
     private void bindView() {
 
-        if (gattManager != null || bluetoothDevice != null) {
+        if (bluetoothDevice != null) {
             deviceName.setText(bluetoothDevice.getName());
             deviceAddress.setText(bluetoothDevice.getAddress());
 
@@ -247,6 +248,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
                 break;
         }
     }
+
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
