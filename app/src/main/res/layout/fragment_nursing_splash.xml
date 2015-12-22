@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    style="@style/NestedScrollView"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
     >
 
     <ImageView
@@ -10,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:contentDescription="@string/logo"
+        android:contentDescription="@string/splash.logo.logo"
         android:scaleType="center"
         android:src="@mipmap/ic_launcher"/>
 
@@ -30,7 +32,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="64dp"
             android:background="@null"
-            android:text="@string/pilot"
+            android:text="@string/splash.logo.pilot"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/nursingPrimary_light"/>
 
@@ -40,7 +42,7 @@
             android:layout_gravity="center_horizontal"
             android:background="@null"
             android:padding="10dp"
-            android:text="@string/logo"
+            android:text="@string/splash.logo.logo"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/nursingPrimary_light"/>
     </LinearLayout>
