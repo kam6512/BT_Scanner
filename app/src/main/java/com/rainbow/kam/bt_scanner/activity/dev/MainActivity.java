@@ -36,8 +36,8 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.nurse.SplashNursingActivity;
-import com.rainbow.kam.bt_scanner.adapter.SelectDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.SelectDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import java.util.LinkedHashMap;
@@ -46,7 +46,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2015-10-22.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, SelectDeviceAdapter.OnDeviceSelectListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, DeviceAdapter.OnDeviceSelectListener {
 
     private final String TAG = getClass().getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
     private RecyclerView.Adapter adapter = null;
-    private final LinkedHashMap<String, SelectDeviceItem> selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, DeviceItem> selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
 
     @Override
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new SelectDeviceAdapter(selectDeviceItemLinkedHashMap, MainActivity.this);
+        adapter = new DeviceAdapter(selectDeviceItemLinkedHashMap, MainActivity.this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 if (!selectDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-                    selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new SelectDeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), result.getRssi()));
+                    selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), result.getRssi()));
                 }
             }
         };
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     deviceName = "N/A";
                 }
                 if (!selectDeviceItemLinkedHashMap.containsKey(device.getAddress())) {
-                    selectDeviceItemLinkedHashMap.put(device.getAddress(), new SelectDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                    selectDeviceItemLinkedHashMap.put(device.getAddress(), new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                 }
             }
         };

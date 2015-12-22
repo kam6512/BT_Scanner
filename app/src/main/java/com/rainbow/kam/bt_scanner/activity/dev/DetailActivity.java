@@ -22,11 +22,11 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.detail.CharacteristicAdapter;
 import com.rainbow.kam.bt_scanner.adapter.detail.ServiceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailCharacteristicFragment.OnCharacteristicReadyListener;
+import com.rainbow.kam.bt_scanner.fragment.dev.CharacteristicFragment;
+import com.rainbow.kam.bt_scanner.fragment.dev.CharacteristicFragment.OnCharacteristicReadyListener;
 import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailServiceFragment.OnServiceReadyListener;
+import com.rainbow.kam.bt_scanner.fragment.dev.ServiceFragment;
+import com.rainbow.kam.bt_scanner.fragment.dev.ServiceFragment.OnServiceReadyListener;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 
@@ -64,8 +64,8 @@ public class DetailActivity extends AppCompatActivity
 
     private FragmentManager fragmentManager;
 
-    private DetailServiceFragment serviceFragment;
-    private DetailCharacteristicFragment characteristicFragment;
+    private ServiceFragment serviceFragment;
+    private CharacteristicFragment characteristicFragment;
     private DetailFragment detailFragment;
 
     private GattManager gattManager;
@@ -115,8 +115,8 @@ public class DetailActivity extends AppCompatActivity
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
-        serviceFragment = new DetailServiceFragment();
-        characteristicFragment = new DetailCharacteristicFragment();
+        serviceFragment = new ServiceFragment();
+        characteristicFragment = new CharacteristicFragment();
         detailFragment = new DetailFragment();
 
         serviceFragment.setRetainInstance(true);
@@ -216,7 +216,7 @@ public class DetailActivity extends AppCompatActivity
 
 
     private void connectDevice() {
-        deviceStateTextView.setText("connecting...");
+        deviceStateTextView.setText("connecting");
         try {
             gattManager.connect(deviceAddress);
         } catch (Exception e) {
@@ -241,7 +241,7 @@ public class DetailActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                deviceStateTextView.setText(R.string.connected);
+                deviceStateTextView.setText(R.string.detail_state_connected);
             }
         });
     }
@@ -253,7 +253,7 @@ public class DetailActivity extends AppCompatActivity
             @Override
             public void run() {
                 isCallBackReady = false;
-                deviceStateTextView.setText(R.string.disconnected);
+                deviceStateTextView.setText(R.string.detail_state_disconnected);
             }
         });
     }

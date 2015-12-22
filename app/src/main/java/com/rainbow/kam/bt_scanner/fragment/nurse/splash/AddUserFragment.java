@@ -25,11 +25,11 @@ import io.realm.RealmConfiguration;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SplashNursingFragmentAddUser extends Fragment implements View.OnClickListener {
+public class AddUserFragment extends Fragment implements View.OnClickListener {
 
     private Activity activity;
 
-    private SplashNursingSelectDialog nursingSelectDialog;
+    private SelectDeviceDialogFragment nursingSelectDialog;
 
     private View view;
     private TextInputLayout name, age, height, weight, step;
@@ -214,7 +214,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     private void showDeviceListDialog() {
         if (nursingSelectDialog == null) {
-            nursingSelectDialog = new SplashNursingSelectDialog();
+            nursingSelectDialog = new SelectDeviceDialogFragment();
         }
         nursingSelectDialog.show(getFragmentManager(), "DeviceDialog");
     }

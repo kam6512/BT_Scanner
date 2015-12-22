@@ -8,9 +8,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.SelectDeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.nurse.splash.SplashNursingFragmentAddUser;
-import com.rainbow.kam.bt_scanner.fragment.nurse.splash.SplashNursingFragmentLogo;
+import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.fragment.nurse.splash.AddUserFragment;
+import com.rainbow.kam.bt_scanner.fragment.nurse.splash.LogoFragment;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 
 import io.realm.Realm;
@@ -20,11 +20,11 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SplashNursingActivity extends AppCompatActivity implements SelectDeviceAdapter.OnDeviceSelectListener, SplashNursingFragmentAddUser.OnDeviceSavedListener {
+public class SplashNursingActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, AddUserFragment.OnDeviceSavedListener {
 
     private static final String TAG = SplashNursingActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
-    private SplashNursingFragmentAddUser splashNursingFragmentAddUser;
+    private AddUserFragment addUserFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +49,15 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
 
 
     private void setFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.nursing_start_frame, new SplashNursingFragmentLogo()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.nursing_start_frame, new LogoFragment()).commit();
 
-        splashNursingFragmentAddUser = new SplashNursingFragmentAddUser();
+        addUserFragment = new AddUserFragment();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (!isFinishing()) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.nursing_start_frame, splashNursingFragmentAddUser)
+                            .replace(R.id.nursing_start_frame, addUserFragment)
                             .commit();
                 }
             }
@@ -82,7 +82,7 @@ public class SplashNursingActivity extends AppCompatActivity implements SelectDe
 
     @Override
     public void onDeviceSelect(String name, String address) {
-        splashNursingFragmentAddUser.saveDB(name, address);
+        addUserFragment.saveDB(name, address);
     }
 
     @Override

@@ -30,8 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.SelectDeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.SelectDeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
 import java.util.LinkedHashMap;
@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class SplashNursingSelectDialog extends DialogFragment {
+public class SelectDeviceDialogFragment extends DialogFragment {
 
     private final String TAG = getClass().getSimpleName(); //로그용 태그
     private static final int REQUEST_ENABLE_BT = 1;
@@ -57,7 +57,7 @@ public class SplashNursingSelectDialog extends DialogFragment {
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView.Adapter adapter = null;
-    private final LinkedHashMap<String, SelectDeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, DeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
 
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
@@ -125,7 +125,7 @@ public class SplashNursingSelectDialog extends DialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        adapter = new SelectDeviceAdapter(itemLinkedHashMap, activity);
+        adapter = new DeviceAdapter(itemLinkedHashMap, activity);
         selectDeviceRecyclerView.setAdapter(adapter);
     }
 
@@ -183,7 +183,7 @@ public class SplashNursingSelectDialog extends DialogFragment {
                 }
 
                 if (!itemLinkedHashMap.containsKey(result.getDevice().getAddress())) {
-                    itemLinkedHashMap.put(result.getDevice().getAddress(), new SelectDeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
+                    itemLinkedHashMap.put(result.getDevice().getAddress(), new DeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
                 }
             }
         };
@@ -201,7 +201,7 @@ public class SplashNursingSelectDialog extends DialogFragment {
                     deviceName = "N/A";
                 }
                 if (!itemLinkedHashMap.containsKey(device.getAddress())) {
-                    itemLinkedHashMap.put(device.getAddress(), new SelectDeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
+                    itemLinkedHashMap.put(device.getAddress(), new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
                 }
             }
         };

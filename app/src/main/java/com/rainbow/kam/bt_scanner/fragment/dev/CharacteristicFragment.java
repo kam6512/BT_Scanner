@@ -23,7 +23,7 @@ import java.util.Locale;
 /**
  * Created by kam6512 on 2015-10-29.
  */
-public class DetailCharacteristicFragment extends Fragment {
+public class CharacteristicFragment extends Fragment {
 
     private Activity activity;
 

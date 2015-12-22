@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * Created by kam6512 on 2015-10-29.
  */
-public class DetailServiceFragment extends Fragment {
+public class ServiceFragment extends Fragment {
 
     private Activity activity;
 
