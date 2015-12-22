@@ -46,7 +46,7 @@
 
                     <TextView
                         android:id="@+id/detail.name"
-                        style="@style/DeviceText"/>
+                        style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
@@ -57,7 +57,7 @@
 
                     <TextView
                         android:id="@+id/detail.rssi"
-                        style="@style/DeviceText"/>
+                        style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
@@ -68,7 +68,7 @@
 
                     <TextView
                         android:id="@+id/detail.address"
-                        style="@style/DeviceText"/>
+                        style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
@@ -79,7 +79,7 @@
 
                     <TextView
                         android:id="@+id/detail.state"
-                        style="@style/DeviceText"/>
+                        style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
             </TableLayout>
         </android.support.design.widget.CollapsingToolbarLayout>

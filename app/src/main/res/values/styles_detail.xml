@@ -39,13 +39,11 @@
     </style>
 
     <style name="DeviceLabel">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">end|center_vertical</item>
         <item name="android:textColor">@color/nursingPrimary_light</item>
     </style>
 
-    <style name="DeviceText">
+    <style name="DeviceLabel.DeviceText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">2dp</item>
@@ -63,8 +61,15 @@
         <item name="android:background">@null</item>
         <item name="android:layout_gravity">end</item>
         <item name="android:layout_weight">0</item>
-        <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">12sp</item>
+    </style>
+
+
+    <style name="DeviceCharacteristicInfoLabel.DeviceCharacteristicSubInfoLabel">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:layout_gravity">start</item>
+        <item name="android:layout_marginBottom">@dimen/deviceItem_margin</item>
     </style>
 
     <style name="DeviceCharacteristicInfo">
@@ -76,13 +81,7 @@
         <item name="android:layout_marginStart">@dimen/deviceItem_margin</item>
     </style>
 
-    <style name="DeviceCharacteristicSubInfoLabel" parent="DeviceCharacteristicInfoLabel">
-        <item name="android:textColor">@color/secondary_text</item>
-        <item name="android:textSize">10sp</item>
-        <item name="android:layout_marginBottom">@dimen/deviceItem_margin</item>
-    </style>
-
-    <style name="DeviceCharacteristicSubInfo" parent="DeviceCharacteristicInfo">
+    <style name="DeviceCharacteristicInfo.DeviceCharacteristicSubInfo">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">10sp</item>
         <item name="android:layout_marginBottom">@dimen/deviceItem_margin</item>

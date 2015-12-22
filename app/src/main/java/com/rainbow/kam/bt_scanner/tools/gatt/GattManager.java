@@ -20,6 +20,8 @@ import com.rainbow.kam.bt_scanner.R;
 import java.util.List;
 import java.util.UUID;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-10-29.
  */
@@ -54,7 +56,7 @@ public class GattManager {
         }
     }
 
-
+    @DebugLog
     public void connect(final String deviceAddress) throws Exception {
         if (TextUtils.isEmpty(deviceAddress)) {
             throw new Exception("Address is not available");
@@ -70,7 +72,7 @@ public class GattManager {
         }
     }
 
-
+    @DebugLog
     public void disconnect() {
         bluetoothGatt.disconnect();
     }

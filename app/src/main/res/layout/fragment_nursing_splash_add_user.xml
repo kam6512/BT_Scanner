@@ -14,7 +14,7 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/nursing_add_user_name"
-            style="@style/AddUserInput">
+            style="@style/AddUserEditText.AddUserInput">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_name"
@@ -25,7 +25,7 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/nursing_add_user_age"
-            style="@style/AddUserInput">
+            style="@style/AddUserEditText.AddUserInput">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_age"
@@ -36,7 +36,7 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/nursing_add_user_height"
-            style="@style/AddUserInput">
+            style="@style/AddUserEditText.AddUserInput">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_height"
@@ -47,7 +47,7 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/nursing_add_user_weight"
-            style="@style/AddUserInput">
+            style="@style/AddUserEditText.AddUserInput">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_weight"
@@ -58,7 +58,7 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/nursing_add_user_step"
-            style="@style/AddUserInput">
+            style="@style/AddUserEditText.AddUserInput">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_step"

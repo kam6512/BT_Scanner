@@ -199,14 +199,14 @@ public class CircleCounter extends View {
     private void init(TypedArray a) {
 
         mTextSize = a.getDimension(R.styleable.CircularMeter_textSize,
-                getResources().getDimension(R.dimen.textSize));
+                getResources().getDimension(R.dimen.text_size));
         mTextColor = a
                 .getColor(R.styleable.CircularMeter_textColor, mTextColor);
 
         mMetricSize = a.getDimension(R.styleable.CircularMeter_metricSize,
-                getResources().getDimension(R.dimen.metricSize));
+                getResources().getDimension(R.dimen.metric_size));
         mMetricText = a.getString(R.styleable.CircularMeter_metricText);
-        mMetricPaddingY = getResources().getDimension(R.dimen.metricPaddingY);
+        mMetricPaddingY = getResources().getDimension(R.dimen.metric_padding_y);
 
         mRange = a.getInt(R.styleable.CircularMeter_range, 100);
 

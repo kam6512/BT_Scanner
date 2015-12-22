@@ -2,11 +2,12 @@
     <string name="app_name">BT.Scanner</string>
     <string name="action.settings">Settings</string>
     <string name="device.name.prime">Prime</string>
+    <string name="gattManager">BLE</string>
 
-    <string name="menu.scan">스캔</string>
-    <string name="menu.sample">샘플</string>
-    <string name="menu.help">HELP</string>
-    <string name="menu.link">link</string>
+    <string name="menu.main.scan">스캔</string>
+    <string name="menu.main.sample">샘플</string>
+    <string name="menu.main.help">HELP</string>
+    <string name="menu.main.link">link</string>
 
     <string name="menu.dashboard">DASHBOARD</string>
     <string name="menu.dashboard.main">메인</string>
@@ -25,52 +26,6 @@
     <string name="menu.about.reset">유저정보 지우기</string>
     <string name="menu.about.info">앱 정보</string>
 
-    <string name="detail.name">Name :</string>
-    <string name="detail.rssi">RSSI :</string>
-    <string name="detail.address">Address :</string>
-    <string name="detail.state">state :</string>
-    <string name="detail.bond.state">Bond State :</string>
-
-    <string name="detail.peripheral">Peripheral:</string>
-    <string name="detail.service">Service:</string>
-    <string name="detail.uuid">UUID:</string>
-    <string name="detail.char">Characteristic:</string>
-    <string name="detail.type">Data Type:</string>
-
-    <string name="detail.string">String :</string>
-    <string name="detail.decimal">Decimal :</string>
-    <string name="detail.updated">Updated :</string>
-
-    <string name="gattManager">BLE</string>
-    <string name="rssi">rssi</string>
-    <string name="info">info</string>
-    <string name="calendar">calendar</string>
-
-    <string name="connected">connected</string>
-    <string name="disconnected">disconnected</string>
-    <string name="detail.child.list.item.characteristics.title">detail.child.list.item.characteristics.title</string>
-    <string name="detail.child.list.item.characteristics.UUID">detail.child.list.item.characteristics.UUID</string>
-    <string name="detail.child.list.item.characteristics.value">detail.child.list.item.characteristics.value</string>
-
-    <string name="detail.parent.list.item.service.title">detail.parent.list.item.service.title</string>
-    <string name="detail.parent.list.item.service.UUID">detail.parent.list.item.service.UUID</string>
-    <string name="detail.parent.list.item.service.type">detail.parent.list.item.service.type</string>
-
-
-    <string name="tg">ToggleButton</string>
-    <string name="read">Read</string>
-    <string name="write">Write</string>
-
-    <string name="pilot">A Pilot Program By</string>
-    <string name="logo">Rainbow - Wireless</string>
-
-    <string name="dashboard.time">Device Time</string>
-
-    <string name="dashboard.step">STEP</string>
-    <string name="dashboard.calorie">CALORIE</string>
-    <string name="dashboard.distance">DISTANCE</string>
-    <string name="dashboard.etc">ETC</string>
-
     <string name="bt.on">블루투스 On</string>
     <string name="bt.not.init">블루투스가 시작되지 않았습니다.</string>
     <string name="bt.must.start">블루투스를 시작해야 합니다.</string>
@@ -82,6 +37,60 @@
     <string name="permission.thanks">권한 획득, 감사합니다.</string>
     <string name="permission.request"><![CDATA[[권한] 탭 -> [위치] 권한을 허용해주십시오]]></string>
     <string name="permission.denial">권한의 획득을 거부</string>
+
+    <string name="reconnect">다시 연결하기</string>
+    <string name="reconnect.accept">재시도</string>
+
+    <string name="exit">종료</string>
+    <string name="device.disconnected">기기와의 연결이 비활성화 되었습니다</string>
+    <string name="connecting">연결중</string>
+
+    <string name="detail.state.connected">connected</string>
+    <string name="detail.state.disconnected">disconnected</string>
+
+    <string name="detail.device.label.name">Name :</string>
+    <string name="detail.device.label.rssi">RSSI :</string>
+    <string name="detail.device.label.address">Address :</string>
+    <string name="detail.device.label.state">state :</string>
+    <string name="detail.device.label.bondState">Bond State :</string>
+
+    <string name="detail.label.peripheral">Peripheral:</string>
+    <string name="detail.label.service">Service:</string>
+    <string name="detail.label.uuid">UUID:</string>
+    <string name="detail.label.characteristic">Characteristic:</string>
+    <string name="detail.label.type">Data Type:</string>
+
+    <string name="detail.label.string">String :</string>
+    <string name="detail.label.decimal">Decimal :</string>
+    <string name="detail.label.updated">Updated :</string>
+
+    <string name="detail.button.toggle">ToggleButton</string>
+    <string name="detail.button.read">Read</string>
+    <string name="detail.button.write">Write</string>
+
+    <string name="fail.characteristic">Fail!</string>
+    <string name="service.type.primary">primary</string>
+    <string name="service.type.secondary">Secondary</string>
+
+    <string name="detail.child.list.item.characteristics.title">detail.child.list.item.characteristics.title</string>
+    <string name="detail.child.list.item.characteristics.UUID">detail.child.list.item.characteristics.UUID</string>
+    <string name="detail.child.list.item.characteristics.value">detail.child.list.item.characteristics.value</string>
+
+    <string name="detail.parent.list.item.service.title">detail.parent.list.item.service.title</string>
+    <string name="detail.parent.list.item.service.UUID">detail.parent.list.item.service.UUID</string>
+    <string name="detail.parent.list.item.service.type">detail.parent.list.item.service.type</string>
+
+    <string name="splash.logo.pilot">A Pilot Program By</string>
+    <string name="splash.logo.logo">Rainbow - Wireless</string>
+
+    <string name="dashboard.toolbar.rssi">rssi</string>
+
+    <string name="dashboard.time">Device Time</string>
+
+    <string name="dashboard.step">STEP</string>
+    <string name="dashboard.calorie">CALORIE</string>
+    <string name="dashboard.distance">DISTANCE</string>
+    <string name="dashboard.etc">ETC</string>
 
     <string name="add.user.name.hint">Name</string>
     <string name="add.user.age.hint">Age (in full)</string>
@@ -107,18 +116,5 @@
 
     <string name="gender.man">남성</string>
     <string name="gender.woman">여성</string>
-
-    <string name="reconnect">다시 연결하기</string>
-    <string name="reconnect.accept">재시도</string>
-
-    <string name="exit">종료</string>
-    <string name="device.disconnected">기기와의 연결이 비활성화 되었습니다</string>
-    <string name="connecting">연결중</string>
-
-
-    <string name="fail.characteristic">Fail!</string>
-    <string name="service.type.primary">primary</string>
-    <string name="service.type.secondary">Secondary</string>
-
 
 </resources>

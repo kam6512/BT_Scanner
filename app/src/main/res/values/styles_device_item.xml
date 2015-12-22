@@ -15,18 +15,21 @@
         <item name="android:layout_margin">@dimen/deviceItem_margin</item>
     </style>
 
-    <style name="DeviceItemText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="DeviceItemLabel.DeviceItemText">
         <item name="android:layout_weight">1</item>
-        <item name="android:background">@null</item>
-        <item name="android:layout_gravity">start|center_vertical</item>
         <item name="android:layout_marginStart">@dimen/deviceItem_margin</item>
-        <item name="android:text">device</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
-    <style name="DeviceItemCard" parent="DetailItemCard">
+    <style name="DeviceItemCard">
+        <item name="cardCornerRadius">2dp</item>
+        <item name="cardElevation">5dp</item>
+        <item name="cardPreventCornerOverlap">false</item>
+        <item name="contentPadding">0dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@null</item>
         <item name="android:layout_margin">@dimen/deviceItem_margin</item>
     </style>
 </resources>
