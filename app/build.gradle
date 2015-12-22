@@ -21,6 +21,7 @@ android {
     }
 
 }
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:support-annotations:23.1.1'
@@ -37,3 +38,16 @@ dependencies {
 repositories {
     maven { url "https://jitpack.io" }
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
