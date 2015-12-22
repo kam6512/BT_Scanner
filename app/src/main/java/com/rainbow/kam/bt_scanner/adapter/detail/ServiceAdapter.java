@@ -47,7 +47,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
         ServiceViewHolder serviceViewHolder = (ServiceViewHolder) holder;
         ServiceItem serviceItem = serviceItemArrayList.get(position);
         serviceViewHolder.serviceTitle.setText(serviceItem.getTitle());
@@ -103,6 +102,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             });
         }
     }
+
 
     public interface OnServiceItemClickListener {
         void onServiceItemClick(int position);

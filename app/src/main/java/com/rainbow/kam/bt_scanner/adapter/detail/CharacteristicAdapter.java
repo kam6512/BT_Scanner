@@ -47,7 +47,6 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
         CharacteristicViewHolder characteristicViewHolder = (CharacteristicViewHolder) holder;
         CharacteristicItem characteristicItem = characteristicItemArrayList.get(position);
         characteristicViewHolder.characteristicTitle.setText(characteristicItem.getTitle());
@@ -57,9 +56,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public int getItemViewType(int position) {
-
         return TYPE_CHARACTERISTIC;
-
     }
 
 
@@ -98,6 +95,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             });
         }
     }
+
 
     public interface OnCharacteristicItemClickListener {
         void onCharacteristicItemClick(int position);
