@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="MainItemLabel">
+    <style name="DeviceItemLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@null</item>
-        <item name="android:layout_gravity">start</item>
+        <item name="android:layout_gravity">start|center_vertical</item>
     </style>
 
-    <style name="MainItemTableRow">
+    <style name="DeviceItemTableRow">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:background">@null</item>
-        <item name="android:padding">5dp</item>
+        <item name="android:layout_margin">@dimen/deviceItem_margin</item>
     </style>
 
-    <style name="MainItemText">
-        <item name="android:layout_width">0dp</item>
+    <style name="DeviceItemText">
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:background">@null</item>
-        <item name="android:text">Text</item>
+        <item name="android:layout_gravity">start|center_vertical</item>
+        <item name="android:layout_marginStart">@dimen/deviceItem_margin</item>
+        <item name="android:text">device</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
-    <style name="MainItemCard" parent="DetailItemCard">
-        <item name="android:layout_margin">5dp</item>
+    <style name="DeviceItemCard" parent="DetailItemCard">
+        <item name="android:layout_margin">@dimen/deviceItem_margin</item>
     </style>
 </resources>

@@ -5,22 +5,22 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_scan"
             android:icon="@drawable/ic_menu"
-            android:title="@string/menu_scan"/>
+            android:title="@string/menu.scan"/>
         <item android:id="@+id/nav_nursing"
             android:icon="@drawable/ic_menu"
-            android:title="@string/menu_sample"/>
+            android:title="@string/menu.sample"/>
     </group>
 
-    <item android:title="@string/menu_help">
+    <item android:title="@string/menu.help">
         <menu>
             <item
                 android:id="@+id/nav_link1"
                 android:icon="@drawable/ic_link"
-                android:title="@string/menu_link"/>
+                android:title="@string/menu.link"/>
             <item
                 android:id="@+id/nav_link2"
                 android:icon="@drawable/ic_link"
-                android:title="@string/menu_link"/>
+                android:title="@string/menu.link"/>
         </menu>
     </item>
 

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@null">
+<ScrollView style="@style/NestedScrollView"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,8 +16,8 @@
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_name"
                 style="@style/AddUserEditText"
-                android:hint="@string/add_user_name_hint"
-                android:inputType="text" />
+                android:hint="@string/add.user.name.hint"
+                android:inputType="text"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -29,8 +27,8 @@
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_age"
                 style="@style/AddUserEditText"
-                android:hint="@string/add_user_age_hint"
-                android:inputType="numberSigned" />
+                android:hint="@string/add.user.age.hint"
+                android:inputType="numberSigned"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -40,8 +38,8 @@
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_height"
                 style="@style/AddUserEditText"
-                android:hint="@string/add_user_height_hint"
-                android:inputType="numberSigned" />
+                android:hint="@string/add.user.height.hint"
+                android:inputType="numberSigned"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -51,8 +49,8 @@
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_weight"
                 style="@style/AddUserEditText"
-                android:hint="@string/add_user_weight_hint"
-                android:inputType="numberSigned" />
+                android:hint="@string/add.user.weight.hint"
+                android:inputType="numberSigned"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -62,8 +60,8 @@
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/edit_add_user_step"
                 style="@style/AddUserEditText"
-                android:hint="@string/add_user_step_hint"
-                android:inputType="number" />
+                android:hint="@string/add.user.step.hint"
+                android:inputType="number"/>
         </android.support.design.widget.TextInputLayout>
 
         <RadioGroup
@@ -80,14 +78,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
-                android:text="@string/add_user_men" />
+                android:text="@string/add.user.men"/>
 
             <RadioButton
                 android:id="@+id/radio_woman"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/add_user_woman" />
+                android:text="@string/add.user.woman"/>
         </RadioGroup>
 
         <RelativeLayout
@@ -103,7 +101,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_gravity="end"
                 android:src="@drawable/ic_launcher_arrow_next"
-                app:backgroundTint="@color/colorAccent" />
+                app:backgroundTint="@color/colorAccent"/>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/nursing_skip_fab"
@@ -112,7 +110,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_gravity="start"
                 android:src="@drawable/ic_launcher_arrow_next"
-                app:backgroundTint="@color/colorAccent" />
+                app:backgroundTint="@color/colorAccent"/>
         </RelativeLayout>
 
     </LinearLayout>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout
+    style="@style/NestedScrollView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
 
     <ImageView
         android:id="@+id/imageView"
@@ -11,7 +12,7 @@
         android:layout_centerVertical="true"
         android:contentDescription="@string/logo"
         android:scaleType="center"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@mipmap/ic_launcher"/>
 
     <LinearLayout
         android:id="@+id/nursing_splash_pilot"
@@ -31,7 +32,7 @@
             android:background="@null"
             android:text="@string/pilot"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/nursingPrimary_light" />
+            android:textColor="@color/nursingPrimary_light"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,7 +42,7 @@
             android:padding="10dp"
             android:text="@string/logo"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/nursingPrimary_light" />
+            android:textColor="@color/nursingPrimary_light"/>
     </LinearLayout>
 
 

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.design.widget.CoordinatorLayout
     android:id="@+id/main_coordinatorLayout"
     style="@style/CoordinatorLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activity.dev.MainActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -16,17 +17,17 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
 
     </android.support.design.widget.AppBarLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="@dimen/toolbar_drop_shadow"
         android:background="@drawable/toolbar_drop_shadow"
         app:layout_anchor="@id/toolbar"
-        app:layout_anchorGravity="bottom|center" />
+        app:layout_anchorGravity="bottom|center"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -49,22 +50,18 @@
         android:src="@drawable/search_icon"
         app:backgroundTint="@color/nursingPrimary"
         app:layout_anchor="@id/toolbar"
-        app:layout_anchorGravity="bottom|right|end" />
+        app:layout_anchorGravity="bottom|right|end"/>
 
 
     <ProgressBar
         android:id="@+id/searching_progress_bar"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_gravity="center"
-        android:indeterminate="true" />
+        style="@style/SearchingProgressBar"
+        android:layout_gravity="center"/>
 
     <TextView
         android:id="@+id/no_device_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/NoDeviceLabel"
         android:layout_gravity="center"
-        android:indeterminate="true"
-        android:text="@string/has_not_card" />
+        android:text="@string/device.list.nothing"/>
 
 </android.support.design.widget.CoordinatorLayout>

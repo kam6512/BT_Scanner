@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".nursing.MainNursingActivity">
-    <item android:title="@string/menu_nursing_dashboard">
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".nursing.MainNursingActivity">
+    <item android:title="@string/menu.dashboard">
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/menu_nursing_dashboard"
+                    android:id="@+id/menu.nursing.dashboard"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_dashboard_main"/>
+                    android:title="@string/menu.dashboard.main"/>
                 <item
-                    android:id="@+id/menu_nursing_dashboard_step"
+                    android:id="@+id/menu.nursing.dashboard.step"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_dashboard_step"/>
+                    android:title="@string/menu.dashboard.step"/>
                 <item
-                    android:id="@+id/menu_nursing_dashboard_calorie"
+                    android:id="@+id/menu.nursing.dashboard.calorie"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_dashboard_calorie"/>
+                    android:title="@string/menu.dashboard.calorie"/>
                 <item
-                    android:id="@+id/menu_nursing_dashboard_distance"
+                    android:id="@+id/menu.nursing.dashboard.distance"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_dashboard_distance"/>
+                    android:title="@string/menu.dashboard.distance"/>
                 <item
-                    android:id="@+id/menu_nursing_dashboard_sleep"
+                    android:id="@+id/menu.nursing.dashboard.sleep"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_dashboard_etc"/>
+                    android:title="@string/menu.dashboard.etc"/>
             </group>
 
         </menu>
     </item>
-    <item android:title="@string/menu_nursing_info">
+    <item android:title="@string/menu.info">
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/menu_nursing_info_user"
+                    android:id="@+id/menu.nursing.info.user"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_info_scan"/>
+                    android:title="@string/menu.info.scan"/>
                 <item
-                    android:id="@+id/menu_nursing_info_prime"
+                    android:id="@+id/menu.nursing.info.prime"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_info_prime"/>
+                    android:title="@string/menu.info.prime"/>
                 <item
-                    android:id="@+id/menu_nursing_info_goal"
+                    android:id="@+id/menu.nursing.info.goal"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu_nursing_info_goal"/>
+                    android:title="@string/menu.info.goal"/>
             </group>
 
         </menu>
     </item>
-    <item android:title="@string/menu_nursing_about">
+    <item android:title="@string/menu.about">
         <menu>
             <item
-                android:id="@+id/menu_nursing_about_dev"
+                android:id="@+id/menu.nursing.about.dev"
                 android:icon="@drawable/ic_link"
-                android:title="@string/menu_nursing_about_dev"/>
+                android:title="@string/menu.about.dev"/>
             <item
-                android:id="@+id/menu_nursing_about_setting"
+                android:id="@+id/menu.nursing.about.setting"
                 android:icon="@drawable/ic_link"
-                android:title="@string/menu_nursing_about_reset"/>
+                android:title="@string/menu.about.reset"/>
             <item
-                android:id="@+id/menu_nursing_about_about"
+                android:id="@+id/menu.nursing.about.about"
                 android:icon="@drawable/ic_link"
-                android:title="@string/menu_nursing_about_info"/>
+                android:title="@string/menu.about.info"/>
         </menu>
     </item>
 

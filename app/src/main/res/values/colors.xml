@@ -5,6 +5,7 @@
     <color name="colorPrimaryOrange">#ff8c00</color>
     <color name="colorAccent">#4169e1</color>
     <color name="colorFab">#4169e1</color>
+    <color name="circle_text">#ffffff</color>
 
     <color name="nursingPrimary">#607D8B</color>
     <color name="nursingPrimary_dark">#455A64</color>

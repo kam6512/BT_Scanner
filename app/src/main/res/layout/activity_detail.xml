@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.design.widget.CoordinatorLayout
     style="@style/CoordinatorLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="256dp"
+        android:layout_height="@dimen/detail_app_bar_layout_height"
         android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/detail_collapsing_toolbar"
+            android:id="@+id/detail.collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginEnd="@dimen/expanded_title_margin_end"
+            app:expandedTitleMarginStart="@dimen/expanded_title_margin_start"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <android.support.v7.widget.Toolbar
-                android:id="@+id/detail_toolbar"
+                android:id="@+id/detail.toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@null"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
             <TableLayout
                 android:layout_width="wrap_content"
@@ -39,51 +40,51 @@
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail_name" />
+                        android:text="@string/detail.name"/>
 
                     <TextView
-                        android:id="@+id/detail_name"
-                        style="@style/DeviceText" />
+                        android:id="@+id/detail.name"
+                        style="@style/DeviceText"/>
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail_rssi" />
+                        android:text="@string/detail.rssi"/>
 
                     <TextView
-                        android:id="@+id/detail_rssi"
-                        style="@style/DeviceText" />
+                        android:id="@+id/detail.rssi"
+                        style="@style/DeviceText"/>
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail_address" />
+                        android:text="@string/detail.address"/>
 
                     <TextView
-                        android:id="@+id/detail_address"
-                        style="@style/DeviceText" />
+                        android:id="@+id/detail.address"
+                        style="@style/DeviceText"/>
                 </TableRow>
 
                 <TableRow style="@style/DeviceTableRaw">
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail_state" />
+                        android:text="@string/detail.state"/>
 
                     <TextView
-                        android:id="@+id/detail_state"
-                        style="@style/DeviceText" />
+                        android:id="@+id/detail.state"
+                        style="@style/DeviceText"/>
                 </TableRow>
             </TableLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
     <FrameLayout
-        android:id="@+id/detail_fragment_view"
+        android:id="@+id/detail.fragment_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"

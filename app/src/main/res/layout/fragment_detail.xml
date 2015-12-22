@@ -15,7 +15,7 @@
 
             <TextView
                 style="@style/DeviceCharacteristicInfoLabel"
-                android:text="@string/detail_peripheral" />
+                android:text="@string/detail.peripheral" />
 
             <TextView
                 android:id="@+id/characteristic_device_name"
@@ -27,7 +27,7 @@
 
             <TextView
                 style="@style/DeviceCharacteristicSubInfoLabel"
-                android:text="@string/detail_address" />
+                android:text="@string/detail.address" />
 
             <TextView
                 android:id="@+id/characteristic_device_address"
@@ -38,7 +38,7 @@
 
             <TextView
                 style="@style/DeviceCharacteristicInfoLabel"
-                android:text="@string/detail_service" />
+                android:text="@string/detail.service" />
 
             <TextView
                 android:id="@+id/characteristic_service_name"
@@ -50,7 +50,7 @@
 
             <TextView
                 style="@style/DeviceCharacteristicSubInfoLabel"
-                android:text="@string/detail_uuid" />
+                android:text="@string/detail.uuid" />
 
             <TextView
                 android:id="@+id/characteristic_service_uuid"
@@ -62,10 +62,10 @@
 
             <TextView
                 style="@style/DeviceCharacteristicInfoLabel"
-                android:text="@string/detail_char" />
+                android:text="@string/detail.char" />
 
             <TextView
-                android:id="@+id/characteristic_detail_name"
+                android:id="@+id/characteristic_detail.name"
                 style="@style/DeviceCharacteristicSubInfo" />
 
         </TableRow>
@@ -74,10 +74,10 @@
 
             <TextView
                 style="@style/DeviceCharacteristicSubInfoLabel"
-                android:text="@string/detail_uuid" />
+                android:text="@string/detail.uuid" />
 
             <TextView
-                android:id="@+id/characteristic_detail_uuid"
+                android:id="@+id/characteristic_detail.uuid"
                 style="@style/DeviceCharacteristicSubInfo" />
 
         </TableRow>
@@ -86,10 +86,10 @@
 
             <TextView
                 style="@style/DeviceCharacteristicInfoLabel"
-                android:text="@string/detail_type" />
+                android:text="@string/detail.type" />
 
             <TextView
-                android:id="@+id/characteristic_detail_type"
+                android:id="@+id/characteristic_detail.type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -102,10 +102,10 @@
 
             <TextView
                 style="@style/DeviceCharacteristicInfoLabel"
-                android:text="@string/detail_peripheral" />
+                android:text="@string/detail.peripheral" />
 
             <TextView
-                android:id="@+id/characteristic_detail_properties"
+                android:id="@+id/characteristic_detail.properties"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -121,26 +121,26 @@
         android:layout_height="wrap_content">
 
         <ToggleButton
-            android:id="@+id/characteristic_detail_notification_switcher"
+            android:id="@+id/characteristic_detail.notification_switcher"
             style="@style/DeviceCharacteristicButton"
             android:text="@string/tg"
             android:textOff="Notification"
             android:textOn="Notification" />
 
         <Button
-            android:id="@+id/characteristic_detail_read_btn"
+            android:id="@+id/characteristic_detail.read_btn"
             style="@style/DeviceCharacteristicButton"
             android:text="@string/read" />
 
         <Button
-            android:id="@+id/characteristic_detail_write_btn"
+            android:id="@+id/characteristic_detail.write_btn"
             style="@style/DeviceCharacteristicButton"
             android:text="@string/write" />
 
     </LinearLayout>
 
     <EditText
-        android:id="@+id/characteristic_detail_hex_value"
+        android:id="@+id/characteristic_detail.hex_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -160,12 +160,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="@string/detail_string"
+                android:text="@string/detail.string"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
             <TextView
-                android:id="@+id/characteristic_detail_ascii_value"
+                android:id="@+id/characteristic_detail.ascii_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
@@ -179,12 +179,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="@string/detail_updated"
+                android:text="@string/detail.updated"
                 android:textColor="#888"
                 android:textSize="10sp" />
 
             <TextView
-                android:id="@+id/characteristic_detail_timestamp"
+                android:id="@+id/characteristic_detail.timestamp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"

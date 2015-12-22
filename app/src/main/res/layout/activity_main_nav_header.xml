@@ -20,7 +20,7 @@
     android:background="?attr/colorPrimaryDark"
     android:gravity="bottom"
     android:orientation="vertical"
-    android:padding="15dp"
+    android:padding="@dimen/nav_header_padding"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView

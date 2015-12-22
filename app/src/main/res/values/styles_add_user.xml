@@ -7,7 +7,7 @@
     </style>
 
     <style name="AddUserInput" parent="AddUserEditText">
-        <item name="android:layout_margin">@dimen/AddUserInput_margin</item>
+        <item name="android:layout_margin">@dimen/add_user_input_margin</item>
     </style>
 
     <style name="Fab">
