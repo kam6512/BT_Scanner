@@ -38,7 +38,7 @@ public class SelectDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         selectDeviceItemArrayList = new ArrayList<>(itemLinkedHashMap.values());
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View root = layoutInflater.inflate(R.layout.main_bluetooth_device_item, parent, false);
+        View root = layoutInflater.inflate(R.layout.bluetooth_device_item, parent, false);
         return new DeviceViewHolder(root);
     }
 

@@ -99,6 +99,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
     private SwipeRefreshLayout swipeRefreshLayout;
     private ViewPager viewPager;
 
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -120,6 +121,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             }
         }
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -251,10 +253,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 viewPager.setCurrentItem(tab.getPosition(), true);
             }
 
+
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
 
             }
+
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
@@ -265,11 +269,13 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         tabLayout.setupWithViewPager(viewPager);
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
         registerBluetooth();
     }
+
 
     @Override
     public void onPause() {
@@ -278,6 +284,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             disconnectDevice();
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -288,6 +295,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -304,6 +312,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                 break;
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -326,6 +335,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             Toast.makeText(getApplicationContext(), R.string.permission_denial, Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void registerBluetooth() {
         if (gattManager == null) {
@@ -354,7 +364,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (!gattManager.isConnected()) {
+                if (gattManager != null || !gattManager.isConnected()) {
                     try {
                         gattManager.connect(deviceAddress);
                     } catch (Exception e) {
@@ -537,6 +547,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         }
     }
 
+
     @Override
     public void onDeviceConnected() {
         runOnUiThread(new Runnable() {
@@ -550,6 +561,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             }
         });
     }
+
 
     @Override
     public void onDeviceDisconnected() {
@@ -565,6 +577,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             }
         });
     }
+
 
     @Override
     public void onServicesFound(final List<BluetoothGattService> services) {
@@ -582,6 +595,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         });
     }
 
+
     @Override
     public void onServicesNotFound() {
         runOnUiThread(new Runnable() {
@@ -593,10 +607,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         });
     }
 
+
     @Override
     public void onReadSuccess(BluetoothGattCharacteristic ch) {
         // Not use in this Activity
     }
+
 
     @Override
     public void onReadFail() {
@@ -608,6 +624,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             }
         });
     }
+
 
     @Override
     public void onDataNotify(final BluetoothGattCharacteristic ch) {
@@ -623,10 +640,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         });
     }
 
+
     @Override
     public void onWriteSuccess() {
         isGattProcessRunning = false;
     }
+
 
     @Override
     public void onWriteFail() {
@@ -639,6 +658,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         });
     }
 
+
     @Override
     public void onRSSIUpdate(final int rssi) {
         runOnUiThread(new Runnable() {
@@ -648,6 +668,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             }
         });
     }
+
 
     @Override
     public void onRSSIMiss() {
@@ -665,9 +686,11 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         final int PAGE_COUNT = 5;
         private final String tabTitles[] = new String[]{"DASHBOARD", "STEP", "CALORIE", "DISTANCE", "ETC"};
 
+
         public DashBoardAdapter(FragmentManager fm) {
             super(fm);
         }
+
 
         @Override
         public Fragment getItem(int position) {
@@ -690,10 +713,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
             }
         }
 
+
         @Override
         public int getCount() {
             return PAGE_COUNT;
         }
+
 
         @Override
         public CharSequence getPageTitle(int position) {

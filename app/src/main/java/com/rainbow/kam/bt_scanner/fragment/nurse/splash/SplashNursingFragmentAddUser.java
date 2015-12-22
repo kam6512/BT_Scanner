@@ -108,7 +108,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
     private void setDialog() {
         materialDialog = new MaterialDialog.Builder(activity)
-                .positiveText(R.string.accept).negativeText(R.string.fix)
+                .positiveText(R.string.dialog_accept).negativeText(R.string.dialog_fix)
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
@@ -187,7 +187,7 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
 
     private void onSkip() {
-        userName = activity.getString(R.string.username_default);
+        userName = activity.getString(R.string.user_name_default);
         userAge = activity.getString(R.string.user_age_default);
         userHeight = activity.getString(R.string.user_height_default);
         userWeight = activity.getString(R.string.user_weight_default);
@@ -199,15 +199,15 @@ public class SplashNursingFragmentAddUser extends Fragment implements View.OnCli
 
 
     private void showAcceptDialog(String res) {
-        materialDialog.setTitle(R.string.accept_ok);
+        materialDialog.setTitle(R.string.dialog_accept_ok);
         materialDialog.setContent(res);
         materialDialog.show();
     }
 
 
     private void showSkipDialog() {
-        materialDialog.setTitle(R.string.skip);
-        materialDialog.setContent(R.string.skip_warning);
+        materialDialog.setTitle(R.string.dialog_skip);
+        materialDialog.setContent(R.string.dialog_skip_warning);
         materialDialog.show();
     }
 
