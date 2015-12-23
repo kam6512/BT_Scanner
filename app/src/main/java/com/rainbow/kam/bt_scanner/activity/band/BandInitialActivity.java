@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.nurse;
+package com.rainbow.kam.bt_scanner.activity.band;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +9,9 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.nurse.splash.AddUserFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurse.splash.LogoFragment;
-import com.rainbow.kam.bt_scanner.patient.Patient;
+import com.rainbow.kam.bt_scanner.fragment.band.initial.AddUserFragment;
+import com.rainbow.kam.bt_scanner.fragment.band.initial.LogoFragment;
+import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
 
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
@@ -21,9 +21,9 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SplashNursingActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, AddUserFragment.OnDeviceSavedListener {
+public class BandInitialActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, AddUserFragment.OnDeviceSavedListener {
 
-    private static final String TAG = SplashNursingActivity.class.getSimpleName();
+    private static final String TAG = BandInitialActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private AddUserFragment addUserFragment;
 
@@ -34,14 +34,14 @@ public class SplashNursingActivity extends AppCompatActivity implements DeviceAd
         setContentView(R.layout.activity_nursing_splash);
         try {
             Realm realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
-            RealmResults<Patient> results = realm.where(Patient.class).findAll();
-            Patient patient = results.get(0);
+            RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
+            RealmPatientItem realmPatientItem = results.get(0);
 
-            if (patient == null) {
+            if (realmPatientItem == null) {
                 throw new Exception();
             } else {
                 finish();
-                startActivity(new Intent(SplashNursingActivity.this, MainNursingActivity.class));
+                startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
             }
 
         } catch (Exception e) {
@@ -95,8 +95,9 @@ public class SplashNursingActivity extends AppCompatActivity implements DeviceAd
     @DebugLog
     @Override
     public void OnDeviceSaveSuccess() {
+
         finish();
-        startActivity(new Intent(this, MainNursingActivity.class));
+        startActivity(new Intent(this, BandContentActivity.class));
     }
 
 

@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"
-        tools:context=".activity.nurse.MainNursingActivity">
+        tools:context=".activity.realmBandItem.BandContentActivity">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/nursing_appbar"

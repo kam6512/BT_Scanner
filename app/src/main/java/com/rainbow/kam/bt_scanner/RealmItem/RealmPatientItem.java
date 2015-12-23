@@ -1,11 +1,11 @@
-package com.rainbow.kam.bt_scanner.patient;
+package com.rainbow.kam.bt_scanner.RealmItem;
 
 import io.realm.RealmObject;
 
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class Patient extends RealmObject {
+public class RealmPatientItem extends RealmObject {
     private String name;
     private String age;
     private String height;

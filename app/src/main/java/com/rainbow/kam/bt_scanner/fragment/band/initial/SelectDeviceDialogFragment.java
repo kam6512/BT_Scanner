@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurse.splash;
+package com.rainbow.kam.bt_scanner.fragment.band.initial;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

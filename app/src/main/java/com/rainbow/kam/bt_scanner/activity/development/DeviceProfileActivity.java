@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.dev;
+package com.rainbow.kam.bt_scanner.activity.development;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -21,13 +21,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.detail.CharacteristicAdapter;
-import com.rainbow.kam.bt_scanner.adapter.detail.ServiceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.dev.CharacteristicFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.CharacteristicFragment.OnCharacteristicReadyListener;
-import com.rainbow.kam.bt_scanner.fragment.dev.DetailFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.ServiceFragment;
-import com.rainbow.kam.bt_scanner.fragment.dev.ServiceFragment.OnServiceReadyListener;
+import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
+import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
+import com.rainbow.kam.bt_scanner.fragment.development.CharacteristicListFragment;
+import com.rainbow.kam.bt_scanner.fragment.development.CharacteristicListFragment.OnCharacteristicReadyListener;
+import com.rainbow.kam.bt_scanner.fragment.development.DetailFragment;
+import com.rainbow.kam.bt_scanner.fragment.development.ServiceListFragment;
+import com.rainbow.kam.bt_scanner.fragment.development.ServiceListFragment.OnServiceReadyListener;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 
@@ -38,14 +38,14 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-11-27.
  */
-public class DetailActivity extends AppCompatActivity
+public class DeviceProfileActivity extends AppCompatActivity
         implements GattCustomCallbacks,
         DetailFragment.OnDetailReadyListener,
         OnCharacteristicReadyListener,
         OnServiceReadyListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener,
         ServiceAdapter.OnServiceItemClickListener {
-    public static final String TAG = "DetailActivity";
+    public static final String TAG = "DeviceProfileActivity";
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -67,8 +67,8 @@ public class DetailActivity extends AppCompatActivity
 
     private FragmentManager fragmentManager;
 
-    private ServiceFragment serviceFragment;
-    private CharacteristicFragment characteristicFragment;
+    private ServiceListFragment serviceListFragment;
+    private CharacteristicListFragment characteristicListFragment;
     private DetailFragment detailFragment;
 
     private GattManager gattManager;
@@ -93,7 +93,7 @@ public class DetailActivity extends AppCompatActivity
         setToolbar();
         setFragments();
 
-        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceFragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceListFragment).commit();
         showLog();
     }
 
@@ -121,12 +121,12 @@ public class DetailActivity extends AppCompatActivity
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
-        serviceFragment = new ServiceFragment();
-        characteristicFragment = new CharacteristicFragment();
+        serviceListFragment = new ServiceListFragment();
+        characteristicListFragment = new CharacteristicListFragment();
         detailFragment = new DetailFragment();
 
-        serviceFragment.setRetainInstance(true);
-        characteristicFragment.setRetainInstance(true);
+        serviceListFragment.setRetainInstance(true);
+        characteristicListFragment.setRetainInstance(true);
     }
 
 
@@ -329,7 +329,7 @@ public class DetailActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(DetailActivity.this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DeviceProfileActivity.this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -341,7 +341,7 @@ public class DetailActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(DetailActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DeviceProfileActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -375,7 +375,7 @@ public class DetailActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onServiceItemClick(int position) {
-        fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicFragment).commit();
+        fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicListFragment).commit();
         bluetoothGattCharacteristics = bluetoothGattServices.get(position).getCharacteristics();
         onCharacteristicReady();
     }
@@ -399,11 +399,11 @@ public class DetailActivity extends AppCompatActivity
                     isCallBackReady = true;
                 } else {
                     isCallBackReady = false;
-                    serviceFragment.clearAdapter();
+                    serviceListFragment.clearAdapter();
                     for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
-                        serviceFragment.addService(bluetoothGattService);
+                        serviceListFragment.addService(bluetoothGattService);
                     }
-                    serviceFragment.notifyAdapter();
+                    serviceListFragment.notifyAdapter();
 
                 }
             }
@@ -421,11 +421,11 @@ public class DetailActivity extends AppCompatActivity
                     isCallBackReady = true;
                 } else {
                     isCallBackReady = false;
-                    characteristicFragment.clearAdapter();
+                    characteristicListFragment.clearAdapter();
                     for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
-                        characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
+                        characteristicListFragment.addCharacteristic(bluetoothGattCharacteristic);
                     }
-                    characteristicFragment.notifyAdapter();
+                    characteristicListFragment.notifyAdapter();
 
                 }
             }
@@ -447,17 +447,17 @@ public class DetailActivity extends AppCompatActivity
             @Override
             public void run() {
                 Log.e(TAG,
-                        "serviceFragment.isInLayout() " + serviceFragment.isInLayout() + "\n" +
-                                "serviceFragment.isAdded() " + serviceFragment.isAdded() + "\n" +
-                                "serviceFragment.isVisible() " + serviceFragment.isVisible() + "\n" +
-                                "serviceFragment.isResumed() " + serviceFragment.isResumed() + "\n" +
-                                "serviceFragment.isHidden() " + serviceFragment.isHidden() + "\n" +
+                        "serviceListFragment.isInLayout() " + serviceListFragment.isInLayout() + "\n" +
+                                "serviceListFragment.isAdded() " + serviceListFragment.isAdded() + "\n" +
+                                "serviceListFragment.isVisible() " + serviceListFragment.isVisible() + "\n" +
+                                "serviceListFragment.isResumed() " + serviceListFragment.isResumed() + "\n" +
+                                "serviceListFragment.isHidden() " + serviceListFragment.isHidden() + "\n" +
                                 "================================================" + "\n" +
-                                "characteristicFragment.isInLayout() " + characteristicFragment.isInLayout() + "\n" +
-                                "characteristicFragment.isAdded() " + characteristicFragment.isAdded() + "\n" +
-                                "characteristicFragment.isVisible() " + characteristicFragment.isVisible() + "\n" +
-                                "characteristicFragment.isResumed() " + characteristicFragment.isResumed() + "\n" +
-                                "characteristicFragment.isHidden() " + characteristicFragment.isHidden() + "\n" +
+                                "characteristicListFragment.isInLayout() " + characteristicListFragment.isInLayout() + "\n" +
+                                "characteristicListFragment.isAdded() " + characteristicListFragment.isAdded() + "\n" +
+                                "characteristicListFragment.isVisible() " + characteristicListFragment.isVisible() + "\n" +
+                                "characteristicListFragment.isResumed() " + characteristicListFragment.isResumed() + "\n" +
+                                "characteristicListFragment.isHidden() " + characteristicListFragment.isHidden() + "\n" +
                                 "================================================" + "\n" +
                                 "detailFragment.isInLayout() " + detailFragment.isInLayout() + "\n" +
                                 "detailFragment.isAdded() " + detailFragment.isAdded() + "\n" +
@@ -466,7 +466,7 @@ public class DetailActivity extends AppCompatActivity
                                 "detailFragment.isHidden() " + detailFragment.isHidden() + "\n" +
                                 "================================================"
                 );
-                if (!DetailActivity.this.isDestroyed()) {
+                if (!DeviceProfileActivity.this.isDestroyed()) {
                     handler.postDelayed(this, 2000);
                 }
 

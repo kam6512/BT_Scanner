@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.nurse;
+package com.rainbow.kam.bt_scanner.activity.band;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -32,14 +32,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.dev.MainActivity;
-import com.rainbow.kam.bt_scanner.fragment.nurse.main.CalorieFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurse.main.DashboardFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurse.main.DistanceFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurse.main.SampleFragment;
-import com.rainbow.kam.bt_scanner.fragment.nurse.main.StepFragment;
-import com.rainbow.kam.bt_scanner.patient.Band;
-import com.rainbow.kam.bt_scanner.patient.Patient;
+import com.rainbow.kam.bt_scanner.activity.development.MainActivity;
+import com.rainbow.kam.bt_scanner.fragment.band.content.CalorieFragment;
+import com.rainbow.kam.bt_scanner.fragment.band.content.DashboardFragment;
+import com.rainbow.kam.bt_scanner.fragment.band.content.DistanceFragment;
+import com.rainbow.kam.bt_scanner.fragment.band.content.SampleFragment;
+import com.rainbow.kam.bt_scanner.fragment.band.content.StepFragment;
+import com.rainbow.kam.bt_scanner.RealmItem.RealmBandItem;
+import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
@@ -56,9 +56,9 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class MainNursingActivity extends AppCompatActivity implements GattCustomCallbacks {
+public class BandContentActivity extends AppCompatActivity implements GattCustomCallbacks {
 
-    private static final String TAG = MainNursingActivity.class.getSimpleName();
+    private static final String TAG = BandContentActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int CONNECT_TIME_INTERVAL = 5000;
 
@@ -106,12 +106,12 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         try {
             realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
 
-            RealmResults<Patient> results = realm.where(Patient.class).findAll();
+            RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
 
-            Patient patient = results.get(0);
-            patientAge = patient.getAge();
-            patientHeight = patient.getHeight();
-            deviceAddress = patient.getDeviceAddress();
+            RealmPatientItem realmPatientItem = results.get(0);
+            patientAge = realmPatientItem.getAge();
+            patientHeight = realmPatientItem.getHeight();
+            deviceAddress = realmPatientItem.getDeviceAddress();
 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -215,17 +215,17 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
                         return true;
                     case R.id.menu_nursing_about_dev:
                         Snackbar.make(coordinatorLayout, "nursing_about_dev", Snackbar.LENGTH_LONG).show();
-                        startActivity(new Intent(MainNursingActivity.this, MainActivity.class));
+                        startActivity(new Intent(BandContentActivity.this, MainActivity.class));
                         return true;
                     case R.id.menu_nursing_about_setting:
                         Snackbar.make(coordinatorLayout, "nursing_about_setting", Snackbar.LENGTH_LONG).show();
 
                         realm.beginTransaction();
-                        realm.clear(Patient.class);
-                        realm.clear(Band.class);
+                        realm.clear(RealmPatientItem.class);
+                        realm.clear(RealmBandItem.class);
                         realm.commitTransaction();
 
-                        Toast.makeText(MainNursingActivity.this, "앱을 재시작합니다", Toast.LENGTH_LONG).show();
+                        Toast.makeText(BandContentActivity.this, "앱을 재시작합니다", Toast.LENGTH_LONG).show();
                         finish();
                         return true;
                     case R.id.menu_nursing_about_about:
@@ -512,31 +512,31 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
 
         realm.beginTransaction();
 
-        RealmResults<Band> results = realm.where(Band.class).findAll();
+        RealmResults<RealmBandItem> results = realm.where(RealmBandItem.class).findAll();
         if (results.size() != 0) {
             if (results.get(results.size() - 1).getCalendar() != null) {
                 if (results.get(results.size() - 1).getCalendar().equals(today)) {
                     results.removeLast();
                 }
-                Band band = realm.createObject(Band.class);
-                band.setCalendar(today);
-                band.setStep(step);
-                band.setCalorie(calorie);
-                band.setDistance(distance);
+                RealmBandItem realmBandItem = realm.createObject(RealmBandItem.class);
+                realmBandItem.setCalendar(today);
+                realmBandItem.setStep(step);
+                realmBandItem.setCalorie(calorie);
+                realmBandItem.setDistance(distance);
             }
         } else {
-            Band band = realm.createObject(Band.class);
-            band.setCalendar(today);
-            band.setStep(step);
-            band.setCalorie(calorie);
-            band.setDistance(distance);
+            RealmBandItem realmBandItem = realm.createObject(RealmBandItem.class);
+            realmBandItem.setCalendar(today);
+            realmBandItem.setStep(step);
+            realmBandItem.setCalorie(calorie);
+            realmBandItem.setDistance(distance);
         }
         realm.commitTransaction();
     }
 
 
     private void readRealm() {
-        RealmResults<Band> results = realm.where(Band.class).findAll();
+        RealmResults<RealmBandItem> results = realm.where(RealmBandItem.class).findAll();
 
         for (int i = 0; i < results.size(); i++) {
             Log.e(TAG, "band [" + i + "] : " + results.size() +

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.dev;
+package com.rainbow.kam.bt_scanner.activity.development;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -35,7 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.nurse.SplashNursingActivity;
+import com.rainbow.kam.bt_scanner.activity.band.BandInitialActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
-        startActivity(new Intent(this, SplashNursingActivity.class));
+        startActivity(new Intent(this, BandInitialActivity.class));
         return true;
     }
 
@@ -386,9 +386,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onDeviceSelect(String name, String address) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(DetailActivity.EXTRAS_DEVICE_NAME, name);
-        intent.putExtra(DetailActivity.EXTRAS_DEVICE_ADDRESS, address);
+        Intent intent = new Intent(this, DeviceProfileActivity.class);
+        intent.putExtra(DeviceProfileActivity.EXTRAS_DEVICE_NAME, name);
+        intent.putExtra(DeviceProfileActivity.EXTRAS_DEVICE_ADDRESS, address);
         startActivity(intent);
     }
 }

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.dev;
+package com.rainbow.kam.bt_scanner.fragment.development;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

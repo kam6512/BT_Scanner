@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurse.main;
+package com.rainbow.kam.bt_scanner.fragment.band.content;
 
 import android.os.Build;
 import android.os.Bundle;

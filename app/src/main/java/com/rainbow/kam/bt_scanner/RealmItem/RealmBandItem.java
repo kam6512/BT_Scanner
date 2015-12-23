@@ -1,11 +1,11 @@
-package com.rainbow.kam.bt_scanner.patient;
+package com.rainbow.kam.bt_scanner.RealmItem;
 
 import io.realm.RealmObject;
 
 /**
  * Created by kam6512 on 2015-11-20.
  */
-public class Band extends RealmObject {
+public class RealmBandItem extends RealmObject {
 
     private String calendar = null;
 

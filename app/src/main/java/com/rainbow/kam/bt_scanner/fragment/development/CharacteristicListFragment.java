@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.dev;
+package com.rainbow.kam.bt_scanner.fragment.development;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -13,8 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.detail.CharacteristicAdapter;
-import com.rainbow.kam.bt_scanner.adapter.detail.CharacteristicItem;
+import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
+import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicItem;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.Locale;
 /**
  * Created by kam6512 on 2015-10-29.
  */
-public class CharacteristicFragment extends Fragment {
+public class CharacteristicListFragment extends Fragment {
 
     private Activity activity;
 

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.dev;
+package com.rainbow.kam.bt_scanner.fragment.development;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
@@ -11,8 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.rainbow.kam.bt_scanner.adapter.detail.ServiceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.detail.ServiceItem;
+import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.profile.ServiceItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * Created by kam6512 on 2015-10-29.
  */
-public class ServiceFragment extends Fragment {
+public class ServiceListFragment extends Fragment {
 
     private Activity activity;
 

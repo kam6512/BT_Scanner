@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter.detail;
+package com.rainbow.kam.bt_scanner.adapter.profile;
 
 /**
  * Created by kam6512 on 2015-10-29.

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.nurse.splash;
+package com.rainbow.kam.bt_scanner.fragment.band.initial;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +17,12 @@ import android.widget.RadioGroup;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.patient.Patient;
+import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
 
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -49,6 +51,7 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
 
     private OnDeviceSavedListener onDeviceSavedListener;
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -64,6 +67,7 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_nursing_splash_add_user, container, false);
@@ -74,6 +78,7 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
 
         return view;
     }
+
 
     @Override
     public void onDestroy() {
@@ -123,6 +128,7 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
                     }
                 }).build();
     }
+
 
     @Override
     public void onClick(View v) {
@@ -231,28 +237,39 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
 
         realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
         realm.beginTransaction();
-        realm.allObjects(Patient.class).clear();
+        realm.allObjects(RealmPatientItem.class).clear();
 
         transaction = realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Patient patient = realm.createObject(Patient.class);
-                patient.setName(userName);
-                patient.setAge(userAge);
-                patient.setHeight(userHeight);
-                patient.setWeight(userWeight);
-                patient.setStep(userStep);
-                patient.setGender(userGender);
-                patient.setDeviceName(name);
-                patient.setDeviceAddress(address);
+                RealmPatientItem realmPatientItem = realm.createObject(RealmPatientItem.class);
+                realmPatientItem.setName(userName);
+                realmPatientItem.setAge(userAge);
+                realmPatientItem.setHeight(userHeight);
+                realmPatientItem.setWeight(userWeight);
+                realmPatientItem.setStep(userStep);
+                realmPatientItem.setGender(userGender);
+                realmPatientItem.setDeviceName(name);
+                realmPatientItem.setDeviceAddress(address);
             }
         }, new Realm.Transaction.Callback() {
             @Override
             public void onSuccess() {
-//                RealmResults<Patient> results = realm.where(Patient.class).equalTo("name", name.getEditText().getText().toString()).findAll();
+                RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
+                Log.e("RealmPatientItem", "results = " + "\n" +
+                        results.get(0).getName() + "\n" +
+                        results.get(0).getAge() + "\n" +
+                        results.get(0).getHeight() + "\n" +
+                        results.get(0).getWeight() + "\n" +
+                        results.get(0).getStep() + "\n" +
+                        results.get(0).getGender() + "\n" +
+                        results.get(0).getDeviceName() + "\n" +
+                        results.get(0).getDeviceAddress()
+                );
                 dismissDeviceListDialog();
                 onDeviceSavedListener.OnDeviceSaveSuccess();
             }
+
 
             @Override
             public void onError(Exception e) {

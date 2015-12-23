@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter.detail;
+package com.rainbow.kam.bt_scanner.adapter.profile;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.dev.DetailActivity;
+import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 
 import java.util.ArrayList;
 
@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = DetailActivity.TAG + " - " + getClass().getSimpleName();
+    private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
 
     private static final int TYPE_CHARACTERISTIC = 1;
 
