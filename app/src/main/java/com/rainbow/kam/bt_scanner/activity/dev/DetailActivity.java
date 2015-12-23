@@ -32,6 +32,8 @@ import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-11-27.
  */
@@ -76,6 +78,7 @@ public class DetailActivity extends AppCompatActivity
     private BluetoothGattCharacteristic bluetoothGattCharacteristic;
 
 
+    @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +115,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
@@ -195,6 +199,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     private void registerBluetooth() {
         if (gattManager == null) {
             gattManager = new GattManager(this, this);
@@ -207,6 +212,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     private void initBluetoothOn() {//블루투스 가동여부
         Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
 
@@ -215,6 +221,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     private void connectDevice() {
         deviceStateTextView.setText("connecting");
         try {
@@ -229,6 +236,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     private void disconnectDevice() {
         if (gattManager != null && gattManager.isBluetoothAvailable()) {
             gattManager.disconnect();
@@ -236,6 +244,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onDeviceConnected() {
         runOnUiThread(new Runnable() {
@@ -247,6 +256,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onDeviceDisconnected() {
         runOnUiThread(new Runnable() {
@@ -259,6 +269,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onServicesFound(final List<BluetoothGattService> services) {
         bluetoothGattServices = services;
@@ -266,12 +277,14 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onServicesNotFound() {
         Toast.makeText(this, getResources().getText(R.string.fail_characteristic), Toast.LENGTH_SHORT).show();
     }
 
 
+    @DebugLog
     @Override
     public void onReadSuccess(final BluetoothGattCharacteristic ch) {
         runOnUiThread(new Runnable() {
@@ -295,12 +308,14 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onDataNotify(BluetoothGattCharacteristic ch) {
         // Not use in this Activity
     }
 
 
+    @DebugLog
     @Override
     public void onWriteSuccess() {
         Toast.makeText(this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
@@ -325,6 +340,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onRSSIMiss() {
         runOnUiThread(new Runnable() {
@@ -337,6 +353,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onServiceItemClick(int position) {
         fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicFragment).commit();
@@ -345,6 +362,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onCharacteristicItemClick(int position) {
         fragmentManager.beginTransaction().addToBackStack("detail").replace(R.id.detail_fragment_view, detailFragment).commit();
@@ -352,6 +370,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onServiceReady() {
         runOnUiThread(new Runnable() {
@@ -372,6 +391,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onCharacteristicReady() {
         runOnUiThread(new Runnable() {
@@ -392,6 +412,7 @@ public class DetailActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onDetailReady() {
         detailFragment.setGattManager(gattManager);

@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,7 +29,7 @@ public class GattManager {
     private final String TAG = getClass().getSimpleName();
     private static final int RSSI_UPDATE_TIME_INTERVAL = 5000;
 
-    private GattCustomCallbacks gattCustomCallbacks;
+    private final GattCustomCallbacks gattCustomCallbacks;
 
     private final Context context;
 
@@ -56,6 +55,7 @@ public class GattManager {
         }
     }
 
+
     @DebugLog
     public void connect(final String deviceAddress) throws Exception {
         if (TextUtils.isEmpty(deviceAddress)) {
@@ -72,12 +72,14 @@ public class GattManager {
         }
     }
 
+
     @DebugLog
     public void disconnect() {
         bluetoothGatt.disconnect();
     }
 
 
+    @DebugLog
     public boolean isBluetoothAvailable() {
         return bluetoothAdapter.isEnabled();
     }
@@ -121,6 +123,7 @@ public class GattManager {
     }
 
 
+    @DebugLog
     private void startServiceDiscovery() {
         boolean status = bluetoothGatt.discoverServices();
         if (!status) {
@@ -134,6 +137,7 @@ public class GattManager {
     }
 
 
+    @DebugLog
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
 
@@ -148,6 +152,7 @@ public class GattManager {
     }
 
 
+    @DebugLog
     public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         boolean status = bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
         if (!status) {
@@ -156,6 +161,7 @@ public class GattManager {
     }
 
 
+    @DebugLog
     public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
         if (dataToWrite.length != 0) {
             bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
@@ -174,6 +180,7 @@ public class GattManager {
 
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
+        @DebugLog
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.e(TAG, "status = " + status + "   newState = " + newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -193,6 +200,7 @@ public class GattManager {
 
 
         @Override
+        @DebugLog
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onServicesFound(bluetoothGatt.getServices());
@@ -203,6 +211,7 @@ public class GattManager {
 
 
         @Override
+        @DebugLog
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onReadSuccess(characteristic);
@@ -213,12 +222,14 @@ public class GattManager {
 
 
         @Override
+        @DebugLog
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             gattCustomCallbacks.onDataNotify(characteristic);
         }
 
 
         @Override
+        @DebugLog
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {

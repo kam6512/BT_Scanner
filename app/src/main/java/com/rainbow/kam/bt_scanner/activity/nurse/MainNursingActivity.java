@@ -364,7 +364,7 @@ public class MainNursingActivity extends AppCompatActivity implements GattCustom
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (gattManager != null || !gattManager.isConnected()) {
+                if (gattManager != null && !gattManager.isConnected()) {
                     try {
                         gattManager.connect(deviceAddress);
                     } catch (Exception e) {

@@ -32,6 +32,7 @@ public interface GattCustomCallbacks {
     void onWriteFail();
 
     void onRSSIUpdate(final int rssi);
+
     void onRSSIMiss();
 
 /*

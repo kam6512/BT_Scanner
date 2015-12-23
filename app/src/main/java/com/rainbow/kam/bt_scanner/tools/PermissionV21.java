@@ -8,6 +8,8 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-11-20.
  */
@@ -15,6 +17,7 @@ public class PermissionV21 {
 
     public static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
+    @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
     public static void check(Activity activity) {
         final int REQUEST_ENABLE_BT = 1;

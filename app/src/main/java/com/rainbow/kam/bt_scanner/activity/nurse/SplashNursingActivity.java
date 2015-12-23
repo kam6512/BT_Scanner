@@ -13,6 +13,7 @@ import com.rainbow.kam.bt_scanner.fragment.nurse.splash.AddUserFragment;
 import com.rainbow.kam.bt_scanner.fragment.nurse.splash.LogoFragment;
 import com.rainbow.kam.bt_scanner.patient.Patient;
 
+import hugo.weaving.DebugLog;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
@@ -25,6 +26,7 @@ public class SplashNursingActivity extends AppCompatActivity implements DeviceAd
     private static final String TAG = SplashNursingActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private AddUserFragment addUserFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public class SplashNursingActivity extends AppCompatActivity implements DeviceAd
     }
 
 
+    @DebugLog
     private void setFragment() {
         getSupportFragmentManager().beginTransaction().replace(R.id.nursing_start_frame, new LogoFragment()).commit();
 
@@ -63,6 +66,7 @@ public class SplashNursingActivity extends AppCompatActivity implements DeviceAd
             }
         }, 1000);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -80,17 +84,23 @@ public class SplashNursingActivity extends AppCompatActivity implements DeviceAd
         }
     }
 
+
+    @DebugLog
     @Override
     public void onDeviceSelect(String name, String address) {
         addUserFragment.saveDB(name, address);
     }
 
+
+    @DebugLog
     @Override
     public void OnDeviceSaveSuccess() {
         finish();
         startActivity(new Intent(this, MainNursingActivity.class));
     }
 
+
+    @DebugLog
     @Override
     public void OnDeviceSaveFail() {
         Log.e(TAG, "Realm Save Fail");
