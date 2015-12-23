@@ -42,7 +42,7 @@ public class ServiceListFragment extends Fragment {
                 activity = (Activity) context;
                 onServiceReadyListener = (OnServiceReadyListener) activity;
             } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
+                throw new ClassCastException(context.toString() + " must implement OnServiceReadyListener");
             }
         } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");

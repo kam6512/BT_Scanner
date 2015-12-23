@@ -44,7 +44,7 @@ public class CharacteristicListFragment extends Fragment {
                 activity = (Activity) context;
                 onCharacteristicReadyListener = (OnCharacteristicReadyListener) activity;
             } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
+                throw new ClassCastException(context.toString() + " must implement OnCharacteristicReadyListener");
             }
         } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");

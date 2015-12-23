@@ -31,7 +31,7 @@ import java.util.Locale;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class DetailFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class ControlFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private Activity activity;
 
@@ -60,7 +60,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
     private String lastUpdateTime = "";
     private boolean notificationEnabled = false;
 
-    private OnDetailReadyListener onDetailReadyListener;
+    private OnControlReadyListener onControlReadyListener;
 
 
     @Override
@@ -69,9 +69,9 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
         if (context instanceof Activity) {
             try {
                 activity = (Activity) context;
-                onDetailReadyListener = (OnDetailReadyListener) activity;
+                onControlReadyListener = (OnControlReadyListener) activity;
             } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnDetailReadyListener");
+                throw new ClassCastException(context.toString() + " must implement OnControlReadyListener");
             }
         } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
@@ -106,7 +106,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
         writeBtn.setOnClickListener(this);
         notificationBtn.setOnCheckedChangeListener(this);
 
-        onDetailReadyListener.onDetailReady();
+        onControlReadyListener.onControlReady();
 
         return view;
     }
@@ -264,7 +264,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener, Co
     }
 
 
-    public interface OnDetailReadyListener {
-        void onDetailReady();
+    public interface OnControlReadyListener {
+        void onControlReady();
     }
 }
