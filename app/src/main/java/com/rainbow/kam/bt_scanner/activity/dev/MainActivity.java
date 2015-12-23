@@ -252,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onScanFailed(int errorCode) {
+                stopScan();
             }
         };
     }

@@ -37,6 +37,8 @@ import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-11-04.
  */
@@ -154,7 +156,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    processResult(result);
+                    addDevice(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -163,7 +165,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        processResult(result);
+                        addDevice(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -171,20 +173,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
             @Override
             public void onScanFailed(int errorCode) {
-            }
-
-
-            private void processResult(final ScanResult result) {
-
-                String deviceName = result.getDevice().getName();
-
-                if (deviceName == null) {
-                    deviceName = "N/A";
-                }
-
-                if (!itemLinkedHashMap.containsKey(result.getDevice().getAddress())) {
-                    itemLinkedHashMap.put(result.getDevice().getAddress(), new DeviceItem(deviceName, result.getDevice().getAddress(), result.getDevice().getType(), result.getDevice().getBondState(), result.getRssi()));
-                }
+                stopScan();
             }
         };
     }
@@ -195,19 +184,26 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                String deviceName = device.getName();
-
-                if (deviceName == null) {
-                    deviceName = "N/A";
-                }
-                if (!itemLinkedHashMap.containsKey(device.getAddress())) {
-                    itemLinkedHashMap.put(device.getAddress(), new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-                }
+                addDevice(device, rssi);
             }
         };
     }
 
 
+    @DebugLog
+    private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
+        String deviceName = bluetoothDevice.getName();
+        if (deviceName == null) {
+            deviceName = "N/A";
+        }
+
+        if (!itemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
+            itemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), rssi));
+        }
+    }
+
+
+    @DebugLog
     @SuppressLint("NewApi")
     private void registerBluetooth() {
         try {
@@ -238,6 +234,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
+    @DebugLog
     private void initBluetoothOn() {//블루투스 가동여부
         Toast.makeText(activity, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
         Snackbar.make(view, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
@@ -247,6 +244,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
+    @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
@@ -284,6 +282,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
+    @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         //중지
