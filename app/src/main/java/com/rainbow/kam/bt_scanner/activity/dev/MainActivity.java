@@ -43,6 +43,8 @@ import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-10-22.
  */
@@ -70,18 +72,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (PermissionV21.isBuildVersionLM) {
-            PermissionV21.check(this);
-        }
-    }
-
-
-    @Override
+    @DebugLog
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (PermissionV21.isBuildVersionLM) {
+            PermissionV21.check(this);
+        }
 
         setToolbar();
         setMaterialDesignView();
@@ -94,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
+    @DebugLog
     protected void onResume() {
         super.onResume();
         registerBluetooth();
@@ -101,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
+    @DebugLog
     protected void onPause() { //꺼짐
         super.onPause();
         stopScan();
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    processResult(result);
+                    addDevice(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        processResult(result);
+                        addDevice(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -252,20 +252,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onScanFailed(int errorCode) {
-            }
-
-
-            private void processResult(final ScanResult result) {
-                BluetoothDevice bluetoothDevice = result.getDevice();
-
-                String deviceName = bluetoothDevice.getName();
-                if (deviceName == null) {
-                    deviceName = "N/A";
-                }
-
-                if (!selectDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-                    selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), result.getRssi()));
-                }
             }
         };
     }
@@ -276,18 +262,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                String deviceName = device.getName();
-                if (deviceName == null) {
-                    deviceName = "N/A";
-                }
-                if (!selectDeviceItemLinkedHashMap.containsKey(device.getAddress())) {
-                    selectDeviceItemLinkedHashMap.put(device.getAddress(), new DeviceItem(deviceName, device.getAddress(), device.getType(), device.getBondState(), rssi));
-                }
+                addDevice(device, rssi);
             }
         };
     }
 
 
+    @DebugLog
+    private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
+        String deviceName = bluetoothDevice.getName();
+        if (deviceName == null) {
+            deviceName = "N/A";
+        }
+
+        if (!selectDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
+            selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), rssi));
+        }
+    }
+
+
+    @DebugLog
     @SuppressLint("NewApi")
     private void registerBluetooth() {
         try {
@@ -314,6 +308,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @DebugLog
     private void initBluetoothOn() {//블루투스 가동여부
         Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
         Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
@@ -332,6 +327,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
@@ -366,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         //중지
