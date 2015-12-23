@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -64,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ScanCallback scanCallback;
 
     private DrawerLayout drawerLayout;
-    private CoordinatorLayout coordinatorLayout;
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
     private RecyclerView.Adapter adapter = null;
@@ -194,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             navigationView.setNavigationItemSelectedListener(this);
         }
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinatorLayout);
     }
 
 
@@ -311,8 +308,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @DebugLog
     private void initBluetoothOn() {//블루투스 가동여부
-        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
-        Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
 
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(intent, MainActivity.REQUEST_ENABLE_BT);

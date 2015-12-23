@@ -216,8 +216,6 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @DebugLog
     private void initBluetoothOn() {//블루투스 가동여부
-        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
-
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(intent, REQUEST_ENABLE_BT);
     }

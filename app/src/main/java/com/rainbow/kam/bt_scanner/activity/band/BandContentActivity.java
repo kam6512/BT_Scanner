@@ -362,8 +362,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
 
     private void initBluetoothOn() {//블루투스 가동여부
-        Toast.makeText(this, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
-        Snackbar.make(coordinatorLayout, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
 
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(intent, REQUEST_ENABLE_BT);
@@ -382,7 +380,7 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());
                     }
-                    if (!isDestroyed()){
+                    if (!isDestroyed()) {
                         handler.postDelayed(this, CONNECT_TIME_INTERVAL);
                     }
                 }

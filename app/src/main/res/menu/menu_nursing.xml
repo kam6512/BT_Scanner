@@ -52,15 +52,15 @@
         <menu>
             <item
                 android:id="@+id/menu.nursing.about.dev"
-                android:icon="@drawable/ic_link"
+                android:icon="@drawable/ic_link_white_36dp"
                 android:title="@string/menu.about.dev"/>
             <item
                 android:id="@+id/menu.nursing.about.setting"
-                android:icon="@drawable/ic_link"
+                android:icon="@drawable/ic_link_white_36dp"
                 android:title="@string/menu.about.reset"/>
             <item
                 android:id="@+id/menu.nursing.about.about"
-                android:icon="@drawable/ic_link"
+                android:icon="@drawable/ic_link_white_36dp"
                 android:title="@string/menu.about.info"/>
         </menu>
     </item>

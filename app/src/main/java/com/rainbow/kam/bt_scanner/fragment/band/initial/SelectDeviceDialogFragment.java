@@ -15,7 +15,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -236,9 +235,6 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     @DebugLog
     private void initBluetoothOn() {//블루투스 가동여부
-        Toast.makeText(activity, R.string.bt_must_start, Toast.LENGTH_SHORT).show();
-        Snackbar.make(view, R.string.bt_must_start, Snackbar.LENGTH_SHORT).show();
-
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(intent, REQUEST_ENABLE_BT);
     }

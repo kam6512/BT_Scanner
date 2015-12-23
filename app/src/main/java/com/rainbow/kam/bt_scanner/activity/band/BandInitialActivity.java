@@ -44,8 +44,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
             if (realmPatientItem == null) {
                 throw new Exception();
             } else {
-                finish();
-                startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
+                userCheckComplete();
             }
 
         } catch (Exception e) {
@@ -124,7 +123,11 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
 
         realm.commitTransaction();
         realm.close();
+        userCheckComplete();
+    }
 
+
+    private void userCheckComplete() {
         finish();
         startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
     }
