@@ -27,7 +27,7 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class AddUserFragment extends Fragment implements View.OnClickListener {
+public class DeviceSettingFragment extends Fragment implements View.OnClickListener {
 
     private Activity activity;
 
@@ -39,29 +39,19 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
 
     private MaterialDialog materialDialog;
 
-    private String userName;
-    private String userAge;
-    private String userHeight;
-    private String userWeight;
-    private String userStep;
-    private String userGender;
-
-    private Realm realm;
-    private RealmAsyncTask transaction;
-
-    private OnDeviceSavedListener onDeviceSavedListener;
+    public String userName;
+    public String userAge;
+    public String userHeight;
+    public String userWeight;
+    public String userStep;
+    public String userGender;
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
-            try {
-                activity = (Activity) context;
-                onDeviceSavedListener = (OnDeviceSavedListener) activity;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnDeviceSavedListener");
-            }
+            activity = (Activity) context;
         } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
@@ -77,18 +67,6 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
         setDialog();
 
         return view;
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (transaction != null && !transaction.isCancelled()) {
-            transaction.cancel();
-        }
-        if (realm != null) {
-            realm.close();
-        }
     }
 
 
@@ -225,67 +203,4 @@ public class AddUserFragment extends Fragment implements View.OnClickListener {
         nursingSelectDialog.show(getFragmentManager(), "DeviceDialog");
     }
 
-
-    private void dismissDeviceListDialog() {
-        if (nursingSelectDialog != null) {
-            nursingSelectDialog.dismiss();
-        }
-    }
-
-
-    public void saveDB(final String name, final String address) {
-
-        realm = Realm.getInstance(new RealmConfiguration.Builder(activity).build());
-        realm.beginTransaction();
-        realm.allObjects(RealmPatientItem.class).clear();
-
-        transaction = realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmPatientItem realmPatientItem = realm.createObject(RealmPatientItem.class);
-                realmPatientItem.setName(userName);
-                realmPatientItem.setAge(userAge);
-                realmPatientItem.setHeight(userHeight);
-                realmPatientItem.setWeight(userWeight);
-                realmPatientItem.setStep(userStep);
-                realmPatientItem.setGender(userGender);
-                realmPatientItem.setDeviceName(name);
-                realmPatientItem.setDeviceAddress(address);
-            }
-        }, new Realm.Transaction.Callback() {
-            @Override
-            public void onSuccess() {
-                RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
-                Log.e("RealmPatientItem", "results = " + "\n" +
-                        results.get(0).getName() + "\n" +
-                        results.get(0).getAge() + "\n" +
-                        results.get(0).getHeight() + "\n" +
-                        results.get(0).getWeight() + "\n" +
-                        results.get(0).getStep() + "\n" +
-                        results.get(0).getGender() + "\n" +
-                        results.get(0).getDeviceName() + "\n" +
-                        results.get(0).getDeviceAddress()
-                );
-                dismissDeviceListDialog();
-                onDeviceSavedListener.OnDeviceSaveSuccess();
-            }
-
-
-            @Override
-            public void onError(Exception e) {
-                onDeviceSavedListener.OnDeviceSaveFail();
-            }
-        });
-
-        realm.commitTransaction();
-        realm.close();
-
-    }
-
-
-    public interface OnDeviceSavedListener {
-        void OnDeviceSaveSuccess();
-
-        void OnDeviceSaveFail();
-    }
 }
