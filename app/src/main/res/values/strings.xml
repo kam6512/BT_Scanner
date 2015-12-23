@@ -97,7 +97,7 @@
     <string name="add.user.height.hint">Height (Metric)</string>
     <string name="add.user.weight.hint">Weight (Kg)</string>
     <string name="add.user.step.hint">Step Stride (Centimeter)</string>
-    <string name="add.user.men">Man</string>
+    <string name="add.user.man">Man</string>
     <string name="add.user.woman">woman</string>
     <string name="add.user.skip">Skip</string>
 

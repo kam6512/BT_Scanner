@@ -15,19 +15,19 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="192dp"
-    android:background="?attr/colorPrimaryDark"
-    android:gravity="bottom"
-    android:orientation="vertical"
-    android:padding="@dimen/nav_header_padding"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+              android:layout_width="match_parent"
+              android:layout_height="192dp"
+              android:background="@color/colorPrimaryDark"
+              android:gravity="bottom"
+              android:orientation="vertical"
+              android:padding="@dimen/nav_header_padding"
+              android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
         android:text="@string/gattManager"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
 </LinearLayout>
