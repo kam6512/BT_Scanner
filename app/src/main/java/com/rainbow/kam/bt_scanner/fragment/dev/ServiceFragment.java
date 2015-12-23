@@ -33,6 +33,7 @@ public class ServiceFragment extends Fragment {
 
     private OnServiceReadyListener onServiceReadyListener;
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -47,6 +48,7 @@ public class ServiceFragment extends Fragment {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,13 +81,17 @@ public class ServiceFragment extends Fragment {
 
 
     public void notifyAdapter() {
-        serviceAdapter.notifyDataSetChanged();
+        if (serviceAdapter.getItemCount() != 0) {
+            serviceAdapter.notifyDataSetChanged();
+        }
     }
 
 
     public void clearAdapter() {
-        serviceAdapter.clearList();
-        notifyAdapter();
+        if (serviceAdapter.getItemCount() == 0) {
+            serviceAdapter.clearList();
+            notifyAdapter();
+        }
     }
 
 

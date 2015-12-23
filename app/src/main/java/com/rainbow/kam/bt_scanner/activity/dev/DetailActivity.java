@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -93,6 +94,7 @@ public class DetailActivity extends AppCompatActivity
         setFragments();
 
         fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceFragment).commit();
+        showLog();
     }
 
 
@@ -290,8 +292,11 @@ public class DetailActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                detailFragment.setNotificationEnable(ch);
-                detailFragment.newValueForCharacteristic(ch);
+                if (detailFragment.isVisible()) {
+                    detailFragment.setNotificationEnable(ch);
+                    detailFragment.newValueForCharacteristic(ch);
+                }
+
             }
         });
     }
@@ -302,7 +307,10 @@ public class DetailActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                detailFragment.setFail();
+                if (detailFragment.isVisible()) {
+                    detailFragment.setFail();
+                }
+
             }
         });
     }
@@ -318,13 +326,24 @@ public class DetailActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onWriteSuccess() {
-        Toast.makeText(this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(DetailActivity.this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
 
     @Override
     public void onWriteFail() {
-        Toast.makeText(this, "onWriteFail", Toast.LENGTH_SHORT).show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(DetailActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
@@ -385,6 +404,7 @@ public class DetailActivity extends AppCompatActivity
                         serviceFragment.addService(bluetoothGattService);
                     }
                     serviceFragment.notifyAdapter();
+
                 }
             }
         });
@@ -406,6 +426,7 @@ public class DetailActivity extends AppCompatActivity
                         characteristicFragment.addCharacteristic(bluetoothGattCharacteristic);
                     }
                     characteristicFragment.notifyAdapter();
+
                 }
             }
         });
@@ -417,5 +438,40 @@ public class DetailActivity extends AppCompatActivity
     public void onDetailReady() {
         detailFragment.setGattManager(gattManager);
         detailFragment.setCharacteristic(bluetoothGattCharacteristic);
+    }
+
+
+    private void showLog() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG,
+                        "serviceFragment.isInLayout() " + serviceFragment.isInLayout() + "\n" +
+                                "serviceFragment.isAdded() " + serviceFragment.isAdded() + "\n" +
+                                "serviceFragment.isVisible() " + serviceFragment.isVisible() + "\n" +
+                                "serviceFragment.isResumed() " + serviceFragment.isResumed() + "\n" +
+                                "serviceFragment.isHidden() " + serviceFragment.isHidden() + "\n" +
+                                "================================================" + "\n" +
+                                "characteristicFragment.isInLayout() " + characteristicFragment.isInLayout() + "\n" +
+                                "characteristicFragment.isAdded() " + characteristicFragment.isAdded() + "\n" +
+                                "characteristicFragment.isVisible() " + characteristicFragment.isVisible() + "\n" +
+                                "characteristicFragment.isResumed() " + characteristicFragment.isResumed() + "\n" +
+                                "characteristicFragment.isHidden() " + characteristicFragment.isHidden() + "\n" +
+                                "================================================" + "\n" +
+                                "detailFragment.isInLayout() " + detailFragment.isInLayout() + "\n" +
+                                "detailFragment.isAdded() " + detailFragment.isAdded() + "\n" +
+                                "detailFragment.isVisible() " + detailFragment.isVisible() + "\n" +
+                                "detailFragment.isResumed() " + detailFragment.isResumed() + "\n" +
+                                "detailFragment.isHidden() " + detailFragment.isHidden() + "\n" +
+                                "================================================"
+                );
+                if (!DetailActivity.this.isDestroyed()) {
+                    handler.postDelayed(this, 2000);
+                }
+
+            }
+        }, 2000);
+
     }
 }

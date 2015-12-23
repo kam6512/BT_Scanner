@@ -34,6 +34,7 @@ public class CharacteristicFragment extends Fragment {
 
     private OnCharacteristicReadyListener onCharacteristicReadyListener;
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -49,6 +50,7 @@ public class CharacteristicFragment extends Fragment {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
     }
+
 
     @Nullable
     @Override
@@ -81,13 +83,17 @@ public class CharacteristicFragment extends Fragment {
 
 
     public void notifyAdapter() {
-        characteristicAdapter.notifyDataSetChanged();
+        if (characteristicAdapter.getItemCount() != 0) {
+            characteristicAdapter.notifyDataSetChanged();
+        }
     }
 
 
     public void clearAdapter() {
-        characteristicAdapter.clearList();
-        notifyAdapter();
+        if (characteristicAdapter.getItemCount() == 0) {
+            characteristicAdapter.clearList();
+            notifyAdapter();
+        }
     }
 
 

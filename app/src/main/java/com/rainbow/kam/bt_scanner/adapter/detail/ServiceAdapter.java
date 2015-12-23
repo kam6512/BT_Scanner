@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.dev.DetailActivity;
+import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
@@ -48,14 +49,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ServiceViewHolder serviceViewHolder = (ServiceViewHolder) holder;
-        ServiceItem serviceItem = serviceItemArrayList.get(position);
-        serviceViewHolder.serviceTitle.setText(serviceItem.getTitle());
-        serviceViewHolder.serviceUuid.setText(serviceItem.getUuid());
-        serviceViewHolder.serviceType.setText(serviceItem.getType());
-
-        String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
-        serviceViewHolder.serviceTitle.setText(title);
-        serviceViewHolder.serviceUuid.setText("UUID : " + "0x" + serviceItem.getUuid().substring(4, 8).toUpperCase());
+        serviceViewHolder.bindViews(serviceItemArrayList.get(position));
     }
 
 
@@ -100,6 +94,17 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     onServiceItemClickListener.onServiceItemClick(getLayoutPosition());
                 }
             });
+        }
+
+
+        private void bindViews(ServiceItem serviceItem) {
+            serviceTitle.setText(serviceItem.getTitle());
+            serviceUuid.setText(serviceItem.getUuid());
+            serviceType.setText(serviceItem.getType());
+
+            String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
+            serviceTitle.setText(title);
+            serviceUuid.setText("UUID : " + "0x" + serviceItem.getUuid().substring(4, 8).toUpperCase());
         }
     }
 
