@@ -113,6 +113,17 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
             patientHeight = realmPatientItem.getHeight();
             deviceAddress = realmPatientItem.getDeviceAddress();
 
+            Log.e("RealmPatientItem", "results = " + "\n" +
+                    results.get(0).getName() + "\n" +
+                    results.get(0).getAge() + "\n" +
+                    results.get(0).getHeight() + "\n" +
+                    results.get(0).getWeight() + "\n" +
+                    results.get(0).getStep() + "\n" +
+                    results.get(0).getGender() + "\n" +
+                    results.get(0).getDeviceName() + "\n" +
+                    results.get(0).getDeviceAddress()
+            );
+
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         } finally {
@@ -215,6 +226,7 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
                         return true;
                     case R.id.menu_nursing_about_dev:
                         Snackbar.make(coordinatorLayout, "nursing_about_dev", Snackbar.LENGTH_LONG).show();
+                        finish();
                         startActivity(new Intent(BandContentActivity.this, MainActivity.class));
                         return true;
                     case R.id.menu_nursing_about_setting:
@@ -370,7 +382,9 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());
                     }
-                    handler.postDelayed(this, CONNECT_TIME_INTERVAL);
+                    if (!isDestroyed()){
+                        handler.postDelayed(this, CONNECT_TIME_INTERVAL);
+                    }
                 }
             }
         };

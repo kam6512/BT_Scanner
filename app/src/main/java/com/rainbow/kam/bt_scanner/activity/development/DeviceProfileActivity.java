@@ -23,9 +23,9 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
 import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
+import com.rainbow.kam.bt_scanner.fragment.development.ControlFragment;
 import com.rainbow.kam.bt_scanner.fragment.development.CharacteristicListFragment;
 import com.rainbow.kam.bt_scanner.fragment.development.CharacteristicListFragment.OnCharacteristicReadyListener;
-import com.rainbow.kam.bt_scanner.fragment.development.DetailFragment;
 import com.rainbow.kam.bt_scanner.fragment.development.ServiceListFragment;
 import com.rainbow.kam.bt_scanner.fragment.development.ServiceListFragment.OnServiceReadyListener;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
@@ -40,7 +40,7 @@ import hugo.weaving.DebugLog;
  */
 public class DeviceProfileActivity extends AppCompatActivity
         implements GattCustomCallbacks,
-        DetailFragment.OnDetailReadyListener,
+        ControlFragment.OnControlReadyListener,
         OnCharacteristicReadyListener,
         OnServiceReadyListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener,
@@ -69,7 +69,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private ServiceListFragment serviceListFragment;
     private CharacteristicListFragment characteristicListFragment;
-    private DetailFragment detailFragment;
+    private ControlFragment controlFragment;
 
     private GattManager gattManager;
 
@@ -123,7 +123,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
         serviceListFragment = new ServiceListFragment();
         characteristicListFragment = new CharacteristicListFragment();
-        detailFragment = new DetailFragment();
+        controlFragment = new ControlFragment();
 
         serviceListFragment.setRetainInstance(true);
         characteristicListFragment.setRetainInstance(true);
@@ -292,9 +292,9 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (detailFragment.isVisible()) {
-                    detailFragment.setNotificationEnable(ch);
-                    detailFragment.newValueForCharacteristic(ch);
+                if (controlFragment.isVisible()) {
+                    controlFragment.setNotificationEnable(ch);
+                    controlFragment.newValueForCharacteristic(ch);
                 }
 
             }
@@ -307,8 +307,8 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (detailFragment.isVisible()) {
-                    detailFragment.setFail();
+                if (controlFragment.isVisible()) {
+                    controlFragment.setFail();
                 }
 
             }
@@ -384,7 +384,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onCharacteristicItemClick(int position) {
-        fragmentManager.beginTransaction().addToBackStack("detail").replace(R.id.detail_fragment_view, detailFragment).commit();
+        fragmentManager.beginTransaction().addToBackStack("detail").replace(R.id.detail_fragment_view, controlFragment).commit();
         bluetoothGattCharacteristic = bluetoothGattCharacteristics.get(position);
     }
 
@@ -435,9 +435,9 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @DebugLog
     @Override
-    public void onDetailReady() {
-        detailFragment.setGattManager(gattManager);
-        detailFragment.setCharacteristic(bluetoothGattCharacteristic);
+    public void onControlReady() {
+        controlFragment.setGattManager(gattManager);
+        controlFragment.setCharacteristic(bluetoothGattCharacteristic);
     }
 
 
@@ -459,11 +459,11 @@ public class DeviceProfileActivity extends AppCompatActivity
                                 "characteristicListFragment.isResumed() " + characteristicListFragment.isResumed() + "\n" +
                                 "characteristicListFragment.isHidden() " + characteristicListFragment.isHidden() + "\n" +
                                 "================================================" + "\n" +
-                                "detailFragment.isInLayout() " + detailFragment.isInLayout() + "\n" +
-                                "detailFragment.isAdded() " + detailFragment.isAdded() + "\n" +
-                                "detailFragment.isVisible() " + detailFragment.isVisible() + "\n" +
-                                "detailFragment.isResumed() " + detailFragment.isResumed() + "\n" +
-                                "detailFragment.isHidden() " + detailFragment.isHidden() + "\n" +
+                                "controlFragment.isInLayout() " + controlFragment.isInLayout() + "\n" +
+                                "controlFragment.isAdded() " + controlFragment.isAdded() + "\n" +
+                                "controlFragment.isVisible() " + controlFragment.isVisible() + "\n" +
+                                "controlFragment.isResumed() " + controlFragment.isResumed() + "\n" +
+                                "controlFragment.isHidden() " + controlFragment.isHidden() + "\n" +
                                 "================================================"
                 );
                 if (!DeviceProfileActivity.this.isDestroyed()) {
