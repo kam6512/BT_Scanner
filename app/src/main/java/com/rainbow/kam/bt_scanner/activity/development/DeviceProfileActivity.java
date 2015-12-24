@@ -436,4 +436,6 @@ public class DeviceProfileActivity extends AppCompatActivity
         controlFragment.setGattManager(gattManager);
         controlFragment.setCharacteristic(bluetoothGattCharacteristic);
     }
+
+
 }
