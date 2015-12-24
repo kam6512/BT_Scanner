@@ -290,7 +290,6 @@ public class DeviceProfileActivity extends AppCompatActivity
             @Override
             public void run() {
                 if (controlFragment.isVisible()) {
-                    controlFragment.setNotificationEnable(ch);
                     controlFragment.newValueForCharacteristic(ch);
                 }
 
@@ -433,7 +432,6 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onControlReady() {
-        controlFragment.setGattManager(gattManager);
-        controlFragment.setCharacteristic(bluetoothGattCharacteristic);
+        controlFragment.init(gattManager, bluetoothGattCharacteristic);
     }
 }

@@ -78,6 +78,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -112,13 +113,9 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     }
 
 
-    public void setGattManager(GattManager gattManager) {
+    public void init(GattManager gattManager, BluetoothGattCharacteristic characteristic) {
         this.gattManager = gattManager;
         bluetoothDevice = gattManager.getBluetoothDevice();
-    }
-
-
-    public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
         this.bluetoothGattCharacteristic = characteristic;
         asciiValue = "";
         strValue = "";
@@ -161,17 +158,14 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         if (lastUpdateTime == null) {
             lastUpdateTime = "";
         }
-        bindView();
-    }
 
-
-    public void setNotificationEnable(final BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         if ((!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) || (notificationEnabled)) {
             return;
         }
         notificationEnabled = true;
-    }
 
+        bindView();
+    }
 
     public void setFail() {
         strValue = activity.getString(R.string.fail_characteristic);
@@ -230,6 +224,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
             charDateValue.setText(lastUpdateTime);
         }
     }
+
 
     @Override
     public void onClick(View v) {
