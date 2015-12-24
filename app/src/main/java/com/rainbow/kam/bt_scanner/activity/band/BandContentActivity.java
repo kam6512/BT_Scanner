@@ -101,40 +101,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        try {
-            realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
-
-            RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
-
-            RealmPatientItem realmPatientItem = results.get(0);
-            patientAge = realmPatientItem.getAge();
-            patientHeight = realmPatientItem.getHeight();
-            deviceAddress = realmPatientItem.getDeviceAddress();
-
-            Log.e("RealmPatientItem", "results = " + "\n" +
-                    results.get(0).getName() + "\n" +
-                    results.get(0).getAge() + "\n" +
-                    results.get(0).getHeight() + "\n" +
-                    results.get(0).getWeight() + "\n" +
-                    results.get(0).getStep() + "\n" +
-                    results.get(0).getGender() + "\n" +
-                    results.get(0).getDeviceName() + "\n" +
-                    results.get(0).getDeviceAddress()
-            );
-
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        } finally {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                PermissionV21.check(this);
-            }
-        }
-    }
-
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nursing_main);
@@ -143,6 +109,8 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         setToolbar();
         setMaterialNavigationView();
         setViewPager();
+
+        queryUserInfo();
     }
 
 
@@ -279,6 +247,38 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         });
 
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+
+    private void queryUserInfo() {
+        try {
+            realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
+
+            RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
+
+            RealmPatientItem realmPatientItem = results.get(0);
+            patientAge = realmPatientItem.getAge();
+            patientHeight = realmPatientItem.getHeight();
+            deviceAddress = realmPatientItem.getDeviceAddress();
+
+            Log.e("RealmPatientItem", "results = " + "\n" +
+                    results.get(0).getName() + "\n" +
+                    results.get(0).getAge() + "\n" +
+                    results.get(0).getHeight() + "\n" +
+                    results.get(0).getWeight() + "\n" +
+                    results.get(0).getStep() + "\n" +
+                    results.get(0).getGender() + "\n" +
+                    results.get(0).getDeviceName() + "\n" +
+                    results.get(0).getDeviceAddress()
+            );
+
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        } finally {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                PermissionV21.check(this);
+            }
+        }
     }
 
 

@@ -3,7 +3,6 @@ package com.rainbow.kam.bt_scanner.fragment.band.initial;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -13,9 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.activity.band.BandInitialActivity;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -24,20 +22,11 @@ public class DeviceSettingFragment extends Fragment implements View.OnClickListe
 
     private Activity activity;
 
-    private SelectDeviceDialogFragment nursingSelectDialog;
-
     private View view;
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
 
-    private MaterialDialog materialDialog;
-
-    public String userName;
-    public String userAge;
-    public String userHeight;
-    public String userWeight;
-    public String userStep;
-    public String userGender;
+    private OnDeviceSettingListener onDeviceSettingListener;
 
 
     @Override
@@ -45,6 +34,11 @@ public class DeviceSettingFragment extends Fragment implements View.OnClickListe
         super.onAttach(context);
         if (context instanceof Activity) {
             activity = (Activity) context;
+            try {
+                onDeviceSettingListener = (OnDeviceSettingListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(activity.toString() + " must implement OnServiceItemClickListener");
+            }
         } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
         }
@@ -57,7 +51,6 @@ public class DeviceSettingFragment extends Fragment implements View.OnClickListe
 
         setUserInput();
         setBtn();
-        setDialog();
 
         return view;
     }
@@ -82,25 +75,6 @@ public class DeviceSettingFragment extends Fragment implements View.OnClickListe
     }
 
 
-    private void setDialog() {
-        materialDialog = new MaterialDialog.Builder(activity)
-                .positiveText(R.string.dialog_accept).negativeText(R.string.dialog_fix)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                        showDeviceListDialog();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                }).build();
-    }
-
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -108,7 +82,7 @@ public class DeviceSettingFragment extends Fragment implements View.OnClickListe
                 onAccept();
                 break;
             case R.id.nursing_skip_fab:
-                onSkip();
+                onDeviceSettingListener.onSkip();
                 break;
         }
 
@@ -116,12 +90,12 @@ public class DeviceSettingFragment extends Fragment implements View.OnClickListe
 
 
     private void onAccept() {
-        userName = name.getEditText().getText().toString();
-        userAge = age.getEditText().getText().toString();
-        userHeight = height.getEditText().getText().toString();
-        userWeight = weight.getEditText().getText().toString();
-        userStep = step.getEditText().getText().toString();
-
+        String userName = name.getEditText().getText().toString();
+        String userAge = age.getEditText().getText().toString();
+        String userHeight = height.getEditText().getText().toString();
+        String userWeight = weight.getEditText().getText().toString();
+        String userStep = step.getEditText().getText().toString();
+        String userGender;
         switch (genderGroup.getCheckedRadioButtonId()) {
             case R.id.radio_man:
                 userGender = activity.getString(R.string.gender_man);
@@ -151,49 +125,22 @@ public class DeviceSettingFragment extends Fragment implements View.OnClickListe
             weight.setErrorEnabled(false);
             step.setErrorEnabled(false);
 
-            String dialogContent = "이름 : " + userName +
-                    "\n성별 : " + userGender +
-                    "\n나이 : " + userAge +
-                    "\n키 : " + userHeight +
-                    "\n몸무게 : " + userWeight +
-                    "\n걸음너비 : " + userStep;
+            Bundle bundle = new Bundle();
+            bundle.putString(BandInitialActivity.BUNDLE_NAME, userName);
+            bundle.putString(BandInitialActivity.BUNDLE_AGE, userAge);
+            bundle.putString(BandInitialActivity.BUNDLE_HEIGHT, userHeight);
+            bundle.putString(BandInitialActivity.BUNDLE_WEIGHT, userWeight);
+            bundle.putString(BandInitialActivity.BUNDLE_STEP, userStep);
+            bundle.putString(BandInitialActivity.BUNDLE_GENDER, userGender);
 
-            showAcceptDialog(dialogContent);
+            onDeviceSettingListener.onAccept(bundle);
         }
     }
 
 
-    private void onSkip() {
-        userName = activity.getString(R.string.user_name_default);
-        userAge = activity.getString(R.string.user_age_default);
-        userHeight = activity.getString(R.string.user_height_default);
-        userWeight = activity.getString(R.string.user_weight_default);
-        userStep = activity.getString(R.string.user_step_default);
-        userGender = activity.getString(R.string.user_gender_default);
+    public interface OnDeviceSettingListener {
+        void onAccept(Bundle bundle);
 
-        showSkipDialog();
+        void onSkip();
     }
-
-
-    private void showAcceptDialog(String res) {
-        materialDialog.setTitle(R.string.dialog_accept_ok);
-        materialDialog.setContent(res);
-        materialDialog.show();
-    }
-
-
-    private void showSkipDialog() {
-        materialDialog.setTitle(R.string.dialog_skip);
-        materialDialog.setContent(R.string.dialog_skip_warning);
-        materialDialog.show();
-    }
-
-
-    private void showDeviceListDialog() {
-        if (nursingSelectDialog == null) {
-            nursingSelectDialog = new SelectDeviceDialogFragment();
-        }
-        nursingSelectDialog.show(getFragmentManager(), "DeviceDialog");
-    }
-
 }
