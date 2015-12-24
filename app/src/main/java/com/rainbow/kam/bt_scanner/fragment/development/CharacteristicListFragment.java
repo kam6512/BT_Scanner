@@ -90,7 +90,7 @@ public class CharacteristicListFragment extends Fragment {
 
 
     public void clearAdapter() {
-        if (characteristicAdapter.getItemCount() == 0) {
+        if (characteristicAdapter.getItemCount() != 0) {
             characteristicAdapter.clearList();
             notifyAdapter();
         }

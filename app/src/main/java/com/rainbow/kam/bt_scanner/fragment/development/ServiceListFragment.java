@@ -88,7 +88,7 @@ public class ServiceListFragment extends Fragment {
 
 
     public void clearAdapter() {
-        if (serviceAdapter.getItemCount() == 0) {
+        if (serviceAdapter.getItemCount() != 0) {
             serviceAdapter.clearList();
             notifyAdapter();
         }
