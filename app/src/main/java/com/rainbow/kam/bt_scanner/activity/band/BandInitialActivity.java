@@ -63,7 +63,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
             RealmPatientItem realmPatientItem = results.get(0);
 
             if (realmPatientItem == null) {
-                throw new Exception();
+                throw new Exception("User Info is NULL");
             } else {
                 userCheckComplete();
             }
@@ -95,7 +95,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (!isFinishing()) {
+                if (!isDestroyed()) {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.nursing_start_frame, deviceSettingFragment)
                             .commit();
@@ -144,39 +144,6 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
-    @DebugLog
-    @Override
-    public void onDeviceSelect(final String name, final String address) {
-        realm.beginTransaction();
-        realm.allObjects(RealmPatientItem.class).clear();
-
-        transaction = realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmPatientItem realmPatientItem = realm.createObject(RealmPatientItem.class);
-                realmPatientItem.setName(userName);
-                realmPatientItem.setAge(userAge);
-                realmPatientItem.setHeight(userHeight);
-                realmPatientItem.setWeight(userWeight);
-                realmPatientItem.setStep(userStep);
-                realmPatientItem.setGender(userGender);
-                realmPatientItem.setDeviceName(name);
-                realmPatientItem.setDeviceAddress(address);
-            }
-        }, null);
-
-        realm.commitTransaction();
-        realm.close();
-        userCheckComplete();
-    }
-
-
-    private void userCheckComplete() {
-        finish();
-        startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
-    }
-
-
     @Override
     public void onAccept(Bundle bundle) {
         userName = bundle.getString(BUNDLE_NAME);
@@ -211,5 +178,38 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
         materialDialog.setTitle(R.string.dialog_skip);
         materialDialog.setContent(R.string.dialog_skip_warning);
         materialDialog.show();
+    }
+
+
+    @DebugLog
+    @Override
+    public void onDeviceSelect(final String name, final String address) {
+        realm.beginTransaction();
+        realm.allObjects(RealmPatientItem.class).clear();
+
+        transaction = realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmPatientItem realmPatientItem = realm.createObject(RealmPatientItem.class);
+                realmPatientItem.setName(userName);
+                realmPatientItem.setAge(userAge);
+                realmPatientItem.setHeight(userHeight);
+                realmPatientItem.setWeight(userWeight);
+                realmPatientItem.setStep(userStep);
+                realmPatientItem.setGender(userGender);
+                realmPatientItem.setDeviceName(name);
+                realmPatientItem.setDeviceAddress(address);
+            }
+        }, null);
+
+        realm.commitTransaction();
+        realm.close();
+        userCheckComplete();
+    }
+
+
+    private void userCheckComplete() {
+        finish();
+        startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
     }
 }

@@ -148,10 +148,10 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (!gattManager.isConnected()) {
-                    connectDevice();
+                if (gattManager.isConnected()) {
+                    disconnectDevice();
                 } else {
-                    swipeRefreshLayout.setRefreshing(false);
+                    connectDevice();
                 }
             }
         });
@@ -369,24 +369,13 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
 
     private void connectDevice() {
-
-        handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (gattManager != null && !gattManager.isConnected()) {
-                    try {
-                        gattManager.connect(deviceAddress);
-                    } catch (Exception e) {
-                        Log.e(TAG, e.getMessage());
-                    }
-                    if (!isDestroyed()) {
-                        handler.postDelayed(this, CONNECT_TIME_INTERVAL);
-                    }
-                }
+        if (!gattManager.isConnected()) {
+            try {
+                gattManager.connect(deviceAddress);
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
             }
-        };
-        handler.postDelayed(runnable, 0);
+        }
     }
 
 
@@ -584,8 +573,11 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
                 toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
                 toolbarRssi.setText("--");
+                if (swipeRefreshLayout.isRefreshing()) {
+                    connectDevice();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
 
-                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

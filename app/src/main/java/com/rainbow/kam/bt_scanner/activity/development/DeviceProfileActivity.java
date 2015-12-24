@@ -88,13 +88,12 @@ public class DeviceProfileActivity extends AppCompatActivity
         Intent intent = getIntent();
         deviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         deviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        deviceRSSI = "- - -" + RSSI_UNIT;
+        deviceRSSI = "- - " + RSSI_UNIT;
 
         setToolbar();
         setFragments();
 
         fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceListFragment).commit();
-        showLog();
     }
 
 
@@ -436,40 +435,5 @@ public class DeviceProfileActivity extends AppCompatActivity
     public void onControlReady() {
         controlFragment.setGattManager(gattManager);
         controlFragment.setCharacteristic(bluetoothGattCharacteristic);
-    }
-
-
-    private void showLog() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.e(TAG,
-                        "serviceListFragment.isInLayout() " + serviceListFragment.isInLayout() + "\n" +
-                                "serviceListFragment.isAdded() " + serviceListFragment.isAdded() + "\n" +
-                                "serviceListFragment.isVisible() " + serviceListFragment.isVisible() + "\n" +
-                                "serviceListFragment.isResumed() " + serviceListFragment.isResumed() + "\n" +
-                                "serviceListFragment.isHidden() " + serviceListFragment.isHidden() + "\n" +
-                                "================================================" + "\n" +
-                                "characteristicListFragment.isInLayout() " + characteristicListFragment.isInLayout() + "\n" +
-                                "characteristicListFragment.isAdded() " + characteristicListFragment.isAdded() + "\n" +
-                                "characteristicListFragment.isVisible() " + characteristicListFragment.isVisible() + "\n" +
-                                "characteristicListFragment.isResumed() " + characteristicListFragment.isResumed() + "\n" +
-                                "characteristicListFragment.isHidden() " + characteristicListFragment.isHidden() + "\n" +
-                                "================================================" + "\n" +
-                                "controlFragment.isInLayout() " + controlFragment.isInLayout() + "\n" +
-                                "controlFragment.isAdded() " + controlFragment.isAdded() + "\n" +
-                                "controlFragment.isVisible() " + controlFragment.isVisible() + "\n" +
-                                "controlFragment.isResumed() " + controlFragment.isResumed() + "\n" +
-                                "controlFragment.isHidden() " + controlFragment.isHidden() + "\n" +
-                                "================================================"
-                );
-                if (!DeviceProfileActivity.this.isDestroyed()) {
-                    handler.postDelayed(this, 2000);
-                }
-
-            }
-        }, 2000);
-
     }
 }

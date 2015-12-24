@@ -68,7 +68,7 @@ public class GattManager {
             if (bluetoothDevice == null) {
                 throw new Exception("RemoteDevice is not available");
             }
-            bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback);
         }
     }
 
