@@ -126,8 +126,9 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        adapter = new DeviceAdapter(itemLinkedHashMap, activity);
+//        adapter = new DeviceAdapter(itemLinkedHashMap, activity);
         selectDeviceRecyclerView.setAdapter(adapter);
+
     }
 
 
@@ -197,7 +198,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         }
 
         if (!itemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-            itemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), rssi));
+//            itemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), rssi));
         }
     }
 
