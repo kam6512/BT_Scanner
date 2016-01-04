@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -54,8 +55,15 @@ public class ServiceListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_service, container, false);
         setRecyclerView();
-        onServiceReadyListener.onServiceReady();
+
         return view;
+    }
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        onServiceReadyListener.onServiceReady();
     }
 
 

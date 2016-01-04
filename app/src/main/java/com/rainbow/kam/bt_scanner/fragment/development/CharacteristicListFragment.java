@@ -57,8 +57,14 @@ public class CharacteristicListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
         setRecyclerView();
-        onCharacteristicReadyListener.onCharacteristicReady();
         return view;
+    }
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        onCharacteristicReadyListener.onCharacteristicReady();
     }
 
 

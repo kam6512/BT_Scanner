@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -19,8 +20,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
 
 import java.text.SimpleDateFormat;
@@ -107,9 +108,15 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         writeBtn.setOnClickListener(this);
         notificationBtn.setOnCheckedChangeListener(this);
 
-        onControlReadyListener.onControlReady();
 
         return view;
+    }
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        onControlReadyListener.onControlReady();
     }
 
 
@@ -126,11 +133,18 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     public void newValueForCharacteristic(final BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        if (!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) {
-            return;
-        }
 
         byte[] rawValue = bluetoothGattCharacteristic.getValue();
+
+        setStrValue(rawValue);
+        setAsciiValue(rawValue);
+        setTimeStamp();
+
+        bindView();
+    }
+
+
+    private void setStrValue(byte[] rawValue) {
         if (rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
             for (byte byteChar : rawValue) {
@@ -142,7 +156,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
             }
             this.strValue = stringBuilder.toString();
         }
+    }
 
+
+    private void setAsciiValue(byte[] rawValue) {
         if (rawValue != null && rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
             for (byte byteChar : rawValue) {
@@ -152,20 +169,19 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         } else {
             asciiValue = "";
         }
+    }
 
-        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
+
+    private void setTimeStamp() {
+        @SuppressLint("SimpleDateFormat")
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
         lastUpdateTime = timeStamp;
         if (lastUpdateTime == null) {
             lastUpdateTime = "";
         }
-
-        if ((!bluetoothGattCharacteristic.equals(this.bluetoothGattCharacteristic)) || (notificationEnabled)) {
-            return;
-        }
         notificationEnabled = true;
-
-        bindView();
     }
+
 
     public void setFail() {
         strValue = activity.getString(R.string.fail_characteristic);
