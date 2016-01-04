@@ -43,7 +43,7 @@ import hugo.weaving.DebugLog;
  */
 public class SelectDeviceDialogFragment extends DialogFragment {
 
-    private final String TAG = getClass().getSimpleName(); //로그용 태그
+    private final String TAG = getClass().getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private Activity activity;
     private View view;
@@ -56,12 +56,11 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     private BluetoothLeScanner bleScanner;
     private ScanCallback scanCallback;
 
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView.Adapter adapter = null;
-    private final LinkedHashMap<String, DeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
-
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private DeviceAdapter adapter;
+    private LinkedHashMap<String, DeviceItem> itemLinkedHashMap;
 
 
     @Override
@@ -126,9 +125,9 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-//        adapter = new DeviceAdapter(itemLinkedHashMap, activity);
+        adapter = new DeviceAdapter(activity);
+        itemLinkedHashMap = new LinkedHashMap<>();
         selectDeviceRecyclerView.setAdapter(adapter);
-
     }
 
 
@@ -192,14 +191,10 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     @DebugLog
     private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
-        String deviceName = bluetoothDevice.getName();
-        if (deviceName == null) {
-            deviceName = "N/A";
-        }
-
         if (!itemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-//            itemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(deviceName, bluetoothDevice.getAddress(), bluetoothDevice.getType(), bluetoothDevice.getBondState(), rssi));
+            itemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
         }
+        adapter.add(itemLinkedHashMap);
     }
 
 
@@ -210,20 +205,14 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             bluetoothAdapter = bluetoothManager.getAdapter();
 
             if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
-                try {
-                    itemLinkedHashMap.clear();
-                    adapter.notifyDataSetChanged();
+                itemLinkedHashMap.clear();
+                adapter.clear();
 
-                    if (PermissionV21.isBuildVersionLM) {
-                        bleScanner = bluetoothAdapter.getBluetoothLeScanner();
-                    }
-
-                    startScan();
-
-                } catch (Exception e) {
-                    Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
-                    Log.e(TAG, e.getMessage());
+                if (PermissionV21.isBuildVersionLM) {
+                    bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
+
+                startScan();
             } else {
                 initBluetoothOn();
             }
@@ -250,7 +239,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             public void run() {
                 stopScan();
 
-                if (itemLinkedHashMap.size() < 1) {
+                if (adapter.getItemCount() < 1) {
                     noDeviceTextView.setVisibility(View.VISIBLE);
                 }
                 adapter.notifyDataSetChanged();
@@ -259,14 +248,13 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         }, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
+        adapter.clear();
         itemLinkedHashMap.clear();
-        adapter.notifyDataSetChanged();
-        swipeRefreshLayout.setRefreshing(false);
-
         isScanning = true;
-
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
+
+        swipeRefreshLayout.setRefreshing(false);
 
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null) {
@@ -292,12 +280,10 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
 
-        swipeRefreshLayout.setRefreshing(false);
-
         isScanning = false;
-
         searchingProgressBar.setVisibility(View.INVISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
+        swipeRefreshLayout.setRefreshing(false);
     }
 
 }

@@ -21,10 +21,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private static final String TAG = "DeviceAdapter";
 
-    //    private LinkedHashMap<String, DeviceItem> itemLinkedHashMap = new LinkedHashMap<>();
-    private ArrayList<DeviceItem> deviceItemArrayList = new ArrayList<>();
+    private final ArrayList<DeviceItem> deviceItemArrayList = new ArrayList<>();
 
-    private OnDeviceSelectListener onDeviceSelectListener;
+    private final OnDeviceSelectListener onDeviceSelectListener;
 
 
     public DeviceAdapter(Activity activity) { //초기화
@@ -34,7 +33,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//        deviceItemArrayList = new ArrayList<>(itemLinkedHashMap.values());
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View root = layoutInflater.inflate(R.layout.bluetooth_device_item, parent, false);
         return new DeviceViewHolder(root);
@@ -45,24 +43,25 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
         deviceViewHolder.bindViews(deviceItemArrayList.get(position));
-        Log.e(TAG,
-                "position = " + position + "\n" +
-                        "getAdapterPosition = " + deviceViewHolder.getAdapterPosition() + "\n" +
-                        "getLayoutPosition = " + deviceViewHolder.getLayoutPosition() + "\n" +
-                        "getOldPosition = " + deviceViewHolder.getOldPosition()
-        );
     }
 
 
     @Override
     public int getItemCount() {
-//        return itemLinkedHashMap.size();
         return deviceItemArrayList.size();
     }
 
 
     public void add(DeviceItem deviceItem) {
         deviceItemArrayList.add(deviceItem);
+        notifyDataSetChanged();
+    }
+
+
+    public void add(LinkedHashMap<String, DeviceItem> hashMap) {
+        deviceItemArrayList.clear();
+        deviceItemArrayList.addAll(hashMap.values());
+        notifyDataSetChanged();
     }
 
 
@@ -98,6 +97,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public void onClick(View v) {
                     DeviceItem deviceItem = deviceItemArrayList.get(getAdapterPosition());
                     onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
+                    Log.e(TAG,
+                            "getAdapterPosition = " + getAdapterPosition() + "\n" +
+                                    "getLayoutPosition = " + getLayoutPosition() + "\n" +
+                                    "getOldPosition = " + getOldPosition()
+                    );
                 }
             });
         }

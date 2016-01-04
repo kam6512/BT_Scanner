@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -52,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final String TAG = getClass().getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
 
-
     private boolean isScanning;
 
     private BluetoothManager bluetoothManager;
@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DrawerLayout drawerLayout;
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
-    private DeviceAdapter adapter = null;
-//    private final LinkedHashMap<String, DeviceItem> selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
+    private DeviceAdapter adapter;
+    private LinkedHashMap<String, DeviceItem> selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
 
 
     @Override
@@ -200,7 +200,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new DeviceAdapter(MainActivity.this);
+        adapter = new DeviceAdapter(this);
+        selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
         recyclerView.setAdapter(adapter);
     }
 
@@ -271,10 +272,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @DebugLog
     private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
 
-        adapter.add(new DeviceItem(bluetoothDevice, rssi));
-        adapter.notifyDataSetChanged();
-//        if (!selectDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-//            selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
+//        adapter.add(new DeviceItem(bluetoothDevice, rssi));
+        if (!selectDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
+            selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
+        }
+        adapter.add(selectDeviceItemLinkedHashMap);
     }
 
 
@@ -286,8 +288,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (bluetoothManager != null && bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
 
+                selectDeviceItemLinkedHashMap.clear();
                 adapter.clear();
-                adapter.notifyDataSetChanged();
 
                 if (PermissionV21.isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -300,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } catch (Exception e) {
             Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
-            finish();
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -309,12 +311,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initBluetoothOn() {//블루투스 가동여부
 
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, MainActivity.REQUEST_ENABLE_BT);
+        startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
 
     private void toggleScan() {
-        if (isScanning) {  //스캔 시작
+        if (isScanning) {
             stopScan();
         } else { //재 스캔시(10초이내)
             registerBluetooth();
@@ -341,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //시작
         adapter.clear();
+        selectDeviceItemLinkedHashMap.clear();
         isScanning = true;
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
