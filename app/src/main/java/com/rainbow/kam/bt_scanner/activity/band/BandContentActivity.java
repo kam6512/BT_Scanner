@@ -73,8 +73,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
     private final String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
     private final String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
-    private boolean isGattProcessRunning = false;
-
     private enum ListType {
         READ_TIME, READ_STEP_DATA, ETC
     }
@@ -408,7 +406,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
 
-                isGattProcessRunning = true;
                 listType = ListType.READ_STEP_DATA;
                 break;
 
@@ -418,20 +415,13 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.SET_DEVICE_TIME_NOW());
 
-                isGattProcessRunning = true;
                 listType = ListType.ETC;
                 break;
 
             case ETC:
-//                for (int i = 0; i < characteristicValue.length; i++) {
-//                    int lsb = characteristic.getValue()[i] & 0xff;
-//                }
-//                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.CALL_DEVICE());
-                isGattProcessRunning = false;
                 break;
 
             default:
-                isGattProcessRunning = false;
                 break;
         }
     }
@@ -447,7 +437,7 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
                     break;
                 case 8:
                     result = result.substring(0, result.length() - 1);
-                    int j = Integer.valueOf(PrimeHelper.setWidth(Integer.toHexString(characteristicValue[i])), 16);
+                    int j = Integer.valueOf(String.format("%02x", characteristicValue[i]));
                     result += weekSet[j - 1];
                     break;
             }
@@ -472,12 +462,12 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
                 case 2:
                 case 3:
                 case 4:
-                    hexStep += PrimeHelper.setWidth(Integer.toHexString(lsb));
+                    hexStep += String.format("%02x", lsb);
                     break;
                 case 5:
                 case 6:
                 case 7:
-                    hexCal += PrimeHelper.setWidth(Integer.toHexString(lsb));
+                    hexCal += String.format("%02x", lsb);
                     break;
             }
         }
@@ -605,7 +595,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                isGattProcessRunning = false;
                 dashboardFragment.setFail();
             }
         });
@@ -623,7 +612,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                isGattProcessRunning = false;
                 dashboardFragment.setFail();
             }
         });
@@ -638,6 +626,7 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
                 try {
                     loadNotifyData(ch);
                 } catch (Exception e) {
+                    Log.e(TAG, e.getMessage());
                     onReadFail();
                 }
             }
@@ -647,7 +636,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
     @Override
     public void onWriteSuccess() {
-        isGattProcessRunning = false;
     }
 
 
@@ -656,7 +644,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                isGattProcessRunning = false;
                 dashboardFragment.setFail();
             }
         });
@@ -690,7 +677,6 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         final int PAGE_COUNT = 5;
         private final String tabTitles[] = new String[]{"DASHBOARD", "STEP", "CALORIE", "DISTANCE", "ETC"};
 
-
         public DashBoardAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -701,19 +687,14 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
             switch (position) {
                 case 0:
                     return dashboardFragment;
-
                 case 1:
                     return stepFragment;
-
                 case 2:
                     return calorieFragment;
-
                 case 3:
                     return distanceFragment;
-
                 default:
                     return sampleFragment;
-
             }
         }
 
