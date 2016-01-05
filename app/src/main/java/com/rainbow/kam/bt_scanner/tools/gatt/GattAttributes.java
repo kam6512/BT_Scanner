@@ -24,7 +24,7 @@ import java.util.HashMap;
 public class GattAttributes {
 
     public static class Descriptor {
-        public final static String CLIENT_CHARACTERISTIC_CONFIG = "00002902";
+        public final static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805F9B34FB";
     }
 
     private final static HashMap<String, String> services = new HashMap<>();
