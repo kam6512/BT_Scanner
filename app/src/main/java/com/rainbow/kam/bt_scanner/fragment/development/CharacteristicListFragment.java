@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.development;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,12 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
-import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicItem;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
+import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
 
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.List;
 
 /**
  * Created by kam6512 on 2015-10-29.
@@ -30,7 +29,6 @@ public class CharacteristicListFragment extends Fragment {
     private View view;
 
     private CharacteristicAdapter characteristicAdapter;
-    private final ArrayList<CharacteristicItem> characteristicItemArrayList = new ArrayList<>();
 
     private OnCharacteristicReadyListener onCharacteristicReadyListener;
 
@@ -73,37 +71,23 @@ public class CharacteristicListFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        characteristicAdapter = new CharacteristicAdapter(characteristicItemArrayList, activity);
+        characteristicAdapter = new CharacteristicAdapter(activity);
         recyclerView.setAdapter(characteristicAdapter);
     }
 
 
-    public void addCharacteristic(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-
-        String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-        String name = GattAttributes.resolveCharacteristicName(uuid);
-
-        characteristicItemArrayList.add(new CharacteristicItem(name, uuid));
-        notifyAdapter();
-    }
 
 
-    public void notifyAdapter() {
-        if (characteristicAdapter.getItemCount() != 0) {
-            characteristicAdapter.notifyDataSetChanged();
+    public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
+        characteristicAdapter.clearList();
+        for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
+            characteristicAdapter.add(bluetoothGattCharacteristic);
         }
-    }
-
-
-    public void clearAdapter() {
-        if (characteristicAdapter.getItemCount() != 0) {
-            characteristicAdapter.clearList();
-            notifyAdapter();
-        }
+        characteristicAdapter.notifyDataSetChanged();
     }
 
 
     public interface OnCharacteristicReadyListener {
-        void onCharacteristicReady();
+        boolean onCharacteristicReady();
     }
 }

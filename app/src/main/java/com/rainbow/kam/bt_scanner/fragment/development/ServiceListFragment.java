@@ -12,13 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.profile.ServiceItem;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
+import com.rainbow.kam.bt_scanner.adapter.ServiceAdapter;
 
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.List;
 
 /**
  * Created by kam6512 on 2015-10-29.
@@ -30,7 +27,6 @@ public class ServiceListFragment extends Fragment {
     private View view;
 
     private ServiceAdapter serviceAdapter;
-    private final ArrayList<ServiceItem> serviceItemArrayList = new ArrayList<>();
 
     private OnServiceReadyListener onServiceReadyListener;
 
@@ -72,38 +68,21 @@ public class ServiceListFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        serviceAdapter = new ServiceAdapter(serviceItemArrayList, activity);
+        serviceAdapter = new ServiceAdapter(activity);
         recyclerView.setAdapter(serviceAdapter);
     }
 
 
-    public void addService(BluetoothGattService bluetoothGattService) {
-
-        String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
-        String name = GattAttributes.resolveServiceName(uuid);
-        String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? activity.getString(R.string.service_type_primary) : activity.getString(R.string.service_type_secondary);
-
-        serviceItemArrayList.add(new ServiceItem(name, uuid, type));
-        notifyAdapter();
-    }
-
-
-    public void notifyAdapter() {
-        if (serviceAdapter.getItemCount() != 0) {
-            serviceAdapter.notifyDataSetChanged();
+    public void setService(List<BluetoothGattService> bluetoothGattServices) {
+        serviceAdapter.clearList();
+        for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
+            serviceAdapter.add(bluetoothGattService);
         }
-    }
-
-
-    public void clearAdapter() {
-        if (serviceAdapter.getItemCount() != 0) {
-            serviceAdapter.clearList();
-            notifyAdapter();
-        }
+        serviceAdapter.notifyDataSetChanged();
     }
 
 
     public interface OnServiceReadyListener {
-        void onServiceReady();
+        boolean onServiceReady();
     }
 }

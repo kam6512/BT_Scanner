@@ -1,7 +1,9 @@
-package com.rainbow.kam.bt_scanner.adapter.profile;
+package com.rainbow.kam.bt_scanner.adapter;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothGattService;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by kam6512 on 2015-10-29.
@@ -20,15 +23,15 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
 
-    private static final int TYPE_SERVICE = 0;
+    private Activity activity;
 
-    private final ArrayList<ServiceItem> serviceItemArrayList;
+    private final ArrayList<BluetoothGattService> serviceItemArrayList = new ArrayList<>();
 
     private OnServiceItemClickListener onServiceItemClickListener;
 
 
-    public ServiceAdapter(ArrayList<ServiceItem> serviceItemArrayList, Activity activity) {
-        this.serviceItemArrayList = serviceItemArrayList;
+    public ServiceAdapter(Activity activity) {
+        this.activity = activity;
         try {
             onServiceItemClickListener = (OnServiceItemClickListener) activity;
         } catch (ClassCastException e) {
@@ -53,12 +56,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     @Override
-    public int getItemViewType(int position) {
-        return TYPE_SERVICE;
-    }
-
-
-    @Override
     public int getItemCount() {
         return serviceItemArrayList.size();
     }
@@ -70,12 +67,18 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
+    public void add(BluetoothGattService bluetoothGattService) {
+        serviceItemArrayList.add(bluetoothGattService);
+
+    }
+
+
     public void clearList() {
         serviceItemArrayList.clear();
     }
 
 
-    public class ServiceViewHolder extends RecyclerView.ViewHolder {
+    public class ServiceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final TextView serviceTitle;
         private final TextView serviceUuid;
@@ -84,26 +87,28 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         public ServiceViewHolder(View itemView) {
             super(itemView);
-            serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_title);
+            serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_name);
             serviceUuid = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_UUID);
             serviceType = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onServiceItemClickListener.onServiceItemClick(getLayoutPosition());
-                }
-            });
+            itemView.setOnClickListener(this);
         }
 
 
-        private void bindViews(ServiceItem serviceItem) {
-            serviceTitle.setText(serviceItem.getTitle());
-            serviceUuid.setText(serviceItem.getUuid());
-            serviceType.setText(serviceItem.getType());
+        private void bindViews(BluetoothGattService bluetoothGattService) {
+            String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
+            String name = GattAttributes.resolveServiceName(uuid.substring(0, 8));
+            uuid = activity.getString(R.string.detail_label_uuid) + activity.getString(R.string.uuid_unit) + uuid.substring(4, 8);
+            String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? activity.getString(R.string.service_type_primary) : activity.getString(R.string.service_type_secondary);
 
-            String title = GattAttributes.getService(serviceItem.getUuid().substring(0, 8));
-            serviceTitle.setText(title);
-            serviceUuid.setText("UUID : " + "0x" + serviceItem.getUuid().substring(4, 8).toUpperCase());
+            serviceTitle.setText(name);
+            serviceUuid.setText(uuid);
+            serviceType.setText(type);
+        }
+
+
+        @Override
+        public void onClick(View v) {
+            onServiceItemClickListener.onServiceItemClick(getLayoutPosition());
         }
     }
 

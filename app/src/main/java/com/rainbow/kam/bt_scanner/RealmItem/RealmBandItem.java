@@ -7,7 +7,7 @@ import io.realm.RealmObject;
  */
 public class RealmBandItem extends RealmObject {
 
-    private String calendar = null;
+    private String calendar;
 
     private int step;
     private int calorie;

@@ -173,12 +173,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     private void setTimeStamp() {
-        @SuppressLint("SimpleDateFormat")
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
-        lastUpdateTime = timeStamp;
-        if (lastUpdateTime == null) {
-            lastUpdateTime = "";
-        }
+        lastUpdateTime = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
         notificationEnabled = true;
     }
 
@@ -226,11 +221,11 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
             if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
                 propertiesString += "write_no_response ";
             }
-
             charProperties.setText(propertiesString + "]");
 
             notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
             notificationBtn.setChecked(notificationEnabled);
+
             readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
             writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
             charHexValue.setEnabled(writeBtn.isEnabled());
