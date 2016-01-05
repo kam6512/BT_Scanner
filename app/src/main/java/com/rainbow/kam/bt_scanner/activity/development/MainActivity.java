@@ -66,9 +66,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
     private DeviceAdapter adapter;
-    private LinkedHashMap<String, DeviceItem> selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
-
-
     @Override
     @DebugLog
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new DeviceAdapter(this);
-        selectDeviceItemLinkedHashMap = new LinkedHashMap<>();
         recyclerView.setAdapter(adapter);
     }
 
@@ -234,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    addDevice(result.getDevice(), result.getRssi());
+                    adapter.add(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -244,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        addDevice(result.getDevice(), result.getRssi());
+                        adapter.add(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -263,21 +259,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                addDevice(device, rssi);
+                adapter.add(device, rssi);
             }
         };
     }
 
 
-    @DebugLog
-    private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
-
-//        adapter.add(new DeviceItem(bluetoothDevice, rssi));
-        if (!selectDeviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-            selectDeviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
-        }
-        adapter.add(selectDeviceItemLinkedHashMap);
-    }
 
 
     @DebugLog
@@ -287,9 +274,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             bluetoothAdapter = bluetoothManager.getAdapter();
 
             if (bluetoothManager != null && bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-
-                selectDeviceItemLinkedHashMap.clear();
-                adapter.clear();
 
                 if (PermissionV21.isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -343,7 +327,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //시작
         adapter.clear();
-        selectDeviceItemLinkedHashMap.clear();
         isScanning = true;
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);

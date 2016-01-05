@@ -72,11 +72,11 @@
     <string name="service.type.primary">primary</string>
     <string name="service.type.secondary">Secondary</string>
 
-    <string name="detail.child.list.item.characteristics.title">detail.child.list.item.characteristics.title</string>
+    <string name="detail.child.list.item.characteristics.name">detail.child.list.item.characteristics.name</string>
     <string name="detail.child.list.item.characteristics.UUID">detail.child.list.item.characteristics.UUID</string>
     <string name="detail.child.list.item.characteristics.value">detail.child.list.item.characteristics.value</string>
 
-    <string name="detail.parent.list.item.service.title">detail.parent.list.item.service.title</string>
+    <string name="detail.parent.list.item.service.name">detail.parent.list.item.service.name</string>
     <string name="detail.parent.list.item.service.UUID">detail.parent.list.item.service.UUID</string>
     <string name="detail.parent.list.item.service.type">detail.parent.list.item.service.type</string>
 
@@ -116,5 +116,6 @@
 
     <string name="gender.man">남성</string>
     <string name="gender.woman">여성</string>
+    <string name="uuid.unit">0x</string>
 
 </resources>

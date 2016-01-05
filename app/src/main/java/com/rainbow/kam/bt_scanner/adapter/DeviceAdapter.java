@@ -1,9 +1,9 @@
 package com.rainbow.kam.bt_scanner.adapter;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 /**
@@ -21,9 +20,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private static final String TAG = "DeviceAdapter";
 
-    private final ArrayList<DeviceItem> deviceItemArrayList = new ArrayList<>();
+    private LinkedHashMap<String, DeviceItem> deviceItemLinkedHashMap = new LinkedHashMap<>();
 
-    private final OnDeviceSelectListener onDeviceSelectListener;
+    private OnDeviceSelectListener onDeviceSelectListener;
 
 
     public DeviceAdapter(Activity activity) { //초기화
@@ -42,36 +41,31 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
-        deviceViewHolder.bindViews(deviceItemArrayList.get(position));
+        deviceViewHolder.bindViews((DeviceItem) deviceItemLinkedHashMap.values().toArray()[position]);
     }
 
 
     @Override
     public int getItemCount() {
-        return deviceItemArrayList.size();
+        return deviceItemLinkedHashMap.size();
     }
 
 
-    public void add(DeviceItem deviceItem) {
-        deviceItemArrayList.add(deviceItem);
-        notifyDataSetChanged();
-    }
-
-
-    public void add(LinkedHashMap<String, DeviceItem> hashMap) {
-        deviceItemArrayList.clear();
-        deviceItemArrayList.addAll(hashMap.values());
+    public void add(BluetoothDevice bluetoothDevice, int rssi) {
+        if (!deviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
+            deviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
+        }
         notifyDataSetChanged();
     }
 
 
     public void clear() {
-        deviceItemArrayList.clear();
+        deviceItemLinkedHashMap.clear();
         notifyDataSetChanged();
     }
 
 
-    public class DeviceViewHolder extends RecyclerView.ViewHolder { //뷰 초기화
+    public class DeviceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener { //뷰 초기화
 
         private final TextView extraName;
         private final TextView extraAddress;
@@ -92,18 +86,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             extraRssi = (TextView) itemView.findViewById(R.id.item_rssi);
 
             deviceItemCardView = (CardView) itemView.findViewById(R.id.device_item_card);
-            deviceItemCardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DeviceItem deviceItem = deviceItemArrayList.get(getAdapterPosition());
-                    onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
-                    Log.e(TAG,
-                            "getAdapterPosition = " + getAdapterPosition() + "\n" +
-                                    "getLayoutPosition = " + getLayoutPosition() + "\n" +
-                                    "getOldPosition = " + getOldPosition()
-                    );
-                }
-            });
+            deviceItemCardView.setOnClickListener(this);
         }
 
 
@@ -117,6 +100,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             extraBondState.setText(String.valueOf(deviceItem.getExtraBondState()));
             extraType.setText(String.valueOf(deviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(deviceItem.getExtraRssi()));
+        }
+
+
+        @Override
+        public void onClick(View v) {
+            DeviceItem deviceItem = (DeviceItem) deviceItemLinkedHashMap.values().toArray()[getAdapterPosition()];
+            onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
         }
     }
 

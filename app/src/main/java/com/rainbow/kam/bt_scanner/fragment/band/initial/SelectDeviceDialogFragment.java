@@ -60,7 +60,6 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     private TextView noDeviceTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceAdapter adapter;
-    private LinkedHashMap<String, DeviceItem> itemLinkedHashMap;
 
 
     @Override
@@ -126,7 +125,6 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
         adapter = new DeviceAdapter(activity);
-        itemLinkedHashMap = new LinkedHashMap<>();
         selectDeviceRecyclerView.setAdapter(adapter);
     }
 
@@ -191,10 +189,8 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     @DebugLog
     private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
-        if (!itemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-            itemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
-        }
-        adapter.add(itemLinkedHashMap);
+
+        adapter.add(bluetoothDevice, rssi);
     }
 
 
@@ -205,7 +201,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             bluetoothAdapter = bluetoothManager.getAdapter();
 
             if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
-                itemLinkedHashMap.clear();
+
                 adapter.clear();
 
                 if (PermissionV21.isBuildVersionLM) {
@@ -249,7 +245,6 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
         //시작
         adapter.clear();
-        itemLinkedHashMap.clear();
         isScanning = true;
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);

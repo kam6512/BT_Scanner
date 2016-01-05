@@ -7,9 +7,9 @@
     <LinearLayout style="@style/DetailItemFrame">
 
         <TextView
-            android:id="@+id/detail_child_list_item_characteristics_title"
+            android:id="@+id/detail_child_list_item_characteristics_name"
             style="@style/DetailItemTextView"
-            android:text="@string/detail.child.list.item.characteristics.title"
+            android:text="@string/detail.child.list.item.characteristics.name"
             android:textSize="20sp" />
 
         <TextView
