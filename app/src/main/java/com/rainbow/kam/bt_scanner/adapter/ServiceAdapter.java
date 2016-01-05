@@ -43,7 +43,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.detail_bluetooth_service_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.item_detail_bluetooth_service, parent, false);
         return new ServiceViewHolder(view);
     }
 

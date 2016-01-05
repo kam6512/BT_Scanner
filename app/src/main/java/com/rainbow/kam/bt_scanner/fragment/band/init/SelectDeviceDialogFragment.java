@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.band.initial;
+package com.rainbow.kam.bt_scanner.fragment.band.init;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -30,10 +30,8 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
@@ -71,7 +69,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_nursing_splash_add_device, container, false);
+        view = inflater.inflate(R.layout.fragment_nursing_init_add_device, container, false);
 
         setWindowSetting();
         setRecyclerView();
@@ -153,7 +151,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    addDevice(result.getDevice(), result.getRssi());
+                    adapter.add(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -162,7 +160,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        addDevice(result.getDevice(), result.getRssi());
+                        adapter.add(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -181,16 +179,9 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                addDevice(device, rssi);
+                adapter.add(device, rssi);
             }
         };
-    }
-
-
-    @DebugLog
-    private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
-
-        adapter.add(bluetoothDevice, rssi);
     }
 
 

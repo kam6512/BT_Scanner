@@ -43,7 +43,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.detail_bluetooth_characteristics_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.item_detail_bluetooth_characteristics, parent, false);
         return new CharacteristicViewHolder(view);
     }
 

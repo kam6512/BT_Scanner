@@ -33,7 +33,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View root = layoutInflater.inflate(R.layout.bluetooth_device_item, parent, false);
+        View root = layoutInflater.inflate(R.layout.item_bluetooth_device, parent, false);
         return new DeviceViewHolder(root);
     }
 
