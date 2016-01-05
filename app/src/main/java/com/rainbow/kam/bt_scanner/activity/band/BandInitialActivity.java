@@ -4,7 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -12,9 +17,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.band.initial.DeviceSettingFragment;
-import com.rainbow.kam.bt_scanner.fragment.band.initial.LogoFragment;
-import com.rainbow.kam.bt_scanner.fragment.band.initial.SelectDeviceDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.band.init.LogoFragment;
+import com.rainbow.kam.bt_scanner.fragment.band.init.SelectDeviceDialogFragment;
 
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
@@ -25,19 +29,13 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class BandInitialActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, DeviceSettingFragment.OnDeviceSettingListener {
+public class BandInitialActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, View.OnClickListener {
 
     private static final String TAG = BandInitialActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
 
-    public static final String BUNDLE_NAME = "NAME";
-    public static final String BUNDLE_AGE = "AGE";
-    public static final String BUNDLE_HEIGHT = "HEIGHT";
-    public static final String BUNDLE_WEIGHT = "WEIGHT";
-    public static final String BUNDLE_STEP = "STEP";
-    public static final String BUNDLE_GENDER = "GENDER";
-
-    private DeviceSettingFragment deviceSettingFragment;
+    private TextInputLayout name, age, height, weight, step;
+    private RadioGroup genderGroup;
     private SelectDeviceDialogFragment nursingSelectDialog;
 
     private MaterialDialog materialDialog;
@@ -56,7 +54,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nursing_splash);
+        setContentView(R.layout.activity_nursing_init);
         try {
             realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
             RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
@@ -71,6 +69,8 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
         } catch (Exception e) {
             setFragment();
             setDialog();
+            setUserInput();
+            setBtn();
         }
     }
 
@@ -87,17 +87,15 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
-    @DebugLog
     private void setFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.nursing_start_frame, new LogoFragment()).commit();
-
-        deviceSettingFragment = new DeviceSettingFragment();
+        final LogoFragment logoFragment = new LogoFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.nursing_start_frame, logoFragment).commit();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (!isDestroyed()) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.nursing_start_frame, deviceSettingFragment)
+                            .remove(logoFragment)
                             .commit();
                 }
             }
@@ -127,6 +125,25 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
+    private void setUserInput() {
+        name = (TextInputLayout) findViewById(R.id.nursing_add_user_name);
+        age = (TextInputLayout) findViewById(R.id.nursing_add_user_age);
+        height = (TextInputLayout) findViewById(R.id.nursing_add_user_height);
+        weight = (TextInputLayout) findViewById(R.id.nursing_add_user_weight);
+        step = (TextInputLayout) findViewById(R.id.nursing_add_user_step);
+        genderGroup = (RadioGroup) findViewById(R.id.gender_group);
+    }
+
+
+    private void setBtn() {
+        FloatingActionButton accept = (FloatingActionButton) findViewById(R.id.nursing_accept_fab);
+        accept.setOnClickListener(this);
+
+        FloatingActionButton skip = (FloatingActionButton) findViewById(R.id.nursing_skip_fab);
+        skip.setOnClickListener(this);
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -144,29 +161,58 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
-    @Override
-    public void onAccept(Bundle bundle) {
-        userName = bundle.getString(BUNDLE_NAME);
-        userAge = bundle.getString(BUNDLE_AGE);
-        userHeight = bundle.getString(BUNDLE_HEIGHT);
-        userWeight = bundle.getString(BUNDLE_WEIGHT);
-        userStep = bundle.getString(BUNDLE_STEP);
-        userGender = bundle.getString(BUNDLE_GENDER);
+    public void onAccept() {
+        String userName = name.getEditText().getText().toString();
+        String userAge = age.getEditText().getText().toString();
+        String userHeight = height.getEditText().getText().toString();
+        String userWeight = weight.getEditText().getText().toString();
+        String userStep = step.getEditText().getText().toString();
+        String userGender;
+        switch (genderGroup.getCheckedRadioButtonId()) {
+            case R.id.radio_man:
+                userGender = getString(R.string.gender_man);
+                break;
+            case R.id.radio_woman:
+                userGender = getString(R.string.gender_woman);
+                break;
+            default:
+                userGender = getString(R.string.gender_man);
+                break;
+        }
 
-        String dialogContent = "이름 : " + userName +
-                "\n성별 : " + userGender +
-                "\n나이 : " + userAge +
-                "\n키 : " + userHeight +
-                "\n몸무게 : " + userWeight +
-                "\n걸음너비 : " + userStep;
+        if (TextUtils.isEmpty(userName)) {
+            name.setError("Name is missing");
+        } else if (TextUtils.isEmpty(userAge)) {
+            age.setError("Age is missing");
+        } else if (TextUtils.isEmpty(userHeight)) {
+            height.setError("Height is missing");
+        } else if (TextUtils.isEmpty(userWeight)) {
+            weight.setError("weight is missing");
+        } else if (TextUtils.isEmpty(userStep)) {
+            step.setError("step is missing");
+        } else {
+            name.setErrorEnabled(false);
+            age.setErrorEnabled(false);
+            height.setErrorEnabled(false);
+            weight.setErrorEnabled(false);
+            step.setErrorEnabled(false);
 
-        materialDialog.setTitle(R.string.dialog_accept_ok);
-        materialDialog.setContent(dialogContent);
-        materialDialog.show();
+
+            String dialogContent = "이름 : " + userName +
+                    "\n성별 : " + userGender +
+                    "\n나이 : " + userAge +
+                    "\n키 : " + userHeight +
+                    "\n몸무게 : " + userWeight +
+                    "\n걸음너비 : " + userStep;
+
+            materialDialog.setTitle(R.string.dialog_accept_ok);
+            materialDialog.setContent(dialogContent);
+            materialDialog.show();
+        }
+
     }
 
 
-    @Override
     public void onSkip() {
         userName = getString(R.string.user_name_default);
         userAge = getString(R.string.user_age_default);
@@ -178,6 +224,26 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
         materialDialog.setTitle(R.string.dialog_skip);
         materialDialog.setContent(R.string.dialog_skip_warning);
         materialDialog.show();
+    }
+
+
+    private void complete() {
+        finish();
+        startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.nursing_accept_fab:
+                onAccept();
+                break;
+            case R.id.nursing_skip_fab:
+                onSkip();
+                break;
+        }
+
     }
 
 
@@ -205,11 +271,5 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
         realm.commitTransaction();
         realm.close();
         complete();
-    }
-
-
-    private void complete() {
-        finish();
-        startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
     }
 }
