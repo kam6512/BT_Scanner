@@ -117,5 +117,6 @@
     <string name="gender.man">남성</string>
     <string name="gender.woman">여성</string>
     <string name="uuid.unit">0x</string>
+    <string name="timestamp">yyyy.MM.dd HH.mm.ss.SSS</string>
 
 </resources>
