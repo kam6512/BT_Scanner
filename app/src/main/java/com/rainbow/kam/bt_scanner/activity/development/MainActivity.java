@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setScannerL() {
         scanCallback = new ScanCallback() {
-            @DebugLog
+
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
@@ -239,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
 
-            @DebugLog
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {

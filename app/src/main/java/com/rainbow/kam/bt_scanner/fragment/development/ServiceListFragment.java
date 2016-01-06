@@ -95,6 +95,8 @@ public class ServiceListFragment extends Fragment {
 
     public void removeListener() {
         onServiceReadyListener = null;
-        serviceAdapter.removeListener();
+        if (serviceAdapter != null) {
+            serviceAdapter.removeListener();
+        }
     }
 }

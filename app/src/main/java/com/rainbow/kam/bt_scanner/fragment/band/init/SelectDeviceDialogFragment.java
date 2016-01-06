@@ -57,7 +57,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private DeviceAdapter adapter;
+    private DeviceAdapter deviceAdapter;
 
 
     @Override
@@ -97,6 +97,15 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (deviceAdapter != null) {
+            deviceAdapter.removeListener();
+        }
+    }
+
+
     private void setWindowSetting() {
         Window window = getDialog().getWindow();
         window.requestFeature(Window.FEATURE_NO_TITLE);
@@ -122,8 +131,8 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        adapter = new DeviceAdapter(activity);
-        selectDeviceRecyclerView.setAdapter(adapter);
+        deviceAdapter = new DeviceAdapter(activity);
+        selectDeviceRecyclerView.setAdapter(deviceAdapter);
     }
 
 
@@ -151,7 +160,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    adapter.add(result.getDevice(), result.getRssi());
+                    deviceAdapter.add(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -160,7 +169,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        adapter.add(result.getDevice(), result.getRssi());
+                        deviceAdapter.add(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -179,7 +188,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                adapter.add(device, rssi);
+                deviceAdapter.add(device, rssi);
             }
         };
     }
@@ -193,7 +202,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
             if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
 
-                adapter.clear();
+                deviceAdapter.clear();
 
                 if (PermissionV21.isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -226,16 +235,16 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             public void run() {
                 stopScan();
 
-                if (adapter.getItemCount() < 1) {
+                if (deviceAdapter.getItemCount() < 1) {
                     noDeviceTextView.setVisibility(View.VISIBLE);
                 }
-                adapter.notifyDataSetChanged();
+                deviceAdapter.notifyDataSetChanged();
 
             }
         }, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
-        adapter.clear();
+        deviceAdapter.clear();
         isScanning = true;
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
