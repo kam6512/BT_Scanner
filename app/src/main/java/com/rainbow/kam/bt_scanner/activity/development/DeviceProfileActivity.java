@@ -44,6 +44,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         OnServiceReadyListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener,
         ServiceAdapter.OnServiceItemClickListener {
+
     public static final String TAG = "DeviceProfileActivity";
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -73,14 +74,14 @@ public class DeviceProfileActivity extends AppCompatActivity
     private List<BluetoothGattService> bluetoothGattServices;
     private List<BluetoothGattCharacteristic> bluetoothGattCharacteristics;
 
-    private BluetoothGattCharacteristic bluetoothGattCharacteristic;
+    private BluetoothGattCharacteristic controlCharacteristic;
 
 
     @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
+        setContentView(R.layout.a_profile);
 
         Intent intent = getIntent();
         deviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -179,7 +180,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == 1) {
+        if (requestCode == REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
@@ -278,6 +279,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onServicesNotFound() {
         Toast.makeText(this, getResources().getText(R.string.fail_characteristic), Toast.LENGTH_SHORT).show();
+        finish();
     }
 
 
@@ -357,7 +359,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onServiceItemClick(int position) {
-        fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicListFragment, "characteristic").commit();
+        fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicListFragment).commit();
         bluetoothGattCharacteristics = bluetoothGattServices.get(position).getCharacteristics();
         onCharacteristicReady();
     }
@@ -366,8 +368,8 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onCharacteristicItemClick(int position) {
-        fragmentManager.beginTransaction().addToBackStack("detail").replace(R.id.detail_fragment_view, controlFragment, "detail").commit();
-        bluetoothGattCharacteristic = bluetoothGattCharacteristics.get(position);
+        fragmentManager.beginTransaction().addToBackStack("control").replace(R.id.detail_fragment_view, controlFragment).commit();
+        controlCharacteristic = bluetoothGattCharacteristics.get(position);
     }
 
 
@@ -375,7 +377,12 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onServiceReady() {
         if (serviceListFragment.isVisible() && bluetoothGattServices != null) {
-            serviceListFragment.setService(bluetoothGattServices);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    serviceListFragment.setService(bluetoothGattServices);
+                }
+            });
         }
     }
 
@@ -384,7 +391,12 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onCharacteristicReady() {
         if (characteristicListFragment.isVisible() && bluetoothGattServices != null) {
-            characteristicListFragment.setCharacteristic(bluetoothGattCharacteristics);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    characteristicListFragment.setCharacteristic(bluetoothGattCharacteristics);
+                }
+            });
         }
     }
 
@@ -392,6 +404,6 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onControlReady() {
-        controlFragment.init(gattManager, bluetoothGattCharacteristic);
+        controlFragment.init(gattManager, controlCharacteristic);
     }
 }

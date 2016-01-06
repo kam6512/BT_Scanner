@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -54,7 +55,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nursing_init);
+        setContentView(R.layout.a_band_init);
         try {
             realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
             RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
@@ -161,12 +162,12 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
-    public void onAccept() {
-        String userName = name.getEditText().getText().toString();
-        String userAge = age.getEditText().getText().toString();
-        String userHeight = height.getEditText().getText().toString();
-        String userWeight = weight.getEditText().getText().toString();
-        String userStep = step.getEditText().getText().toString();
+    private void onAccept() {
+         userName = name.getEditText().getText().toString();
+         userAge = age.getEditText().getText().toString();
+         userHeight = height.getEditText().getText().toString();
+         userWeight = weight.getEditText().getText().toString();
+         userStep = step.getEditText().getText().toString();
         String userGender;
         switch (genderGroup.getCheckedRadioButtonId()) {
             case R.id.radio_man:
@@ -204,6 +205,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
                     "\n키 : " + userHeight +
                     "\n몸무게 : " + userWeight +
                     "\n걸음너비 : " + userStep;
+            Log.e(TAG,dialogContent);
 
             materialDialog.setTitle(R.string.dialog_accept_ok);
             materialDialog.setContent(dialogContent);
@@ -213,7 +215,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
-    public void onSkip() {
+    private void onSkip() {
         userName = getString(R.string.user_name_default);
         userAge = getString(R.string.user_age_default);
         userHeight = getString(R.string.user_height_default);
