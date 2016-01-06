@@ -52,7 +52,7 @@ public class ServiceListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
-            view = inflater.inflate(R.layout.fragment_detail_service, container, false);
+            view = inflater.inflate(R.layout.f_profile_service, container, false);
             setRecyclerView();
         }
         return view;

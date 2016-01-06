@@ -31,7 +31,7 @@ public class SampleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_nursing_main_sample, container, false);
+        View view = inflater.inflate(R.layout.f_band_main_sample, container, false);
         etcCircleCounter = (CircleCounter) view.findViewById(R.id.counter);
         etcCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
         etcCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));

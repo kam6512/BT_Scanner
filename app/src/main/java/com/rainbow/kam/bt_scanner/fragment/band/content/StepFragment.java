@@ -50,7 +50,7 @@ public class StepFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_nursing_main_step, container, false);
+        View view = inflater.inflate(R.layout.f_band_main_step, container, false);
         stepCircleCounter = (CircleCounter) view.findViewById(R.id.step_counter);
         stepCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
         stepCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));

@@ -22,7 +22,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
 
-    private Activity activity;
+    private final Activity activity;
 
     private final LinkedList<BluetoothGattCharacteristic> characteristicItemLinkedList = new LinkedList<>();
 
@@ -42,7 +42,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.item_detail_bluetooth_characteristics, parent, false);
+        View view = layoutInflater.inflate(R.layout.i_profile_bluetooth_characteristics, parent, false);
         return new CharacteristicViewHolder(view);
     }
 

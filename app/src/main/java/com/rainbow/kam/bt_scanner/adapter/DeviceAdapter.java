@@ -20,7 +20,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private static final String TAG = "DeviceAdapter";
 
-    private LinkedHashMap<String, DeviceItem> deviceItemLinkedHashMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, DeviceItem> deviceItemLinkedHashMap = new LinkedHashMap<>();
 
     private OnDeviceSelectListener onDeviceSelectListener;
 
@@ -33,7 +33,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View root = layoutInflater.inflate(R.layout.item_bluetooth_device, parent, false);
+        View root = layoutInflater.inflate(R.layout.i_bluetooth_device, parent, false);
         return new DeviceViewHolder(root);
     }
 

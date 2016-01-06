@@ -67,10 +67,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    @DebugLog
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.a_main);
 
         if (PermissionV21.isBuildVersionLM) {
             PermissionV21.check(this);
@@ -87,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    @DebugLog
     protected void onResume() {
         super.onResume();
         registerBluetooth();
@@ -95,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    @DebugLog
     protected void onPause() { //꺼짐
         super.onPause();
         stopScan();
@@ -272,7 +269,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    @DebugLog
     @SuppressLint("NewApi")
     private void registerBluetooth() {
         try {

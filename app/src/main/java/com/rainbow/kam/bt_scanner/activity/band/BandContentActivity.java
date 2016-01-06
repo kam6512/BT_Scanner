@@ -60,11 +60,9 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
     private static final String TAG = BandContentActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final int CONNECT_TIME_INTERVAL = 5000;
 
     private Realm realm;
 
-    private Handler handler;
 
     private String patientAge;
     private String patientHeight;
@@ -101,7 +99,7 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nursing_main);
+        setContentView(R.layout.a_band_main);
 
         setFragments();
         setToolbar();
@@ -372,6 +370,9 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
                 gattManager.connect(deviceAddress);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
+                finish();
+                startActivity(new Intent(BandContentActivity.this, BandInitialActivity.class));
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -526,6 +527,8 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
     }
 
 
+    @SuppressWarnings("unused")
+    //Realm 테스트 용 메서드
     private void readRealm() {
         RealmResults<RealmBandItem> results = realm.where(RealmBandItem.class).findAll();
 
@@ -623,12 +626,12 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    loadNotifyData(ch);
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage());
-                    onReadFail();
-                }
+//                try {
+                loadNotifyData(ch);
+//                } catch (Exception e) {
+//                    Log.e(TAG, e.getMessage());
+//                    onReadFail();
+//                }
             }
         });
     }
@@ -676,6 +679,7 @@ public class BandContentActivity extends AppCompatActivity implements GattCustom
 
         final int PAGE_COUNT = 5;
         private final String tabTitles[] = new String[]{"DASHBOARD", "STEP", "CALORIE", "DISTANCE", "ETC"};
+
 
         public DashBoardAdapter(FragmentManager fm) {
             super(fm);

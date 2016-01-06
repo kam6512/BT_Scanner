@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.development;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -82,7 +81,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        final View view = inflater.inflate(R.layout.f_profile_control, container, false);
 
         deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
         deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);

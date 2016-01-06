@@ -69,7 +69,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_nursing_init_add_device, container, false);
+        view = inflater.inflate(R.layout.df_band_init_add_device, container, false);
 
         setWindowSetting();
         setRecyclerView();

@@ -2,7 +2,6 @@ package com.rainbow.kam.bt_scanner.fragment.development;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,7 +15,6 @@ import android.view.ViewGroup;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
@@ -56,7 +54,7 @@ public class CharacteristicListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
-            view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
+            view = inflater.inflate(R.layout.f_profile_characteristic, container, false);
             setRecyclerView();
         }
         return view;

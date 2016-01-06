@@ -3,7 +3,6 @@ package com.rainbow.kam.bt_scanner.adapter;
 import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
 
-    private Activity activity;
+    private final Activity activity;
 
     private final ArrayList<BluetoothGattService> serviceItemArrayList = new ArrayList<>();
 
@@ -43,7 +42,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.item_detail_bluetooth_service, parent, false);
+        View view = layoutInflater.inflate(R.layout.i_profile_bluetooth_service, parent, false);
         return new ServiceViewHolder(view);
     }
 
