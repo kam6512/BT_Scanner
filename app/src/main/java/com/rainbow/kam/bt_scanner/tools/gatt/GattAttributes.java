@@ -30,7 +30,6 @@ public class GattAttributes {
     private final static HashMap<String, String> services = new HashMap<>();
     private final static HashMap<String, String> characteristics = new HashMap<>();
     private final static SparseArray<String> valueFormats = new SparseArray<>();
-    private final static SparseArray<String> appearance = new SparseArray<>();
 
     private final static String unknown = "Unknown Service";
 
@@ -51,11 +50,6 @@ public class GattAttributes {
     static public String resolveValueTypeDescription(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         Integer tmp = getValueFormat(bluetoothGattCharacteristic);
         return valueFormats.get(tmp, "Unknown Format");
-    }
-
-    static public String resolveAppearance(int key) {
-        Integer tmp = key;
-        return appearance.get(tmp, "Unknown Appearance");
     }
 
     private static int getValueFormat(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
@@ -202,16 +196,5 @@ public class GattAttributes {
         valueFormats.put(20, "32bit unsigned int");
         valueFormats.put(17, "8bit unsigned int");
 
-        appearance.put(833, "Heart Rate Sensor: Belt");
-        appearance.put(832, "Generic Heart Rate Sensor");
-        appearance.put(0, "Unknown");
-        appearance.put(64, "Generic Phone");
-        appearance.put(1157, "Cycling: Speed and Cadence Sensor");
-        appearance.put(1152, "General Cycling");
-        appearance.put(1153, "Cycling Computer");
-        appearance.put(1154, "Cycling: Speed Sensor");
-        appearance.put(1155, "Cycling: Cadence Sensor");
-        appearance.put(1156, "Cycling: Speed and Cadence Sensor");
-        appearance.put(1157, "Cycling: Power Sensor");
     }
 }

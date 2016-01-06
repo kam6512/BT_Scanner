@@ -24,12 +24,12 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-10-29.
  */
-public class GattManager {
+public class GattManager extends BluetoothGattCallback {
 
     private final String TAG = getClass().getSimpleName();
     private static final int RSSI_UPDATE_TIME_INTERVAL = 5000;
 
-    private final GattCustomCallbacks gattCustomCallbacks;
+    private GattCustomCallbacks gattCustomCallbacks;
 
     private final Context context;
 
@@ -45,6 +45,9 @@ public class GattManager {
     public GattManager(Context context, GattCustomCallbacks gattCustomCallbacks) {
         this.context = context;
         this.gattCustomCallbacks = gattCustomCallbacks;
+        if (gattCustomCallbacks != null) {
+            Log.e(TAG, "gattCustomCallbacks is not null");
+        }
 
         if (bluetoothManager == null || bluetoothAdapter == null) {
             bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -75,7 +78,9 @@ public class GattManager {
 
     @DebugLog
     public void disconnect() {
-        bluetoothGatt.disconnect();
+        if (bluetoothGatt != null) {
+            bluetoothGatt.disconnect();
+        }
     }
 
 
@@ -106,8 +111,10 @@ public class GattManager {
         timerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                bluetoothGatt.readRemoteRssi();
-                readRssiValue(timerEnabled);
+                if (bluetoothGatt != null) {
+                    bluetoothGatt.readRemoteRssi();
+                    readRssiValue(timerEnabled);
+                }
             }
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
@@ -148,7 +155,6 @@ public class GattManager {
             bluetoothGattDescriptor.setValue(value);
             bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
         }
-
     }
 
 
@@ -178,11 +184,20 @@ public class GattManager {
     }
 
 
-    private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+    private void finish() {
+        bluetoothGattCallback = null;
+        gattCustomCallbacks = null;
+        bluetoothGatt.close();
+        bluetoothGatt = null;
+    }
+
+
+    private BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
         @DebugLog
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.e(TAG, "status = " + status + "   newState = " + newState);
+            Log.e(TAG, bluetoothGatt.toString());
             if (newState == BluetoothProfile.STATE_CONNECTED) {
 
                 startServiceDiscovery();
@@ -194,7 +209,9 @@ public class GattManager {
 
                 stopMonitoringRssiValue();
 
+
                 gattCustomCallbacks.onDeviceDisconnected();
+                finish();
             }
         }
 
@@ -250,4 +267,6 @@ public class GattManager {
             }
         }
     };
+
+
 }
