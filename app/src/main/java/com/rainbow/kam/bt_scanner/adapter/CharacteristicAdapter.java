@@ -2,7 +2,6 @@ package com.rainbow.kam.bt_scanner.adapter;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,7 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Locale;
 
 /**
@@ -25,7 +24,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private Activity activity;
 
-    private final ArrayList<BluetoothGattCharacteristic> characteristicItemArrayList = new ArrayList<>();
+    private final LinkedList<BluetoothGattCharacteristic> characteristicItemLinkedList = new LinkedList<>();
 
     private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
@@ -51,13 +50,13 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         CharacteristicViewHolder characteristicViewHolder = (CharacteristicViewHolder) holder;
-        characteristicViewHolder.bindViews(characteristicItemArrayList.get(position));
+        characteristicViewHolder.bindViews(characteristicItemLinkedList.get(position));
     }
 
 
     @Override
     public int getItemCount() {
-        return characteristicItemArrayList.size();
+        return characteristicItemLinkedList.size();
     }
 
 
@@ -68,12 +67,12 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
 
     public void add(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        characteristicItemArrayList.add(bluetoothGattCharacteristic);
+        characteristicItemLinkedList.add(bluetoothGattCharacteristic);
     }
 
 
     public void clearList() {
-        characteristicItemArrayList.clear();
+        characteristicItemLinkedList.clear();
     }
 
 
