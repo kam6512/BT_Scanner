@@ -173,7 +173,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     private void setTimeStamp() {
-        lastUpdateTime = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date());
+        lastUpdateTime = new SimpleDateFormat(activity.getString(R.string.timestamp)).format(new Date());
         notificationEnabled = true;
     }
 
@@ -272,5 +272,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     public interface OnControlReadyListener {
         void onControlReady();
+    }
+
+
+    public void removeListener() {
+        onControlReadyListener = null;
     }
 }

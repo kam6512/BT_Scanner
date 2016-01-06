@@ -112,4 +112,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public interface OnCharacteristicItemClickListener {
         void onCharacteristicItemClick(int position);
     }
+    public void removeListener() {
+        onCharacteristicItemClickListener = null;
+    }
 }

@@ -113,4 +113,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public interface OnDeviceSelectListener {
         void onDeviceSelect(String name, String address);
     }
+    public void removeListener() {
+        onDeviceSelectListener = null;
+    }
 }

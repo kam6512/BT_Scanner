@@ -141,6 +141,15 @@ public class DeviceProfileActivity extends AppCompatActivity
 
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        serviceListFragment.removeListener();
+        characteristicListFragment.removeListener();
+        controlFragment.removeListener();
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();

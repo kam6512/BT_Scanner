@@ -37,10 +37,8 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.band.BandInitialActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
@@ -65,7 +63,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DrawerLayout drawerLayout;
     private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
-    private DeviceAdapter adapter;
+    private DeviceAdapter deviceAdapter;
+
+
     @Override
     @DebugLog
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +99,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() { //꺼짐
         super.onPause();
         stopScan();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        deviceAdapter.removeListener();
     }
 
 
@@ -197,8 +204,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new DeviceAdapter(this);
-        recyclerView.setAdapter(adapter);
+        deviceAdapter = new DeviceAdapter(this);
+        recyclerView.setAdapter(deviceAdapter);
     }
 
 
@@ -230,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    adapter.add(result.getDevice(), result.getRssi());
+                    deviceAdapter.add(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -240,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        adapter.add(result.getDevice(), result.getRssi());
+                        deviceAdapter.add(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -259,12 +266,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                adapter.add(device, rssi);
+                deviceAdapter.add(device, rssi);
             }
         };
     }
-
-
 
 
     @DebugLog
@@ -317,16 +322,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 stopScan();
 
-                if (adapter.getItemCount() < 1) {
+                if (deviceAdapter.getItemCount() < 1) {
                     noDeviceTextView.setVisibility(View.VISIBLE);
                 }
-                adapter.notifyDataSetChanged();
+                deviceAdapter.notifyDataSetChanged();
 
             }
         }, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
-        adapter.clear();
+        deviceAdapter.clear();
         isScanning = true;
         searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);

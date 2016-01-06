@@ -91,4 +91,10 @@ public class ServiceListFragment extends Fragment {
     public interface OnServiceReadyListener {
         void onServiceReady();
     }
+
+
+    public void removeListener() {
+        onServiceReadyListener = null;
+        serviceAdapter.removeListener();
+    }
 }

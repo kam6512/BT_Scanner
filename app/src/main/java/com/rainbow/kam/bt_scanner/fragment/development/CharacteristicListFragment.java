@@ -93,4 +93,10 @@ public class CharacteristicListFragment extends Fragment {
     public interface OnCharacteristicReadyListener {
         void onCharacteristicReady();
     }
+
+
+    public void removeListener() {
+        onCharacteristicReadyListener = null;
+        characteristicAdapter.removeListener();
+    }
 }

@@ -116,4 +116,9 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public interface OnServiceItemClickListener {
         void onServiceItemClick(int position);
     }
+
+
+    public void removeListener() {
+        onServiceItemClickListener = null;
+    }
 }
