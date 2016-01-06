@@ -17,6 +17,8 @@ import com.rainbow.kam.bt_scanner.adapter.ServiceAdapter;
 
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-10-29.
  */
@@ -49,9 +51,10 @@ public class ServiceListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_detail_service, container, false);
-        setRecyclerView();
-
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_detail_service, container, false);
+            setRecyclerView();
+        }
         return view;
     }
 
@@ -73,16 +76,19 @@ public class ServiceListFragment extends Fragment {
     }
 
 
+    @DebugLog
     public void setService(List<BluetoothGattService> bluetoothGattServices) {
-        serviceAdapter.clearList();
-        for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
-            serviceAdapter.add(bluetoothGattService);
+        if (serviceAdapter.getItemCount() == 0) {
+            serviceAdapter.clearList();
+            for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
+                serviceAdapter.add(bluetoothGattService);
+            }
+            serviceAdapter.notifyDataSetChanged();
         }
-        serviceAdapter.notifyDataSetChanged();
     }
 
 
     public interface OnServiceReadyListener {
-        boolean onServiceReady();
+        void onServiceReady();
     }
 }

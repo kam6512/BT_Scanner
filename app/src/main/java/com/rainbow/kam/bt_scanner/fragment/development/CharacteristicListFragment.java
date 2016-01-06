@@ -19,6 +19,8 @@ import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-10-29.
  */
@@ -53,8 +55,10 @@ public class CharacteristicListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
-        setRecyclerView();
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_detail_characteristic, container, false);
+            setRecyclerView();
+        }
         return view;
     }
 
@@ -76,8 +80,7 @@ public class CharacteristicListFragment extends Fragment {
     }
 
 
-
-
+    @DebugLog
     public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
         characteristicAdapter.clearList();
         for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
@@ -88,6 +91,6 @@ public class CharacteristicListFragment extends Fragment {
 
 
     public interface OnCharacteristicReadyListener {
-        boolean onCharacteristicReady();
+        void onCharacteristicReady();
     }
 }

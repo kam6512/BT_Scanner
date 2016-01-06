@@ -53,8 +53,6 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private static final String RSSI_UNIT = "db";
 
-    private boolean isCallBackReady = false;
-
     private String deviceName;
     private String deviceAddress;
     private String deviceRSSI;
@@ -139,17 +137,6 @@ public class DeviceProfileActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         disconnectDevice();
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (fragmentManager.findFragmentByTag("service").isVisible()) {
-            onServiceReady();
-        } else if (fragmentManager.findFragmentByTag("characteristic").isVisible()) {
-            onCharacteristicReady();
-        }
     }
 
 
@@ -264,7 +251,6 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                isCallBackReady = false;
                 deviceStateTextView.setText(R.string.detail_state_disconnected);
             }
         });
@@ -309,7 +295,6 @@ public class DeviceProfileActivity extends AppCompatActivity
                 if (controlFragment.isVisible()) {
                     controlFragment.setFail();
                 }
-
             }
         });
     }
@@ -325,24 +310,13 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onWriteSuccess() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(DeviceProfileActivity.this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        Toast.makeText(DeviceProfileActivity.this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
     }
 
 
     @Override
     public void onWriteFail() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(DeviceProfileActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
-            }
-        });
+        Toast.makeText(DeviceProfileActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -390,39 +364,19 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @DebugLog
     @Override
-    public boolean onServiceReady() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.e(TAG, "is CallBackReady = " + isCallBackReady);
-                if (!isCallBackReady) {
-                    isCallBackReady = true;
-                } else {
-                    isCallBackReady = false;
-                    serviceListFragment.setService(bluetoothGattServices);
-                }
-            }
-        });
-        return isCallBackReady;
+    public void onServiceReady() {
+        if (serviceListFragment.isVisible() && bluetoothGattServices != null) {
+            serviceListFragment.setService(bluetoothGattServices);
+        }
     }
 
 
     @DebugLog
     @Override
-    public boolean onCharacteristicReady() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.e(TAG, "is CallBackReady = " + isCallBackReady);
-                if (!isCallBackReady) {
-                    isCallBackReady = true;
-                } else {
-                    isCallBackReady = false;
-                    characteristicListFragment.setCharacteristic(bluetoothGattCharacteristics);
-                }
-            }
-        });
-        return isCallBackReady;
+    public void onCharacteristicReady() {
+        if (characteristicListFragment.isVisible() && bluetoothGattServices != null) {
+            characteristicListFragment.setCharacteristic(bluetoothGattCharacteristics);
+        }
     }
 
 
