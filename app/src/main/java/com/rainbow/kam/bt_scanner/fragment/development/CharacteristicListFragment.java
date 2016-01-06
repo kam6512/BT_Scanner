@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,11 +81,17 @@ public class CharacteristicListFragment extends Fragment {
 
     @DebugLog
     public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
-        characteristicAdapter.clearList();
-        for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
-            characteristicAdapter.add(bluetoothGattCharacteristic);
+
+        if (characteristicAdapter.isListEquals(bluetoothGattCharacteristics.get(0))){
+            Log.e("setCharacteristic","maintain");
+        }else{
+            characteristicAdapter.clearList();
+            for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
+                characteristicAdapter.add(bluetoothGattCharacteristic);
+            }
+            characteristicAdapter.notifyDataSetChanged();
+            Log.e("setCharacteristic","re-add");
         }
-        characteristicAdapter.notifyDataSetChanged();
     }
 
 
@@ -95,6 +102,8 @@ public class CharacteristicListFragment extends Fragment {
 
     public void removeListener() {
         onCharacteristicReadyListener = null;
-        characteristicAdapter.removeListener();
+        if (characteristicAdapter != null) {
+            characteristicAdapter.removeListener();
+        }
     }
 }

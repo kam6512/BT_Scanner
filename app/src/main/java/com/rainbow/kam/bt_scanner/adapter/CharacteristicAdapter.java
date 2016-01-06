@@ -12,7 +12,7 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -24,7 +24,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private final Activity activity;
 
-    private final LinkedList<BluetoothGattCharacteristic> characteristicItemLinkedList = new LinkedList<>();
+    private final ArrayList<BluetoothGattCharacteristic> characteristicArrayList = new ArrayList<>();
 
     private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
@@ -50,13 +50,13 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         CharacteristicViewHolder characteristicViewHolder = (CharacteristicViewHolder) holder;
-        characteristicViewHolder.bindViews(characteristicItemLinkedList.get(position));
+        characteristicViewHolder.bindViews(characteristicArrayList.get(position));
     }
 
 
     @Override
     public int getItemCount() {
-        return characteristicItemLinkedList.size();
+        return characteristicArrayList.size();
     }
 
 
@@ -66,13 +66,18 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
 
+    public boolean isListEquals(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+        return !characteristicArrayList.isEmpty() && bluetoothGattCharacteristic.equals(characteristicArrayList.get(0));
+    }
+
+
     public void add(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        characteristicItemLinkedList.add(bluetoothGattCharacteristic);
+        characteristicArrayList.add(bluetoothGattCharacteristic);
     }
 
 
     public void clearList() {
-        characteristicItemLinkedList.clear();
+        characteristicArrayList.clear();
     }
 
 
@@ -112,6 +117,8 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public interface OnCharacteristicItemClickListener {
         void onCharacteristicItemClick(int position);
     }
+
+
     public void removeListener() {
         onCharacteristicItemClickListener = null;
     }
