@@ -22,7 +22,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
 
-    private final Activity activity;
+    private Activity activity;
 
     private final ArrayList<BluetoothGattService> serviceItemArrayList = new ArrayList<>();
 
@@ -74,6 +74,13 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public void clearList() {
         serviceItemArrayList.clear();
+    }
+
+
+    public void finish() {
+        clearList();
+        activity = null;
+        onServiceItemClickListener = null;
     }
 
 

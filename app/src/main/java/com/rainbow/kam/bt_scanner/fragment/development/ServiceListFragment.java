@@ -66,6 +66,15 @@ public class ServiceListFragment extends Fragment {
     }
 
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        onServiceReadyListener = null;
+        activity = null;
+        serviceAdapter.finish();
+    }
+
+
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_service_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);

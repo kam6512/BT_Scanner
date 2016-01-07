@@ -69,6 +69,15 @@ public class CharacteristicListFragment extends Fragment {
     }
 
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        onCharacteristicReadyListener = null;
+        activity = null;
+        characteristicAdapter.finish();
+    }
+
+
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
@@ -82,15 +91,15 @@ public class CharacteristicListFragment extends Fragment {
     @DebugLog
     public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
 
-        if (characteristicAdapter.isListEquals(bluetoothGattCharacteristics.get(0))){
-            Log.e("setCharacteristic","maintain");
-        }else{
+        if (characteristicAdapter.isListEquals(bluetoothGattCharacteristics.get(0))) {
+            Log.e("setCharacteristic", "maintain");
+        } else {
             characteristicAdapter.clearList();
             for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
                 characteristicAdapter.add(bluetoothGattCharacteristic);
             }
             characteristicAdapter.notifyDataSetChanged();
-            Log.e("setCharacteristic","re-add");
+            Log.e("setCharacteristic", "re-add");
         }
     }
 

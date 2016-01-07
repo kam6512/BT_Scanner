@@ -22,7 +22,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
 
-    private final Activity activity;
+    private Activity activity;
 
     private final ArrayList<BluetoothGattCharacteristic> characteristicArrayList = new ArrayList<>();
 
@@ -78,6 +78,13 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public void clearList() {
         characteristicArrayList.clear();
+    }
+
+
+    public void finish() {
+        clearList();
+        activity = null;
+        onCharacteristicItemClickListener = null;
     }
 
 
