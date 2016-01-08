@@ -10,7 +10,7 @@ import java.util.Set;
 public class DeviceLinkedHashMap<String, DeviceItem> extends LinkedHashMap<String, DeviceItem> {
 
 
-    public DeviceItem getValue(int position) {
+    public final DeviceItem getValue(int position) {
         Map.Entry<String, DeviceItem> deviceItemEntry = this.getEntry(position);
         if (deviceItemEntry == null) {
             return null;
@@ -20,7 +20,7 @@ public class DeviceLinkedHashMap<String, DeviceItem> extends LinkedHashMap<Strin
     }
 
 
-    public Map.Entry<String, DeviceItem> getEntry(int position) {
+    public final Map.Entry<String, DeviceItem> getEntry(int position) {
         Set<Map.Entry<String, DeviceItem>> entries = entrySet();
         int index = 0;
 

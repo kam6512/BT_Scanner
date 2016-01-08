@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.activity.band.BandInitialActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
@@ -43,7 +44,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     private final String TAG = getClass().getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
-    private Activity activity;
+    private Context context;
     private View view;
     private boolean isScanning;
 
@@ -61,12 +62,13 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.activity = activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 
 
+    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_band_init_add_device, container, false);
@@ -77,12 +79,13 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
         setScannerCallback();
 
-        bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
 
         return view;
     }
 
 
+    @DebugLog
     @Override
     public void onResume() {
         super.onResume();
@@ -90,19 +93,11 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
+    @DebugLog
     @Override
     public void onPause() { //꺼짐
         super.onPause();
         stopScan();
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (deviceAdapter != null) {
-            deviceAdapter.removeListener();
-        }
     }
 
 
@@ -128,10 +123,10 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         });
 
         RecyclerView selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.nursing_device_recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        deviceAdapter = new DeviceAdapter(activity);
+        deviceAdapter = new DeviceAdapter((BandInitialActivity) context);
         selectDeviceRecyclerView.setAdapter(deviceAdapter);
     }
 
@@ -213,7 +208,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
                 initBluetoothOn();
             }
         } catch (Exception e) {
-            Toast.makeText(activity, R.string.bt_fail, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
             Log.e(TAG, e.getMessage());
         }
     }
@@ -226,22 +221,25 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            stopScan();
+
+            if (deviceAdapter.getItemCount() < 1) {
+                noDeviceTextView.setVisibility(View.VISIBLE);
+            }
+            deviceAdapter.notifyDataSetChanged();
+        }
+    };
+
+
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopScan();
-
-                if (deviceAdapter.getItemCount() < 1) {
-                    noDeviceTextView.setVisibility(View.VISIBLE);
-                }
-                deviceAdapter.notifyDataSetChanged();
-
-            }
-        }, SCAN_PERIOD); //5초 뒤에 OFF
+        handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
         deviceAdapter.clear();
@@ -264,7 +262,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private synchronized void stopScan() {
+    private synchronized void stopScan() { handler.removeCallbacks(runnable);
         //중지
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {

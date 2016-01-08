@@ -31,7 +31,8 @@ public class GattAttributes {
     private final static HashMap<String, String> characteristics = new HashMap<>();
     private final static SparseArray<String> valueFormats = new SparseArray<>();
 
-    private final static String unknown = "Unknown Service";
+    private final static String unknown = "Unknown";
+
 
     static public String resolveServiceName(final String uuid) {
         String res = services.get(uuid);
@@ -41,16 +42,21 @@ public class GattAttributes {
         return res;
     }
 
+
     static public String resolveCharacteristicName(final String uuid) {
-        String result = characteristics.get(uuid);
-        if (result == null) result = "Unknown Characteristic";
-        return result;
+        String res = characteristics.get(uuid);
+        if (res == null) {
+            return unknown;
+        }
+        return res;
     }
+
 
     static public String resolveValueTypeDescription(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         Integer tmp = getValueFormat(bluetoothGattCharacteristic);
         return valueFormats.get(tmp, "Unknown Format");
     }
+
 
     private static int getValueFormat(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         int properties = bluetoothGattCharacteristic.getProperties();
@@ -80,6 +86,7 @@ public class GattAttributes {
         }
         return 0;
     }
+
 
     static {
         services.put("00001811", "Alert Notification Service");

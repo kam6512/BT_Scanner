@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,33 +8,27 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
 import java.util.Locale;
+
+import hugo.weaving.DebugLog;
 
 /**
  * Created by kam6512 on 2015-10-29.
  */
 public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
-
-    private Activity activity;
+    private final String TAG = getClass().getSimpleName();
 
     private final ArrayList<BluetoothGattCharacteristic> characteristicArrayList = new ArrayList<>();
 
-    private OnCharacteristicItemClickListener onCharacteristicItemClickListener;
+    private final OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
 
-    public CharacteristicAdapter(Activity activity) {
-        this.activity = activity;
-        try {
-            onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnServiceItemClickListener");
-        }
+    public CharacteristicAdapter(OnCharacteristicItemClickListener onCharacteristicItemClickListener) {
+        this.onCharacteristicItemClickListener = onCharacteristicItemClickListener;
     }
 
 
@@ -67,24 +60,18 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
 
     public boolean isListEquals(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-        return !characteristicArrayList.isEmpty() && bluetoothGattCharacteristic.equals(characteristicArrayList.get(0));
+
+        return !characteristicArrayList.isEmpty() && characteristicArrayList.contains(bluetoothGattCharacteristic);
     }
 
-
+    @DebugLog
     public void add(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         characteristicArrayList.add(bluetoothGattCharacteristic);
     }
 
-
+    @DebugLog
     public void clearList() {
         characteristicArrayList.clear();
-    }
-
-
-    public void finish() {
-        clearList();
-        activity = null;
-        onCharacteristicItemClickListener = null;
     }
 
 
@@ -102,11 +89,12 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
 
+        @DebugLog
         private void bindViews(BluetoothGattCharacteristic characteristicItem) {
 
             String uuid = characteristicItem.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = GattAttributes.resolveCharacteristicName(uuid.substring(0, 8));
-            uuid = activity.getString(R.string.detail_label_uuid) + activity.getString(R.string.uuid_unit) + uuid.substring(4, 8);
+            uuid = "UUID : 0x" + uuid.substring(4, 8);
 
             characteristicTitle.setText(name);
             characteristicUuid.setText(uuid);
@@ -123,10 +111,5 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public interface OnCharacteristicItemClickListener {
         void onCharacteristicItemClick(int position);
-    }
-
-
-    public void removeListener() {
-        onCharacteristicItemClickListener = null;
     }
 }

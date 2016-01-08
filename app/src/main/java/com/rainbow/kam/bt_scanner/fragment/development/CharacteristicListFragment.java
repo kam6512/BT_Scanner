@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
 
 import java.util.List;
@@ -25,23 +26,23 @@ import hugo.weaving.DebugLog;
  */
 public class CharacteristicListFragment extends Fragment {
 
-    private Activity activity;
+    private  Context context;
 
-    private View view;
+    private  View view;
 
     private CharacteristicAdapter characteristicAdapter;
 
     private OnCharacteristicReadyListener onCharacteristicReadyListener;
 
 
+    @DebugLog
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
-
             try {
-                activity = (Activity) context;
-                onCharacteristicReadyListener = (OnCharacteristicReadyListener) activity;
+                this.context = context;
+                onCharacteristicReadyListener = (OnCharacteristicReadyListener) context;
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnCharacteristicReadyListener");
             }
@@ -51,17 +52,19 @@ public class CharacteristicListFragment extends Fragment {
     }
 
 
-    @Nullable
+    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
             view = inflater.inflate(R.layout.f_profile_characteristic, container, false);
             setRecyclerView();
+
         }
         return view;
     }
 
 
+    @DebugLog
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -69,21 +72,12 @@ public class CharacteristicListFragment extends Fragment {
     }
 
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        onCharacteristicReadyListener = null;
-        activity = null;
-        characteristicAdapter.finish();
-    }
-
-
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_characteristic_recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        characteristicAdapter = new CharacteristicAdapter(activity);
+        characteristicAdapter = new CharacteristicAdapter((DeviceProfileActivity) context);
         recyclerView.setAdapter(characteristicAdapter);
     }
 
@@ -109,10 +103,4 @@ public class CharacteristicListFragment extends Fragment {
     }
 
 
-    public void removeListener() {
-        onCharacteristicReadyListener = null;
-        if (characteristicAdapter != null) {
-            characteristicAdapter.removeListener();
-        }
-    }
 }

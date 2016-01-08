@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 import java.util.ArrayList;
@@ -20,22 +18,16 @@ import java.util.Locale;
  */
 public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = DeviceProfileActivity.TAG + " - " + getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
-    private Activity activity;
 
     private final ArrayList<BluetoothGattService> serviceItemArrayList = new ArrayList<>();
 
-    private OnServiceItemClickListener onServiceItemClickListener;
+    private final OnServiceItemClickListener onServiceItemClickListener;
 
 
-    public ServiceAdapter(Activity activity) {
-        this.activity = activity;
-        try {
-            onServiceItemClickListener = (OnServiceItemClickListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnServiceItemClickListener");
-        }
+    public ServiceAdapter(OnServiceItemClickListener onServiceItemClickListener) {
+        this.onServiceItemClickListener = onServiceItemClickListener;
     }
 
 
@@ -68,19 +60,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public void add(BluetoothGattService bluetoothGattService) {
         serviceItemArrayList.add(bluetoothGattService);
-
-    }
-
-
-    public void clearList() {
-        serviceItemArrayList.clear();
-    }
-
-
-    public void finish() {
-        clearList();
-        activity = null;
-        onServiceItemClickListener = null;
     }
 
 
@@ -103,8 +82,8 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private void bindViews(BluetoothGattService bluetoothGattService) {
             String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = GattAttributes.resolveServiceName(uuid.substring(0, 8));
-            uuid = activity.getString(R.string.detail_label_uuid) + activity.getString(R.string.uuid_unit) + uuid.substring(4, 8);
-            String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? activity.getString(R.string.service_type_primary) : activity.getString(R.string.service_type_secondary);
+            uuid = "UUID : 0x" + uuid.substring(4, 8);
+            String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "secondary";
 
             serviceTitle.setText(name);
             serviceUuid.setText(uuid);
@@ -121,10 +100,5 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public interface OnServiceItemClickListener {
         void onServiceItemClick(int position);
-    }
-
-
-    public void removeListener() {
-        onServiceItemClickListener = null;
     }
 }

@@ -17,6 +17,7 @@ public class PermissionV21 {
 
     public static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
+
     @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
     public static void check(Activity activity) {

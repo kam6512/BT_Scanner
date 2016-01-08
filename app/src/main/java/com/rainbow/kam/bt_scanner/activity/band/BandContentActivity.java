@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
@@ -95,6 +96,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     private ViewPager viewPager;
 
 
+    @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,6 +159,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     private void queryUserInfo() {
         try {
             realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
@@ -189,6 +192,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onResume() {
         super.onResume();
@@ -196,6 +200,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onPause() {
         super.onPause();
@@ -203,6 +208,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onRefresh() {
         if (gattManager.isConnected()) {
@@ -327,6 +333,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     private void registerBluetooth() {
 //        if (gattManager == null) {
         gattManager = new GattManager(this, this);
@@ -346,6 +353,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     private void connectDevice() {
         if (!gattManager.isConnected()) {
             try {
@@ -361,6 +369,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     private void disconnectDevice() {
         if (gattManager != null && gattManager.isBluetoothAvailable()) {
             gattManager.disconnect();
@@ -369,6 +378,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     private void readTime(byte[] characteristicValue) {
         String result = "";
         for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
@@ -388,6 +398,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     private void readStep(byte[] characteristicValue) {
 
         String hexStep = "";
@@ -428,6 +439,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     private void saveRealmData(int step, int calorie, int distance) {
 
         realm.beginTransaction();
@@ -466,6 +478,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onDeviceConnected() {
         runOnUiThread(new Runnable() {
@@ -483,6 +496,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onDeviceDisconnected() {
         runOnUiThread(new Runnable() {
@@ -501,6 +515,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onServicesFound(final List<BluetoothGattService> services) {
         runOnUiThread(new Runnable() {
@@ -519,6 +534,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onServicesNotFound() {
         runOnUiThread(new Runnable() {
@@ -530,12 +546,14 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onReadSuccess(BluetoothGattCharacteristic ch) {
         // Not use in this Activity
     }
 
 
+    @DebugLog
     @Override
     public void onReadFail() {
         runOnUiThread(new Runnable() {
@@ -547,6 +565,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
         runOnUiThread(new Runnable() {
@@ -596,11 +615,13 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onWriteSuccess() {
     }
 
 
+    @DebugLog
     @Override
     public void onWriteFail() {
         runOnUiThread(new Runnable() {
@@ -612,6 +633,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onRSSIUpdate(final int rssi) {
         runOnUiThread(new Runnable() {
@@ -623,6 +645,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
+    @DebugLog
     @Override
     public void onRSSIMiss() {
         runOnUiThread(new Runnable() {

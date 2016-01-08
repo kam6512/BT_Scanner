@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.adapter.ServiceAdapter;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import hugo.weaving.DebugLog;
  */
 public class ServiceListFragment extends Fragment {
 
-    private Activity activity;
+    private Context context;
 
     private View view;
 
@@ -33,13 +34,14 @@ public class ServiceListFragment extends Fragment {
     private OnServiceReadyListener onServiceReadyListener;
 
 
+    @DebugLog
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
             try {
-                activity = (Activity) context;
-                onServiceReadyListener = (OnServiceReadyListener) activity;
+                this.context = context;
+                onServiceReadyListener = (OnServiceReadyListener) context;
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnServiceReadyListener");
             }
@@ -49,6 +51,7 @@ public class ServiceListFragment extends Fragment {
     }
 
 
+    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
@@ -59,6 +62,7 @@ public class ServiceListFragment extends Fragment {
     }
 
 
+    @DebugLog
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -66,21 +70,12 @@ public class ServiceListFragment extends Fragment {
     }
 
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        onServiceReadyListener = null;
-        activity = null;
-        serviceAdapter.finish();
-    }
-
-
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_service_recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        serviceAdapter = new ServiceAdapter(activity);
+        serviceAdapter = new ServiceAdapter((DeviceProfileActivity) context);
         recyclerView.setAdapter(serviceAdapter);
     }
 
@@ -88,7 +83,7 @@ public class ServiceListFragment extends Fragment {
     @DebugLog
     public void setService(List<BluetoothGattService> bluetoothGattServices) {
         if (serviceAdapter.getItemCount() == 0) {
-            serviceAdapter.clearList();
+            // 서비스는 한기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
             for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
                 serviceAdapter.add(bluetoothGattService);
             }
@@ -99,13 +94,5 @@ public class ServiceListFragment extends Fragment {
 
     public interface OnServiceReadyListener {
         void onServiceReady();
-    }
-
-
-    public void removeListener() {
-        onServiceReadyListener = null;
-        if (serviceAdapter != null) {
-            serviceAdapter.removeListener();
-        }
     }
 }

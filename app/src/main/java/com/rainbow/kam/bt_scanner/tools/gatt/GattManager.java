@@ -119,12 +119,12 @@ public class GattManager extends BluetoothGattCallback {
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
 
-
+    @DebugLog
     private void startMonitoringRssiValue() {
         readRssiValue(true);
     }
 
-
+    @DebugLog
     private void stopMonitoringRssiValue() {
         readRssiValue(false);
     }
@@ -184,20 +184,12 @@ public class GattManager extends BluetoothGattCallback {
     }
 
 
-    private void finish() {
-        bluetoothGattCallback = null;
-        gattCustomCallbacks = null;
-        bluetoothGatt.close();
-        bluetoothGatt = null;
-    }
-
-
     private BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
         @DebugLog
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            Log.e(TAG, "status = " + status + "   newState = " + newState);
-            Log.e(TAG, bluetoothGatt.toString());
+//            Log.e(TAG, "status = " + status + "   newState = " + newState);
+
             if (newState == BluetoothProfile.STATE_CONNECTED) {
 
                 startServiceDiscovery();
@@ -211,7 +203,7 @@ public class GattManager extends BluetoothGattCallback {
 
 
                 gattCustomCallbacks.onDeviceDisconnected();
-                finish();
+                bluetoothGatt.close();
             }
         }
 
@@ -256,12 +248,10 @@ public class GattManager extends BluetoothGattCallback {
             }
         }
 
-
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onRSSIUpdate(rssi);
-                Log.e(TAG, "RSSI : " + rssi);
             } else {
                 gattCustomCallbacks.onRSSIMiss();
             }

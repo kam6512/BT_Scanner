@@ -52,6 +52,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     private String userGender;
 
 
+    @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +77,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
+    @DebugLog
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -147,27 +149,25 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_ENABLE_BT:
-                if (resultCode == RESULT_OK) {
-                    //블루투스 켜짐
-                    Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
-                } else {
-                    //블루투스 에러
-                    Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
-        }
+        if (requestCode == REQUEST_ENABLE_BT)
+            if (resultCode == RESULT_OK) {
+                //블루투스 켜짐
+                Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
+            } else {
+                //블루투스 에러
+                Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                finish();
+            }
     }
 
 
+    @DebugLog
     private void onAccept() {
-         userName = name.getEditText().getText().toString();
-         userAge = age.getEditText().getText().toString();
-         userHeight = height.getEditText().getText().toString();
-         userWeight = weight.getEditText().getText().toString();
-         userStep = step.getEditText().getText().toString();
+        userName = name.getEditText().getText().toString();
+        userAge = age.getEditText().getText().toString();
+        userHeight = height.getEditText().getText().toString();
+        userWeight = weight.getEditText().getText().toString();
+        userStep = step.getEditText().getText().toString();
         String userGender;
         switch (genderGroup.getCheckedRadioButtonId()) {
             case R.id.radio_man:
@@ -205,7 +205,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
                     "\n키 : " + userHeight +
                     "\n몸무게 : " + userWeight +
                     "\n걸음너비 : " + userStep;
-            Log.e(TAG,dialogContent);
+            Log.e(TAG, dialogContent);
 
             materialDialog.setTitle(R.string.dialog_accept_ok);
             materialDialog.setContent(dialogContent);
@@ -215,6 +215,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
+    @DebugLog
     private void onSkip() {
         userName = getString(R.string.user_name_default);
         userAge = getString(R.string.user_age_default);
@@ -229,6 +230,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     }
 
 
+    @DebugLog
     private void complete() {
         finish();
         startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));

@@ -27,7 +27,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     //    private final LinkedHashMap<String, DeviceItem> deviceItemLinkedHashMap = new LinkedHashMap<>();
     private final DeviceLinkedHashMap<String, DeviceItem> deviceLinkedHashMap = new DeviceLinkedHashMap<>();
 
-    private OnDeviceSelectListener onDeviceSelectListener;
+    private final OnDeviceSelectListener onDeviceSelectListener;
 
 
     public DeviceAdapter(OnDeviceSelectListener onDeviceSelectListener) { //초기화
@@ -128,7 +128,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         @Override
         public void onClick(View v) {
 //            DeviceItem deviceItem = deviceItemLinkedHashMap.get(extraAddress.getText().toString());
-            DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
+            final DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
 //            DeviceItem deviceItem = (DeviceItem) deviceItemLinkedHashMap.values().toArray()[getAdapterPosition()];
             onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
         }

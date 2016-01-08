@@ -69,8 +69,6 @@
     <string name="detail.button.write">Write</string>
 
     <string name="fail.characteristic">Fail!</string>
-    <string name="service.type.primary">primary</string>
-    <string name="service.type.secondary">Secondary</string>
 
     <string name="detail.child.list.item.characteristics.name">detail.child.list.item.characteristics.name</string>
     <string name="detail.child.list.item.characteristics.UUID">detail.child.list.item.characteristics.UUID</string>
@@ -116,7 +114,6 @@
 
     <string name="gender.man">남성</string>
     <string name="gender.woman">여성</string>
-    <string name="uuid.unit">0x</string>
     <string name="timestamp">yyyy.MM.dd HH.mm.ss.SSS</string>
 
 </resources>
