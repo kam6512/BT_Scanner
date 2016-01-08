@@ -65,7 +65,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView noDeviceTextView;
     private DeviceAdapter deviceAdapter;
 
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            stopScan();
 
+            if (deviceAdapter.getItemCount() < 1) {
+                noDeviceTextView.setVisibility(View.VISIBLE);
+            }
+            deviceAdapter.notifyDataSetChanged();
+        }
+    };
+
+
+    @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @DebugLog
     @Override
     protected void onResume() {
         super.onResume();
@@ -92,17 +107,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @DebugLog
     @Override
     protected void onPause() { //꺼짐
         super.onPause();
         stopScan();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        deviceAdapter.removeListener();
     }
 
 
@@ -138,23 +147,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_ENABLE_BT:
-                if (resultCode == RESULT_OK) {
-                    //블루투스 켜짐
-                    Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
-                } else {
-                    //블루투스 에러
-                    Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == RESULT_OK) {
+                //블루투스 켜짐
+                Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
+            } else {
+                //블루투스 에러
+                Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
@@ -299,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @DebugLog
     private void toggleScan() {
         if (isScanning) {
             stopScan();
@@ -312,18 +321,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopScan();
 
-                if (deviceAdapter.getItemCount() < 1) {
-                    noDeviceTextView.setVisibility(View.VISIBLE);
-                }
-                deviceAdapter.notifyDataSetChanged();
-
-            }
-        }, SCAN_PERIOD); //5초 뒤에 OFF
+        handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
         deviceAdapter.clear();
@@ -339,12 +338,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //noinspection deprecation
             bluetoothAdapter.startLeScan(leScanCallback);
         }
+
     }
 
 
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
+        handler.removeCallbacks(runnable);
+
         //중지
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
