@@ -82,13 +82,7 @@ public class ServiceListFragment extends Fragment {
 
     @DebugLog
     public void setService(List<BluetoothGattService> bluetoothGattServices) {
-        if (serviceAdapter.getItemCount() == 0) {
-            // 서비스는 한기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
-            for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
-                serviceAdapter.add(bluetoothGattService);
-            }
-            serviceAdapter.notifyDataSetChanged();
-        }
+        serviceAdapter.add(bluetoothGattServices);
     }
 
 

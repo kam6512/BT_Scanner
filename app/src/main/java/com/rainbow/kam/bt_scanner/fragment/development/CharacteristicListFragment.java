@@ -26,9 +26,9 @@ import hugo.weaving.DebugLog;
  */
 public class CharacteristicListFragment extends Fragment {
 
-    private  Context context;
+    private Context context;
 
-    private  View view;
+    private View view;
 
     private CharacteristicAdapter characteristicAdapter;
 
@@ -58,7 +58,6 @@ public class CharacteristicListFragment extends Fragment {
         if (view == null) {
             view = inflater.inflate(R.layout.f_profile_characteristic, container, false);
             setRecyclerView();
-
         }
         return view;
     }
@@ -84,17 +83,7 @@ public class CharacteristicListFragment extends Fragment {
 
     @DebugLog
     public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
-
-        if (characteristicAdapter.isListEquals(bluetoothGattCharacteristics.get(0))) {
-            Log.e("setCharacteristic", "maintain");
-        } else {
-            characteristicAdapter.clearList();
-            for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
-                characteristicAdapter.add(bluetoothGattCharacteristic);
-            }
-            characteristicAdapter.notifyDataSetChanged();
-            Log.e("setCharacteristic", "re-add");
-        }
+        characteristicAdapter.add(bluetoothGattCharacteristics);
     }
 
 
