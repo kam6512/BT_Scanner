@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.development;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
@@ -33,7 +32,7 @@ import java.util.Locale;
  */
 public class ControlFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
-    private Activity activity;
+    private Context context;
 
     private TextView deviceName;
     private TextView deviceAddress;
@@ -52,15 +51,15 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     private Button writeBtn;
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristic;
-    private BluetoothDevice bluetoothDevice;
-    private GattManager gattManager;
+    private String name;
+    private String address;
 
     private String asciiValue = "";
     private String strValue = "";
     private String lastUpdateTime = "";
     private boolean notificationEnabled = false;
 
-    private OnControlReadyListener onControlReadyListener;
+    private OnControlListener onControlListener;
 
 
     @Override
@@ -68,10 +67,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         super.onAttach(context);
         if (context instanceof Activity) {
             try {
-                activity = (Activity) context;
-                onControlReadyListener = (OnControlReadyListener) activity;
+                this.context = context;
+                onControlListener = (OnControlListener) context;
             } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnControlReadyListener");
+                throw new ClassCastException(context.toString() + " must implement OnControlListener");
             }
         } else {
             throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
@@ -115,19 +114,62 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        onControlReadyListener.onControlReady();
+        onControlListener.onControlReady();
     }
 
 
-    public void init(GattManager gattManager, BluetoothGattCharacteristic characteristic) {
-        this.gattManager = gattManager;
-        bluetoothDevice = gattManager.getBluetoothDevice();
+    public void init(String name, String address, BluetoothGattCharacteristic characteristic) {
+        this.name = name;
+        this.address = address;
         this.bluetoothGattCharacteristic = characteristic;
         asciiValue = "";
         strValue = "";
-        lastUpdateTime = "-";
+        lastUpdateTime = "";
         notificationEnabled = false;
+        initView();
         bindView();
+    }
+
+
+    private void initView() {
+        deviceName.setText(name);
+        deviceAddress.setText(address);
+
+        String service = bluetoothGattCharacteristic.getService().getUuid().toString().toLowerCase(Locale.getDefault());
+        serviceUuid.setText(service);
+        serviceName.setText(GattAttributes.resolveServiceName(service.substring(0, 8)));
+
+        String characteristic = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
+        charUuid.setText(characteristic);
+        charName.setText(GattAttributes.resolveCharacteristicName(characteristic.substring(0, 8)));
+        charDataType.setText(GattAttributes.resolveValueTypeDescription(bluetoothGattCharacteristic));
+
+        int props = bluetoothGattCharacteristic.getProperties();
+        StringBuilder propertiesString = new StringBuilder();
+        propertiesString.append(String.format("0x%04X [", props));
+        if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
+            propertiesString.append("read ");
+        }
+        if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
+            propertiesString.append("write ");
+        }
+        if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+            propertiesString.append("notify ");
+        }
+        if ((props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+            propertiesString.append("indicate ");
+        }
+        if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
+            propertiesString.append("write_no_response ");
+        }
+        charProperties.setText(propertiesString + "]");
+
+        notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
+        notificationBtn.setChecked(notificationEnabled);
+
+        readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
+        writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
+        charHexValue.setEnabled(writeBtn.isEnabled());
     }
 
 
@@ -140,6 +182,19 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         setTimeStamp();
 
         bindView();
+    }
+
+
+    private void setAsciiValue(byte[] rawValue) {
+        if (rawValue != null && rawValue.length > 0) {
+            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
+            for (byte byteChar : rawValue) {
+                stringBuilder.append(String.format("%02X", byteChar));
+            }
+            asciiValue = "0x" + stringBuilder.toString();
+        } else {
+            asciiValue = "";
+        }
     }
 
 
@@ -158,29 +213,16 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     }
 
 
-    private void setAsciiValue(byte[] rawValue) {
-        if (rawValue != null && rawValue.length > 0) {
-            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
-            for (byte byteChar : rawValue) {
-                stringBuilder.append(String.format("%02X", byteChar));
-            }
-            asciiValue = "0x" + stringBuilder.toString();
-        } else {
-            asciiValue = "";
-        }
-    }
-
-
     private void setTimeStamp() {
-        lastUpdateTime = new SimpleDateFormat(activity.getString(R.string.timestamp)).format(new Date());
+        lastUpdateTime = new SimpleDateFormat(context.getString(R.string.timestamp)).format(new Date());
         notificationEnabled = true;
     }
 
 
     public void setFail() {
-        strValue = activity.getString(R.string.fail_characteristic);
-        asciiValue = activity.getString(R.string.fail_characteristic);
-        lastUpdateTime = activity.getString(R.string.fail_characteristic);
+        strValue = context.getString(R.string.fail_characteristic);
+        asciiValue = context.getString(R.string.fail_characteristic);
+        lastUpdateTime = context.getString(R.string.fail_characteristic);
 
         bindView();
     }
@@ -188,51 +230,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     private void bindView() {
 
-        if (bluetoothDevice != null) {
-            deviceName.setText(bluetoothDevice.getName());
-            deviceAddress.setText(bluetoothDevice.getAddress());
+        charHexValue.setText(asciiValue);
+        charStrValue.setText(strValue);
+        charDateValue.setText(lastUpdateTime);
 
-            String tmp = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-            serviceUuid.setText(tmp);
-            serviceName.setText(GattAttributes.resolveServiceName(tmp));
-
-            String uuid = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-            String name = GattAttributes.resolveCharacteristicName(uuid);
-            charName.setText(name);
-            charUuid.setText(uuid);
-
-            charDataType.setText(GattAttributes.resolveValueTypeDescription(bluetoothGattCharacteristic));
-
-            int props = bluetoothGattCharacteristic.getProperties();
-            String propertiesString = String.format("0x%04X [", props);
-            if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
-                propertiesString += "read ";
-            }
-            if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
-                propertiesString += "write ";
-            }
-            if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-                propertiesString += "notify ";
-            }
-            if ((props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
-                propertiesString += "indicate ";
-            }
-            if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
-                propertiesString += "write_no_response ";
-            }
-            charProperties.setText(propertiesString + "]");
-
-            notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
-            notificationBtn.setChecked(notificationEnabled);
-
-            readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
-            writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
-            charHexValue.setEnabled(writeBtn.isEnabled());
-
-            charHexValue.setText(asciiValue);
-            charStrValue.setText(strValue);
-            charDateValue.setText(lastUpdateTime);
-        }
     }
 
 
@@ -240,13 +241,13 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.characteristic_detail_read_btn:
-                gattManager.readValue(bluetoothGattCharacteristic);
+                onControlListener.setReadValue();
                 break;
             case R.id.characteristic_detail_write_btn:
                 String newValue = charHexValue.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
                     byte[] dataToWrite = PrimeHelper.parseHexStringToBytesDEV(newValue);
-                    gattManager.writeValue(bluetoothGattCharacteristic, dataToWrite);
+                    onControlListener.setWriteValue(dataToWrite);
                 } else {
                     Snackbar.make(v, "dataToWrite value is empty!", Snackbar.LENGTH_SHORT).show();
                 }
@@ -262,19 +263,21 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
                 if (isChecked == notificationEnabled) {
                     return;
                 }
-                gattManager.setNotification(bluetoothGattCharacteristic, isChecked);
+                onControlListener.setNotification(isChecked);
                 notificationEnabled = isChecked;
                 break;
         }
     }
 
 
-    public interface OnControlReadyListener {
+    public interface OnControlListener {
         void onControlReady();
+
+        void setNotification(boolean isNotificationEnable);
+
+        void setReadValue();
+
+        void setWriteValue(byte[] data);
     }
 
-
-    public void removeListener() {
-        onControlReadyListener = null;
-    }
 }

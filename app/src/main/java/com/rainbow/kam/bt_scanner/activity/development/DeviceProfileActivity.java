@@ -39,15 +39,15 @@ import hugo.weaving.DebugLog;
  */
 public class DeviceProfileActivity extends AppCompatActivity
         implements GattCustomCallbacks,
-        ControlFragment.OnControlReadyListener,
+        ControlFragment.OnControlListener,
         OnCharacteristicReadyListener,
         OnServiceReadyListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener,
         ServiceAdapter.OnServiceItemClickListener {
 
-    public static final String TAG = "DeviceProfileActivity";
+    private final String TAG = getClass().getSimpleName();
 
-    private static final int REQUEST_ENABLE_BT = 1;
+    private final int REQUEST_ENABLE_BT = 1;
 
     public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
@@ -91,7 +91,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         setToolbar();
         setFragments();
 
-        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceListFragment, "service").commit();
+        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceListFragment).commit();
     }
 
 
@@ -114,19 +114,16 @@ public class DeviceProfileActivity extends AppCompatActivity
     }
 
 
-    @DebugLog
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
         serviceListFragment = new ServiceListFragment();
         characteristicListFragment = new CharacteristicListFragment();
         controlFragment = new ControlFragment();
-
-        serviceListFragment.setRetainInstance(true);
-        characteristicListFragment.setRetainInstance(true);
     }
 
 
+    @DebugLog
     @Override
     protected void onResume() {
         super.onResume();
@@ -134,19 +131,11 @@ public class DeviceProfileActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     protected void onPause() {
         super.onPause();
         disconnectDevice();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        serviceListFragment.removeListener();
-        characteristicListFragment.removeListener();
-        controlFragment.removeListener();
     }
 
 
@@ -298,6 +287,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onReadFail() {
         runOnUiThread(new Runnable() {
@@ -325,12 +315,14 @@ public class DeviceProfileActivity extends AppCompatActivity
     }
 
 
+    @DebugLog
     @Override
     public void onWriteFail() {
         Toast.makeText(DeviceProfileActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
     }
 
 
+    @DebugLog
     @Override
     public void onRSSIUpdate(final int rssi) {
         runOnUiThread(new Runnable() {
@@ -404,6 +396,24 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onControlReady() {
-        controlFragment.init(gattManager, controlCharacteristic);
+        controlFragment.init(deviceName, deviceAddress, controlCharacteristic);
+    }
+
+
+    @Override
+    public void setNotification(boolean isNotificationEnable) {
+        gattManager.setNotification(controlCharacteristic, isNotificationEnable);
+    }
+
+
+    @Override
+    public void setReadValue() {
+        gattManager.readValue(controlCharacteristic);
+    }
+
+
+    @Override
+    public void setWriteValue(byte[] data) {
+        gattManager.writeValue(controlCharacteristic, data);
     }
 }
