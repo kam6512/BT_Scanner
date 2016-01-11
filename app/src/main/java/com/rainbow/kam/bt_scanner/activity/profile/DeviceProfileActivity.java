@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.development;
+package com.rainbow.kam.bt_scanner.activity.profile;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -22,11 +22,11 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
 import com.rainbow.kam.bt_scanner.adapter.ServiceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.development.CharacteristicListFragment;
-import com.rainbow.kam.bt_scanner.fragment.development.CharacteristicListFragment.OnCharacteristicReadyListener;
-import com.rainbow.kam.bt_scanner.fragment.development.ControlFragment;
-import com.rainbow.kam.bt_scanner.fragment.development.ServiceListFragment;
-import com.rainbow.kam.bt_scanner.fragment.development.ServiceListFragment.OnServiceReadyListener;
+import com.rainbow.kam.bt_scanner.fragment.profile.CharacteristicListFragment;
+import com.rainbow.kam.bt_scanner.fragment.profile.CharacteristicListFragment.OnCharacteristicReadyListener;
+import com.rainbow.kam.bt_scanner.fragment.profile.ControlFragment;
+import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment;
+import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment.OnServiceReadyListener;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 
@@ -191,9 +191,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @DebugLog
     private void registerBluetooth() {
-        if (gattManager == null) {
-            gattManager = new GattManager(this, this);
-        }
+        gattManager = new GattManager(this, this);
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
@@ -303,8 +301,15 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @DebugLog
     @Override
-    public void onDataNotify(BluetoothGattCharacteristic ch) {
-        // Not use in this Activity
+    public void onDataNotify(final BluetoothGattCharacteristic ch) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (controlFragment.isVisible()) {
+                    controlFragment.newValueForCharacteristic(ch);
+                }
+            }
+        });
     }
 
 
@@ -372,7 +377,7 @@ public class DeviceProfileActivity extends AppCompatActivity
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    serviceListFragment.setService(bluetoothGattServices);
+                    serviceListFragment.setServiceList(bluetoothGattServices);
                 }
             });
         }
@@ -386,7 +391,7 @@ public class DeviceProfileActivity extends AppCompatActivity
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    characteristicListFragment.setCharacteristic(bluetoothGattCharacteristics);
+                    characteristicListFragment.setCharacteristicList(bluetoothGattCharacteristics);
                 }
             });
         }

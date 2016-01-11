@@ -1,10 +1,9 @@
-package com.rainbow.kam.bt_scanner.fragment.development;
+package com.rainbow.kam.bt_scanner.fragment.profile;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -19,7 +18,6 @@ import android.widget.ToggleButton;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
 
 import java.text.SimpleDateFormat;
@@ -54,10 +52,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     private String name;
     private String address;
 
-    private String asciiValue = "";
-    private String strValue = "";
-    private String lastUpdateTime = "";
-    private boolean notificationEnabled = false;
+    private String hexValue;
+    private String strValue;
+    private String lastUpdateTime;
+    private boolean notificationEnabled;
 
     private OnControlListener onControlListener;
 
@@ -112,7 +110,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         onControlListener.onControlReady();
     }
@@ -122,7 +120,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         this.name = name;
         this.address = address;
         this.bluetoothGattCharacteristic = characteristic;
-        asciiValue = "";
+        hexValue = "";
         strValue = "";
         lastUpdateTime = "";
         notificationEnabled = false;
@@ -178,22 +176,22 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         byte[] rawValue = bluetoothGattCharacteristic.getValue();
 
         setStrValue(rawValue);
-        setAsciiValue(rawValue);
+        setHexValue(rawValue);
         setTimeStamp();
 
         bindView();
     }
 
 
-    private void setAsciiValue(byte[] rawValue) {
+    private void setHexValue(byte[] rawValue) {
         if (rawValue != null && rawValue.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
             for (byte byteChar : rawValue) {
                 stringBuilder.append(String.format("%02X", byteChar));
             }
-            asciiValue = "0x" + stringBuilder.toString();
+            hexValue = "0x" + stringBuilder.toString();
         } else {
-            asciiValue = "";
+            hexValue = "";
         }
     }
 
@@ -220,8 +218,8 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     public void setFail() {
+        hexValue = context.getString(R.string.fail_characteristic);
         strValue = context.getString(R.string.fail_characteristic);
-        asciiValue = context.getString(R.string.fail_characteristic);
         lastUpdateTime = context.getString(R.string.fail_characteristic);
 
         bindView();
@@ -230,7 +228,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     private void bindView() {
 
-        charHexValue.setText(asciiValue);
+        charHexValue.setText(hexValue);
         charStrValue.setText(strValue);
         charDateValue.setText(lastUpdateTime);
 
@@ -279,5 +277,4 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
         void setWriteValue(byte[] data);
     }
-
 }

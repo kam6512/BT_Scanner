@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.band;
+package com.rainbow.kam.bt_scanner.activity.prime;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -32,12 +32,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.development.MainActivity;
-import com.rainbow.kam.bt_scanner.fragment.band.content.CalorieFragment;
-import com.rainbow.kam.bt_scanner.fragment.band.content.DashboardFragment;
-import com.rainbow.kam.bt_scanner.fragment.band.content.DistanceFragment;
-import com.rainbow.kam.bt_scanner.fragment.band.content.SampleFragment;
-import com.rainbow.kam.bt_scanner.fragment.band.content.StepFragment;
+import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
+import com.rainbow.kam.bt_scanner.fragment.prime.main.CalorieFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.main.DashboardFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.main.DistanceFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.main.SampleFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.main.StepFragment;
 import com.rainbow.kam.bt_scanner.RealmItem.RealmBandItem;
 import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
@@ -57,9 +57,9 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class BandContentActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, GattCustomCallbacks {
+public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, GattCustomCallbacks {
 
-    private static final String TAG = BandContentActivity.class.getSimpleName();
+    private static final String TAG = PrimeActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
 
     private Realm realm;
@@ -233,7 +233,6 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
-
     }
 
 
@@ -276,7 +275,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
                 return true;
             case R.id.menu_nursing_about_dev:
                 finish();
-                startActivity(new Intent(BandContentActivity.this, MainActivity.class));
+                startActivity(new Intent(PrimeActivity.this, MainActivity.class));
                 return true;
             case R.id.menu_nursing_about_setting:
                 realm.beginTransaction();
@@ -295,17 +294,15 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_ENABLE_BT:
-                if (resultCode == RESULT_OK) {
-                    //블루투스 켜짐
-                    Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
-                } else {
-                    //블루투스 에러
-                    Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == RESULT_OK) {
+                //블루투스 켜짐
+                Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
+            } else {
+                //블루투스 에러
+                Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 
@@ -313,7 +310,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == 1) {
+        if (requestCode == REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
@@ -335,9 +332,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
 
     @DebugLog
     private void registerBluetooth() {
-//        if (gattManager == null) {
         gattManager = new GattManager(this, this);
-//        }
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
@@ -362,7 +357,7 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
                 finish();
-                startActivity(new Intent(BandContentActivity.this, BandInitialActivity.class));
+                startActivity(new Intent(PrimeActivity.this, PrimeInitialActivity.class));
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -380,17 +375,16 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
 
     @DebugLog
     private void readTime(byte[] characteristicValue) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
-            result += Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16);
             switch (i) {
                 default:
-                    result += timeSet[i - 2] + " ";
+                    result.append(Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    result.append(timeSet[i - 2]).append(" ");
                     break;
                 case 8:
-                    result = result.substring(0, result.length() - 1);
-                    int j = Integer.valueOf(String.format("%02x", characteristicValue[i]));
-                    result += weekSet[j - 1];
+                    int j = characteristicValue[i];
+                    result.append(weekSet[j - 1]);
                     break;
             }
         }
@@ -401,21 +395,21 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     @DebugLog
     private void readStep(byte[] characteristicValue) {
 
-        String hexStep = "";
-        String hexCal = "";
+        StringBuilder hexStep = new StringBuilder();
+        StringBuilder hexCal = new StringBuilder();
 
         int step, kcal, distance, age;
         double height;
 
-        hexStep += String.format("%02x", characteristicValue[2] & 0xff);
-        hexStep += String.format("%02x", characteristicValue[3] & 0xff);
-        hexStep += String.format("%02x", characteristicValue[4] & 0xff);
-        step = Integer.valueOf(hexStep, 16);
+        hexStep.append(String.format("%02x", characteristicValue[2] & 0xff));
+        hexStep.append(String.format("%02x", characteristicValue[3] & 0xff));
+        hexStep.append(String.format("%02x", characteristicValue[4] & 0xff));
+        step = Integer.parseInt(hexStep.toString(), 16);
 
-        hexCal += String.format("%02x", characteristicValue[5] & 0xff);
-        hexCal += String.format("%02x", characteristicValue[6] & 0xff);
-        hexCal += String.format("%02x", characteristicValue[7] & 0xff);
-        kcal = Integer.valueOf(hexCal, 16);
+        hexCal.append(String.format("%02x", characteristicValue[5] & 0xff));
+        hexCal.append(String.format("%02x", characteristicValue[6] & 0xff));
+        hexCal.append(String.format("%02x", characteristicValue[7] & 0xff));
+        kcal = Integer.parseInt(hexCal.toString(), 16);
 
         age = Integer.parseInt(patientAge);
         height = Integer.parseInt(patientHeight);
@@ -478,7 +472,6 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
-    @DebugLog
     @Override
     public void onDeviceConnected() {
         runOnUiThread(new Runnable() {
@@ -496,7 +489,6 @@ public class BandContentActivity extends AppCompatActivity implements TabLayout.
     }
 
 
-    @DebugLog
     @Override
     public void onDeviceDisconnected() {
         runOnUiThread(new Runnable() {

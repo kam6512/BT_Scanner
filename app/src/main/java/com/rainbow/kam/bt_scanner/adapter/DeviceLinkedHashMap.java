@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Created by kam6512 on 2016-01-08.
  */
-public class DeviceLinkedHashMap<String, DeviceItem> extends LinkedHashMap<String, DeviceItem> {
+class DeviceLinkedHashMap<String, DeviceItem> extends LinkedHashMap<String, DeviceItem> {
 
 
     public final DeviceItem getValue(int position) {
@@ -15,15 +15,13 @@ public class DeviceLinkedHashMap<String, DeviceItem> extends LinkedHashMap<Strin
         if (deviceItemEntry == null) {
             return null;
         }
-
         return deviceItemEntry.getValue();
     }
 
 
-    public final Map.Entry<String, DeviceItem> getEntry(int position) {
+    final Map.Entry<String, DeviceItem> getEntry(int position) {
         Set<Map.Entry<String, DeviceItem>> entries = entrySet();
         int index = 0;
-
         for (Map.Entry<String, DeviceItem> entry : entries) {
             if (index++ == position) {
                 return entry;
