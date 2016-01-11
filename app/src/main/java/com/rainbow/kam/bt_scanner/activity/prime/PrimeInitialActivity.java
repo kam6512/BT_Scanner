@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.band;
+package com.rainbow.kam.bt_scanner.activity.prime;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -18,8 +19,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.band.init.LogoFragment;
-import com.rainbow.kam.bt_scanner.fragment.band.init.SelectDeviceDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.init.LogoFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.init.SelectDeviceDialogFragment;
 
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
@@ -30,9 +31,9 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class BandInitialActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, View.OnClickListener {
+public class PrimeInitialActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, View.OnClickListener {
 
-    private static final String TAG = BandInitialActivity.class.getSimpleName();
+    private static final String TAG = PrimeInitialActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
 
     private TextInputLayout name, age, height, weight, step;
@@ -102,7 +103,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
                             .commit();
                 }
             }
-        }, 1000);
+        }, 2000);
     }
 
 
@@ -168,6 +169,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
         userHeight = height.getEditText().getText().toString();
         userWeight = weight.getEditText().getText().toString();
         userStep = step.getEditText().getText().toString();
+
         String userGender;
         switch (genderGroup.getCheckedRadioButtonId()) {
             case R.id.radio_man:
@@ -181,24 +183,7 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
                 break;
         }
 
-        if (TextUtils.isEmpty(userName)) {
-            name.setError("Name is missing");
-        } else if (TextUtils.isEmpty(userAge)) {
-            age.setError("Age is missing");
-        } else if (TextUtils.isEmpty(userHeight)) {
-            height.setError("Height is missing");
-        } else if (TextUtils.isEmpty(userWeight)) {
-            weight.setError("weight is missing");
-        } else if (TextUtils.isEmpty(userStep)) {
-            step.setError("step is missing");
-        } else {
-            name.setErrorEnabled(false);
-            age.setErrorEnabled(false);
-            height.setErrorEnabled(false);
-            weight.setErrorEnabled(false);
-            step.setErrorEnabled(false);
-
-
+        if (!checkTextInputLayout(findViewById(R.id.nursing_init_group))) {
             String dialogContent = "이름 : " + userName +
                     "\n성별 : " + userGender +
                     "\n나이 : " + userAge +
@@ -211,7 +196,6 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
             materialDialog.setContent(dialogContent);
             materialDialog.show();
         }
-
     }
 
 
@@ -233,7 +217,34 @@ public class BandInitialActivity extends AppCompatActivity implements DeviceAdap
     @DebugLog
     private void complete() {
         finish();
-        startActivity(new Intent(BandInitialActivity.this, BandContentActivity.class));
+        startActivity(new Intent(PrimeInitialActivity.this, PrimeActivity.class));
+    }
+
+
+    private boolean checkTextInputLayout(View view) {
+        boolean hasError = false;
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            int length = viewGroup.getChildCount();
+            for (int i = 0; i < length; i++) {
+                View v = viewGroup.getChildAt(i);
+                if (v instanceof TextInputLayout) {
+                    TextInputLayout textInputLayout = (TextInputLayout) v;
+                    if (TextUtils.isEmpty(textInputLayout.getEditText().getText().toString())) {
+                        textInputLayout.setErrorEnabled(true);
+                        textInputLayout.setError("missing");
+                        hasError = true;
+                    } else {
+                        textInputLayout.setErrorEnabled(false);
+                    }
+                } else {
+                    hasError = true;
+                }
+            }
+        } else {
+            hasError = true;
+        }
+        return hasError;
     }
 
 
