@@ -11,7 +11,6 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
@@ -45,9 +44,6 @@ public class GattManager extends BluetoothGattCallback {
     public GattManager(Context context, GattCustomCallbacks gattCustomCallbacks) {
         this.context = context;
         this.gattCustomCallbacks = gattCustomCallbacks;
-        if (gattCustomCallbacks != null) {
-            Log.e(TAG, "gattCustomCallbacks is not null");
-        }
 
         if (bluetoothManager == null || bluetoothAdapter == null) {
             bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);

@@ -104,14 +104,13 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         writeBtn.setOnClickListener(this);
         notificationBtn.setOnCheckedChangeListener(this);
 
-
         return view;
     }
 
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onResume() {
+        super.onResume();
         onControlListener.onControlReady();
     }
 
@@ -144,7 +143,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
         int props = bluetoothGattCharacteristic.getProperties();
         StringBuilder propertiesString = new StringBuilder();
-        propertiesString.append(String.format("0x%04X [", props));
+        propertiesString.append(String.format("0x%04X [ ", props));
         if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
             propertiesString.append("read ");
         }
@@ -227,11 +226,9 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     private void bindView() {
-
         charHexValue.setText(hexValue);
         charStrValue.setText(strValue);
         charDateValue.setText(lastUpdateTime);
-
     }
 
 
