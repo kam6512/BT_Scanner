@@ -21,9 +21,6 @@
         </android.support.v7.widget.RecyclerView>
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <ProgressBar
-        android:id="@+id/nursing_searching_progress_bar"
-        style="@style/SearchingProgressBar"/>
 
     <TextView
         android:id="@+id/nursing_no_device_textView"

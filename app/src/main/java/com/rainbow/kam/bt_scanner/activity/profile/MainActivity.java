@@ -22,6 +22,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,8 +47,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-10-22.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, DeviceAdapter.OnDeviceSelectListener {
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, DeviceAdapter.OnDeviceSelectListener {
     private final String TAG = getClass().getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -61,8 +61,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ScanCallback scanCallback;
 
     private DrawerLayout drawerLayout;
-    private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
+
+    SwipeRefreshLayout swipeRefreshLayout;
     private DeviceAdapter deviceAdapter;
 
     private final Handler handler = new Handler();
@@ -75,6 +76,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 noDeviceTextView.setVisibility(View.VISIBLE);
             }
             deviceAdapter.notifyDataSetChanged();
+        }
+    };
+    private final Runnable postSwipeRefresh = new Runnable() {
+        @Override
+        public void run() {
+            swipeRefreshLayout.setRefreshing(true);
         }
     };
 
@@ -146,6 +153,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
+    public void onRefresh() {
+        if (isScanning) {  //스캔 시작
+            stopScan();
+        } else { //재 스캔시(10초이내)
+            registerBluetooth();
+        }
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode == RESULT_OK) {
@@ -205,6 +222,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setRecyclerView() {
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.main_swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -217,9 +238,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setOtherView() {
         FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fabSearch);
         fabSearch.setOnClickListener(this);
-
-        searchingProgressBar = (ProgressBar) findViewById(R.id.searching_progress_bar);
-        searchingProgressBar.setVisibility(View.INVISIBLE);
 
         noDeviceTextView = (TextView) findViewById(R.id.no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
@@ -323,6 +341,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         long SCAN_PERIOD = 5000;
         handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
 
+        deviceAdapter.clear();
+        isScanning = true;
+        noDeviceTextView.setVisibility(View.INVISIBLE);
+
+        swipeRefreshLayout.post(postSwipeRefresh);
+
         //시작
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null) {
@@ -332,10 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //noinspection deprecation
             bluetoothAdapter.startLeScan(leScanCallback);
         }
-        deviceAdapter.clear();
-        isScanning = true;
-        searchingProgressBar.setVisibility(View.VISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
+
     }
 
 
@@ -343,6 +364,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         handler.removeCallbacks(runnable);
+
+        isScanning = false;
+        noDeviceTextView.setVisibility(View.INVISIBLE);
+        swipeRefreshLayout.setRefreshing(false);
 
         //중지
         if (PermissionV21.isBuildVersionLM) {
@@ -354,9 +379,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //noinspection deprecation
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
-        isScanning = false;
-        searchingProgressBar.setVisibility(View.INVISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
+
     }
 
 
@@ -367,5 +390,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intent.putExtra(DeviceProfileActivity.EXTRAS_DEVICE_ADDRESS, address);
         startActivity(intent);
     }
+
+
 }
 

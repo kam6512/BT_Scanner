@@ -221,6 +221,7 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
     }
 
 
+    @DebugLog
     private boolean checkTextInputLayout(View view) {
         boolean hasError = false;
         if (view instanceof ViewGroup) {
@@ -237,12 +238,8 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
                     } else {
                         textInputLayout.setErrorEnabled(false);
                     }
-                } else {
-                    hasError = true;
                 }
             }
-        } else {
-            hasError = true;
         }
         return hasError;
     }

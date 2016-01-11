@@ -39,7 +39,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class SelectDeviceDialogFragment extends DialogFragment {
+public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private final String TAG = getClass().getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
@@ -54,7 +54,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     private BluetoothLeScanner bleScanner;
     private ScanCallback scanCallback;
 
-    private ProgressBar searchingProgressBar;
+    //    private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceAdapter deviceAdapter;
@@ -69,6 +69,13 @@ public class SelectDeviceDialogFragment extends DialogFragment {
                 noDeviceTextView.setVisibility(View.VISIBLE);
             }
             deviceAdapter.notifyDataSetChanged();
+        }
+    };
+
+    private final Runnable postSwipeRefresh = new Runnable() {
+        @Override
+        public void run() {
+            swipeRefreshLayout.setRefreshing(true);
         }
     };
 
@@ -116,23 +123,14 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     private void setWindowSetting() {
         Window window = getDialog().getWindow();
         window.requestFeature(Window.FEATURE_NO_TITLE);
-        window.setBackgroundDrawable(
-                new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
     }
 
 
     private void setRecyclerView() {
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.nursing_device_swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (isScanning) {  //스캔 시작
-                    stopScan();
-                } else { //재 스캔시(10초이내)
-                    registerBluetooth();
-                }
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
 
         RecyclerView selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.nursing_device_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
@@ -144,8 +142,6 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
 
     private void setOtherView() {
-        searchingProgressBar = (ProgressBar) view.findViewById(R.id.nursing_searching_progress_bar);
-        searchingProgressBar.setVisibility(View.INVISIBLE);
 
         noDeviceTextView = (TextView) view.findViewById(R.id.nursing_no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
@@ -201,6 +197,16 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
+    @Override
+    public void onRefresh() {
+        if (isScanning) {  //스캔 시작
+            stopScan();
+        } else { //재 스캔시(10초이내)
+            registerBluetooth();
+        }
+    }
+
+
     @DebugLog
     @SuppressLint("NewApi")
     private void registerBluetooth() {
@@ -242,10 +248,9 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         //시작
         deviceAdapter.clear();
         isScanning = true;
-        searchingProgressBar.setVisibility(View.VISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
 
-        swipeRefreshLayout.setRefreshing(false);
+        swipeRefreshLayout.post(postSwipeRefresh);
 
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null) {
@@ -262,6 +267,11 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         handler.removeCallbacks(runnable);
+
+        isScanning = false;
+        noDeviceTextView.setVisibility(View.INVISIBLE);
+        swipeRefreshLayout.setRefreshing(false);
+
         //중지
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
@@ -272,10 +282,8 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
 
-        isScanning = false;
-        searchingProgressBar.setVisibility(View.INVISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
-        swipeRefreshLayout.setRefreshing(false);
+
     }
+
 
 }
