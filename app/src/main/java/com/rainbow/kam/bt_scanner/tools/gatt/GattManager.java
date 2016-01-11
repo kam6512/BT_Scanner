@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
@@ -114,10 +115,12 @@ public class GattManager extends BluetoothGattCallback {
         }, RSSI_UPDATE_TIME_INTERVAL);
     }
 
+
     @DebugLog
     private void startMonitoringRssiValue() {
         readRssiValue(true);
     }
+
 
     @DebugLog
     private void stopMonitoringRssiValue() {
@@ -132,6 +135,7 @@ public class GattManager extends BluetoothGattCallback {
             gattCustomCallbacks.onServicesNotFound();
         }
     }
+
 
     @DebugLog
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
@@ -180,16 +184,12 @@ public class GattManager extends BluetoothGattCallback {
 //            Log.e(TAG, "status = " + status + "   newState = " + newState);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-
                 startServiceDiscovery();
                 startMonitoringRssiValue();
 
                 gattCustomCallbacks.onDeviceConnected();
-
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-
                 stopMonitoringRssiValue();
-
 
                 gattCustomCallbacks.onDeviceDisconnected();
                 bluetoothGatt.close();
@@ -237,6 +237,7 @@ public class GattManager extends BluetoothGattCallback {
             }
         }
 
+
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -246,6 +247,4 @@ public class GattManager extends BluetoothGattCallback {
             }
         }
     };
-
-
 }

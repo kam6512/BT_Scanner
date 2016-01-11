@@ -41,6 +41,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return new ServiceViewHolder(view);
     }
 
+
     @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
@@ -61,16 +62,16 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    @DebugLog
-    public void add(List<BluetoothGattService> bluetoothGattServices) {
-        if (getItemCount() == 0) {
-            // 서비스는 한기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
-            for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
-                serviceItemArrayList.add(bluetoothGattService);
+        @DebugLog
+        public void add(List<BluetoothGattService> bluetoothGattServices) {
+            if (getItemCount() == 0) {
+                // 서비스는 한기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
+                for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
+                    serviceItemArrayList.add(bluetoothGattService);
+                }
+                notifyDataSetChanged();
             }
-            notifyDataSetChanged();
         }
-    }
 
 
     public class ServiceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

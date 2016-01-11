@@ -37,7 +37,7 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeInitialActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.tools.PermissionV21;
+import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 
 import java.util.List;
 
@@ -91,8 +91,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_main);
 
-        if (PermissionV21.isBuildVersionLM) {
-            PermissionV21.check(this);
+        if (BluetoothHelper.isBuildVersionLM) {
+            BluetoothHelper.check(this);
         }
 
         setToolbar();
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setScannerCallback() {
-        if (PermissionV21.isBuildVersionLM) {
+        if (BluetoothHelper.isBuildVersionLM) {
             setScannerL();
         } else {
             setScanner();
@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (bluetoothManager != null && bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
 
-                if (PermissionV21.isBuildVersionLM) {
+                if (BluetoothHelper.isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
 
@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         swipeRefreshLayout.post(postSwipeRefresh);
 
         //시작
-        if (PermissionV21.isBuildVersionLM) {
+        if (BluetoothHelper.isBuildVersionLM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
             }
@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         swipeRefreshLayout.setRefreshing(false);
 
         //중지
-        if (PermissionV21.isBuildVersionLM) {
+        if (BluetoothHelper.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
                 bleScanner.stopScan(scanCallback);
             }

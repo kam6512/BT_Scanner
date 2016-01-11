@@ -21,6 +21,7 @@ import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.prime.init.LogoFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.init.SelectDeviceDialogFragment;
+import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
@@ -34,7 +35,6 @@ import io.realm.RealmResults;
 public class PrimeInitialActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, View.OnClickListener {
 
     private static final String TAG = PrimeInitialActivity.class.getSimpleName();
-    private static final int REQUEST_ENABLE_BT = 1;
 
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
@@ -150,7 +150,7 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ENABLE_BT)
+        if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT)
             if (resultCode == RESULT_OK) {
                 //블루투스 켜짐
                 Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();

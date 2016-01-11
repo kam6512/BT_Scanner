@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.prime.init;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -29,7 +30,7 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeInitialActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.tools.PermissionV21;
+import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 
 import java.util.List;
 
@@ -41,7 +42,6 @@ import hugo.weaving.DebugLog;
 public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private final String TAG = getClass().getSimpleName();
-    private static final int REQUEST_ENABLE_BT = 1;
     private Context context;
     private View view;
     private boolean isScanning;
@@ -53,7 +53,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     private BluetoothLeScanner bleScanner;
     private ScanCallback scanCallback;
 
-    //    private ProgressBar searchingProgressBar;
     private TextView noDeviceTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceAdapter deviceAdapter;
@@ -148,7 +147,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
 
     private void setScannerCallback() {
-        if (PermissionV21.isBuildVersionLM) {
+        if (BluetoothHelper.isBuildVersionLM) {
             setScannerL();
         } else {
             setScanner();
@@ -216,13 +215,13 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
                 deviceAdapter.clear();
 
-                if (PermissionV21.isBuildVersionLM) {
+                if (BluetoothHelper.isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
 
                 startScan();
             } else {
-                initBluetoothOn();
+               BluetoothHelper.initBluetoothOn((Activity)context);
             }
         } catch (Exception e) {
             Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
@@ -230,12 +229,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         }
     }
 
-
-    @DebugLog
-    private void initBluetoothOn() {//블루투스 가동여부
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, REQUEST_ENABLE_BT);
-    }
 
 
     @DebugLog
@@ -251,7 +244,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
         swipeRefreshLayout.post(postSwipeRefresh);
 
-        if (PermissionV21.isBuildVersionLM) {
+        if (BluetoothHelper.isBuildVersionLM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
             }
@@ -272,7 +265,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         swipeRefreshLayout.setRefreshing(false);
 
         //중지
-        if (PermissionV21.isBuildVersionLM) {
+        if (BluetoothHelper.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
                 bleScanner.stopScan(scanCallback);
             }

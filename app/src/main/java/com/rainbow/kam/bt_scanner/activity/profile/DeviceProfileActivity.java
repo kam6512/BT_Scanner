@@ -27,6 +27,7 @@ import com.rainbow.kam.bt_scanner.fragment.profile.CharacteristicListFragment.On
 import com.rainbow.kam.bt_scanner.fragment.profile.ControlFragment;
 import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment;
 import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment.OnServiceReadyListener;
+import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 
@@ -47,7 +48,6 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-    private final int REQUEST_ENABLE_BT = 1;
 
     public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
@@ -152,7 +152,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_ENABLE_BT:
+            case BluetoothHelper.REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_OK) {
                     //블루투스 켜짐
                     Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
@@ -169,7 +169,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_ENABLE_BT) {
+        if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
@@ -195,15 +195,8 @@ public class DeviceProfileActivity extends AppCompatActivity
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
-            initBluetoothOn();
+            BluetoothHelper.initBluetoothOn(this);
         }
-    }
-
-
-    @DebugLog
-    private void initBluetoothOn() {//블루투스 가동여부
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
 
@@ -359,6 +352,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicListFragment).commit();
         bluetoothGattCharacteristics = bluetoothGattServices.get(position).getCharacteristics();
         onCharacteristicReady();
+
     }
 
 

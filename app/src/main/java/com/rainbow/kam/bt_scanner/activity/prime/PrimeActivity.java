@@ -40,7 +40,7 @@ import com.rainbow.kam.bt_scanner.fragment.prime.main.SampleFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.main.StepFragment;
 import com.rainbow.kam.bt_scanner.RealmItem.RealmBandItem;
 import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
-import com.rainbow.kam.bt_scanner.tools.PermissionV21;
+import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
@@ -60,7 +60,6 @@ import io.realm.RealmResults;
 public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, GattCustomCallbacks {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
-    private static final int REQUEST_ENABLE_BT = 1;
 
     private Realm realm;
 
@@ -186,7 +185,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         } finally {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                PermissionV21.check(this);
+                BluetoothHelper.check(this);
             }
         }
     }
@@ -294,7 +293,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ENABLE_BT) {
+        if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (resultCode == RESULT_OK) {
                 //블루투스 켜짐
                 Snackbar.make(getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
@@ -310,7 +309,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_ENABLE_BT) {
+        if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
@@ -336,16 +335,11 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
-            initBluetoothOn();
+            BluetoothHelper.initBluetoothOn(this);
         }
     }
 
 
-    private void initBluetoothOn() {//블루투스 가동여부
-
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, REQUEST_ENABLE_BT);
-    }
 
 
     @DebugLog
@@ -521,10 +515,8 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
                 gattManager.setNotification(bluetoothGattCharacteristicForNotify, true);
                 onDataNotify(null);
             }
-
         });
     }
-
 
     @DebugLog
     @Override
