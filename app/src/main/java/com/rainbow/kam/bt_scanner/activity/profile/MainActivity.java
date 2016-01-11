@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.activity.development;
+package com.rainbow.kam.bt_scanner.activity.profile;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -35,7 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.band.BandInitialActivity;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeInitialActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView noDeviceTextView;
     private DeviceAdapter deviceAdapter;
 
-    private Handler handler = new Handler();
-    private Runnable runnable = new Runnable() {
+    private final Handler handler = new Handler();
+    private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
             stopScan();
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
-        startActivity(new Intent(this, BandInitialActivity.class));
+        startActivity(new Intent(this, PrimeInitialActivity.class));
         return true;
     }
 
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    deviceAdapter.add(result.getDevice(), result.getRssi());
+                    deviceAdapter.addDevice(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        deviceAdapter.add(result.getDevice(), result.getRssi());
+                        deviceAdapter.addDevice(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                deviceAdapter.add(device, rssi);
+                deviceAdapter.addDevice(device, rssi);
             }
         };
     }
@@ -321,15 +321,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
         long SCAN_PERIOD = 5000;
-
         handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
-        deviceAdapter.clear();
-        isScanning = true;
-        searchingProgressBar.setVisibility(View.VISIBLE);
-        noDeviceTextView.setVisibility(View.INVISIBLE);
-
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
@@ -338,7 +332,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //noinspection deprecation
             bluetoothAdapter.startLeScan(leScanCallback);
         }
-
+        deviceAdapter.clear();
+        isScanning = true;
+        searchingProgressBar.setVisibility(View.VISIBLE);
+        noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 
 
@@ -357,9 +354,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //noinspection deprecation
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
-
         isScanning = false;
-
         searchingProgressBar.setVisibility(View.INVISIBLE);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }

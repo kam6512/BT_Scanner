@@ -1,8 +1,7 @@
-package com.rainbow.kam.bt_scanner.fragment.band.init;
+package com.rainbow.kam.bt_scanner.fragment.prime.init;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -29,7 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.band.BandInitialActivity;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeInitialActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.PermissionV21;
 
@@ -59,6 +58,19 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     private TextView noDeviceTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceAdapter deviceAdapter;
+
+    private final Handler handler = new Handler();
+    private final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            stopScan();
+
+            if (deviceAdapter.getItemCount() < 1) {
+                noDeviceTextView.setVisibility(View.VISIBLE);
+            }
+            deviceAdapter.notifyDataSetChanged();
+        }
+    };
 
 
     @Override
@@ -126,7 +138,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        deviceAdapter = new DeviceAdapter((BandInitialActivity) context);
+        deviceAdapter = new DeviceAdapter((PrimeInitialActivity) context);
         selectDeviceRecyclerView.setAdapter(deviceAdapter);
     }
 
@@ -155,7 +167,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    deviceAdapter.add(result.getDevice(), result.getRssi());
+                    deviceAdapter.addDevice(result.getDevice(), result.getRssi());
                 }
             }
 
@@ -164,7 +176,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        deviceAdapter.add(result.getDevice(), result.getRssi());
+                        deviceAdapter.addDevice(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -183,7 +195,7 @@ public class SelectDeviceDialogFragment extends DialogFragment {
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                deviceAdapter.add(device, rssi);
+                deviceAdapter.addDevice(device, rssi);
             }
         };
     }
@@ -221,20 +233,6 @@ public class SelectDeviceDialogFragment extends DialogFragment {
     }
 
 
-    private Handler handler = new Handler();
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            stopScan();
-
-            if (deviceAdapter.getItemCount() < 1) {
-                noDeviceTextView.setVisibility(View.VISIBLE);
-            }
-            deviceAdapter.notifyDataSetChanged();
-        }
-    };
-
-
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
@@ -262,7 +260,8 @@ public class SelectDeviceDialogFragment extends DialogFragment {
 
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private synchronized void stopScan() { handler.removeCallbacks(runnable);
+    private synchronized void stopScan() {
+        handler.removeCallbacks(runnable);
         //중지
         if (PermissionV21.isBuildVersionLM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {

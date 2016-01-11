@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.development;
+package com.rainbow.kam.bt_scanner.fragment.profile;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -8,13 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.development.DeviceProfileActivity;
+import com.rainbow.kam.bt_scanner.activity.profile.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
 
 import java.util.List;
@@ -82,7 +81,7 @@ public class CharacteristicListFragment extends Fragment {
 
 
     @DebugLog
-    public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
+    public void setCharacteristicList(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
         characteristicAdapter.add(bluetoothGattCharacteristics);
     }
 
@@ -90,6 +89,4 @@ public class CharacteristicListFragment extends Fragment {
     public interface OnCharacteristicReadyListener {
         void onCharacteristicReady();
     }
-
-
 }
