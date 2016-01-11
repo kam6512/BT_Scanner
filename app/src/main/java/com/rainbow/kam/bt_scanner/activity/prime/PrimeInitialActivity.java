@@ -1,6 +1,7 @@
 package com.rainbow.kam.bt_scanner.activity.prime;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -74,6 +75,9 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
             setDialog();
             setUserInput();
             setBtn();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                BluetoothHelper.check(this);
+            }
         }
     }
 
@@ -100,7 +104,7 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
                 if (!isDestroyed()) {
                     getSupportFragmentManager().beginTransaction()
                             .remove(logoFragment)
-                            .commit();
+                            .commitAllowingStateLoss();
                 }
             }
         }, 2000);
@@ -150,15 +154,14 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT)
-            if (resultCode == RESULT_OK) {
-                //블루투스 켜짐
-                Toast.makeText(this, R.string.bt_on, Toast.LENGTH_SHORT).show();
-            } else {
-                //블루투스 에러
-                Toast.makeText(this, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
-                finish();
-            }
+        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
     }
 
 

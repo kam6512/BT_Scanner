@@ -113,6 +113,7 @@ public class GattManager extends BluetoothGattCallback {
                 }
             }
         }, RSSI_UPDATE_TIME_INTERVAL);
+        bluetoothGatt.readRemoteRssi();
     }
 
 
