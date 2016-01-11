@@ -42,7 +42,7 @@
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail.device.label.name"/>
+                        android:text="@string/profile.label.name"/>
 
                     <TextView
                         android:id="@+id/detail.name"
@@ -53,7 +53,7 @@
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail.device.label.rssi"/>
+                        android:text="@string/profile.label.rssi"/>
 
                     <TextView
                         android:id="@+id/detail.rssi"
@@ -64,7 +64,7 @@
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail.device.label.address"/>
+                        android:text="@string/profile.label.address"/>
 
                     <TextView
                         android:id="@+id/detail.address"
@@ -75,7 +75,7 @@
 
                     <TextView
                         style="@style/DeviceLabel"
-                        android:text="@string/detail.device.label.state"/>
+                        android:text="@string/profile.label.state"/>
 
                     <TextView
                         android:id="@+id/detail.state"

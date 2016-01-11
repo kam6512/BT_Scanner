@@ -10,16 +10,12 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -35,7 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeInitialActivity;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeSettingActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 
@@ -135,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
-        startActivity(new Intent(this, PrimeInitialActivity.class));
+        startActivity(new Intent(this, PrimeSettingActivity.class));
         return true;
     }
 

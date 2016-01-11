@@ -18,7 +18,7 @@ import android.widget.ToggleButton;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
-import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.PrimeHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -211,15 +211,15 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     private void setTimeStamp() {
-        lastUpdateTime = new SimpleDateFormat(context.getString(R.string.timestamp)).format(new Date());
+        lastUpdateTime = new SimpleDateFormat(context.getString(R.string.profile_timestamp)).format(new Date());
         notificationEnabled = true;
     }
 
 
     public void setFail() {
-        hexValue = context.getString(R.string.fail_characteristic);
-        strValue = context.getString(R.string.fail_characteristic);
-        lastUpdateTime = context.getString(R.string.fail_characteristic);
+        hexValue = context.getString(R.string.profile_fail);
+        strValue = context.getString(R.string.profile_fail);
+        lastUpdateTime = context.getString(R.string.profile_fail);
 
         bindView();
     }

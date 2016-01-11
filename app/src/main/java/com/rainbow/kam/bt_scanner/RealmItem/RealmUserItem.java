@@ -5,7 +5,7 @@ import io.realm.RealmObject;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class RealmPatientItem extends RealmObject {
+public class RealmUserItem extends RealmObject {
     private String name;
     private String age;
     private String height;

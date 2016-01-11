@@ -9,19 +9,17 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
+import com.rainbow.kam.bt_scanner.RealmItem.RealmUserItem;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.prime.init.LogoFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.init.SelectDeviceDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.setting.LogoFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.setting.SelectDeviceDialogFragment;
 import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 
 import hugo.weaving.DebugLog;
@@ -33,9 +31,9 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class PrimeInitialActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, View.OnClickListener {
+public class PrimeSettingActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceSelectListener, View.OnClickListener {
 
-    private static final String TAG = PrimeInitialActivity.class.getSimpleName();
+    private static final String TAG = PrimeSettingActivity.class.getSimpleName();
 
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
@@ -61,10 +59,10 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
         setContentView(R.layout.a_band_init);
         try {
             realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
-            RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
-            RealmPatientItem realmPatientItem = results.get(0);
+            RealmResults<RealmUserItem> results = realm.where(RealmUserItem.class).findAll();
+            RealmUserItem realmUserItem = results.get(0);
 
-            if (realmPatientItem == null) {
+            if (realmUserItem == null) {
                 throw new Exception("User Info is NULL");
             } else {
                 complete();
@@ -193,7 +191,6 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
                     "\n키 : " + userHeight +
                     "\n몸무게 : " + userWeight +
                     "\n걸음너비 : " + userStep;
-            Log.e(TAG, dialogContent);
 
             materialDialog.setTitle(R.string.dialog_accept_ok);
             materialDialog.setContent(dialogContent);
@@ -209,7 +206,7 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
         userHeight = getString(R.string.user_height_default);
         userWeight = getString(R.string.user_weight_default);
         userStep = getString(R.string.user_step_default);
-        userGender = getString(R.string.user_gender_default);
+        userGender = getString(R.string.gender_man);
 
         materialDialog.setTitle(R.string.dialog_skip);
         materialDialog.setContent(R.string.dialog_skip_warning);
@@ -220,7 +217,7 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
     @DebugLog
     private void complete() {
         finish();
-        startActivity(new Intent(PrimeInitialActivity.this, PrimeActivity.class));
+        startActivity(new Intent(PrimeSettingActivity.this, PrimeActivity.class));
     }
 
 
@@ -236,7 +233,7 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
                     TextInputLayout textInputLayout = (TextInputLayout) v;
                     if (TextUtils.isEmpty(textInputLayout.getEditText().getText().toString())) {
                         textInputLayout.setErrorEnabled(true);
-                        textInputLayout.setError("missing");
+                        textInputLayout.setError("다시 입력하세요");
                         hasError = true;
                     } else {
                         textInputLayout.setErrorEnabled(false);
@@ -266,20 +263,20 @@ public class PrimeInitialActivity extends AppCompatActivity implements DeviceAda
     @Override
     public void onDeviceSelect(final String name, final String address) {
         realm.beginTransaction();
-        realm.allObjects(RealmPatientItem.class).clear();
+        realm.allObjects(RealmUserItem.class).clear();
 
         transaction = realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                RealmPatientItem realmPatientItem = realm.createObject(RealmPatientItem.class);
-                realmPatientItem.setName(userName);
-                realmPatientItem.setAge(userAge);
-                realmPatientItem.setHeight(userHeight);
-                realmPatientItem.setWeight(userWeight);
-                realmPatientItem.setStep(userStep);
-                realmPatientItem.setGender(userGender);
-                realmPatientItem.setDeviceName(name);
-                realmPatientItem.setDeviceAddress(address);
+                RealmUserItem realmUserItem = realm.createObject(RealmUserItem.class);
+                realmUserItem.setName(userName);
+                realmUserItem.setAge(userAge);
+                realmUserItem.setHeight(userHeight);
+                realmUserItem.setWeight(userWeight);
+                realmUserItem.setStep(userStep);
+                realmUserItem.setGender(userGender);
+                realmUserItem.setDeviceName(name);
+                realmUserItem.setDeviceAddress(address);
             }
         }, null);
 

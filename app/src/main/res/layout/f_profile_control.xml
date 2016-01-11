@@ -23,7 +23,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel"
-                    android:text="@string/detail.label.peripheral"/>
+                    android:text="@string/profile.label.peripheral"/>
 
                 <TextView
                     android:id="@+id/characteristic_device_name"
@@ -35,7 +35,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel.DeviceCharacteristicSubInfoLabel"
-                    android:text="@string/detail.device.label.address"/>
+                    android:text="@string/profile.label.address"/>
 
                 <TextView
                     android:id="@+id/characteristic_device_address"
@@ -46,7 +46,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel"
-                    android:text="@string/detail.label.service"/>
+                    android:text="@string/profile.label.service"/>
 
                 <TextView
                     android:id="@+id/characteristic_service_name"
@@ -58,7 +58,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel.DeviceCharacteristicSubInfoLabel"
-                    android:text="@string/detail.label.uuid"/>
+                    android:text="@string/profile.label.uuid"/>
 
                 <TextView
                     android:id="@+id/characteristic_service_uuid"
@@ -70,7 +70,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel"
-                    android:text="@string/detail.label.characteristic"/>
+                    android:text="@string/profile.label.characteristic"/>
 
                 <TextView
                     android:id="@+id/characteristic_detail.name"
@@ -82,7 +82,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel.DeviceCharacteristicSubInfoLabel"
-                    android:text="@string/detail.label.uuid"/>
+                    android:text="@string/profile.label.uuid"/>
 
                 <TextView
                     android:id="@+id/characteristic_detail.uuid"
@@ -94,7 +94,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel"
-                    android:text="@string/detail.label.type"/>
+                    android:text="@string/profile.label.type"/>
 
                 <TextView
                     android:id="@+id/characteristic_detail.type"
@@ -111,7 +111,7 @@
 
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel"
-                    android:text="@string/detail.label.peripheral"/>
+                    android:text="@string/profile.label.peripheral"/>
 
                 <TextView
                     android:id="@+id/characteristic_detail.properties"
@@ -133,19 +133,19 @@
             <ToggleButton
                 android:id="@+id/characteristic_detail.notification_switcher"
                 style="@style/DeviceCharacteristicButton"
-                android:text="@string/detail.button.toggle"
+                android:text="@string/profile.button.toggle"
                 android:textOff="Notification"
                 android:textOn="Notification"/>
 
             <Button
                 android:id="@+id/characteristic_detail.read_btn"
                 style="@style/DeviceCharacteristicButton"
-                android:text="@string/detail.button.read"/>
+                android:text="@string/profile.button.read"/>
 
             <Button
                 android:id="@+id/characteristic_detail.write_btn"
                 style="@style/DeviceCharacteristicButton"
-                android:text="@string/detail.button.write"/>
+                android:text="@string/profile.button.write"/>
 
         </LinearLayout>
 
@@ -172,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:background="@null"
-                    android:text="@string/detail.label.string"
+                    android:text="@string/profile.label.string"
                     android:textColor="#888"
                     android:textSize="10sp"/>
 
@@ -193,7 +193,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:background="@null"
-                    android:text="@string/detail.label.updated"
+                    android:text="@string/profile.label.updated"
                     android:textColor="#888"
                     android:textSize="10sp"/>
 

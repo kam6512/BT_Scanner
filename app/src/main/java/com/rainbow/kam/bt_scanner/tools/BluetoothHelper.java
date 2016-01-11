@@ -25,8 +25,8 @@ import hugo.weaving.DebugLog;
 public class BluetoothHelper {
 
     public static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    public static final int REQUEST_ENABLE_BT = 1;
-    public static final int RESULT_OK = -1;
+    private static final int REQUEST_ENABLE_BT = 1;
+    private static final int RESULT_OK = -1;
 
 
     @DebugLog

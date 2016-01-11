@@ -25,5 +25,5 @@
     <TextView
         android:id="@+id/nursing_no_device_textView"
         style="@style/NoDeviceLabel"
-        android:text="@string/device.list.nothing.nursing"/>
+        android:text="@string/device.list.nothing"/>
 </RelativeLayout>

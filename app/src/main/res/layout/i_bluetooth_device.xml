@@ -16,7 +16,7 @@
 
             <TextView
                 style="@style/DeviceItemLabel"
-                android:text="@string/detail.device.label.name"
+                android:text="@string/profile.label.name"
                 android:textColor="@color/colorAccent"/>
 
             <TextView
@@ -29,7 +29,7 @@
 
             <TextView
                 style="@style/DeviceItemLabel"
-                android:text="@string/detail.device.label.address"
+                android:text="@string/profile.label.address"
                 android:textColor="@color/colorPrimaryAccent"/>
 
             <TextView
@@ -42,7 +42,7 @@
 
             <TextView
                 style="@style/DeviceItemLabel"
-                android:text="@string/detail.device.label.bondState"/>
+                android:text="@string/profile.label.bondState"/>
 
             <TextView
                 android:id="@+id/item_bond"
@@ -54,7 +54,7 @@
 
             <TextView
                 style="@style/DeviceItemLabel"
-                android:text="@string/detail.label.type"/>
+                android:text="@string/profile.label.type"/>
 
             <TextView
                 android:id="@+id/item_type"
@@ -67,7 +67,7 @@
 
             <TextView
                 style="@style/DeviceItemLabel"
-                android:text="@string/detail.device.label.rssi"/>
+                android:text="@string/profile.label.rssi"/>
 
             <TextView
                 android:id="@+id/item_rssi"

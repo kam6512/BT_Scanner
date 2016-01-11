@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"
-        tools:context=".activity.realmBandItem.BandContentActivity">
+        tools:context=".activity.realmPrimeItem.BandContentActivity">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/nursing_appbar"
@@ -46,7 +46,7 @@
                     android:layout_weight="1"
                     android:background="@null"
                     android:gravity="center"
-                    android:text="@string/dashboard.toolbar.rssi"
+                    android:text="@string/bt.rssi"
                     android:textAppearance="?android:attr/textAppearanceMedium"/>
 
                 <ImageView
@@ -56,7 +56,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
-                    android:contentDescription="@string/dashboard.toolbar.rssi"/>
+                    android:contentDescription="@string/bt.rssi"/>
 
 
             </LinearLayout>

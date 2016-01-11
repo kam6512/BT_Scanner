@@ -26,62 +26,55 @@
     <string name="menu.about.reset">유저정보 지우기</string>
     <string name="menu.about.info">앱 정보</string>
 
+
+    <string name="bt.rssi">rssi</string>
+    <string name="bt.connected">connected</string>
+    <string name="bt.disconnected">disconnected</string>
     <string name="bt.on">블루투스 On</string>
     <string name="bt.not.init">블루투스가 시작되지 않았습니다.</string>
     <string name="bt.must.start">블루투스를 시작해야 합니다.</string>
     <string name="bt.fail">기기가 블루투스를 지원하지 않거나 블루투스 장치가 제거되어있습니다.(init Fail)</string>
 
     <string name="device.list.nothing">블루루스 BLE 기기가 탐색되지 않았습니다</string>
-    <string name="device.list.nothing.nursing">블루루스 BLE 기기가 탐색되지 않았습니다. 다시 검색중</string>
 
-    <string name="permission.thanks">권한 획득, 감사합니다.</string>
     <string name="permission.request"><![CDATA[[권한] 탭 -> [위치] 권한을 허용해주십시오]]></string>
+    <string name="permission.thanks">권한 획득, 감사합니다.</string>
     <string name="permission.denial">권한의 획득을 거부</string>
 
-    <string name="reconnect">다시 연결하기</string>
-    <string name="reconnect.accept">재시도</string>
+    <string name="profile.label.name">Name :</string>
+    <string name="profile.label.rssi">RSSI :</string>
+    <string name="profile.label.address">Address :</string>
+    <string name="profile.label.state">state :</string>
+    <string name="profile.label.bondState">Bond State :</string>
 
-    <string name="exit">종료</string>
-    <string name="device.disconnected">기기와의 연결이 비활성화 되었습니다</string>
-    <string name="connecting">연결중</string>
+    <string name="profile.label.peripheral">Peripheral:</string>
+    <string name="profile.label.service">Service:</string>
+    <string name="profile.label.uuid">UUID:</string>
+    <string name="profile.label.characteristic">Characteristic:</string>
+    <string name="profile.label.type">Data Type:</string>
 
-    <string name="detail.state.connected">connected</string>
-    <string name="detail.state.disconnected">disconnected</string>
+    <string name="profile.label.string">String :</string>
+    <string name="profile.label.decimal">Decimal :</string>
+    <string name="profile.label.updated">Updated :</string>
+    <string name="profile.timestamp">yyyy.MM.dd HH.mm.ss.SSS</string>
 
-    <string name="detail.device.label.name">Name :</string>
-    <string name="detail.device.label.rssi">RSSI :</string>
-    <string name="detail.device.label.address">Address :</string>
-    <string name="detail.device.label.state">state :</string>
-    <string name="detail.device.label.bondState">Bond State :</string>
+    <string name="profile.button.toggle">ToggleButton</string>
+    <string name="profile.button.read">Read</string>
+    <string name="profile.button.write">Write</string>
 
-    <string name="detail.label.peripheral">Peripheral:</string>
-    <string name="detail.label.service">Service:</string>
-    <string name="detail.label.uuid">UUID:</string>
-    <string name="detail.label.characteristic">Characteristic:</string>
-    <string name="detail.label.type">Data Type:</string>
+    <string name="profile.fail">Fail!</string>
 
-    <string name="detail.label.string">String :</string>
-    <string name="detail.label.decimal">Decimal :</string>
-    <string name="detail.label.updated">Updated :</string>
+    <string name="profile.characteristics.name">profile.characteristics.name</string>
+    <string name="profile.characteristics.UUID">profile.characteristics.UUID</string>
+    <string name="profile.characteristics.value">profile.characteristics.value</string>
 
-    <string name="detail.button.toggle">ToggleButton</string>
-    <string name="detail.button.read">Read</string>
-    <string name="detail.button.write">Write</string>
+    <string name="profile.service.name">profile.service.name</string>
+    <string name="profile.service.UUID">profile.service.UUID</string>
+    <string name="profile.service.type">profile.service.type</string>
 
-    <string name="fail.characteristic">Fail!</string>
+    <string name="logo.pilot">A Pilot Program By</string>
+    <string name="logo.company">Rainbow - Wireless</string>
 
-    <string name="detail.child.list.item.characteristics.name">detail.child.list.item.characteristics.name</string>
-    <string name="detail.child.list.item.characteristics.UUID">detail.child.list.item.characteristics.UUID</string>
-    <string name="detail.child.list.item.characteristics.value">detail.child.list.item.characteristics.value</string>
-
-    <string name="detail.parent.list.item.service.name">detail.parent.list.item.service.name</string>
-    <string name="detail.parent.list.item.service.UUID">detail.parent.list.item.service.UUID</string>
-    <string name="detail.parent.list.item.service.type">detail.parent.list.item.service.type</string>
-
-    <string name="splash.logo.pilot">A Pilot Program By</string>
-    <string name="splash.logo.logo">Rainbow - Wireless</string>
-
-    <string name="dashboard.toolbar.rssi">rssi</string>
 
     <string name="dashboard.time">Device Time</string>
 
@@ -99,21 +92,18 @@
     <string name="add.user.woman">woman</string>
     <string name="add.user.skip">Skip</string>
 
-    <string name="dialog.accept">확인</string>
-    <string name="dialog.accept.ok">기입 정보가 확실한지 확인해주시기 바랍니다.</string>
-    <string name="dialog.fix">수정</string>
-    <string name="dialog.skip.warning">개인정보를 입력하지 않더라도 사용할 수 있으나 정확한 운동량 계산과 서버연동이 불가능하오니 이점 유의해두시기 바랍니다.</string>
-    <string name="dialog.skip">무시하기</string>
-
     <string name="user.name.default">N/A</string>
     <string name="user.age.default">20</string>
     <string name="user.height.default">170</string>
     <string name="user.weight.default">60</string>
     <string name="user.step.default">60</string>
-    <string name="user.gender.default">남성</string>
 
     <string name="gender.man">남성</string>
     <string name="gender.woman">여성</string>
-    <string name="timestamp">yyyy.MM.dd HH.mm.ss.SSS</string>
 
+    <string name="dialog.accept">확인</string>
+    <string name="dialog.accept.ok">기입 정보가 확실한지 확인해주시기 바랍니다.</string>
+    <string name="dialog.skip.warning">개인정보를 입력하지 않더라도 사용할 수 있으나 정확한 운동량 계산과 서버연동이 불가능하오니 이점 유의해두시기 바랍니다.</string>
+    <string name="dialog.skip">무시하기</string>
+    <string name="dialog.fix">수정</string>
 </resources>

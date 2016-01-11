@@ -9,7 +9,7 @@
         <TextView
             android:id="@+id/detail_parent_list_item_service_name"
             style="@style/DetailItemTextView"
-            android:text="@string/detail.parent.list.item.service.name"
+            android:text="@string/profile.service.name"
             android:textColor="#fff"
             android:textSize="20sp" />
 
@@ -25,13 +25,13 @@
                 style="@style/DetailItemTextView"
                 android:layout_gravity="center_vertical|start"
                 android:layout_weight="1"
-                android:text="@string/detail.parent.list.item.service.UUID" />
+                android:text="@string/profile.service.UUID" />
 
             <TextView
                 android:id="@+id/detail_parent_list_item_service_type"
                 style="@style/DetailItemTextView"
                 android:layout_weight="1"
-                android:text="@string/detail.parent.list.item.service.type"
+                android:text="@string/profile.service.type"
                 android:textColor="#eee" />
         </LinearLayout>
     </LinearLayout>

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.main;
+package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
 import android.content.Context;
 import android.os.Bundle;

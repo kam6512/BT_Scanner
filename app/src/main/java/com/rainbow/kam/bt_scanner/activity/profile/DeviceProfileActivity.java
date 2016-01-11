@@ -1,15 +1,10 @@
 package com.rainbow.kam.bt_scanner.activity.profile;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -202,7 +197,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                deviceStateTextView.setText(R.string.detail_state_connected);
+                deviceStateTextView.setText(R.string.bt_connected);
             }
         });
     }
@@ -214,7 +209,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                deviceStateTextView.setText(R.string.detail_state_disconnected);
+                deviceStateTextView.setText(R.string.bt_disconnected);
             }
         });
     }
@@ -231,7 +226,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onServicesNotFound() {
-        Toast.makeText(this, getResources().getText(R.string.fail_characteristic), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getResources().getText(R.string.profile_fail), Toast.LENGTH_SHORT).show();
         finish();
     }
 

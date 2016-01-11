@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.gatt;
+package com.rainbow.kam.bt_scanner.tools;
 
 import android.util.Log;
 

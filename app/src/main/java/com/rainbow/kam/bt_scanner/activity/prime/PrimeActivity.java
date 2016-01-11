@@ -1,19 +1,14 @@
 package com.rainbow.kam.bt_scanner.activity.prime;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -32,18 +27,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.RealmItem.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.RealmItem.RealmUserItem;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
-import com.rainbow.kam.bt_scanner.fragment.prime.main.CalorieFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.main.DashboardFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.main.DistanceFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.main.SampleFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.main.StepFragment;
-import com.rainbow.kam.bt_scanner.RealmItem.RealmBandItem;
-import com.rainbow.kam.bt_scanner.RealmItem.RealmPatientItem;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.CalorieFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.DashboardFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.DistanceFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.SampleFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.StepFragment;
 import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
-import com.rainbow.kam.bt_scanner.tools.gatt.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.PrimeHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -163,14 +158,14 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
         try {
             realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
 
-            RealmResults<RealmPatientItem> results = realm.where(RealmPatientItem.class).findAll();
+            RealmResults<RealmUserItem> results = realm.where(RealmUserItem.class).findAll();
 
-            RealmPatientItem realmPatientItem = results.get(0);
-            patientAge = realmPatientItem.getAge();
-            patientHeight = realmPatientItem.getHeight();
-            deviceAddress = realmPatientItem.getDeviceAddress();
+            RealmUserItem realmUserItem = results.get(0);
+            patientAge = realmUserItem.getAge();
+            patientHeight = realmUserItem.getHeight();
+            deviceAddress = realmUserItem.getDeviceAddress();
 
-            Log.e("RealmPatientItem", "results = " + "\n" +
+            Log.e("RealmUserItem", "results = " + "\n" +
                     results.get(0).getName() + "\n" +
                     results.get(0).getAge() + "\n" +
                     results.get(0).getHeight() + "\n" +
@@ -278,8 +273,8 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
                 return true;
             case R.id.menu_nursing_about_setting:
                 realm.beginTransaction();
-                realm.clear(RealmPatientItem.class);
-                realm.clear(RealmBandItem.class);
+                realm.clear(RealmUserItem.class);
+                realm.clear(RealmPrimeItem.class);
                 realm.commitTransaction();
                 finish();
                 return true;
@@ -326,7 +321,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
                 finish();
-                startActivity(new Intent(PrimeActivity.this, PrimeInitialActivity.class));
+                startActivity(new Intent(PrimeActivity.this, PrimeSettingActivity.class));
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -406,7 +401,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     private void saveRealmData(int step, int calorie, int distance) {
 
         realm.beginTransaction();
-        RealmResults<RealmBandItem> results = realm.where(RealmBandItem.class).findAll();
+        RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
 
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
@@ -424,13 +419,13 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
             results.last().setCalorie(calorie);
             results.last().setDistance(distance);
         } else {
-            RealmBandItem realmBandItem = realm.createObject(RealmBandItem.class);
-            realmBandItem.setCalendar(today);
-            realmBandItem.setStep(step);
-            realmBandItem.setCalorie(calorie);
-            realmBandItem.setDistance(distance);
+            RealmPrimeItem realmPrimeItem = realm.createObject(RealmPrimeItem.class);
+            realmPrimeItem.setCalendar(today);
+            realmPrimeItem.setStep(step);
+            realmPrimeItem.setCalorie(calorie);
+            realmPrimeItem.setDistance(distance);
         }
-        Log.e("RealmBandItem", "results = " + "\n" +
+        Log.e("RealmPrimeItem", "results = " + "\n" +
                 results.last().getStep() + "\n" +
                 results.last().getCalorie() + "\n" +
                 results.last().getDistance() + "\n" +

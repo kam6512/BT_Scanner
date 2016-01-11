@@ -1,8 +1,7 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.init;
+package com.rainbow.kam.bt_scanner.fragment.prime.setting;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -10,7 +9,6 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,7 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeInitialActivity;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeSettingActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
 
@@ -134,7 +132,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        deviceAdapter = new DeviceAdapter((PrimeInitialActivity) context);
+        deviceAdapter = new DeviceAdapter((PrimeSettingActivity) context);
         selectDeviceRecyclerView.setAdapter(deviceAdapter);
     }
 
@@ -221,7 +219,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
                 startScan();
             } else {
-               BluetoothHelper.initBluetoothOn((Activity)context);
+               BluetoothHelper.initBluetoothOn(context);
             }
         } catch (Exception e) {
             Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
