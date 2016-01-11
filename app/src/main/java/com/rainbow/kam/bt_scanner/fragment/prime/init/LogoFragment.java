@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.band.init;
+package com.rainbow.kam.bt_scanner.fragment.prime.init;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter;
 
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -42,7 +41,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return new ServiceViewHolder(view);
     }
 
-
+    @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ServiceViewHolder serviceViewHolder = (ServiceViewHolder) holder;
@@ -60,6 +59,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public long getItemId(int position) {
         return position;
     }
+
 
     @DebugLog
     public void add(List<BluetoothGattService> bluetoothGattServices) {

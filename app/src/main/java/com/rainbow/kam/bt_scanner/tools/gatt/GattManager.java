@@ -29,7 +29,7 @@ public class GattManager extends BluetoothGattCallback {
     private final String TAG = getClass().getSimpleName();
     private static final int RSSI_UPDATE_TIME_INTERVAL = 5000;
 
-    private GattCustomCallbacks gattCustomCallbacks;
+    private final GattCustomCallbacks gattCustomCallbacks;
 
     private final Context context;
 
@@ -91,7 +91,6 @@ public class GattManager extends BluetoothGattCallback {
 
 
     public boolean isConnected() {
-
         List<BluetoothDevice> bluetoothDevicesTemp = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
         for (BluetoothDevice bluetoothDeviceTemp : bluetoothDevicesTemp) {
             if (bluetoothDevice != null && bluetoothDevice.getAddress().equals(bluetoothDeviceTemp.getAddress())) {
@@ -138,12 +137,6 @@ public class GattManager extends BluetoothGattCallback {
         }
     }
 
-
-    public BluetoothDevice getBluetoothDevice() {
-        return bluetoothDevice;
-    }
-
-
     @DebugLog
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
@@ -184,7 +177,7 @@ public class GattManager extends BluetoothGattCallback {
     }
 
 
-    private BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+    private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         @Override
         @DebugLog
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {

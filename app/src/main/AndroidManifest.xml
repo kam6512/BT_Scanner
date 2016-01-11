@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.rainbow.kam.bt_scanner"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    package="com.rainbow.kam.bt_scanner"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
@@ -18,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.development.MainActivity"
+            android:name=".activity.profile.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -29,20 +30,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.development.DeviceProfileActivity"
+            android:name=".activity.profile.DeviceProfileActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             android:screenOrientation="portrait"
         </activity>
 
         <activity
-            android:name=".activity.band.BandInitialActivity"
+            android:name=".activity.prime.PrimeInitialActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity
-            android:name=".activity.band.BandContentActivity"
+            android:name=".activity.prime.PrimeActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"/>

@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -11,10 +10,6 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-
 import hugo.weaving.DebugLog;
 
 /**
@@ -24,7 +19,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private static final String TAG = "DeviceAdapter";
 
-    //    private final LinkedHashMap<String, DeviceItem> deviceItemLinkedHashMap = new LinkedHashMap<>();
     private final DeviceLinkedHashMap<String, DeviceItem> deviceLinkedHashMap = new DeviceLinkedHashMap<>();
 
     private final OnDeviceSelectListener onDeviceSelectListener;
@@ -46,32 +40,19 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
         DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
-        long startTime = System.nanoTime();
-//        for (int i = 9999; i >= 0; i--) {
-//        deviceViewHolder.bindViews((DeviceItem) deviceItemLinkedHashMap.values().toArray()[position]);
         deviceViewHolder.bindViews(deviceLinkedHashMap.getValue(position));
-//        }
-        long endTime = System.nanoTime();
-        long duration = endTime - startTime;
-        System.out.println("deviceLinkedHashMap get:  " + duration);
     }
 
 
     @Override
     public int getItemCount() {
-//        return deviceItemLinkedHashMap.size();
         return deviceLinkedHashMap.size();
     }
 
 
     @DebugLog
-    public void add(BluetoothDevice bluetoothDevice, int rssi) {
-//        if (!deviceItemLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-//            deviceItemLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
-//            notifyDataSetChanged();
-//        }
+    public void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
         if (!deviceLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
             deviceLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
             notifyDataSetChanged();
@@ -81,7 +62,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @DebugLog
     public void clear() {
-//        deviceItemLinkedHashMap.clear();
         deviceLinkedHashMap.clear();
         notifyDataSetChanged();
     }
@@ -127,9 +107,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         @Override
         public void onClick(View v) {
-//            DeviceItem deviceItem = deviceItemLinkedHashMap.get(extraAddress.getText().toString());
             final DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
-//            DeviceItem deviceItem = (DeviceItem) deviceItemLinkedHashMap.values().toArray()[getAdapterPosition()];
             onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
         }
     }
