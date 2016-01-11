@@ -86,7 +86,7 @@ public class GattManager extends BluetoothGattCallback {
         return bluetoothAdapter.isEnabled();
     }
 
-
+    @DebugLog
     public boolean isConnected() {
         List<BluetoothDevice> bluetoothDevicesTemp = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
         for (BluetoothDevice bluetoothDeviceTemp : bluetoothDevicesTemp) {

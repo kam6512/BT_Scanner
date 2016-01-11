@@ -57,6 +57,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             deviceLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
             notifyDataSetChanged();
         }
+//        else{
+//            deviceLinkedHashMap.get(bluetoothDevice.getAddress()).setExtraRssi(rssi);
+//            notifyDataSetChanged();
+//        }
     }
 
 
