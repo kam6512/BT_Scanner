@@ -41,6 +41,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         return new CharacteristicViewHolder(view);
     }
 
+
     @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
@@ -55,23 +56,12 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-
     @DebugLog
     public void add(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
-        if (characteristicArrayList.equals(bluetoothGattCharacteristics)) {
-            Log.e("setCharacteristicList", "maintain");
-        } else {
+        if (!characteristicArrayList.equals(bluetoothGattCharacteristics)) {
             characteristicArrayList.clear();
-            for (BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattCharacteristics) {
-                characteristicArrayList.add(bluetoothGattCharacteristic);
-            }
+            characteristicArrayList.addAll(bluetoothGattCharacteristics);
             notifyDataSetChanged();
-            Log.e("setCharacteristicList", "re-addDevice");
         }
     }
 
@@ -88,6 +78,8 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
             itemView.setOnClickListener(this);
         }
+
+
         private void bindViews(BluetoothGattCharacteristic characteristicItem) {
 
             String uuid = characteristicItem.getUuid().toString().toLowerCase(Locale.getDefault());
@@ -96,7 +88,6 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             characteristicTitle.setText(name);
             characteristicUuid.setText(uuid);
-
         }
 
 

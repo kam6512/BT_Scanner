@@ -33,7 +33,7 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeSettingActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ import hugo.weaving.DebugLog;
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, DeviceAdapter.OnDeviceSelectListener {
     private final String TAG = getClass().getSimpleName();
-    private static final int REQUEST_ENABLE_BT = 1;
+    private final long SCAN_PERIOD = 5000;
 
     private boolean isScanning;
 
@@ -277,20 +277,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startScan();
 
             } else {
-                initBluetoothOn();
+                BluetoothHelper.initBluetoothOn(this);
             }
         } catch (Exception e) {
             Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
             Log.e(TAG, e.getMessage());
         }
-    }
-
-
-    @DebugLog
-    private void initBluetoothOn() {//블루투스 가동여부
-
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
 
@@ -307,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        long SCAN_PERIOD = 5000;
+
         handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
 
         deviceAdapter.clear();

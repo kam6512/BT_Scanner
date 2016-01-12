@@ -23,7 +23,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = getClass().getSimpleName();
 
-
     private final ArrayList<BluetoothGattService> serviceItemArrayList = new ArrayList<>();
 
     private final OnServiceItemClickListener onServiceItemClickListener;
@@ -56,22 +55,14 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-
-        @DebugLog
-        public void add(List<BluetoothGattService> bluetoothGattServices) {
-            if (getItemCount() == 0) {
-                // 서비스는 한기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
-                for (BluetoothGattService bluetoothGattService : bluetoothGattServices) {
-                    serviceItemArrayList.add(bluetoothGattService);
-                }
-                notifyDataSetChanged();
-            }
+    @DebugLog
+    public void add(List<BluetoothGattService> bluetoothGattServices) {
+        if (getItemCount() == 0) {
+            // 서비스는 한기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
+            serviceItemArrayList.addAll(bluetoothGattServices);
+            notifyDataSetChanged();
         }
+    }
 
 
     public class ServiceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

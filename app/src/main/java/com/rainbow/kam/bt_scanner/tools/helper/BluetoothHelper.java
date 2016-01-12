@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools;
+package com.rainbow.kam.bt_scanner.tools.helper;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -31,9 +31,7 @@ public class BluetoothHelper {
 
     @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
-    public static void check(Context context) {
-        Activity activity = (Activity) context;
-        final int REQUEST_ENABLE_BT = 1;
+    public static void check(Activity activity) {
         Log.d("BluetoothHelper", activity.getLocalClassName());
         if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -47,15 +45,15 @@ public class BluetoothHelper {
     }
 
 
-    public static void initBluetoothOn(Context context) {//블루투스 가동여부
-        Activity activity = (Activity) context;
+    public static void initBluetoothOn(Activity activity) {//블루투스 가동여부
+
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
 
-    public static void onActivityResult(int requestCode, int resultCode, Context context) {
-        Activity activity = (Activity) context;
+    public static void onActivityResult(int requestCode, int resultCode, Activity activity) {
+
         switch (requestCode) {
             case BluetoothHelper.REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_OK) {
@@ -72,8 +70,8 @@ public class BluetoothHelper {
 
 
     public static void onRequestPermissionsResult(int requestCode,
-                                                  @NonNull int[] grantResults, Context context) {
-        Activity activity = (Activity) context;
+                                                  @NonNull int[] grantResults, Activity activity) {
+
         if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {

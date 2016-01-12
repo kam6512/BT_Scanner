@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +20,7 @@ import android.widget.ToggleButton;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
-import com.rainbow.kam.bt_scanner.tools.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -61,8 +63,73 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d("Control", "onCreate");
+    }
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d("Control", "onViewCreated");
+    }
+
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d("Control", "onViewStateRestored");
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("Control", "onStart");
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("Control", "onPause");
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d("Control", "onStop");
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d("Control", "onDestroyView");
+
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("Control", "onDestroy");
+    }
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d("Control", "onDetach");
+    }
+
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Log.d("Control", "onAttach");
         if (context instanceof Activity) {
             try {
                 this.context = context;
@@ -79,7 +146,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.f_profile_control, container, false);
-
+        Log.d("Control", "onCreateView");
         deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
         deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
 
@@ -110,6 +177,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     @Override
     public void onResume() {
+        Log.d("Control", "onResume");
         super.onResume();
         onControlListener.onControlReady();
     }
@@ -129,44 +197,46 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     private void initView() {
-        deviceName.setText(name);
-        deviceAddress.setText(address);
+        if (isVisible()) {
+            deviceName.setText(name);
+            deviceAddress.setText(address);
 
-        String service = bluetoothGattCharacteristic.getService().getUuid().toString().toLowerCase(Locale.getDefault());
-        serviceUuid.setText(service);
-        serviceName.setText(GattAttributes.resolveServiceName(service.substring(0, 8)));
+            String service = bluetoothGattCharacteristic.getService().getUuid().toString().toLowerCase(Locale.getDefault());
+            serviceUuid.setText(service);
+            serviceName.setText(GattAttributes.resolveServiceName(service.substring(0, 8)));
 
-        String characteristic = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
-        charUuid.setText(characteristic);
-        charName.setText(GattAttributes.resolveCharacteristicName(characteristic.substring(0, 8)));
-        charDataType.setText(GattAttributes.resolveValueTypeDescription(bluetoothGattCharacteristic));
+            String characteristic = bluetoothGattCharacteristic.getUuid().toString().toLowerCase(Locale.getDefault());
+            charUuid.setText(characteristic);
+            charName.setText(GattAttributes.resolveCharacteristicName(characteristic.substring(0, 8)));
+            charDataType.setText(GattAttributes.resolveValueTypeDescription(bluetoothGattCharacteristic));
 
-        int props = bluetoothGattCharacteristic.getProperties();
-        StringBuilder propertiesString = new StringBuilder();
-        propertiesString.append(String.format("0x%04X [ ", props));
-        if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
-            propertiesString.append("read ");
-        }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
-            propertiesString.append("write ");
-        }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-            propertiesString.append("notify ");
-        }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
-            propertiesString.append("indicate ");
-        }
-        if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
-            propertiesString.append("write_no_response ");
-        }
-        charProperties.setText(propertiesString + "]");
+            int props = bluetoothGattCharacteristic.getProperties();
+            StringBuilder propertiesString = new StringBuilder();
+            propertiesString.append(String.format("0x%04X [ ", props));
+            if ((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
+                propertiesString.append("read ");
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
+                propertiesString.append("write ");
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                propertiesString.append("notify ");
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+                propertiesString.append("indicate ");
+            }
+            if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
+                propertiesString.append("write_no_response ");
+            }
+            charProperties.setText(propertiesString + "]");
 
-        notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
-        notificationBtn.setChecked(notificationEnabled);
+            notificationBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
+            notificationBtn.setChecked(notificationEnabled);
 
-        readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
-        writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
-        charHexValue.setEnabled(writeBtn.isEnabled());
+            readBtn.setEnabled((props & BluetoothGattCharacteristic.PROPERTY_READ) != 0);
+            writeBtn.setEnabled((props & (BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0);
+            charHexValue.setEnabled(writeBtn.isEnabled());
+        }
     }
 
 
@@ -226,9 +296,12 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     private void bindView() {
-        charHexValue.setText(hexValue);
-        charStrValue.setText(strValue);
-        charDateValue.setText(lastUpdateTime);
+        if (isVisible()) {
+            charHexValue.setText(hexValue);
+            charStrValue.setText(strValue);
+            charDateValue.setText(lastUpdateTime);
+        }
+
     }
 
 

@@ -22,7 +22,7 @@ import com.rainbow.kam.bt_scanner.fragment.profile.CharacteristicListFragment.On
 import com.rainbow.kam.bt_scanner.fragment.profile.ControlFragment;
 import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment;
 import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment.OnServiceReadyListener;
-import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 
@@ -115,6 +115,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         serviceListFragment = new ServiceListFragment();
         characteristicListFragment = new CharacteristicListFragment();
         controlFragment = new ControlFragment();
+
     }
 
 
@@ -237,10 +238,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (controlFragment.isVisible()) {
-                    controlFragment.newValueForCharacteristic(ch);
-                }
-
+                controlFragment.newValueForCharacteristic(ch);
             }
         });
     }
@@ -252,9 +250,8 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (controlFragment.isVisible()) {
                     controlFragment.setFail();
-                }
+
             }
         });
     }
@@ -266,9 +263,8 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (controlFragment.isVisible()) {
                     controlFragment.newValueForCharacteristic(ch);
-                }
+
             }
         });
     }

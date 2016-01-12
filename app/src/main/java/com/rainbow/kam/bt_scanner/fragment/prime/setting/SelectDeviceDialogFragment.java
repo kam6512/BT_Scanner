@@ -28,7 +28,7 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeSettingActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.List;
 
@@ -40,6 +40,8 @@ import hugo.weaving.DebugLog;
 public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private final String TAG = getClass().getSimpleName();
+    private final long SCAN_PERIOD = 5000;
+
     private Context context;
     private View view;
     private boolean isScanning;
@@ -219,7 +221,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
                 startScan();
             } else {
-               BluetoothHelper.initBluetoothOn(context);
+                BluetoothHelper.initBluetoothOn((PrimeSettingActivity) context);
             }
         } catch (Exception e) {
             Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
@@ -228,11 +230,9 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     }
 
 
-
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        long SCAN_PERIOD = 5000;
         handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
 
         //시작
