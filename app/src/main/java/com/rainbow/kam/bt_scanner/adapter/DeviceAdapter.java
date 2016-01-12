@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.tools.helper.DeviceAdapterHelper;
+
+import java.util.LinkedHashMap;
 
 import hugo.weaving.DebugLog;
 
@@ -19,7 +22,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private static final String TAG = "DeviceAdapter";
 
-    private final DeviceLinkedHashMap<String, DeviceItem> deviceLinkedHashMap = new DeviceLinkedHashMap<>();
+    private final LinkedHashMap<String, DeviceItem> deviceLinkedHashMap = new LinkedHashMap<>();
 
     private final OnDeviceSelectListener onDeviceSelectListener;
 
@@ -41,7 +44,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
-        deviceViewHolder.bindViews(deviceLinkedHashMap.getValue(position));
+        deviceViewHolder.bindViews(DeviceAdapterHelper.getValue(deviceLinkedHashMap, position));
     }
 
 
