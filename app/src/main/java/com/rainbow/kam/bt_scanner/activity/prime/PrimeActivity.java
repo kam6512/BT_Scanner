@@ -3,6 +3,7 @@ package com.rainbow.kam.bt_scanner.activity.prime;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,18 +28,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.RealmItem.RealmPrimeItem;
-import com.rainbow.kam.bt_scanner.RealmItem.RealmUserItem;
+import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.CalorieFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DashboardFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DistanceFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.SampleFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.StepFragment;
-import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
-import com.rainbow.kam.bt_scanner.tools.PrimeHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -57,7 +57,6 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     private static final String TAG = PrimeActivity.class.getSimpleName();
 
     private Realm realm;
-
 
     private String patientAge;
     private String patientHeight;
@@ -89,6 +88,8 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     private SwipeRefreshLayout swipeRefreshLayout;
     private ViewPager viewPager;
 
+    SharedPreferences sharedPreferences;
+
 
     @DebugLog
     @Override
@@ -102,6 +103,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
         setViewPager();
 
         queryUserInfo();
+        realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
     }
 
 
@@ -156,25 +158,12 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     @DebugLog
     private void queryUserInfo() {
         try {
-            realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
+            sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
 
-            RealmResults<RealmUserItem> results = realm.where(RealmUserItem.class).findAll();
+            patientAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
+            patientHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
+            deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
 
-            RealmUserItem realmUserItem = results.get(0);
-            patientAge = realmUserItem.getAge();
-            patientHeight = realmUserItem.getHeight();
-            deviceAddress = realmUserItem.getDeviceAddress();
-
-            Log.e("RealmUserItem", "results = " + "\n" +
-                    results.get(0).getName() + "\n" +
-                    results.get(0).getAge() + "\n" +
-                    results.get(0).getHeight() + "\n" +
-                    results.get(0).getWeight() + "\n" +
-                    results.get(0).getStep() + "\n" +
-                    results.get(0).getGender() + "\n" +
-                    results.get(0).getDeviceName() + "\n" +
-                    results.get(0).getDeviceAddress()
-            );
 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -273,9 +262,9 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
                 return true;
             case R.id.menu_nursing_about_setting:
                 realm.beginTransaction();
-                realm.clear(RealmUserItem.class);
                 realm.clear(RealmPrimeItem.class);
                 realm.commitTransaction();
+                sharedPreferences.edit().clear().apply();
                 finish();
                 return true;
             case R.id.menu_nursing_about_about:
@@ -308,8 +297,6 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
             BluetoothHelper.initBluetoothOn(this);
         }
     }
-
-
 
 
     @DebugLog
@@ -487,6 +474,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
             }
         });
     }
+
 
     @DebugLog
     @Override

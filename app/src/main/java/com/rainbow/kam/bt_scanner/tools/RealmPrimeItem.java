@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.RealmItem;
+package com.rainbow.kam.bt_scanner.tools;
 
 import io.realm.RealmObject;
 

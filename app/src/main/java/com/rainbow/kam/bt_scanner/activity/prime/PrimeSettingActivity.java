@@ -1,6 +1,7 @@
 package com.rainbow.kam.bt_scanner.activity.prime;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,17 +17,13 @@ import android.widget.RadioGroup;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.RealmItem.RealmUserItem;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.prime.setting.LogoFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.setting.SelectDeviceDialogFragment;
-import com.rainbow.kam.bt_scanner.tools.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import hugo.weaving.DebugLog;
-import io.realm.Realm;
-import io.realm.RealmAsyncTask;
-import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -41,15 +38,14 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
 
     private MaterialDialog materialDialog;
 
-    private Realm realm;
-    private RealmAsyncTask transaction;
-
     private String userName;
     private String userAge;
     private String userHeight;
     private String userWeight;
     private String userStep;
     private String userGender;
+
+    private SharedPreferences.Editor editor;
 
 
     @DebugLog
@@ -58,13 +54,14 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_band_init);
         try {
-            realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
-            RealmResults<RealmUserItem> results = realm.where(RealmUserItem.class).findAll();
-            RealmUserItem realmUserItem = results.get(0);
 
-            if (realmUserItem == null) {
+            SharedPreferences sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
+            editor = sharedPreferences.edit();
+
+            if (sharedPreferences.getAll().isEmpty()) {
                 throw new Exception("User Info is NULL");
             } else {
+                editor.apply();
                 complete();
             }
 
@@ -76,19 +73,6 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 BluetoothHelper.check(this);
             }
-        }
-    }
-
-
-    @DebugLog
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (transaction != null && !transaction.isCancelled()) {
-            transaction.cancel();
-        }
-        if (realm != null) {
-            realm.close();
         }
     }
 
@@ -262,26 +246,16 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
     @DebugLog
     @Override
     public void onDeviceSelect(final String name, final String address) {
-        realm.beginTransaction();
-        realm.allObjects(RealmUserItem.class).clear();
 
-        transaction = realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmUserItem realmUserItem = realm.createObject(RealmUserItem.class);
-                realmUserItem.setName(userName);
-                realmUserItem.setAge(userAge);
-                realmUserItem.setHeight(userHeight);
-                realmUserItem.setWeight(userWeight);
-                realmUserItem.setStep(userStep);
-                realmUserItem.setGender(userGender);
-                realmUserItem.setDeviceName(name);
-                realmUserItem.setDeviceAddress(address);
-            }
-        }, null);
-
-        realm.commitTransaction();
-        realm.close();
+        editor.putString(PrimeHelper.KEY_NAME, userName);
+        editor.putString(PrimeHelper.KEY_AGE, userAge);
+        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
+        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
+        editor.putString(PrimeHelper.KEY_STEP, userStep);
+        editor.putString(PrimeHelper.KEY_GENDER, userGender);
+        editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
+        editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
+        editor.commit();
         complete();
     }
 }

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools;
+package com.rainbow.kam.bt_scanner.tools.helper;
 
 import android.util.Log;
 
@@ -10,6 +10,17 @@ import java.util.Locale;
  * Created by kam6512 on 2015-11-04.
  */
 public class PrimeHelper {
+
+    public static String KEY = "USER";
+    public static String KEY_NAME = "USER_NAME";
+    public static String KEY_AGE = "USER_AGE";
+    public static String KEY_HEIGHT = "USER_HEIGHT";
+    public static String KEY_WEIGHT = "USER_WEIGHT";
+    public static String KEY_STEP = "USER_STEP";
+    public static String KEY_GENDER = "USER_GENDER";
+    public static String KEY_DEVICE_NAME = "DEVICE_NAME";
+    public static String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
 
     public static byte[] READ_DEVICE_TIME() {
         return parseHexStringToBytes("0x890000", false);
