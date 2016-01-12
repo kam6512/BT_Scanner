@@ -12,33 +12,33 @@ import java.util.Locale;
 public class PrimeHelper {
 
     public static byte[] READ_DEVICE_TIME() {
-        return parseHexStringToBytes("0x8900");
+        return parseHexStringToBytes("0x890000", false);
     }
 
 
     public static byte[] READ_DEVICE_BATTERY() {
 
-        return parseHexStringToBytes("0xC60108");
+        return parseHexStringToBytes("0xC60108", true);
     }
 
 
     public static byte[] RESTORE_FACTORY_SETTING() {
-        return parseHexStringToBytes("0x8700");
+        return parseHexStringToBytes("0x870000", false);
     }
 
 
     public static byte[] CLEAR_DATA() {
-        return parseHexStringToBytes("0x8800");
+        return parseHexStringToBytes("0x880000", false);
     }
 
 
     public static byte[] READ_STEP_DATA() {
-        return parseHexStringToBytes("0xC601" + String.format("%02d", 8));
+        return parseHexStringToBytes("0xC6010808", false);
     }
 
 
     public static byte[] CALL_DEVICE() {
-        return parseHexStringToBytes("0xf30101");
+        return parseHexStringToBytes("0xf30101", true);
     }
 
 
@@ -61,17 +61,17 @@ public class PrimeHelper {
 
         setDate += year + month + date + hour + min + sec + week;
         Log.e("TIME", year + " / " + month + " / " + date + " / " + hour + " / " + min + " / " + sec + " / " + week);
-        return parseHexStringToBytes(setDate);
+        return parseHexStringToBytes(setDate, true);
     }
 
 
     public static byte[] READ_SPORTS_CURVE_DATA() {
-        return parseHexStringToBytes("0xC403031503");
+        return parseHexStringToBytes("0xC403031503", true);
     }
 
 
     public static byte[] OFF_ANTI_LOST() {
-        return parseHexStringToBytes("0x01a102a2");
+        return parseHexStringToBytes("0x01a102a2", true);
     }
 
 
@@ -85,35 +85,25 @@ public class PrimeHelper {
         info += String.format("%02d", runningStride);
         info += "0b1e071e0200000000";
 
-        return parseHexStringToBytes(info);
+        return parseHexStringToBytes(info, true);
     }
 
 
-    private static byte[] parseHexStringToBytes(String hex) {
-        hex = hex.toLowerCase(Locale.getDefault());
-        String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
-        byte[] bytes = new byte[tmp.length() / 2];
-        String part;
-        int checksum = 0;
+    public static byte[] WRITE_FROM_CONTROL(String hex) {
+        return parseHexStringToBytes(hex, false);
+    }
 
-        for (int i = 0; i < bytes.length; ++i) {
-            part = "0x" + tmp.substring(i * 2, i * 2 + 2);
-            bytes[i] = Integer.decode(part).byteValue();
-            if (i > 1 && i <= bytes.length - 1) {
-                if (bytes[i] < 0x00) {
 
-                    checksum = checksum ^ bytes[i] + 256;
-
-                } else {
-                    checksum ^= bytes[i];
-
-                }
-            }
+    private static byte[] parseHexStringToBytes(String hex, boolean isCheckSumEmpty) {
+        String res;
+        if (isCheckSumEmpty) {
+            String cs = String.format("%02x", getCheckSum(hex));
+            res = (hex + cs).toLowerCase(Locale.getDefault()).substring(2).replaceAll("[^[0-9][a-f]]", "");
+        } else {
+            res = hex.toLowerCase(Locale.getDefault()).substring(2).replaceAll("[^[0-9][a-f]]", "");
         }
 
-        String cs = String.format("%02x", checksum);
-        Log.e("CheckSum", cs);
-        String res = (hex + cs).substring(2).replaceAll("[^[0-9][a-f]]", "");
+
         byte[] resBytes = new byte[res.length() / 2];
         String resPart;
 
@@ -126,18 +116,24 @@ public class PrimeHelper {
     }
 
 
-    public static byte[] parseHexStringToBytesDEV(String hex) {
-        hex = hex.toLowerCase(Locale.getDefault());
-        String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
-        byte[] bytes = new byte[tmp.length() / 2];
-        String part;
+    private static int getCheckSum(String hex) {
+        hex = hex.toLowerCase(Locale.getDefault()).substring(2).replaceAll("[^[0-9][a-f]]", "");
+        byte[] hexBytes = new byte[hex.length() / 2];
 
-        for (int i = 0; i < bytes.length; ++i) {
-            part = "0x" + tmp.substring(i * 2, i * 2 + 2);
-            bytes[i] = Integer.decode(part).byteValue();
+        int checksum = 0;
+
+        for (int i = 0; i < hexBytes.length; ++i) {
+            hexBytes[i] = Integer.decode("0x" + hex.substring(i * 2, i * 2 + 2)).byteValue();
+            if (i > 1 && i <= hexBytes.length - 1) {
+                if (hexBytes[i] < 0x00) {
+                    checksum = checksum ^ hexBytes[i] + 256;
+                } else {
+                    checksum ^= hexBytes[i];
+                }
+            }
         }
-
-
-        return bytes;
+        Log.e("getCheckSum", checksum + " / ");
+        return checksum;
     }
+
 }

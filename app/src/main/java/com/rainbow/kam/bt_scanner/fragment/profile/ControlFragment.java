@@ -241,7 +241,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
             case R.id.characteristic_detail_write_btn:
                 String newValue = charHexValue.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
-                    byte[] dataToWrite = PrimeHelper.parseHexStringToBytesDEV(newValue);
+                    byte[] dataToWrite = PrimeHelper.WRITE_FROM_CONTROL(newValue);
                     onControlListener.setWriteValue(dataToWrite);
                 } else {
                     Snackbar.make(v, "dataToWrite value is empty!", Snackbar.LENGTH_SHORT).show();
