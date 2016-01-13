@@ -33,9 +33,6 @@ public class SampleFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.f_band_main_sample, container, false);
         etcCircleCounter = (CircleCounter) view.findViewById(R.id.counter);
-        etcCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
-        etcCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));
-        etcCircleCounter.setThirdWidth(getResources().getDimension(R.dimen.third));
         etcCircleCounter.setFirstColor(ContextCompat.getColor(context, R.color.etcAccent));
         etcCircleCounter.setSecondColor(ContextCompat.getColor(context, R.color.etcPrimary));
         etcCircleCounter.setThirdColor(ContextCompat.getColor(context, R.color.etcPrimaryDark));

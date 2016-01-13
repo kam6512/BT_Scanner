@@ -102,6 +102,7 @@ public class CircleCounter extends View {
         setupTextPosition();
     }
 
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -123,19 +124,21 @@ public class CircleCounter extends View {
         mOnePaint.setColor(mOneColor);
         mOnePaint.setAntiAlias(true);
         mOnePaint.setStyle(Style.STROKE);
-        mOnePaint.setStrokeWidth(mOneWidth);
+        mOnePaint.setStrokeWidth(getResources().getDimension(R.dimen.first));
 
         mTwoPaint = new Paint();
         mTwoPaint.setColor(mTwoColor);
         mTwoPaint.setAntiAlias(true);
         mTwoPaint.setStyle(Style.STROKE);
         mTwoPaint.setStrokeWidth(mTwoWidth);
+        mTwoPaint.setStrokeWidth(getResources().getDimension(R.dimen.second));
 
         mThreePaint = new Paint();
         mThreePaint.setColor(mThreeColor);
         mThreePaint.setAntiAlias(true);
         mThreePaint.setStyle(Style.STROKE);
         mThreePaint.setStrokeWidth(mThreeWidth);
+        mThreePaint.setStrokeWidth(getResources().getDimension(R.dimen.third));
 
         mBackgroundPaint = new Paint();
         mBackgroundPaint.setColor(mBackgroundColor);
@@ -158,6 +161,7 @@ public class CircleCounter extends View {
         mMetricPaint.setTypeface(mTypeface);
         mMetricPaint.setTextAlign(Align.CENTER);
     }
+
 
     private void setupBounds() {
 
@@ -276,66 +280,65 @@ public class CircleCounter extends View {
         return this;
     }
 
-    public void setFirstWidth(float width) {
-        mOneWidth = width;
-    }
-
-    public void setSecondWidth(float width) {
-        mTwoWidth = width;
-    }
-
-    public void setThirdWidth(float width) {
-        mThreeWidth = width;
-    }
-
     public void setTextSize(float size) {
         mTextSize = size;
     }
+
 
     public void setMetricSize(float size) {
         mMetricSize = size;
     }
 
+
     public void setFirstColor(int color) {
         mOneColor = color;
     }
+
 
     public void setSecondColor(int color) {
         mTwoColor = color;
     }
 
+
     public void setThirdColor(int color) {
         mThreeColor = color;
     }
+
 
     public CircleCounter setTextColor(int color) {
         mTextColor = color;
         return this;
     }
 
+
     public CircleCounter setMetricText(String text) {
         mMetricText = text;
         return this;
     }
+
 
     @Override
     public void setBackgroundColor(int color) {
         mBackgroundColor = color;
     }
 
+
     public CircleCounter setTypeface(Typeface typeface) {
         mTypeface = typeface;
         return this;
     }
 
+
     private static class SpeedHandler extends Handler {
 
         private final CircleCounter act;
+
 
         public SpeedHandler(CircleCounter act) {
             super();
             this.act = act;
         }
+
 
         @Override
         public void handleMessage(Message msg) {

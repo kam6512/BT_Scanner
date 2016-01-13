@@ -52,9 +52,6 @@ public class StepFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.f_band_main_step, container, false);
         stepCircleCounter = (CircleCounter) view.findViewById(R.id.step_counter);
-        stepCircleCounter.setFirstWidth(getResources().getDimension(R.dimen.first));
-        stepCircleCounter.setSecondWidth(getResources().getDimension(R.dimen.second));
-        stepCircleCounter.setThirdWidth(getResources().getDimension(R.dimen.third));
         stepCircleCounter.setFirstColor(ContextCompat.getColor(context, R.color.stepAccent));
         stepCircleCounter.setSecondColor(ContextCompat.getColor(context, R.color.stepPrimary));
         stepCircleCounter.setThirdColor(ContextCompat.getColor(context, R.color.stepPrimaryDark));
