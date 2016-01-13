@@ -57,7 +57,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
 
     @DebugLog
-    public void add(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
+    public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
         if (!characteristicArrayList.equals(bluetoothGattCharacteristics)) {
             characteristicArrayList.clear();
             characteristicArrayList.addAll(bluetoothGattCharacteristics);

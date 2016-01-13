@@ -4,14 +4,12 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,9 +23,12 @@ import hugo.weaving.DebugLog;
 public class BluetoothHelper {
 
     public static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    public static final long SCAN_PERIOD = 5000;
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int RESULT_OK = -1;
 
+    public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
 
     @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
@@ -58,7 +59,7 @@ public class BluetoothHelper {
             case BluetoothHelper.REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_OK) {
                     //블루투스 켜짐
-                    Snackbar.make(activity.getWindow().getDecorView(), R.string.bt_on, Snackbar.LENGTH_SHORT).show();
+                    Toast.makeText(activity, R.string.bt_on, Toast.LENGTH_SHORT).show();
                 } else {
                     //블루투스 에러
                     Toast.makeText(activity, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
@@ -75,7 +76,7 @@ public class BluetoothHelper {
         if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                     || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                Snackbar.make(activity.getWindow().getDecorView(), R.string.permission_thanks, Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.permission_thanks, Toast.LENGTH_SHORT).show();
             } else {
 
                 Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()));

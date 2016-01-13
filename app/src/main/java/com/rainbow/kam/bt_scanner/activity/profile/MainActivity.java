@@ -43,8 +43,8 @@ import hugo.weaving.DebugLog;
  * Created by kam6512 on 2015-10-22.
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, DeviceAdapter.OnDeviceSelectListener {
+
     private final String TAG = getClass().getSimpleName();
-    private final long SCAN_PERIOD = 5000;
 
     private boolean isScanning;
 
@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setOtherView();
 
         setScannerCallback();
+
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
     }
 
@@ -149,11 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onRefresh() {
-        if (isScanning) {  //스캔 시작
-            stopScan();
-        } else { //재 스캔시(10초이내)
-            registerBluetooth();
-        }
+        toggleScan();
     }
 
 
@@ -268,7 +265,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             bluetoothAdapter = bluetoothManager.getAdapter();
 
-            if (bluetoothManager != null && bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
+
+                deviceAdapter.clear();
 
                 if (BluetoothHelper.isBuildVersionLM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -299,8 +298,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-
-        handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
+        handler.postDelayed(runnable, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
 
         deviceAdapter.clear();
         isScanning = true;
@@ -340,18 +338,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //noinspection deprecation
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
-
     }
 
 
     @Override
     public void onDeviceSelect(String name, String address) {
         Intent intent = new Intent(this, DeviceProfileActivity.class);
-        intent.putExtra(DeviceProfileActivity.EXTRAS_DEVICE_NAME, name);
-        intent.putExtra(DeviceProfileActivity.EXTRAS_DEVICE_ADDRESS, address);
+        intent.putExtra(BluetoothHelper.EXTRAS_DEVICE_NAME, name);
+        intent.putExtra(BluetoothHelper.EXTRAS_DEVICE_ADDRESS, address);
         startActivity(intent);
     }
-
-
 }
 

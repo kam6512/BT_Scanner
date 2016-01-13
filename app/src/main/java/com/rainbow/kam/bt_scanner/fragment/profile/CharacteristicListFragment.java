@@ -150,7 +150,7 @@ public class CharacteristicListFragment extends Fragment {
 
     @DebugLog
     public void setCharacteristicList(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
-        characteristicAdapter.add(bluetoothGattCharacteristics);
+        characteristicAdapter.setCharacteristic(bluetoothGattCharacteristics);
     }
 
 

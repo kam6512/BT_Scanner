@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.IllegalFormatCodePointException;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -53,6 +54,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     private BluetoothGattCharacteristic bluetoothGattCharacteristic;
     private String name;
     private String address;
+    private String uuid;
 
     private String hexValue;
     private String strValue;
@@ -70,16 +72,16 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Log.d("Control", "onViewCreated");
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d("Control", "onViewStateRestored");
     }
 
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        Log.d("Control", "onViewStateRestored");
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d("Control", "onViewCreated");
     }
 
 
@@ -94,6 +96,8 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     public void onPause() {
         super.onPause();
         Log.d("Control", "onPause");
+        notificationEnabled = false;
+        onControlListener.setNotification(notificationEnabled);
     }
 
 
@@ -187,10 +191,13 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         this.name = name;
         this.address = address;
         this.bluetoothGattCharacteristic = characteristic;
-        hexValue = "";
-        strValue = "";
-        lastUpdateTime = "";
-        notificationEnabled = false;
+        if (!Objects.equals(uuid, bluetoothGattCharacteristic.getUuid().toString())) {
+            hexValue = "";
+            strValue = "";
+            lastUpdateTime = "";
+            notificationEnabled = false;
+            uuid = bluetoothGattCharacteristic.getUuid().toString();
+        }
         initView();
         bindView();
     }
@@ -282,7 +289,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     private void setTimeStamp() {
         lastUpdateTime = new SimpleDateFormat(context.getString(R.string.profile_timestamp)).format(new Date());
-        notificationEnabled = true;
+
     }
 
 

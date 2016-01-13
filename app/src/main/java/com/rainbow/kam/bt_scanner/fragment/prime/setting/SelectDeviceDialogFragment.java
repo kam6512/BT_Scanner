@@ -40,10 +40,10 @@ import hugo.weaving.DebugLog;
 public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private final String TAG = getClass().getSimpleName();
-    private final long SCAN_PERIOD = 5000;
 
     private Context context;
     private View view;
+
     private boolean isScanning;
 
     private BluetoothManager bluetoothManager;
@@ -54,6 +54,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     private ScanCallback scanCallback;
 
     private TextView noDeviceTextView;
+
     private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceAdapter deviceAdapter;
 
@@ -115,6 +116,16 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     public void onPause() { //꺼짐
         super.onPause();
         stopScan();
+    }
+
+
+    @Override
+    public void onRefresh() {
+        if (isScanning) {  //스캔 시작
+            stopScan();
+        } else { //재 스캔시(10초이내)
+            registerBluetooth();
+        }
     }
 
 
@@ -195,16 +206,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     }
 
 
-    @Override
-    public void onRefresh() {
-        if (isScanning) {  //스캔 시작
-            stopScan();
-        } else { //재 스캔시(10초이내)
-            registerBluetooth();
-        }
-    }
-
-
     @DebugLog
     @SuppressLint("NewApi")
     private void registerBluetooth() {
@@ -233,15 +234,15 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        handler.postDelayed(runnable, SCAN_PERIOD); //5초 뒤에 OFF
+        handler.postDelayed(runnable, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
 
-        //시작
         deviceAdapter.clear();
         isScanning = true;
         noDeviceTextView.setVisibility(View.INVISIBLE);
 
         swipeRefreshLayout.post(postSwipeRefresh);
 
+        //시작
         if (BluetoothHelper.isBuildVersionLM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
@@ -271,9 +272,5 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             //noinspection deprecation
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
-
-
     }
-
-
 }

@@ -150,7 +150,7 @@ public class ServiceListFragment extends Fragment {
 
     @DebugLog
     public void setServiceList(List<BluetoothGattService> bluetoothGattServices) {
-        serviceAdapter.add(bluetoothGattServices);
+        serviceAdapter.setService(bluetoothGattServices);
     }
 
 

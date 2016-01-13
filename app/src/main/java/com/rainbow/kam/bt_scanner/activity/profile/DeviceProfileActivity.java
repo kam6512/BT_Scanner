@@ -43,10 +43,6 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-
-    public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
-
     private static final String RSSI_UNIT = "db";
 
     private String deviceName;
@@ -79,8 +75,8 @@ public class DeviceProfileActivity extends AppCompatActivity
         setContentView(R.layout.a_profile);
 
         Intent intent = getIntent();
-        deviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        deviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        deviceName = intent.getStringExtra(BluetoothHelper.EXTRAS_DEVICE_NAME);
+        deviceAddress = intent.getStringExtra(BluetoothHelper.EXTRAS_DEVICE_ADDRESS);
         deviceRSSI = "- - " + RSSI_UNIT;
 
         setToolbar();
@@ -115,7 +111,6 @@ public class DeviceProfileActivity extends AppCompatActivity
         serviceListFragment = new ServiceListFragment();
         characteristicListFragment = new CharacteristicListFragment();
         controlFragment = new ControlFragment();
-
     }
 
 
@@ -170,7 +165,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
 
     @DebugLog
-    private void connectDevice() {
+    private synchronized void connectDevice() {
         deviceStateTextView.setText("connecting");
         try {
             gattManager.connect(deviceAddress);
@@ -185,7 +180,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
 
     @DebugLog
-    private void disconnectDevice() {
+    private synchronized void disconnectDevice() {
         if (gattManager != null && gattManager.isBluetoothAvailable()) {
             gattManager.disconnect();
         }
@@ -194,7 +189,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @DebugLog
     @Override
-    public synchronized void onDeviceConnected() {
+    public void onDeviceConnected() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -250,7 +245,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                    controlFragment.setFail();
+                controlFragment.setFail();
 
             }
         });
@@ -263,7 +258,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                    controlFragment.newValueForCharacteristic(ch);
+                controlFragment.newValueForCharacteristic(ch);
 
             }
         });
@@ -324,7 +319,10 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onCharacteristicItemClick(int position) {
         fragmentManager.beginTransaction().addToBackStack("control").replace(R.id.detail_fragment_view, controlFragment).commit();
-        controlCharacteristic = bluetoothGattCharacteristics.get(position);
+        if (!bluetoothGattCharacteristics.get(position).equals(controlCharacteristic)) {
+            controlCharacteristic = bluetoothGattCharacteristics.get(position);
+        }
+
     }
 
 
