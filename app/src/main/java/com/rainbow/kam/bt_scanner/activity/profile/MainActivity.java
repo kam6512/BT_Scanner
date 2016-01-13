@@ -31,7 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeSettingActivity;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
-        startActivity(new Intent(this, PrimeSettingActivity.class));
+        startActivity(new Intent(this, PrimeActivity.class));
         return true;
     }
 
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    public void onDeviceSelect(String name, String address) {
+    public void onSettingDeviceSelect(String name, String address) {
         Intent intent = new Intent(this, DeviceProfileActivity.class);
         intent.putExtra(BluetoothHelper.EXTRAS_DEVICE_NAME, name);
         intent.putExtra(BluetoothHelper.EXTRAS_DEVICE_ADDRESS, address);

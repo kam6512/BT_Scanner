@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="DetailItemTextView">
+    <style name="ProfileItemTextView">
         <item name="android:orientation">vertical</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -11,7 +11,7 @@
         <item name="android:textColor">@color/nursingPrimary_light</item>
     </style>
 
-    <style name="DetailItemFrame">
+    <style name="ProfileItemFrame">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
@@ -20,7 +20,7 @@
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="DetailItemCard" parent="CardView">
+    <style name="ProfileItemCard" parent="CardView">
         <item name="cardCornerRadius">2dp</item>
         <item name="cardElevation">5dp</item>
         <item name="cardPreventCornerOverlap">false</item>

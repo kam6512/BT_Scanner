@@ -82,20 +82,20 @@ public class DeviceProfileActivity extends AppCompatActivity
         setToolbar();
         setFragments();
 
-        fragmentManager.beginTransaction().replace(R.id.detail_fragment_view, serviceListFragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.profile_fragment_view, serviceListFragment).commit();
     }
 
 
     private void setToolbar() {
-        deviceNameTextView = (TextView) findViewById(R.id.detail_name);
-        deviceRSSITextView = (TextView) findViewById(R.id.detail_rssi);
-        deviceAddressTextView = (TextView) findViewById(R.id.detail_address);
-        deviceStateTextView = (TextView) findViewById(R.id.detail_state);
+        deviceNameTextView = (TextView) findViewById(R.id.profile_name);
+        deviceRSSITextView = (TextView) findViewById(R.id.profile_rssi);
+        deviceAddressTextView = (TextView) findViewById(R.id.profile_address);
+        deviceStateTextView = (TextView) findViewById(R.id.profile_state);
         deviceNameTextView.setText(deviceName);
         deviceAddressTextView.setText(deviceAddress);
         deviceRSSITextView.setText(deviceRSSI);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.profile_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -308,7 +308,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onServiceItemClick(int position) {
-        fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.detail_fragment_view, characteristicListFragment).commit();
+        fragmentManager.beginTransaction().addToBackStack("characteristic").replace(R.id.profile_fragment_view, characteristicListFragment).commit();
         bluetoothGattCharacteristics = bluetoothGattServices.get(position).getCharacteristics();
         onCharacteristicReady();
 
@@ -318,7 +318,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @DebugLog
     @Override
     public void onCharacteristicItemClick(int position) {
-        fragmentManager.beginTransaction().addToBackStack("control").replace(R.id.detail_fragment_view, controlFragment).commit();
+        fragmentManager.beginTransaction().addToBackStack("control").replace(R.id.profile_fragment_view, controlFragment).commit();
         if (!bluetoothGattCharacteristics.get(position).equals(controlCharacteristic)) {
             controlCharacteristic = bluetoothGattCharacteristics.get(position);
         }

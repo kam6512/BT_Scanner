@@ -26,7 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeSettingActivity;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
@@ -89,7 +89,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.df_band_init_add_device, container, false);
+        view = inflater.inflate(R.layout.df_prime_add_device, container, false);
 
         setWindowSetting();
         setRecyclerView();
@@ -137,22 +137,22 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
 
     private void setRecyclerView() {
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.nursing_device_swipeRefreshLayout);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.prime_device_swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
 
-        RecyclerView selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.nursing_device_recyclerView);
+        RecyclerView selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.prime_device_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        deviceAdapter = new DeviceAdapter((PrimeSettingActivity) context);
+        deviceAdapter = new DeviceAdapter((PrimeActivity) context);
         selectDeviceRecyclerView.setAdapter(deviceAdapter);
     }
 
 
     private void setOtherView() {
 
-        noDeviceTextView = (TextView) view.findViewById(R.id.nursing_no_device_textView);
+        noDeviceTextView = (TextView) view.findViewById(R.id.prime_no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
     }
 
@@ -222,7 +222,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
                 startScan();
             } else {
-                BluetoothHelper.initBluetoothOn((PrimeSettingActivity) context);
+                BluetoothHelper.initBluetoothOn((PrimeActivity) context);
             }
         } catch (Exception e) {
             Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();

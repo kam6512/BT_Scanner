@@ -31,7 +31,7 @@ public class DistanceFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.f_band_main_distance, container, false);
+        View view = inflater.inflate(R.layout.f_prime_main_distance, container, false);
         distanceCircleCounter = (CircleCounter) view.findViewById(R.id.distance_counter);
         distanceCircleCounter.setFirstColor(ContextCompat.getColor(context,R.color.distanceAccent));
         distanceCircleCounter.setSecondColor(ContextCompat.getColor(context,R.color.distancePrimary));

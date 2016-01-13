@@ -6,13 +6,13 @@
     android:background="@null">
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/nursing_device_swipeRefreshLayout"
+        android:id="@+id/prime_device_swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/nursing_device_recyclerView"
+            android:id="@+id/prime_device_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
@@ -23,7 +23,7 @@
 
 
     <TextView
-        android:id="@+id/nursing_no_device_textView"
+        android:id="@+id/prime_no_device_textView"
         style="@style/NoDeviceLabel"
         android:text="@string/device.list.nothing"/>
 </RelativeLayout>

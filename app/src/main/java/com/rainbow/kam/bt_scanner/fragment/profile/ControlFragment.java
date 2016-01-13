@@ -157,19 +157,19 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
         serviceName = (TextView) view.findViewById(R.id.characteristic_service_name);
         serviceUuid = (TextView) view.findViewById(R.id.characteristic_service_uuid);
 
-        charName = (TextView) view.findViewById(R.id.characteristic_detail_name);
-        charUuid = (TextView) view.findViewById(R.id.characteristic_detail_uuid);
+        charName = (TextView) view.findViewById(R.id.control_name);
+        charUuid = (TextView) view.findViewById(R.id.control_uuid);
 
-        charDataType = (TextView) view.findViewById(R.id.characteristic_detail_type);
-        charProperties = (TextView) view.findViewById(R.id.characteristic_detail_properties);
+        charDataType = (TextView) view.findViewById(R.id.control_type);
+        charProperties = (TextView) view.findViewById(R.id.control_properties);
 
-        charHexValue = (EditText) view.findViewById(R.id.characteristic_detail_hex_value);
-        charStrValue = (TextView) view.findViewById(R.id.characteristic_detail_ascii_value);
-        charDateValue = (TextView) view.findViewById(R.id.characteristic_detail_timestamp);
+        charHexValue = (EditText) view.findViewById(R.id.control_hex_value);
+        charStrValue = (TextView) view.findViewById(R.id.control_ascii_value);
+        charDateValue = (TextView) view.findViewById(R.id.control_timestamp);
 
-        readBtn = (Button) view.findViewById(R.id.characteristic_detail_read_btn);
-        writeBtn = (Button) view.findViewById(R.id.characteristic_detail_write_btn);
-        notificationBtn = (ToggleButton) view.findViewById(R.id.characteristic_detail_notification_switcher);
+        readBtn = (Button) view.findViewById(R.id.control_read_btn);
+        writeBtn = (Button) view.findViewById(R.id.control_write_btn);
+        notificationBtn = (ToggleButton) view.findViewById(R.id.control_notification_switcher);
 
         readBtn.setOnClickListener(this);
         writeBtn.setOnClickListener(this);
@@ -315,10 +315,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.characteristic_detail_read_btn:
+            case R.id.control_read_btn:
                 onControlListener.setReadValue();
                 break;
-            case R.id.characteristic_detail_write_btn:
+            case R.id.control_write_btn:
                 String newValue = charHexValue.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
                     byte[] dataToWrite = PrimeHelper.WRITE_FROM_CONTROL(newValue);
@@ -334,7 +334,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
-            case R.id.characteristic_detail_notification_switcher:
+            case R.id.control_notification_switcher:
                 if (isChecked == notificationEnabled) {
                     return;
                 }

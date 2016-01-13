@@ -17,7 +17,7 @@
         android:src="@mipmap/ic_launcher"/>
 
     <LinearLayout
-        android:id="@+id/nursing_splash_pilot"
+        android:id="@+id/prime_splash_pilot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"

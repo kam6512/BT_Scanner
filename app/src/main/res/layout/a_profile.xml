@@ -9,12 +9,12 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/detail_app_bar_layout_height"
+        android:layout_height="@dimen/profile_app_bar_layout_height"
         android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/detail.collapsing_toolbar"
+            android:id="@+id/profile_collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
@@ -25,7 +25,7 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <android.support.v7.widget.Toolbar
-                android:id="@+id/detail.toolbar"
+                android:id="@+id/profile_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@null"
@@ -45,7 +45,7 @@
                         android:text="@string/profile.label.name"/>
 
                     <TextView
-                        android:id="@+id/detail.name"
+                        android:id="@+id/profile_name"
                         style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
 
@@ -56,7 +56,7 @@
                         android:text="@string/profile.label.rssi"/>
 
                     <TextView
-                        android:id="@+id/detail.rssi"
+                        android:id="@+id/profile_rssi"
                         style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
 
@@ -67,7 +67,7 @@
                         android:text="@string/profile.label.address"/>
 
                     <TextView
-                        android:id="@+id/detail.address"
+                        android:id="@+id/profile_address"
                         style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
 
@@ -78,7 +78,7 @@
                         android:text="@string/profile.label.state"/>
 
                     <TextView
-                        android:id="@+id/detail.state"
+                        android:id="@+id/profile_state"
                         style="@style/DeviceLabel.DeviceText"/>
                 </TableRow>
             </TableLayout>
@@ -86,7 +86,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <FrameLayout
-        android:id="@+id/detail.fragment_view"
+        android:id="@+id/profile_fragment_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"

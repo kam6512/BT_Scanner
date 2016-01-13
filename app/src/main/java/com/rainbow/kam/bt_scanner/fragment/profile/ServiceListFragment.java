@@ -139,7 +139,7 @@ public class ServiceListFragment extends Fragment {
 
 
     private void setRecyclerView() {
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_service_recyclerView);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.profile_service_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);

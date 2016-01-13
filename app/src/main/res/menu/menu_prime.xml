@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context=".nursing.MainNursingActivity">
+      tools:context=".activity.prime.PrimeActivity">
     <item android:title="@string/menu.dashboard">
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/menu.nursing.dashboard"
+                    android:id="@+id/menu.prime.dashboard"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.dashboard.main"/>
                 <item
-                    android:id="@+id/menu.nursing.dashboard.step"
+                    android:id="@+id/menu.prime.dashboard.step"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.dashboard.step"/>
                 <item
-                    android:id="@+id/menu.nursing.dashboard.calorie"
+                    android:id="@+id/menu.prime.dashboard.calorie"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.dashboard.calorie"/>
                 <item
-                    android:id="@+id/menu.nursing.dashboard.distance"
+                    android:id="@+id/menu.prime.dashboard.distance"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.dashboard.distance"/>
                 <item
-                    android:id="@+id/menu.nursing.dashboard.sleep"
+                    android:id="@+id/menu.prime.dashboard.sleep"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.dashboard.etc"/>
             </group>
@@ -33,15 +33,15 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/menu.nursing.info.user"
+                    android:id="@+id/menu.prime.info.user"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.info.scan"/>
                 <item
-                    android:id="@+id/menu.nursing.info.prime"
+                    android:id="@+id/menu.prime.info.prime"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.info.prime"/>
                 <item
-                    android:id="@+id/menu.nursing.info.goal"
+                    android:id="@+id/menu.prime.info.goal"
                     android:icon="@drawable/ic_menu"
                     android:title="@string/menu.info.goal"/>
             </group>
@@ -51,15 +51,15 @@
     <item android:title="@string/menu.about">
         <menu>
             <item
-                android:id="@+id/menu.nursing.about.dev"
+                android:id="@+id/menu.prime.about.dev"
                 android:icon="@drawable/ic_link_white_36dp"
                 android:title="@string/menu.about.dev"/>
             <item
-                android:id="@+id/menu.nursing.about.setting"
+                android:id="@+id/menu.prime.about.setting"
                 android:icon="@drawable/ic_link_white_36dp"
                 android:title="@string/menu.about.reset"/>
             <item
-                android:id="@+id/menu.nursing.about.about"
+                android:id="@+id/menu.prime.about.about"
                 android:icon="@drawable/ic_link_white_36dp"
                 android:title="@string/menu.about.info"/>
         </menu>

@@ -74,9 +74,9 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         public ServiceViewHolder(View itemView) {
             super(itemView);
-            serviceTitle = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_name);
-            serviceUuid = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_UUID);
-            serviceType = (TextView) itemView.findViewById(R.id.detail_parent_list_item_service_type);
+            serviceTitle = (TextView) itemView.findViewById(R.id.profile_parent_list_item_service_name);
+            serviceUuid = (TextView) itemView.findViewById(R.id.profile_parent_list_item_service_UUID);
+            serviceType = (TextView) itemView.findViewById(R.id.profile_parent_list_item_service_type);
             itemView.setOnClickListener(this);
         }
 

@@ -26,7 +26,7 @@ public class DashboardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view;
-        view = inflater.inflate(R.layout.f_band_main_dashboard, container, false);
+        view = inflater.inflate(R.layout.f_prime_main_dashboard, container, false);
 
         time = (TextView) view.findViewById(R.id.deviceTime);
         stepTextView = (TextView) view.findViewById(R.id.dashboard_step);

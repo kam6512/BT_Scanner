@@ -1,7 +1,7 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="detail_backdrop_height">256dp</dimen>
+    <dimen name="profile_backdrop_height">256dp</dimen>
     <dimen name="card_margin">16dp</dimen>
     <dimen name="list_item_avatar_size">40dp</dimen>
 
@@ -21,7 +21,7 @@
     <dimen name="toolbar_drop_shadow">3dp</dimen>
     <dimen name="searching_progress_bar">32dp</dimen>
 
-    <dimen name="detail_app_bar_layout_height">256dp</dimen>
+    <dimen name="profile_app_bar_layout_height">256dp</dimen>
     <dimen name="expanded_title_margin_end">64dp</dimen>
     <dimen name="expanded_title_margin_start">48dp</dimen>
 

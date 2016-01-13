@@ -16,6 +16,6 @@ public class LogoFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.f_band_init, container, false);
+        return inflater.inflate(R.layout.f_prime_logo, container, false);
     }
 }

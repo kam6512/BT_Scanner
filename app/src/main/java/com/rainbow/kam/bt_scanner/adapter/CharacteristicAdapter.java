@@ -2,7 +2,6 @@ package com.rainbow.kam.bt_scanner.adapter;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,8 +73,8 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public CharacteristicViewHolder(View itemView) {
             super(itemView);
-            characteristicTitle = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_name);
-            characteristicUuid = (TextView) itemView.findViewById(R.id.detail_child_list_item_characteristics_UUID);
+            characteristicTitle = (TextView) itemView.findViewById(R.id.profile_child_list_item_characteristics_name);
+            characteristicUuid = (TextView) itemView.findViewById(R.id.profile_child_list_item_characteristics_UUID);
             itemView.setOnClickListener(this);
         }
 
