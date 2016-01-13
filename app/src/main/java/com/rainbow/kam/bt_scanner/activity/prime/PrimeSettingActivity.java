@@ -32,9 +32,11 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
 
     private static final String TAG = PrimeSettingActivity.class.getSimpleName();
 
+    private final long logoDelay = 2000;
+
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
-    private SelectDeviceDialogFragment nursingSelectDialog;
+    private SelectDeviceDialogFragment selectDeviceDialogFragment;
 
     private MaterialDialog materialDialog;
 
@@ -44,7 +46,7 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
     private String userWeight;
     private String userStep;
     private String userGender;
-
+    private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
 
@@ -53,43 +55,39 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_band_init);
-        try {
 
-            SharedPreferences sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
-            editor = sharedPreferences.edit();
-
-            if (sharedPreferences.getAll().isEmpty()) {
-                throw new Exception("User Info is NULL");
-            } else {
-                editor.apply();
-                complete();
-            }
-
-        } catch (Exception e) {
-            setFragment();
-            setDialog();
-            setUserInput();
-            setBtn();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                BluetoothHelper.check(this);
-            }
-        }
-    }
-
-
-    private void setFragment() {
+        selectDeviceDialogFragment = new SelectDeviceDialogFragment();
         final LogoFragment logoFragment = new LogoFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.nursing_start_frame, logoFragment).commit();
+        sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (!isDestroyed()) {
-                    getSupportFragmentManager().beginTransaction()
-                            .remove(logoFragment)
-                            .commitAllowingStateLoss();
+
+                    if (sharedPreferences.getAll().isEmpty()) {
+                        setDialog();
+                        setUserInput();
+                        setBtn();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            BluetoothHelper.check(PrimeSettingActivity.this);
+                        }
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(logoFragment)
+                                .commitAllowingStateLoss();
+                    } else {
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(logoFragment)
+                                .commitAllowingStateLoss();
+                        editor.apply();
+                        complete();
+                    }
+
                 }
             }
-        }, 2000);
+        }, logoDelay);
     }
 
 
@@ -100,10 +98,7 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
                     @Override
                     public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
                         materialDialog.dismiss();
-                        if (nursingSelectDialog == null) {
-                            nursingSelectDialog = new SelectDeviceDialogFragment();
-                        }
-                        nursingSelectDialog.show(getSupportFragmentManager(), "DeviceDialog");
+                        selectDeviceDialogFragment.show(getSupportFragmentManager(), "DeviceDialog");
                     }
                 })
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
@@ -144,6 +139,36 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.nursing_accept_fab:
+                onAccept();
+                break;
+            case R.id.nursing_skip_fab:
+                onSkip();
+                break;
+        }
+    }
+
+
+    @DebugLog
+    @Override
+    public void onDeviceSelect(final String name, final String address) {
+
+        editor.putString(PrimeHelper.KEY_NAME, userName);
+        editor.putString(PrimeHelper.KEY_AGE, userAge);
+        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
+        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
+        editor.putString(PrimeHelper.KEY_STEP, userStep);
+        editor.putString(PrimeHelper.KEY_GENDER, userGender);
+        editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
+        editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
+        editor.commit();
+        complete();
     }
 
 
@@ -226,36 +251,5 @@ public class PrimeSettingActivity extends AppCompatActivity implements DeviceAda
             }
         }
         return hasError;
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.nursing_accept_fab:
-                onAccept();
-                break;
-            case R.id.nursing_skip_fab:
-                onSkip();
-                break;
-        }
-
-    }
-
-
-    @DebugLog
-    @Override
-    public void onDeviceSelect(final String name, final String address) {
-
-        editor.putString(PrimeHelper.KEY_NAME, userName);
-        editor.putString(PrimeHelper.KEY_AGE, userAge);
-        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
-        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
-        editor.putString(PrimeHelper.KEY_STEP, userStep);
-        editor.putString(PrimeHelper.KEY_GENDER, userGender);
-        editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
-        editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
-        editor.commit();
-        complete();
     }
 }
