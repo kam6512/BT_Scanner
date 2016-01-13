@@ -70,7 +70,6 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     private String userWeight;
     private String userStep;
     private String userGender;
-
     private String deviceAddress;
 
 
@@ -108,7 +107,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
 
     private MaterialDialog materialDialog;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -140,16 +139,16 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
             BluetoothHelper.check(PrimeActivity.this);
         }
 
-        logoFragment = new LogoFragment();
-
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
-        handler.postDelayed(runnable, logoDelay);
-
         setPagerFragments();
         setToolbar();
         setMaterialNavigationView();
         setViewPager();
+
+        logoFragment = new LogoFragment();
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
+
+        handler.postDelayed(runnable, logoDelay);
     }
 
 
@@ -264,6 +263,54 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     }
 
 
+    private void setPagerFragments() {
+        dashboardFragment = new DashboardFragment();
+        stepFragment = new StepFragment();
+        calorieFragment = new CalorieFragment();
+        distanceFragment = new DistanceFragment();
+        sampleFragment = new SampleFragment();
+    }
+
+
+    private void setToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.prime_toolbar);
+        setSupportActionBar(toolbar);
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        toolbarRssi = (TextView) findViewById(R.id.prime_toolbar_rssi);
+        toolbarBluetoothFlag = (ImageView) findViewById(R.id.prime_toolbar_bluetoothFlag);
+        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
+    }
+
+
+    private void setMaterialNavigationView() {
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+
+    private void setViewPager() {
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.prime_tabs);
+        DashBoardAdapter dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
+        viewPager = (ViewPager) findViewById(R.id.prime_viewpager);
+        viewPager.setAdapter(dashBoardAdapter);
+        viewPager.setOffscreenPageLimit(5);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(this);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+
     private void setSettingFragments() {
         settingFragment = new SettingFragment();
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
@@ -345,54 +392,6 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
                 .remove(settingFragment)
                 .commitAllowingStateLoss();
         registerBluetooth();
-    }
-
-
-    private void setPagerFragments() {
-        dashboardFragment = new DashboardFragment();
-        stepFragment = new StepFragment();
-        calorieFragment = new CalorieFragment();
-        distanceFragment = new DistanceFragment();
-        sampleFragment = new SampleFragment();
-    }
-
-
-    private void setToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.prime_toolbar);
-        setSupportActionBar(toolbar);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        toolbarRssi = (TextView) findViewById(R.id.prime_toolbar_rssi);
-        toolbarBluetoothFlag = (ImageView) findViewById(R.id.prime_toolbar_bluetoothFlag);
-        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
-    }
-
-
-    private void setMaterialNavigationView() {
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
-
-
-    private void setViewPager() {
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.prime_tabs);
-        DashBoardAdapter dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
-        viewPager = (ViewPager) findViewById(R.id.prime_viewpager);
-        viewPager.setAdapter(dashBoardAdapter);
-        viewPager.setOffscreenPageLimit(5);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(this);
-        tabLayout.setupWithViewPager(viewPager);
     }
 
 
@@ -510,9 +509,8 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
                 toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
                 toolbarRssi.setText("--");
                 if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
+                    registerBluetooth();
                 }
-
             }
         });
     }
