@@ -27,18 +27,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
+import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.fragment.prime.setting.LogoFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.setting.SelectDeviceDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.setting.SettingFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.CalorieFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DashboardFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DistanceFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.SampleFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.StepFragment;
-import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
+import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -52,18 +58,21 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, GattCustomCallbacks {
+public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, DeviceAdapter.OnDeviceSelectListener, SettingFragment.OnSettingListener, GattCustomCallbacks {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
 
-    private Realm realm;
+    private final long logoDelay = 2000;
 
-    private String patientAge;
-    private String patientHeight;
+    private String userName;
+    private String userAge;
+    private String userHeight;
+    private String userWeight;
+    private String userStep;
+    private String userGender;
+
     private String deviceAddress;
 
-    private final String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
-    private final String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
     private enum ListType {
         INIT, READ_TIME, READ_STEP_DATA, ETC, FINISH
@@ -71,16 +80,17 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
 
     private ListType listType = ListType.INIT;
 
+    private FragmentManager fragmentManager;
+
+    private LogoFragment logoFragment;
+    private SettingFragment settingFragment;
+    private SelectDeviceDialogFragment selectDeviceDialogFragment;
+
     private DashboardFragment dashboardFragment;
     private StepFragment stepFragment;
     private CalorieFragment calorieFragment;
     private DistanceFragment distanceFragment;
     private SampleFragment sampleFragment;
-
-    private GattManager gattManager;
-    private List<BluetoothGattCharacteristic> characteristicList;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
 
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
@@ -88,98 +98,58 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     private SwipeRefreshLayout swipeRefreshLayout;
     private ViewPager viewPager;
 
-    SharedPreferences sharedPreferences;
+    private GattManager gattManager;
+    private List<BluetoothGattCharacteristic> characteristicList;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
+
+    private SharedPreferences sharedPreferences;
+    private Realm realm;
+
+    private MaterialDialog materialDialog;
+
+    private Handler handler = new Handler();
+    private final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+
+            if (sharedPreferences.getAll().isEmpty()) {
+                setSettingFragments();
+                setSettingDialog();
+                fragmentManager.beginTransaction().replace(R.id.prime_start_frame, settingFragment)
+                        .commitAllowingStateLoss();
+            } else {
+                fragmentManager.beginTransaction().remove(logoFragment)
+                        .commitAllowingStateLoss();
+                registerBluetooth();
+            }
+        }
+    };
 
 
     @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.a_band_main);
+        setContentView(R.layout.a_prime);
 
-        setFragments();
+        sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
+        realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            BluetoothHelper.check(PrimeActivity.this);
+        }
+
+        logoFragment = new LogoFragment();
+
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
+        handler.postDelayed(runnable, logoDelay);
+
+        setPagerFragments();
         setToolbar();
         setMaterialNavigationView();
         setViewPager();
-
-        queryUserInfo();
-        realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
-    }
-
-
-    private void setFragments() {
-        dashboardFragment = new DashboardFragment();
-        stepFragment = new StepFragment();
-        calorieFragment = new CalorieFragment();
-        distanceFragment = new DistanceFragment();
-        sampleFragment = new SampleFragment();
-    }
-
-
-    private void setToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.nursing_toolbar);
-        setSupportActionBar(toolbar);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        toolbarRssi = (TextView) findViewById(R.id.nursing_toolbar_rssi);
-        toolbarBluetoothFlag = (ImageView) findViewById(R.id.nursing_toolbar_bluetoothFlag);
-        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
-    }
-
-
-    private void setMaterialNavigationView() {
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.nursing_drawer_layout);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.dashboard_device_swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nursing_nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
-
-
-    private void setViewPager() {
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.nursing_tabs);
-        DashBoardAdapter dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
-        viewPager = (ViewPager) findViewById(R.id.nursing_viewpager);
-        viewPager.setAdapter(dashBoardAdapter);
-        viewPager.setOffscreenPageLimit(5);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(this);
-        tabLayout.setupWithViewPager(viewPager);
-    }
-
-
-    @DebugLog
-    private void queryUserInfo() {
-        try {
-            sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
-
-            patientAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
-            patientHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
-            deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
-
-
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        } finally {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                BluetoothHelper.check(this);
-            }
-        }
-    }
-
-
-    @DebugLog
-    @Override
-    public void onResume() {
-        super.onResume();
-        registerBluetooth();
     }
 
 
@@ -188,6 +158,13 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     public void onPause() {
         super.onPause();
         disconnectDevice();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
     }
 
 
@@ -235,39 +212,38 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
         item.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
         switch (item.getItemId()) {
-            case R.id.menu_nursing_dashboard:
+            case R.id.menu_prime_dashboard:
                 viewPager.setCurrentItem(0, true);
                 return true;
-            case R.id.menu_nursing_dashboard_step:
+            case R.id.menu_prime_dashboard_step:
                 viewPager.setCurrentItem(1, true);
                 return true;
-            case R.id.menu_nursing_dashboard_calorie:
+            case R.id.menu_prime_dashboard_calorie:
                 viewPager.setCurrentItem(2, true);
                 return true;
-            case R.id.menu_nursing_dashboard_distance:
+            case R.id.menu_prime_dashboard_distance:
                 viewPager.setCurrentItem(3, true);
                 return true;
-            case R.id.menu_nursing_dashboard_sleep:
+            case R.id.menu_prime_dashboard_sleep:
                 viewPager.setCurrentItem(4, true);
                 return true;
-            case R.id.menu_nursing_info_user:
+            case R.id.menu_prime_info_user:
                 return true;
-            case R.id.menu_nursing_info_prime:
+            case R.id.menu_prime_info_prime:
                 return true;
-            case R.id.menu_nursing_info_goal:
+            case R.id.menu_prime_info_goal:
                 return true;
-            case R.id.menu_nursing_about_dev:
+            case R.id.menu_prime_about_dev:
                 finish();
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
                 return true;
-            case R.id.menu_nursing_about_setting:
+            case R.id.menu_prime_about_setting:
                 realm.beginTransaction();
                 realm.clear(RealmPrimeItem.class);
                 realm.commitTransaction();
                 sharedPreferences.edit().clear().apply();
-                finish();
                 return true;
-            case R.id.menu_nursing_about_about:
+            case R.id.menu_prime_about_about:
                 return true;
             default:
                 return true;
@@ -288,99 +264,147 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     }
 
 
-    @DebugLog
-    private void registerBluetooth() {
-        gattManager = new GattManager(this, this);
-        if (gattManager.isBluetoothAvailable()) {
-            connectDevice();
-        } else {
-            BluetoothHelper.initBluetoothOn(this);
-        }
+    private void setSettingFragments() {
+        settingFragment = new SettingFragment();
+        selectDeviceDialogFragment = new SelectDeviceDialogFragment();
+    }
+
+
+    private void setSettingDialog() {
+        materialDialog = new MaterialDialog.Builder(this)
+                .positiveText(R.string.dialog_accept).negativeText(R.string.dialog_fix)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                        selectDeviceDialogFragment.show(getSupportFragmentManager(), "DeviceDialog");
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                }).build();
     }
 
 
     @DebugLog
-    private void connectDevice() {
-        if (!gattManager.isConnected()) {
-            try {
-                gattManager.connect(deviceAddress);
-                listType = ListType.INIT;
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-                finish();
-                startActivity(new Intent(PrimeActivity.this, PrimeSettingActivity.class));
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }
+    public void onSettingSkip() {
+        userName = getString(R.string.user_name_default);
+        userAge = getString(R.string.user_age_default);
+        userHeight = getString(R.string.user_height_default);
+        userWeight = getString(R.string.user_weight_default);
+        userStep = getString(R.string.user_step_default);
+        userGender = getString(R.string.gender_man);
+
+        materialDialog.setTitle(R.string.dialog_skip);
+        materialDialog.setContent(R.string.dialog_skip_warning);
+        materialDialog.show();
+    }
+
+
+    @Override
+    public void onSettingAccept(String userName, String userAge, String userHeight, String userWeight, String userStep, String userGender) {
+        String dialogContent = "이름 : " + userName +
+                "\n성별 : " + userGender +
+                "\n나이 : " + userAge +
+                "\n키 : " + userHeight +
+                "\n몸무게 : " + userWeight +
+                "\n걸음너비 : " + userStep;
+
+        this.userName = userName;
+        this.userAge = userAge;
+        this.userHeight = userHeight;
+        this.userWeight = userWeight;
+        this.userStep = userStep;
+        this.userGender = userGender;
+
+        materialDialog.setTitle(R.string.dialog_accept_ok);
+        materialDialog.setContent(dialogContent);
+        materialDialog.show();
     }
 
 
     @DebugLog
-    private void disconnectDevice() {
-        if (gattManager != null && gattManager.isBluetoothAvailable()) {
-            gattManager.disconnect();
-            listType = ListType.FINISH;
+    @Override
+    public void onSettingDeviceSelect(final String name, final String address) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PrimeHelper.KEY_NAME, userName);
+        editor.putString(PrimeHelper.KEY_AGE, userAge);
+        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
+        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
+        editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
+        editor.putString(PrimeHelper.KEY_GENDER, userGender);
+        editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
+        editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
+        editor.apply();
+
+        selectDeviceDialogFragment.dismiss();
+        getSupportFragmentManager().beginTransaction()
+                .remove(settingFragment)
+                .commitAllowingStateLoss();
+        registerBluetooth();
+    }
+
+
+    private void setPagerFragments() {
+        dashboardFragment = new DashboardFragment();
+        stepFragment = new StepFragment();
+        calorieFragment = new CalorieFragment();
+        distanceFragment = new DistanceFragment();
+        sampleFragment = new SampleFragment();
+    }
+
+
+    private void setToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.prime_toolbar);
+        setSupportActionBar(toolbar);
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        toolbarRssi = (TextView) findViewById(R.id.prime_toolbar_rssi);
+        toolbarBluetoothFlag = (ImageView) findViewById(R.id.prime_toolbar_bluetoothFlag);
+        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
+    }
+
+
+    private void setMaterialNavigationView() {
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+
+    private void setViewPager() {
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.prime_tabs);
+        DashBoardAdapter dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
+        viewPager = (ViewPager) findViewById(R.id.prime_viewpager);
+        viewPager.setAdapter(dashBoardAdapter);
+        viewPager.setOffscreenPageLimit(5);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(this);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
 
     @DebugLog
-    private void readTime(byte[] characteristicValue) {
-        StringBuilder result = new StringBuilder();
-        for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
-            switch (i) {
-                default:
-                    result.append(Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
-                    result.append(timeSet[i - 2]).append(" ");
-                    break;
-                case 8:
-                    int j = characteristicValue[i];
-                    result.append(weekSet[j - 1]);
-                    break;
-            }
+    private void queryUserInfo() {
+        try {
+            userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
+            userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
+            deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        dashboardFragment.setTime(result);
-    }
-
-
-    @DebugLog
-    private void readStep(byte[] characteristicValue) {
-
-        StringBuilder hexStep = new StringBuilder();
-        StringBuilder hexCal = new StringBuilder();
-
-        int step, kcal, distance, age;
-        double height;
-
-        hexStep.append(String.format("%02x", characteristicValue[2] & 0xff));
-        hexStep.append(String.format("%02x", characteristicValue[3] & 0xff));
-        hexStep.append(String.format("%02x", characteristicValue[4] & 0xff));
-        step = Integer.parseInt(hexStep.toString(), 16);
-
-        hexCal.append(String.format("%02x", characteristicValue[5] & 0xff));
-        hexCal.append(String.format("%02x", characteristicValue[6] & 0xff));
-        hexCal.append(String.format("%02x", characteristicValue[7] & 0xff));
-        kcal = Integer.parseInt(hexCal.toString(), 16);
-
-        age = Integer.parseInt(patientAge);
-        height = Integer.parseInt(patientHeight);
-        if (age <= 15 || age >= 65) {
-            distance = (int) ((height * 0.37) * step) / 100;
-        } else if (15 < age || age < 45) {
-            distance = (int) ((height * 0.45) * step) / 100;
-        } else if (45 <= age || age < 65) {
-            distance = (int) ((height * 0.40) * step) / 100;
-        } else {
-            distance = (int) ((height * 0.30) * step) / 100;
-        }
-
-        saveRealmData(step, kcal, distance);
-
-        dashboardFragment.setStepData(step, kcal, distance);
-        stepFragment.setStep(step);
-        calorieFragment.setCalorie(kcal);
-        distanceFragment.setDist(distance);
-        sampleFragment.setSample(distance);
     }
 
 
@@ -420,6 +444,42 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
         );
 
         realm.commitTransaction();
+    }
+
+
+    @DebugLog
+    private void registerBluetooth() {
+        gattManager = new GattManager(this, this);
+        if (gattManager.isBluetoothAvailable()) {
+            queryUserInfo();
+            connectDevice();
+        } else {
+            BluetoothHelper.initBluetoothOn(this);
+        }
+    }
+
+
+    @DebugLog
+    private void connectDevice() {
+        if (!gattManager.isConnected()) {
+            try {
+                gattManager.connect(deviceAddress);
+                listType = ListType.INIT;
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                finish();
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    @DebugLog
+    private void disconnectDevice() {
+        if (gattManager != null && gattManager.isBluetoothAvailable()) {
+            gattManager.disconnect();
+            listType = ListType.FINISH;
+        }
     }
 
 
@@ -510,50 +570,66 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     @DebugLog
     @Override
     public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    switch (listType) {
-                        case INIT:
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_DEVICE_TIME());
-                                }
-                            }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
-                            listType = ListType.READ_TIME;
-                            break;
+        try {
+            switch (listType) {
+                case INIT:
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_DEVICE_TIME());
+                        }
+                    }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
 
-                        case READ_TIME:
-                            readTime(ch.getValue());
+                    listType = ListType.READ_TIME;
+                    break;
 
-                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
+                case READ_TIME:
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue()));
+                        }
+                    });
 
-                            listType = ListType.READ_STEP_DATA;
-                            break;
 
-                        case READ_STEP_DATA:
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
 
-                            readStep(ch.getValue());
+                    listType = ListType.READ_STEP_DATA;
+                    break;
 
-                            listType = ListType.ETC;
-                            break;
+                case READ_STEP_DATA:
 
-                        case ETC:
-                            listType = ListType.FINISH;
-                            break;
-                        case FINISH:
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage());
-                    onReadFail();
-                }
+                    Bundle bundle = PrimeHelper.readStep(ch.getValue(), userAge, userHeight);
+                    final int step = bundle.getInt(PrimeHelper.KEY_STEP);
+                    final int kcal = bundle.getInt(PrimeHelper.KEY_KCAL);
+                    final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
+
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveRealmData(step, kcal, distance);
+                            dashboardFragment.setStepData(step, kcal, distance);
+                            stepFragment.setStep(step);
+                            calorieFragment.setCalorie(kcal);
+                            distanceFragment.setDist(distance);
+                            sampleFragment.setSample(distance);
+                        }
+                    });
+
+                    listType = ListType.ETC;
+                    break;
+
+                case ETC:
+                    listType = ListType.FINISH;
+                case FINISH:
+                default:
+                    break;
             }
-        });
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            onReadFail();
+        }
     }
 
 

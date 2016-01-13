@@ -115,11 +115,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         @Override
         public void onClick(View v) {
             final DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
-            onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
+            onDeviceSelectListener.onSettingDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
         }
     }
 
     public interface OnDeviceSelectListener {
-        void onDeviceSelect(String name, String address);
+        void onSettingDeviceSelect(String name, String address);
     }
 }
