@@ -1,25 +1,35 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-11-04.
  */
 public class PrimeHelper {
 
-    public static String KEY = "USER";
-    public static String KEY_NAME = "USER_NAME";
-    public static String KEY_AGE = "USER_AGE";
-    public static String KEY_HEIGHT = "USER_HEIGHT";
-    public static String KEY_WEIGHT = "USER_WEIGHT";
-    public static String KEY_STEP = "USER_STEP";
-    public static String KEY_GENDER = "USER_GENDER";
-    public static String KEY_DEVICE_NAME = "DEVICE_NAME";
-    public static String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    public static final String KEY = "USER";
+    public static final String KEY_NAME = "USER_NAME";
+    public static final String KEY_AGE = "USER_AGE";
+    public static final String KEY_HEIGHT = "USER_HEIGHT";
+    public static final String KEY_WEIGHT = "USER_WEIGHT";
+    public static final String KEY_STEP_STRIDE = "KEY_STEP_STRIDE";
+    public static final String KEY_GENDER = "USER_GENDER";
+    public static final String KEY_DEVICE_NAME = "DEVICE_NAME";
+    public static final String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
+    public static final String KEY_STEP = "STEP";
+    public static final String KEY_KCAL = "KCAL";
+    public static final String KEY_DISTANCE = "DISTANCE";
+
+    private static final String[] weekSet = {"월", "화", "수", "목", "금", "토", "일",};
+    private static final String[] timeSet = {"년", "월", "일", "시", "분", "초"};
 
 
     public static byte[] READ_DEVICE_TIME() {
@@ -147,4 +157,62 @@ public class PrimeHelper {
         return checksum;
     }
 
+
+    public static StringBuilder readTime(byte[] characteristicValue) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
+            switch (i) {
+                default:
+                    result.append(Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    result.append(timeSet[i - 2]).append(" ");
+                    break;
+                case 8:
+                    int j = characteristicValue[i];
+                    result.append(weekSet[j - 1]);
+                    break;
+            }
+        }
+        return result;
+    }
+
+
+    @DebugLog
+    public static Bundle readStep(byte[] characteristicValue, String userAge, String userHeight) {
+        StringBuilder hexStep = new StringBuilder();
+        StringBuilder hexCal = new StringBuilder();
+
+        int step, kcal, distance, age;
+        double height;
+
+        hexStep.append(String.format("%02x", characteristicValue[2] & 0xff));
+        hexStep.append(String.format("%02x", characteristicValue[3] & 0xff));
+        hexStep.append(String.format("%02x", characteristicValue[4] & 0xff));
+        step = Integer.parseInt(hexStep.toString(), 16);
+
+        hexCal.append(String.format("%02x", characteristicValue[5] & 0xff));
+        hexCal.append(String.format("%02x", characteristicValue[6] & 0xff));
+        hexCal.append(String.format("%02x", characteristicValue[7] & 0xff));
+        kcal = Integer.parseInt(hexCal.toString(), 16);
+
+        age = Integer.parseInt(userAge);
+        height = Integer.parseInt(userHeight);
+        if (age <= 15 || age >= 65) {
+            distance = (int) ((height * 0.37) * step) / 100;
+        } else if (15 < age || age < 45) {
+            distance = (int) ((height * 0.45) * step) / 100;
+        } else if (45 <= age || age < 65) {
+            distance = (int) ((height * 0.40) * step) / 100;
+        } else {
+            distance = (int) ((height * 0.30) * step) / 100;
+        }
+
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(KEY_STEP, step);
+        bundle.putInt(KEY_KCAL, kcal);
+        bundle.putInt(KEY_DISTANCE, distance);
+        return bundle;
+
+
+    }
 }
