@@ -59,9 +59,9 @@ import io.realm.RealmResults;
  * Created by kam6512 on 2015-11-02.
  */
 public class PrimeActivity extends AppCompatActivity implements
+        SwipeRefreshLayout.OnRefreshListener,
         TabLayout.OnTabSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
-        SwipeRefreshLayout.OnRefreshListener,
         SettingFragment.OnSettingListener,
         DeviceAdapter.OnDeviceSelectListener,
         GattCustomCallbacks {
@@ -114,7 +114,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private MaterialDialog materialDialog;
 
     private final Handler handler = new Handler();
-    private final Runnable runnable = new Runnable() {
+    private final Runnable nextStep = new Runnable() {
         @Override
         public void run() {
 
@@ -138,23 +138,23 @@ public class PrimeActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_prime);
 
-        sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
-        realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             BluetoothHelper.check(PrimeActivity.this);
         }
 
-        setPagerFragments();
-        setToolbar();
-        setMaterialNavigationView();
-        setViewPager();
+        sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
+        realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
 
         logoFragment = new LogoFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
 
-        handler.postDelayed(runnable, logoDelay);
+        setPagerFragments();
+        setToolbar();
+        setMaterialView();
+        setViewPager();
+
+        handler.postDelayed(nextStep, logoDelay);
     }
 
 
@@ -169,7 +169,7 @@ public class PrimeActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacks(runnable);
+        handler.removeCallbacks(nextStep);
     }
 
 
@@ -247,10 +247,8 @@ public class PrimeActivity extends AppCompatActivity implements
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
                 return true;
             case R.id.menu_prime_about_setting:
-                realm.beginTransaction();
-                realm.clear(RealmPrimeItem.class);
-                realm.commitTransaction();
-                sharedPreferences.edit().clear().apply();
+                removeData();
+                finish();
                 return true;
             case R.id.menu_prime_about_about:
                 return true;
@@ -297,7 +295,7 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void setMaterialNavigationView() {
+    private void setMaterialView() {
 
         drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
 
@@ -347,121 +345,10 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @DebugLog
-    public void onSettingSkip() {
-        userName = getString(R.string.user_name_default);
-        userAge = getString(R.string.user_age_default);
-        userHeight = getString(R.string.user_height_default);
-        userWeight = getString(R.string.user_weight_default);
-        userStep = getString(R.string.user_step_default);
-        userGender = getString(R.string.gender_man);
-
-        materialDialog.setTitle(R.string.dialog_skip);
-        materialDialog.setContent(R.string.dialog_skip_warning);
-        materialDialog.show();
-    }
-
-
-    @Override
-    public void onSettingAccept() {
-
-        this.userName = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
-        this.userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
-        this.userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
-        this.userWeight = sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default));
-        this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP, getString(R.string.user_step_default));
-        this.userGender = sharedPreferences.getString(PrimeHelper.KEY_GENDER, getString(R.string.gender_man));
-
-        String dialogContent = "이름 : " + userName +
-                "\n성별 : " + userGender +
-                "\n나이 : " + userAge +
-                "\n키 : " + userHeight +
-                "\n몸무게 : " + userWeight +
-                "\n걸음너비 : " + userStep;
-
-        materialDialog.setTitle(R.string.dialog_accept_ok);
-        materialDialog.setContent(dialogContent);
-        materialDialog.show();
-    }
-
-
-    @DebugLog
-    @Override
-    public void onSettingDeviceSelect(final String name, final String address) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PrimeHelper.KEY_NAME, userName);
-        editor.putString(PrimeHelper.KEY_AGE, userAge);
-        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
-        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
-        editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
-        editor.putString(PrimeHelper.KEY_GENDER, userGender);
-        editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
-        editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
-        editor.apply();
-
-        selectDeviceDialogFragment.dismiss();
-        getSupportFragmentManager().beginTransaction()
-                .remove(settingFragment)
-                .commitAllowingStateLoss();
-        registerBluetooth();
-    }
-
-
-    @DebugLog
-    private void queryUserInfo() {
-        try {
-            userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
-            userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
-            deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    @DebugLog
-    private void saveRealmData(int step, int calorie, int distance) {
-
-        realm.beginTransaction();
-        RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
-
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-        String today = formatter.format(Calendar.getInstance().getTime());
-        String lastDay;
-
-        try {
-            lastDay = results.get(results.size() - 1).getCalendar();
-        } catch (Exception e) {
-            lastDay = null;
-        }
-        if (lastDay != null && lastDay.equals(today)) {
-            results.last().setCalendar(today);
-            results.last().setStep(step);
-            results.last().setCalorie(calorie);
-            results.last().setDistance(distance);
-        } else {
-            RealmPrimeItem realmPrimeItem = realm.createObject(RealmPrimeItem.class);
-            realmPrimeItem.setCalendar(today);
-            realmPrimeItem.setStep(step);
-            realmPrimeItem.setCalorie(calorie);
-            realmPrimeItem.setDistance(distance);
-        }
-        Log.e("RealmPrimeItem", "results = " + "\n" +
-                results.last().getStep() + "\n" +
-                results.last().getCalorie() + "\n" +
-                results.last().getDistance() + "\n" +
-                results.last().getCalendar() + "\n"
-        );
-
-        realm.commitTransaction();
-    }
-
-
-    @DebugLog
     private void registerBluetooth() {
         gattManager = new GattManager(this, this);
         if (gattManager.isBluetoothAvailable()) {
-            queryUserInfo();
+            queryUserData();
             connectDevice();
         } else {
             BluetoothHelper.initBluetoothOn(this);
@@ -490,6 +377,131 @@ public class PrimeActivity extends AppCompatActivity implements
             gattManager.disconnect();
             listType = ListType.FINISH;
         }
+    }
+
+
+    @DebugLog
+    private void queryUserData() {
+        this.userName = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
+        this.userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
+        this.userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
+        this.userWeight = sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default));
+        this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP, getString(R.string.user_step_default));
+        this.userGender = sharedPreferences.getString(PrimeHelper.KEY_GENDER, getString(R.string.gender_man));
+        this.deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
+    }
+
+
+    @DebugLog
+    private void saveUserData(String name, String address) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PrimeHelper.KEY_NAME, userName);
+        editor.putString(PrimeHelper.KEY_AGE, userAge);
+        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
+        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
+        editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
+        editor.putString(PrimeHelper.KEY_GENDER, userGender);
+        editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
+        editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
+        editor.apply();
+    }
+
+
+    @DebugLog
+    private void saveRealmData(int step, int calorie, int distance) {
+
+        realm.beginTransaction();
+        RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        String today = formatter.format(Calendar.getInstance().getTime());
+        String lastDay;
+
+        try {
+            lastDay = results.get(results.size() - 1).getCalendar();
+            if (lastDay.equals(today)) {
+                results.last().setCalendar(today);
+                results.last().setStep(step);
+                results.last().setCalorie(calorie);
+                results.last().setDistance(distance);
+            } else {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            RealmPrimeItem realmPrimeItem = realm.createObject(RealmPrimeItem.class);
+            realmPrimeItem.setCalendar(today);
+            realmPrimeItem.setStep(step);
+            realmPrimeItem.setCalorie(calorie);
+            realmPrimeItem.setDistance(distance);
+        }
+
+        int length = results.size();
+        for (int i = 0; i < length; i++) {
+            RealmPrimeItem realmPrimeItem = results.get(i);
+            Log.i("RealmPrimeItem", "results = " + length + "\n" +
+                    realmPrimeItem.getStep() + "\n" +
+                    realmPrimeItem.getCalorie() + "\n" +
+                    realmPrimeItem.getDistance() + "\n" +
+                    realmPrimeItem.getCalendar() + "\n"
+            );
+        }
+
+        realm.commitTransaction();
+    }
+
+
+    @DebugLog
+    private void removeData() {
+        realm.beginTransaction();
+        realm.clear(RealmPrimeItem.class);
+        realm.commitTransaction();
+        sharedPreferences.edit().clear().apply();
+    }
+
+
+    @DebugLog
+    public void onSettingSkip() {
+        userName = getString(R.string.user_name_default);
+        userAge = getString(R.string.user_age_default);
+        userHeight = getString(R.string.user_height_default);
+        userWeight = getString(R.string.user_weight_default);
+        userStep = getString(R.string.user_step_default);
+        userGender = getString(R.string.gender_man);
+
+        materialDialog.setTitle(R.string.dialog_skip);
+        materialDialog.setContent(R.string.dialog_skip_warning);
+        materialDialog.show();
+    }
+
+
+    @Override
+    public void onSettingAccept() {
+
+        queryUserData();
+        String dialogContent = "이름 : " + userName +
+                "\n성별 : " + userGender +
+                "\n나이 : " + userAge +
+                "\n키 : " + userHeight +
+                "\n몸무게 : " + userWeight +
+                "\n걸음너비 : " + userStep;
+
+        materialDialog.setTitle(R.string.dialog_accept_ok);
+        materialDialog.setContent(dialogContent);
+        materialDialog.show();
+    }
+
+
+    @DebugLog
+    @Override
+    public void onSettingDeviceSelect(final String name, final String address) {
+
+        saveUserData(name, address);
+
+        selectDeviceDialogFragment.dismiss();
+        getSupportFragmentManager().beginTransaction()
+                .remove(settingFragment)
+                .commitAllowingStateLoss();
+        registerBluetooth();
     }
 
 
@@ -539,7 +551,14 @@ public class PrimeActivity extends AppCompatActivity implements
                 bluetoothGattCharacteristicForNotify = characteristicList.get(1); // 0xFFF1
 
                 gattManager.setNotification(bluetoothGattCharacteristicForNotify, true);
-                onDataNotify(null);
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        onDataNotify(null); // BluetoothGattCharacteristic not use
+                    }
+                }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
+
             }
         });
     }
@@ -551,7 +570,7 @@ public class PrimeActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dashboardFragment.setFail();
+                dashboardFragment.setTextFail();
             }
         });
     }
@@ -570,7 +589,7 @@ public class PrimeActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dashboardFragment.setFail();
+                dashboardFragment.setTextFail();
             }
         });
     }
@@ -581,13 +600,9 @@ public class PrimeActivity extends AppCompatActivity implements
     public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
         try {
             switch (listType) {
-                case INIT:
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_DEVICE_TIME());
-                        }
-                    }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
+                case INIT: // BluetoothGattCharacteristic is nullable
+
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_DEVICE_TIME());
 
                     listType = ListType.READ_TIME;
                     break;
@@ -600,7 +615,6 @@ public class PrimeActivity extends AppCompatActivity implements
                         }
                     });
 
-
                     gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
 
                     listType = ListType.READ_STEP_DATA;
@@ -608,21 +622,21 @@ public class PrimeActivity extends AppCompatActivity implements
 
                 case READ_STEP_DATA:
 
-                    Bundle bundle = PrimeHelper.readStep(ch.getValue(), userAge, userHeight);
+                    final Bundle bundle = PrimeHelper.readStep(ch.getValue(), userAge, userHeight);
                     final int step = bundle.getInt(PrimeHelper.KEY_STEP);
                     final int kcal = bundle.getInt(PrimeHelper.KEY_KCAL);
                     final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
 
-
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            saveRealmData(step, kcal, distance);
                             dashboardFragment.setStepData(step, kcal, distance);
                             stepFragment.setStep(step);
                             calorieFragment.setCalorie(kcal);
                             distanceFragment.setDist(distance);
                             sampleFragment.setSample(distance);
+
+                            saveRealmData(step, kcal, distance);
                         }
                     });
 
@@ -654,7 +668,7 @@ public class PrimeActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dashboardFragment.setFail();
+                dashboardFragment.setTextFail();
             }
         });
     }

@@ -41,7 +41,7 @@ public class DashboardFragment extends Fragment {
         try {
             time.setText("시간 : " + characteristicTime);
         } catch (Exception e) {
-            setFail();
+            setTextFail();
         }
     }
 
@@ -52,12 +52,12 @@ public class DashboardFragment extends Fragment {
             calorieTextView.setText(calorie + " kcal");
             distanceTextView.setText(distance + " M");
         } catch (Exception e) {
-            setFail();
+            setTextFail();
         }
     }
 
 
-    public void setFail() {
+    public void setTextFail() {
         time.setText("시간 : 연결 실패");
         stepTextView.setText("연결 실패");
         calorieTextView.setText("연결 실패");
