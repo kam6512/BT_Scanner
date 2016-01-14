@@ -62,6 +62,7 @@ public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
         TabLayout.OnTabSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
+
         SettingFragment.OnSettingListener,
         DeviceAdapter.OnDeviceSelectListener {
 
@@ -82,7 +83,7 @@ public class PrimeActivity extends AppCompatActivity implements
         INIT, READ_TIME, READ_STEP_DATA, ETC, FINISH
     }
 
-    private ListType listType = ListType.INIT;
+    private ListType listType;
 
     private FragmentManager fragmentManager;
 
@@ -110,7 +111,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private SharedPreferences sharedPreferences;
     private Realm realm;
 
-    private MaterialDialog materialDialog;
+    private MaterialDialog settingDialog;
 
     private final Handler handler = new Handler();
     private final Runnable nextStep = new Runnable() {
@@ -118,14 +119,20 @@ public class PrimeActivity extends AppCompatActivity implements
         public void run() {
 
             if (sharedPreferences.getAll().isEmpty()) {
+
                 setSettingFragments();
                 setSettingDialog();
+
                 fragmentManager.beginTransaction().replace(R.id.prime_start_frame, settingFragment)
                         .commitAllowingStateLoss();
+
             } else {
+
                 fragmentManager.beginTransaction().remove(logoFragment)
                         .commitAllowingStateLoss();
+
                 registerBluetooth();
+
             }
         }
     };
@@ -144,11 +151,11 @@ public class PrimeActivity extends AppCompatActivity implements
         sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
         realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
 
-        logoFragment = new LogoFragment();
         fragmentManager = getSupportFragmentManager();
+        logoFragment = new LogoFragment();
         fragmentManager.beginTransaction().add(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
 
-        setPagerFragments();
+        setViewPagerFragments();
         setToolbar();
         setMaterialView();
         setViewPager();
@@ -242,11 +249,11 @@ public class PrimeActivity extends AppCompatActivity implements
             case R.id.menu_prime_info_goal:
                 return true;
             case R.id.menu_prime_about_dev:
-                finish();
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
+                finish();
                 return true;
             case R.id.menu_prime_about_setting:
-                removeData();
+                removeAllData();
                 finish();
                 return true;
             case R.id.menu_prime_about_about:
@@ -267,15 +274,6 @@ public class PrimeActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
-    }
-
-
-    private void setPagerFragments() {
-        dashboardFragment = new DashboardFragment();
-        stepFragment = new StepFragment();
-        calorieFragment = new CalorieFragment();
-        distanceFragment = new DistanceFragment();
-        sampleFragment = new SampleFragment();
     }
 
 
@@ -318,6 +316,15 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
+    private void setViewPagerFragments() {
+        dashboardFragment = new DashboardFragment();
+        stepFragment = new StepFragment();
+        calorieFragment = new CalorieFragment();
+        distanceFragment = new DistanceFragment();
+        sampleFragment = new SampleFragment();
+    }
+
+
     private void setSettingFragments() {
         settingFragment = new SettingFragment();
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
@@ -325,7 +332,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void setSettingDialog() {
-        materialDialog = new MaterialDialog.Builder(this)
+        settingDialog = new MaterialDialog.Builder(this)
                 .positiveText(R.string.dialog_accept).negativeText(R.string.dialog_fix)
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
@@ -343,11 +350,11 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    @DebugLog
     private void registerBluetooth() {
+        Log.i(TAG, "registerBluetooth");
         gattManager = new GattManager(this, gattCallbacks);
         if (gattManager.isBluetoothAvailable()) {
-            queryUserData();
+            loadUserData();
             connectDevice();
         } else {
             BluetoothHelper.initBluetoothOn(this);
@@ -363,8 +370,8 @@ public class PrimeActivity extends AppCompatActivity implements
                 listType = ListType.INIT;
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
-                finish();
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
@@ -380,7 +387,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @DebugLog
-    private void queryUserData() {
+    private void loadUserData() {
         this.userName = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
         this.userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
         this.userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
@@ -407,7 +414,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @DebugLog
-    private void saveRealmData(int step, int calorie, int distance) {
+    private void savePrimeData(int step, int calorie, int distance) {
 
         realm.beginTransaction();
         RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
@@ -434,23 +441,12 @@ public class PrimeActivity extends AppCompatActivity implements
             realmPrimeItem.setDistance(distance);
         }
 
-        int length = results.size();
-        for (int i = 0; i < length; i++) {
-            RealmPrimeItem realmPrimeItem = results.get(i);
-            Log.i("RealmPrimeItem", "results = " + length + "\n" +
-                    realmPrimeItem.getStep() + "\n" +
-                    realmPrimeItem.getCalorie() + "\n" +
-                    realmPrimeItem.getDistance() + "\n" +
-                    realmPrimeItem.getCalendar() + "\n"
-            );
-        }
-
         realm.commitTransaction();
     }
 
 
     @DebugLog
-    private void removeData() {
+    private void removeAllData() {
         realm.beginTransaction();
         realm.clear(RealmPrimeItem.class);
         realm.commitTransaction();
@@ -459,24 +455,20 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @DebugLog
+    @Override
     public void onSettingSkip() {
-        userName = getString(R.string.user_name_default);
-        userAge = getString(R.string.user_age_default);
-        userHeight = getString(R.string.user_height_default);
-        userWeight = getString(R.string.user_weight_default);
-        userStep = getString(R.string.user_step_default);
-        userGender = getString(R.string.gender_man);
+        loadUserData();
 
-        materialDialog.setTitle(R.string.dialog_skip);
-        materialDialog.setContent(R.string.dialog_skip_warning);
-        materialDialog.show();
+        settingDialog.setTitle(R.string.dialog_skip);
+        settingDialog.setContent(R.string.dialog_skip_warning);
+        settingDialog.show();
     }
 
 
     @Override
     public void onSettingAccept() {
+        loadUserData();
 
-        queryUserData();
         String dialogContent = "이름 : " + userName +
                 "\n성별 : " + userGender +
                 "\n나이 : " + userAge +
@@ -484,9 +476,9 @@ public class PrimeActivity extends AppCompatActivity implements
                 "\n몸무게 : " + userWeight +
                 "\n걸음너비 : " + userStep;
 
-        materialDialog.setTitle(R.string.dialog_accept_ok);
-        materialDialog.setContent(dialogContent);
-        materialDialog.show();
+        settingDialog.setTitle(R.string.dialog_accept_ok);
+        settingDialog.setContent(dialogContent);
+        settingDialog.show();
     }
 
 
@@ -500,6 +492,7 @@ public class PrimeActivity extends AppCompatActivity implements
         getSupportFragmentManager().beginTransaction()
                 .remove(settingFragment)
                 .commitAllowingStateLoss();
+
         registerBluetooth();
     }
 
@@ -610,7 +603,7 @@ public class PrimeActivity extends AppCompatActivity implements
                                 distanceFragment.setDist(distance);
                                 sampleFragment.setSample(distance);
 
-                                saveRealmData(step, kcal, distance);
+                                savePrimeData(step, kcal, distance);
                             }
                         });
 

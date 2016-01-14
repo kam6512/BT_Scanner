@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onSettingDeviceSelect(String name, String address) {
+    public void onDeviceSelect(String name, String address) {
         Intent intent = new Intent(this, DeviceProfileActivity.class);
         intent.putExtra(BluetoothHelper.EXTRAS_DEVICE_NAME, name);
         intent.putExtra(BluetoothHelper.EXTRAS_DEVICE_ADDRESS, address);

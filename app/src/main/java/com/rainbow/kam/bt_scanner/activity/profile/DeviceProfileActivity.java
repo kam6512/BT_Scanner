@@ -37,8 +37,10 @@ public class DeviceProfileActivity extends AppCompatActivity
         implements
         ServiceListFragment.OnServiceReadyListener,
         CharacteristicListFragment.OnCharacteristicReadyListener,
+
         ServiceAdapter.OnServiceItemClickListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener,
+
         ControlFragment.OnControlListener {
 
     private final String TAG = getClass().getSimpleName();

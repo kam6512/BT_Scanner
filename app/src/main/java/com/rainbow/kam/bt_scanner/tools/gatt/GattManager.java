@@ -56,7 +56,7 @@ public class GattManager extends BluetoothGattCallback {
 
 
     @DebugLog
-    public void connect(final String deviceAddress) throws Exception {
+    public synchronized void connect(final String deviceAddress) throws Exception {
         if (TextUtils.isEmpty(deviceAddress)) {
             throw new Exception("Address is not available");
         }
@@ -73,7 +73,7 @@ public class GattManager extends BluetoothGattCallback {
 
 
     @DebugLog
-    public void disconnect() {
+    public synchronized void disconnect() {
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
         }
@@ -84,6 +84,7 @@ public class GattManager extends BluetoothGattCallback {
     public boolean isBluetoothAvailable() {
         return bluetoothAdapter.isEnabled();
     }
+
 
     @DebugLog
     public boolean isConnected() {

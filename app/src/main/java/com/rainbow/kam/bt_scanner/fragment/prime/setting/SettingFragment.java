@@ -34,7 +34,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     private OnSettingListener onSettingListener;
 
     private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
 
 
     @Override
@@ -44,7 +43,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             try {
                 onSettingListener = (OnSettingListener) context;
                 sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
-                editor = sharedPreferences.edit();
+
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnSettingListener");
             }
@@ -118,7 +117,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         }
 
         if (!checkTextInputLayout(view.findViewById(R.id.prime_init_group))) {
-
+            SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(PrimeHelper.KEY_NAME, userName);
             editor.putString(PrimeHelper.KEY_AGE, userAge);
             editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
@@ -126,7 +125,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             editor.putString(PrimeHelper.KEY_STEP, userStep);
             editor.putString(PrimeHelper.KEY_GENDER, userGender);
             editor.commit();
-
             onSettingListener.onSettingAccept();
         }
     }

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -130,11 +129,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         @Override
         public void onClick(View v) {
             final DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
-            onDeviceSelectListener.onSettingDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
+            onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
         }
     }
 
     public interface OnDeviceSelectListener {
-        void onSettingDeviceSelect(String name, String address);
+        void onDeviceSelect(String name, String address);
     }
 }
