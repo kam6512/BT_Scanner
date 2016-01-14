@@ -58,7 +58,13 @@ import io.realm.RealmResults;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, DeviceAdapter.OnDeviceSelectListener, SettingFragment.OnSettingListener, GattCustomCallbacks {
+public class PrimeActivity extends AppCompatActivity implements
+        TabLayout.OnTabSelectedListener,
+        NavigationView.OnNavigationItemSelectedListener,
+        SwipeRefreshLayout.OnRefreshListener,
+        SettingFragment.OnSettingListener,
+        DeviceAdapter.OnDeviceSelectListener,
+        GattCustomCallbacks {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
 
@@ -146,7 +152,7 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
 
         logoFragment = new LogoFragment();
         fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
+        fragmentManager.beginTransaction().add(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
 
         handler.postDelayed(runnable, logoDelay);
     }
@@ -170,10 +176,14 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
     @DebugLog
     @Override
     public void onRefresh() {
-        if (gattManager.isConnected()) {
-            disconnectDevice();
+        if (gattManager != null) {
+            if (gattManager.isConnected()) {
+                disconnectDevice();
+            } else {
+                registerBluetooth();
+            }
         } else {
-            registerBluetooth();
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -352,20 +362,21 @@ public class PrimeActivity extends AppCompatActivity implements TabLayout.OnTabS
 
 
     @Override
-    public void onSettingAccept(String userName, String userAge, String userHeight, String userWeight, String userStep, String userGender) {
+    public void onSettingAccept() {
+
+        this.userName = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
+        this.userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
+        this.userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
+        this.userWeight = sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default));
+        this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP, getString(R.string.user_step_default));
+        this.userGender = sharedPreferences.getString(PrimeHelper.KEY_GENDER, getString(R.string.gender_man));
+
         String dialogContent = "이름 : " + userName +
                 "\n성별 : " + userGender +
                 "\n나이 : " + userAge +
                 "\n키 : " + userHeight +
                 "\n몸무게 : " + userWeight +
                 "\n걸음너비 : " + userStep;
-
-        this.userName = userName;
-        this.userAge = userAge;
-        this.userHeight = userHeight;
-        this.userWeight = userWeight;
-        this.userStep = userStep;
-        this.userGender = userGender;
 
         materialDialog.setTitle(R.string.dialog_accept_ok);
         materialDialog.setContent(dialogContent);

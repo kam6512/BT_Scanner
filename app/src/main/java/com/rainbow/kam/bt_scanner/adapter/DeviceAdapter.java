@@ -1,8 +1,10 @@
 package com.rainbow.kam.bt_scanner.adapter;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +28,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private final OnDeviceSelectListener onDeviceSelectListener;
 
+    private Activity activity;
 
-    public DeviceAdapter(OnDeviceSelectListener onDeviceSelectListener) { //초기화
-        this.onDeviceSelectListener = onDeviceSelectListener;
+
+    public DeviceAdapter(Activity activity) {
+        this.activity = activity;
+        this.onDeviceSelectListener = (OnDeviceSelectListener) activity;
     }
 
 
@@ -55,22 +60,32 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 
     @DebugLog
-    public void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
-        if (!deviceLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-            deviceLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
-            notifyDataSetChanged();
-        }
+    public void addDevice(final BluetoothDevice bluetoothDevice, final int rssi) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (!deviceLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
+                    deviceLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
+                    notifyDataSetChanged();
+                }
 //        else{
 //            deviceLinkedHashMap.get(bluetoothDevice.getAddress()).setExtraRssi(rssi);
 //            notifyDataSetChanged();
 //        }
+            }
+        });
     }
 
 
     @DebugLog
     public void clear() {
-        deviceLinkedHashMap.clear();
-        notifyDataSetChanged();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                deviceLinkedHashMap.clear();
+                notifyDataSetChanged();
+            }
+        });
     }
 
 

@@ -42,7 +42,11 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-10-22.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, DeviceAdapter.OnDeviceSelectListener {
+public class MainActivity extends AppCompatActivity implements
+        View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener,
+        SwipeRefreshLayout.OnRefreshListener,
+        DeviceAdapter.OnDeviceSelectListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -254,7 +258,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                deviceAdapter.addDevice(device, rssi);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        deviceAdapter.addDevice(device, rssi);
+                    }
+                });
             }
         };
     }

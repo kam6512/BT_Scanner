@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.prime.setting;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import hugo.weaving.DebugLog;
 
@@ -31,6 +33,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     private OnSettingListener onSettingListener;
 
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
+
 
     @Override
     public void onAttach(Context context) {
@@ -38,6 +43,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         if (context instanceof Activity) {
             try {
                 onSettingListener = (OnSettingListener) context;
+                sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+                editor = sharedPreferences.edit();
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString() + " must implement OnSettingListener");
             }
@@ -111,7 +118,16 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         }
 
         if (!checkTextInputLayout(view.findViewById(R.id.prime_init_group))) {
-            onSettingListener.onSettingAccept(userName, userAge, userHeight, userWeight, userStep, userGender);
+
+            editor.putString(PrimeHelper.KEY_NAME, userName);
+            editor.putString(PrimeHelper.KEY_AGE, userAge);
+            editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
+            editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
+            editor.putString(PrimeHelper.KEY_STEP, userStep);
+            editor.putString(PrimeHelper.KEY_GENDER, userGender);
+            editor.commit();
+
+            onSettingListener.onSettingAccept();
         }
     }
 
@@ -141,12 +157,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
 
     public interface OnSettingListener {
-        void onSettingAccept(String userName,
-                             String userAge,
-                             String userHeight,
-                             String userWeight,
-                             String userStep,
-                             String userGender);
+        void onSettingAccept();
 
         void onSettingSkip();
     }
