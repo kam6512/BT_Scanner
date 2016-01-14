@@ -34,4 +34,72 @@ public interface GattCustomCallbacks {
     void onRSSIUpdate(final int rssi);
 
     void onRSSIMiss();
+
+    class GattCallbacks implements GattCustomCallbacks {
+
+        @Override
+        public void onDeviceConnected() {
+
+        }
+
+
+        @Override
+        public void onDeviceDisconnected() {
+
+        }
+
+
+        @Override
+        public void onServicesFound(List<BluetoothGattService> services) {
+
+        }
+
+
+        @Override
+        public void onServicesNotFound() {
+
+        }
+
+
+        @Override
+        public void onReadSuccess(BluetoothGattCharacteristic ch) {
+
+        }
+
+
+        @Override
+        public void onReadFail() {
+
+        }
+
+
+        @Override
+        public void onDataNotify(BluetoothGattCharacteristic ch) {
+
+        }
+
+
+        @Override
+        public void onWriteSuccess() {
+
+        }
+
+
+        @Override
+        public void onWriteFail() {
+
+        }
+
+
+        @Override
+        public void onRSSIUpdate(int rssi) {
+
+        }
+
+
+        @Override
+        public void onRSSIMiss() {
+
+        }
+    }
 }

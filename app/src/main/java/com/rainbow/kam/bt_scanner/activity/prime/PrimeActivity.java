@@ -63,8 +63,7 @@ public class PrimeActivity extends AppCompatActivity implements
         TabLayout.OnTabSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
         SettingFragment.OnSettingListener,
-        DeviceAdapter.OnDeviceSelectListener,
-        GattCustomCallbacks {
+        DeviceAdapter.OnDeviceSelectListener {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
 
@@ -346,7 +345,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @DebugLog
     private void registerBluetooth() {
-        gattManager = new GattManager(this, this);
+        gattManager = new GattManager(this, gattCallbacks);
         if (gattManager.isBluetoothAvailable()) {
             queryUserData();
             connectDevice();
@@ -493,7 +492,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @DebugLog
     @Override
-    public void onSettingDeviceSelect(final String name, final String address) {
+    public void onDeviceSelect(final String name, final String address) {
 
         saveUserData(name, address);
 
@@ -505,197 +504,161 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    @Override
-    public void onDeviceConnected() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.e(TAG, "Connected");
+    private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
 
-                toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
+        public void onDeviceConnected() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "Connected");
 
-                if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        });
-    }
+                    toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
 
-
-    @Override
-    public void onDeviceDisconnected() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.e(TAG, "Disconnected");
-
-                toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
-                toolbarRssi.setText("--");
-                if (swipeRefreshLayout.isRefreshing()) {
-                    registerBluetooth();
-                }
-            }
-        });
-    }
-
-
-    @DebugLog
-    @Override
-    public void onServicesFound(final List<BluetoothGattService> services) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                BluetoothGattService bluetoothGattService = services.get(4); // 0xFFF0
-                characteristicList = bluetoothGattService.getCharacteristics();
-                bluetoothGattCharacteristicForWrite = characteristicList.get(0); // 0xFFF2
-                bluetoothGattCharacteristicForNotify = characteristicList.get(1); // 0xFFF1
-
-                gattManager.setNotification(bluetoothGattCharacteristicForNotify, true);
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        onDataNotify(null); // BluetoothGattCharacteristic not use
+                    if (swipeRefreshLayout.isRefreshing()) {
+                        swipeRefreshLayout.setRefreshing(false);
                     }
-                }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
-
-            }
-        });
-    }
-
-
-    @DebugLog
-    @Override
-    public void onServicesNotFound() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                dashboardFragment.setTextFail();
-            }
-        });
-    }
-
-
-    @DebugLog
-    @Override
-    public void onReadSuccess(BluetoothGattCharacteristic ch) {
-        // Not use in this Activity
-    }
-
-
-    @DebugLog
-    @Override
-    public void onReadFail() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                dashboardFragment.setTextFail();
-            }
-        });
-    }
-
-
-    @DebugLog
-    @Override
-    public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
-        try {
-            switch (listType) {
-                case INIT: // BluetoothGattCharacteristic is nullable
-
-                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_DEVICE_TIME());
-
-                    listType = ListType.READ_TIME;
-                    break;
-
-                case READ_TIME:
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue()));
-                        }
-                    });
-
-                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
-
-                    listType = ListType.READ_STEP_DATA;
-                    break;
-
-                case READ_STEP_DATA:
-
-                    final Bundle bundle = PrimeHelper.readStep(ch.getValue(), userAge, userHeight);
-                    final int step = bundle.getInt(PrimeHelper.KEY_STEP);
-                    final int kcal = bundle.getInt(PrimeHelper.KEY_KCAL);
-                    final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dashboardFragment.setStepData(step, kcal, distance);
-                            stepFragment.setStep(step);
-                            calorieFragment.setCalorie(kcal);
-                            distanceFragment.setDist(distance);
-                            sampleFragment.setSample(distance);
-
-                            saveRealmData(step, kcal, distance);
-                        }
-                    });
-
-                    listType = ListType.ETC;
-                    break;
-
-                case ETC:
-                    listType = ListType.FINISH;
-                case FINISH:
-                default:
-                    break;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-            onReadFail();
+                }
+            });
         }
-    }
 
 
-    @DebugLog
-    @Override
-    public void onWriteSuccess() {
-    }
+        public void onDeviceDisconnected() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "Disconnected");
+
+                    toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
+                    toolbarRssi.setText("--");
+                    if (swipeRefreshLayout.isRefreshing()) {
+                        registerBluetooth();
+                    }
+                }
+            });
+        }
 
 
-    @DebugLog
-    @Override
-    public void onWriteFail() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                dashboardFragment.setTextFail();
+        public void onServicesFound(final List<BluetoothGattService> services) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    BluetoothGattService bluetoothGattService = services.get(4); // 0xFFF0
+                    characteristicList = bluetoothGattService.getCharacteristics();
+                    bluetoothGattCharacteristicForWrite = characteristicList.get(0); // 0xFFF2
+                    bluetoothGattCharacteristicForNotify = characteristicList.get(1); // 0xFFF1
+
+                    gattManager.setNotification(bluetoothGattCharacteristicForNotify, true);
+
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            onDataNotify(null); // BluetoothGattCharacteristic not use
+                        }
+                    }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다.
+
+                }
+            });
+        }
+
+
+        public void onServicesNotFound() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dashboardFragment.setTextFail();
+                }
+            });
+        }
+
+
+        public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
+            try {
+                switch (listType) {
+                    case INIT: // BluetoothGattCharacteristic is nullable
+
+                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_DEVICE_TIME());
+
+                        listType = ListType.READ_TIME;
+                        break;
+
+                    case READ_TIME:
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue()));
+                            }
+                        });
+
+                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
+
+                        listType = ListType.READ_STEP_DATA;
+                        break;
+
+                    case READ_STEP_DATA:
+
+                        final Bundle bundle = PrimeHelper.readStep(ch.getValue(), userAge, userHeight);
+                        final int step = bundle.getInt(PrimeHelper.KEY_STEP);
+                        final int kcal = bundle.getInt(PrimeHelper.KEY_KCAL);
+                        final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dashboardFragment.setStepData(step, kcal, distance);
+                                stepFragment.setStep(step);
+                                calorieFragment.setCalorie(kcal);
+                                distanceFragment.setDist(distance);
+                                sampleFragment.setSample(distance);
+
+                                saveRealmData(step, kcal, distance);
+                            }
+                        });
+
+                        listType = ListType.ETC;
+                        break;
+
+                    case ETC:
+                        listType = ListType.FINISH;
+                    case FINISH:
+                    default:
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                onReadFail();
             }
-        });
-    }
+        }
 
 
-    @DebugLog
-    @Override
-    public void onRSSIUpdate(final int rssi) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                toolbarRssi.setText(rssi + "db");
-            }
-        });
-    }
+        public void onWriteFail() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dashboardFragment.setTextFail();
+                }
+            });
+        }
 
 
-    @DebugLog
-    @Override
-    public void onRSSIMiss() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                toolbarRssi.setText("--");
-            }
-        });
-    }
+        public void onRSSIUpdate(final int rssi) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    toolbarRssi.setText(rssi + "db");
+                }
+            });
+        }
+
+
+        public void onRSSIMiss() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    toolbarRssi.setText("--");
+                }
+            });
+        }
+    };
 
 
     private class DashBoardAdapter extends FragmentStatePagerAdapter {

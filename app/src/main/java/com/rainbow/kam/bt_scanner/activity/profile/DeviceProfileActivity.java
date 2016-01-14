@@ -34,12 +34,12 @@ import hugo.weaving.DebugLog;
  * Created by kam6512 on 2015-11-27.
  */
 public class DeviceProfileActivity extends AppCompatActivity
-        implements GattCustomCallbacks,
-        ControlFragment.OnControlListener,
-        OnCharacteristicReadyListener,
-        OnServiceReadyListener,
+        implements
+        ServiceListFragment.OnServiceReadyListener,
+        CharacteristicListFragment.OnCharacteristicReadyListener,
+        ServiceAdapter.OnServiceItemClickListener,
         CharacteristicAdapter.OnCharacteristicItemClickListener,
-        ServiceAdapter.OnServiceItemClickListener {
+        ControlFragment.OnControlListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -155,7 +155,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @DebugLog
     private void registerBluetooth() {
-        gattManager = new GattManager(this, this);
+        gattManager = new GattManager(this, gattCallbacks);
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
@@ -187,122 +187,85 @@ public class DeviceProfileActivity extends AppCompatActivity
     }
 
 
-    @DebugLog
-    @Override
-    public void onDeviceConnected() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                deviceStateTextView.setText(R.string.bt_connected);
-            }
-        });
-    }
+    private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
+        public void onDeviceConnected() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    deviceStateTextView.setText(R.string.bt_connected);
+                }
+            });
+        }
 
 
-    @DebugLog
-    @Override
-    public void onDeviceDisconnected() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                deviceStateTextView.setText(R.string.bt_disconnected);
-            }
-        });
-    }
+        public void onDeviceDisconnected() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    deviceStateTextView.setText(R.string.bt_disconnected);
+                }
+            });
+        }
 
 
-    @DebugLog
-    @Override
-    public void onServicesFound(final List<BluetoothGattService> services) {
-        bluetoothGattServices = services;
-        onServiceReady();
-    }
+        public void onServicesFound(final List<BluetoothGattService> services) {
+            bluetoothGattServices = services;
+            onServiceReady();
+        }
 
 
-    @DebugLog
-    @Override
-    public void onServicesNotFound() {
-        Toast.makeText(this, getResources().getText(R.string.profile_fail), Toast.LENGTH_SHORT).show();
-        finish();
-    }
+        public void onReadSuccess(final BluetoothGattCharacteristic ch) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    controlFragment.newValueForCharacteristic(ch);
+                }
+            });
+        }
 
 
-    @DebugLog
-    @Override
-    public void onReadSuccess(final BluetoothGattCharacteristic ch) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                controlFragment.newValueForCharacteristic(ch);
-            }
-        });
-    }
+        public void onReadFail() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    controlFragment.setFail();
+
+                }
+            });
+        }
 
 
-    @DebugLog
-    @Override
-    public void onReadFail() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                controlFragment.setFail();
+        public void onDataNotify(final BluetoothGattCharacteristic ch) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    controlFragment.newValueForCharacteristic(ch);
 
-            }
-        });
-    }
+                }
+            });
+        }
 
 
-    @DebugLog
-    @Override
-    public void onDataNotify(final BluetoothGattCharacteristic ch) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                controlFragment.newValueForCharacteristic(ch);
-
-            }
-        });
-    }
+        public void onWriteSuccess() {
+            Toast.makeText(DeviceProfileActivity.this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
+        }
 
 
-    @DebugLog
-    @Override
-    public void onWriteSuccess() {
-        Toast.makeText(DeviceProfileActivity.this, "onWriteSuccess", Toast.LENGTH_SHORT).show();
-    }
+        public void onWriteFail() {
+            Toast.makeText(DeviceProfileActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
+        }
 
 
-    @DebugLog
-    @Override
-    public void onWriteFail() {
-        Toast.makeText(DeviceProfileActivity.this, "onWriteFail", Toast.LENGTH_SHORT).show();
-    }
-
-
-    @DebugLog
-    @Override
-    public void onRSSIUpdate(final int rssi) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                deviceRSSI = rssi + RSSI_UNIT;
-                deviceRSSITextView.setText(deviceRSSI);
-            }
-        });
-    }
-
-
-    @DebugLog
-    @Override
-    public void onRSSIMiss() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                deviceRSSI = "--" + RSSI_UNIT;
-                deviceRSSITextView.setText(deviceRSSI);
-            }
-        });
-    }
+        public void onRSSIUpdate(final int rssi) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    deviceRSSI = rssi + RSSI_UNIT;
+                    deviceRSSITextView.setText(deviceRSSI);
+                }
+            });
+        }
+    };
 
 
     @DebugLog
@@ -375,6 +338,10 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @Override
     public void setWriteValue(byte[] data) {
-        gattManager.writeValue(controlCharacteristic, data);
+        if (data!=null){
+            gattManager.writeValue(controlCharacteristic, data);
+        }else{
+            gattCallbacks.onWriteFail();
+        }
     }
 }
