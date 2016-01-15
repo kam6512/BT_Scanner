@@ -74,10 +74,4 @@ public class DeviceItem { //카드 뷰 틀
     public int getExtraRssi() {
         return this.extraRssi;
     }
-
-
-//    public void setExtraRssi(int rssi) {
-//        this.extraRssi = rssi;
-//    }
-
 }

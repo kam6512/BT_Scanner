@@ -38,7 +38,9 @@
                 android:textColor="@color/colorPrimaryAccent"/>
         </TableRow>
 
-        <TableRow style="@style/DeviceItemTableRow">
+        <TableRow
+            android:id="@+id/row_bond"
+            style="@style/DeviceItemTableRow">
 
             <TextView
                 style="@style/DeviceItemLabel"
@@ -50,7 +52,9 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"/>
         </TableRow>
 
-        <TableRow style="@style/DeviceItemTableRow">
+        <TableRow
+            android:id="@+id/row_type"
+            style="@style/DeviceItemTableRow">
 
             <TextView
                 style="@style/DeviceItemLabel"
@@ -63,7 +67,9 @@
 
         </TableRow>
 
-        <TableRow style="@style/DeviceItemTableRow">
+        <TableRow
+            android:id="@+id/row_rssi"
+            style="@style/DeviceItemTableRow">
 
             <TextView
                 style="@style/DeviceItemLabel"

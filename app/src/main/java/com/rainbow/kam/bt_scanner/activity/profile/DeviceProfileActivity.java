@@ -82,7 +82,9 @@ public class DeviceProfileActivity extends AppCompatActivity
         setToolbar();
         setFragments();
 
-        fragmentManager.beginTransaction().replace(R.id.profile_fragment_view, serviceListFragment).commit();
+        fragmentManager.beginTransaction()
+                .replace(R.id.profile_fragment_view, serviceListFragment).commit();
+
     }
 
 
@@ -338,9 +340,9 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @Override
     public void setWriteValue(byte[] data) {
-        if (data!=null){
+        if (data != null) {
             gattManager.writeValue(controlCharacteristic, data);
-        }else{
+        } else {
             gattCallbacks.onWriteFail();
         }
     }
