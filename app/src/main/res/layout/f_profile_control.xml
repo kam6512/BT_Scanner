@@ -42,8 +42,8 @@
                     style="@style/DeviceCharacteristicInfo.DeviceCharacteristicSubInfo"/>
             </TableRow>
 
-            <TableRow style="@style/DeviceTableRaw">
-
+            <TableRow
+                style="@style/DeviceTableRaw">
                 <TextView
                     style="@style/DeviceCharacteristicInfoLabel"
                     android:text="@string/profile.label.service"/>

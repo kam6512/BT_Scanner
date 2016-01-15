@@ -4,7 +4,9 @@
     style="@style/ProfileItemCard"
     app:cardBackgroundColor="@color/colorPrimaryOrange">
 
-    <LinearLayout style="@style/ProfileItemFrame">
+    <LinearLayout style="@style/ProfileItemFrame"  android:divider="?android:attr/dividerHorizontal"
+
+                  android:showDividers="middle">
 
         <TextView
             android:id="@+id/profile_child_list_item_characteristics_name"

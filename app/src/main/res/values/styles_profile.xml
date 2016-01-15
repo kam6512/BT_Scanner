@@ -8,7 +8,7 @@
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_margin">7dp</item>
         <item name="android:background">@null</item>
-        <item name="android:textColor">@color/nursingPrimary_light</item>
+        <item name="android:textColor">@color/text_light</item>
     </style>
 
     <style name="ProfileItemFrame">
@@ -40,7 +40,7 @@
 
     <style name="DeviceLabel">
         <item name="android:layout_gravity">end|center_vertical</item>
-        <item name="android:textColor">@color/nursingPrimary_light</item>
+        <item name="android:textColor">@color/text_light</item>
     </style>
 
     <style name="DeviceLabel.DeviceText">

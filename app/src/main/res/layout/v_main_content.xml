@@ -62,7 +62,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:background="@null"
         android:src="@drawable/ic_search_white_36dp"
-        app:backgroundTint="@color/nursingPrimary"
+        app:backgroundTint="@color/colorPrimary"
         app:layout_anchor="@id/toolbar"
         app:layout_anchorGravity="bottom|right|end"/>
 

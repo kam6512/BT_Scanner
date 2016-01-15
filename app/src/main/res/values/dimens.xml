@@ -12,7 +12,7 @@
     <dimen name="third">20dp</dimen>
 
     <dimen name="add_user_input_margin">10dp</dimen>
-    <dimen name="deviceItem_margin">5dp</dimen>
+    <dimen name="deviceItem_margin">7dp</dimen>
 
     <dimen name="nav_header_padding">15dp</dimen>
     <dimen name="toolbar_drop_shadow">3dp</dimen>

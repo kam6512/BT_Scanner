@@ -6,8 +6,8 @@
     <color name="colorAccent">#4169e1</color>
     <color name="colorPrimaryAccent">#dc143c</color>
 
-    <color name="nursingPrimary">#607D8B</color>
-    <color name="nursingPrimary_light">#CFD8DC</color>
+    <color name="text_dark">#595959</color>
+    <color name="text_light">#ffffff</color>
 
     <color name="secondary_text">#727272</color>
 

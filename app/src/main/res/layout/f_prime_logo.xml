@@ -35,7 +35,7 @@
             android:background="@null"
             android:text="@string/logo.pilot"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/nursingPrimary_light"/>
+            android:textColor="@color/text_light"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
             android:padding="10dp"
             android:text="@string/logo.company"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/nursingPrimary_light"/>
+            android:textColor="@color/text_light"/>
     </LinearLayout>
 
 
