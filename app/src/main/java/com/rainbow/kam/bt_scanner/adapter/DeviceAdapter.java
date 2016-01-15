@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.adapter;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -87,7 +89,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
-    public class DeviceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, Animation.AnimationListener { //뷰 초기화
+    public class DeviceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Animation.AnimationListener { //뷰 초기화
 
         private final TextView extraName;
         private final TextView extraAddress;
@@ -100,6 +102,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private TableRow type, bond, rssi;
         private Animation expandAnimation, collapseAnimation;
 
+        private ImageView expendImageView;
+
 
         public DeviceViewHolder(final View itemView) {
             super(itemView);
@@ -111,7 +115,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             deviceItemCardView = (CardView) itemView.findViewById(R.id.device_item_card);
             deviceItemCardView.setOnClickListener(this);
-            deviceItemCardView.setOnLongClickListener(this);
 
             type = (TableRow) itemView.findViewById(R.id.row_type);
             bond = (TableRow) itemView.findViewById(R.id.row_bond);
@@ -125,6 +128,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             expandAnimation.setAnimationListener(this);
             collapseAnimation = AnimationUtils.loadAnimation(activity, R.anim.collapse_device_item);
             collapseAnimation.setAnimationListener(this);
+
+            expendImageView = (ImageView) itemView.findViewById(R.id.item_expend);
+            expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
+            expendImageView.setOnClickListener(this);
+            expendImageView.setColorFilter(Color.parseColor("#000000"));
         }
 
 
@@ -143,19 +151,16 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         @Override
         public void onClick(View v) {
-            final DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
-            onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
-        }
-
-
-        @Override
-        public boolean onLongClick(View v) {
-            if (type.isShown() && bond.isShown() && rssi.isShown()) {
-                collapsedView();
+            if (v.getId() == R.id.item_expend) {
+                if (type.isShown() && bond.isShown() && rssi.isShown()) {
+                    collapsedView();
+                } else {
+                    expandView();
+                }
             } else {
-                expandView();
+                final DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
+                onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
             }
-            return true;
         }
 
 
@@ -188,6 +193,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 type.setVisibility(View.VISIBLE);
                 bond.setVisibility(View.VISIBLE);
                 rssi.setVisibility(View.VISIBLE);
+                expendImageView.setImageResource(R.drawable.ic_expand_less_white_36dp);
             }
         }
 
@@ -199,6 +205,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 type.setVisibility(View.GONE);
                 bond.setVisibility(View.GONE);
                 rssi.setVisibility(View.GONE);
+                expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
             }
         }
 
