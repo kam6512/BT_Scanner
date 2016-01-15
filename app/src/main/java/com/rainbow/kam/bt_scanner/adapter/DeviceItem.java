@@ -2,6 +2,8 @@ package com.rainbow.kam.bt_scanner.adapter;
 
 import android.bluetooth.BluetoothDevice;
 
+import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
+
 /**
  * Created by kam6512 on 2015-10-14.
  */
@@ -32,13 +34,40 @@ public class DeviceItem { //카드 뷰 틀
     }
 
 
-    public int getExtraBondState() {
-        return this.extraBondState;
+    public String getExtraBondState() {
+        switch (extraBondState) {
+            case 10:
+                return BluetoothHelper.BOND_NONE;
+
+            case 11:
+                return BluetoothHelper.BOND_BONDING;
+
+            case 12:
+                return BluetoothHelper.BOND_BONDED;
+
+            default:
+                return BluetoothHelper.BOND_NONE;
+        }
     }
 
 
-    public int getExtraType() {
-        return this.extraType;
+    public String getExtraType() {
+        switch (extraType) {
+            case 0:
+                return BluetoothHelper.DEVICE_TYPE_UNKNOWN;
+
+            case 1:
+                return BluetoothHelper.DEVICE_TYPE_CLASSIC;
+
+            case 2:
+                return BluetoothHelper.DEVICE_TYPE_LE;
+
+            case 3:
+                return BluetoothHelper.DEVICE_TYPE_DUAL;
+
+            default:
+                return BluetoothHelper.DEVICE_TYPE_UNKNOWN;
+        }
     }
 
 

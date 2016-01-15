@@ -18,10 +18,8 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
 import com.rainbow.kam.bt_scanner.adapter.ServiceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.profile.CharacteristicListFragment;
-import com.rainbow.kam.bt_scanner.fragment.profile.CharacteristicListFragment.OnCharacteristicReadyListener;
 import com.rainbow.kam.bt_scanner.fragment.profile.ControlFragment;
 import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment;
-import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment.OnServiceReadyListener;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
@@ -77,8 +75,8 @@ public class DeviceProfileActivity extends AppCompatActivity
         setContentView(R.layout.a_profile);
 
         Intent intent = getIntent();
-        deviceName = intent.getStringExtra(BluetoothHelper.EXTRAS_DEVICE_NAME);
-        deviceAddress = intent.getStringExtra(BluetoothHelper.EXTRAS_DEVICE_ADDRESS);
+        deviceName = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_NAME);
+        deviceAddress = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_ADDRESS);
         deviceRSSI = "- - " + RSSI_UNIT;
 
         setToolbar();

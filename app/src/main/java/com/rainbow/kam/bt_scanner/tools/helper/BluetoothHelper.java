@@ -27,8 +27,17 @@ public class BluetoothHelper {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int RESULT_OK = -1;
 
-    public static final String EXTRAS_DEVICE_NAME = "BLE_DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
+    public static final String KEY_DEVICE_NAME = "BLE_DEVICE_NAME";
+    public static final String KEY_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
+
+    public static final String BOND_NONE = "NOT BONDED";
+    public static final String BOND_BONDING  = "BONDING...";
+    public static final String BOND_BONDED  = "BONDED";
+
+    public static final String DEVICE_TYPE_UNKNOWN   = "UNKNOWN";
+    public static final String DEVICE_TYPE_CLASSIC    = "CLASSIC BLUETOOTH";
+    public static final String DEVICE_TYPE_LE    = "BLUETOOTH LOW ENERGY";
+    public static final String DEVICE_TYPE_DUAL    = "DUAL";
 
     @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
