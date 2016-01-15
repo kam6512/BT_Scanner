@@ -1,20 +1,26 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.setting;
+package com.rainbow.kam.bt_scanner.fragment.prime.menu;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import hugo.weaving.DebugLog;
@@ -22,7 +28,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SettingFragment extends Fragment implements View.OnClickListener {
+public class SettingFragment extends DialogFragment {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -30,8 +36,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     private TextInputLayout name, age, height, weight, step;
     private RadioGroup genderGroup;
-
-    private OnSettingListener onSettingListener;
 
     private SharedPreferences sharedPreferences;
 
@@ -41,7 +45,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         super.onAttach(context);
         if (context instanceof Activity) {
             try {
-                onSettingListener = (OnSettingListener) context;
                 sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
 
             } catch (ClassCastException e) {
@@ -59,6 +62,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         view = inflater.inflate(R.layout.f_prime_user, container, false);
         setUserInput();
         setBtn();
+        Log.e(TAG, isVisible() + " / " + isInLayout() + " / " + isAdded());
         return view;
     }
 
@@ -75,23 +79,12 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     private void setBtn() {
         FloatingActionButton accept = (FloatingActionButton) view.findViewById(R.id.prime_accept_fab);
-        accept.setOnClickListener(this);
-
-        FloatingActionButton skip = (FloatingActionButton) view.findViewById(R.id.prime_skip_fab);
-        skip.setOnClickListener(this);
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.prime_accept_fab:
+        accept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 onAccept();
-                break;
-            case R.id.prime_skip_fab:
-                onSettingListener.onSettingSkip();
-                break;
-        }
+            }
+        });
     }
 
 
@@ -124,8 +117,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
             editor.putString(PrimeHelper.KEY_STEP, userStep);
             editor.putString(PrimeHelper.KEY_GENDER, userGender);
-            editor.commit();
-            onSettingListener.onSettingAccept();
+            editor.apply();
+            getFragmentManager().beginTransaction().remove(this).commit();
         }
     }
 
@@ -151,12 +144,5 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             }
         }
         return hasError;
-    }
-
-
-    public interface OnSettingListener {
-        void onSettingAccept();
-
-        void onSettingSkip();
     }
 }

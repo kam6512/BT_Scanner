@@ -56,16 +56,16 @@ public class GattManager extends BluetoothGattCallback {
 
 
     @DebugLog
-    public synchronized void connect(final String deviceAddress) throws Exception {
+    public synchronized void connect(final String deviceAddress) throws NullPointerException {
         if (TextUtils.isEmpty(deviceAddress)) {
-            throw new Exception("Address is not available");
+            throw new NullPointerException("Address is not available");
         }
         if (bluetoothGatt != null && bluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
             bluetoothGatt.connect();
         } else {
             bluetoothDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
             if (bluetoothDevice == null) {
-                throw new Exception("RemoteDevice is not available");
+                throw new NullPointerException("RemoteDevice is not available");
             }
             bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback);
         }

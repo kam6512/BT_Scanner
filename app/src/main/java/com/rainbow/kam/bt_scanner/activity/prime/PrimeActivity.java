@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,18 +25,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.prime.setting.LogoFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.setting.SelectDeviceDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.setting.SettingFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.menu.SettingFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.CalorieFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DashboardFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DistanceFragment;
@@ -61,14 +60,10 @@ import io.realm.RealmResults;
 public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
         TabLayout.OnTabSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener,
-
-        SettingFragment.OnSettingListener,
-        DeviceAdapter.OnDeviceSelectListener {
+        NavigationView.OnNavigationItemSelectedListener
+        , DeviceAdapter.OnDeviceSelectListener {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
-
-    private final long logoDelay = 2000;
 
     private String userName;
     private String userAge;
@@ -86,10 +81,11 @@ public class PrimeActivity extends AppCompatActivity implements
     private ListType listType;
 
     private FragmentManager fragmentManager;
-
-    private LogoFragment logoFragment;
     private SettingFragment settingFragment;
     private SelectDeviceDialogFragment selectDeviceDialogFragment;
+
+    private Snackbar deviceSnackBar, userSnackBar;
+
 
     private DashboardFragment dashboardFragment;
     private StepFragment stepFragment;
@@ -99,6 +95,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
+    private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ViewPager viewPager;
@@ -111,31 +108,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private SharedPreferences sharedPreferences;
     private Realm realm;
 
-    private MaterialDialog settingDialog;
-
     private final Handler handler = new Handler();
-    private final Runnable nextStep = new Runnable() {
-        @Override
-        public void run() {
-
-            if (sharedPreferences.getAll().isEmpty()) {
-
-                setSettingFragments();
-                setSettingDialog();
-
-                fragmentManager.beginTransaction().replace(R.id.prime_start_frame, settingFragment)
-                        .commitAllowingStateLoss();
-
-            } else {
-
-                fragmentManager.beginTransaction().remove(logoFragment)
-                        .commitAllowingStateLoss();
-
-                registerBluetooth();
-
-            }
-        }
-    };
 
 
     @DebugLog
@@ -152,15 +125,19 @@ public class PrimeActivity extends AppCompatActivity implements
         realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
 
         fragmentManager = getSupportFragmentManager();
-        logoFragment = new LogoFragment();
-        fragmentManager.beginTransaction().add(R.id.prime_start_frame, logoFragment).commitAllowingStateLoss();
 
-        setViewPagerFragments();
+        setFragments();
         setToolbar();
         setMaterialView();
         setViewPager();
+        setSnackBar();
+    }
 
-        handler.postDelayed(nextStep, logoDelay);
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerBluetooth();
     }
 
 
@@ -169,13 +146,6 @@ public class PrimeActivity extends AppCompatActivity implements
     public void onPause() {
         super.onPause();
         disconnectDevice();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        handler.removeCallbacks(nextStep);
     }
 
 
@@ -294,6 +264,8 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void setMaterialView() {
 
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.prime_coordinatorLayout);
+
         drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
@@ -316,7 +288,11 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void setViewPagerFragments() {
+    private void setFragments() {
+
+        settingFragment = new SettingFragment();
+        selectDeviceDialogFragment = new SelectDeviceDialogFragment();
+
         dashboardFragment = new DashboardFragment();
         stepFragment = new StepFragment();
         calorieFragment = new CalorieFragment();
@@ -325,32 +301,41 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void setSettingFragments() {
-        settingFragment = new SettingFragment();
-        selectDeviceDialogFragment = new SelectDeviceDialogFragment();
-    }
+    private void setSnackBar() {
+        deviceSnackBar = Snackbar.make(coordinatorLayout, "you must Save own Prime Device", Snackbar.LENGTH_INDEFINITE).setAction("SAVE", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                fragmentManager.beginTransaction().add(selectDeviceDialogFragment, "Device Select").commit();
+                selectDeviceDialogFragment.show(fragmentManager, "Device Select");
+            }
+        });
 
-
-    private void setSettingDialog() {
-        settingDialog = new MaterialDialog.Builder(this)
-                .positiveText(R.string.dialog_accept).negativeText(R.string.dialog_fix)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                        selectDeviceDialogFragment.show(getSupportFragmentManager(), "DeviceDialog");
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                }).build();
+        userSnackBar = Snackbar.make(coordinatorLayout, "신체 정보를 입력하시겠습니까?", Snackbar.LENGTH_LONG).setAction("SAVE", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fragmentManager.beginTransaction().add(settingFragment, "Setting").commit();
+            }
+        });
     }
 
 
     private void registerBluetooth() {
+        if (sharedPreferences.getAll().isEmpty()) {
+            if (!swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            if (!deviceSnackBar.isShown()) {
+                deviceSnackBar.show();
+            }
+
+            return;
+        } else if (sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default)).equals(getString(R.string.user_name_default))) {
+            if (!userSnackBar.isShown()) {
+                userSnackBar.show();
+            }
+
+            Log.i(TAG, "no name");
+        }
         Log.i(TAG, "registerBluetooth");
         gattManager = new GattManager(this, gattCallbacks);
         if (gattManager.isBluetoothAvailable()) {
@@ -368,10 +353,10 @@ public class PrimeActivity extends AppCompatActivity implements
             try {
                 gattManager.connect(deviceAddress);
                 listType = ListType.INIT;
-            } catch (Exception e) {
+            } catch (NullPointerException e) {
                 Log.e(TAG, e.getMessage());
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                finish();
+//                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                finish();
             }
         }
     }
@@ -395,18 +380,27 @@ public class PrimeActivity extends AppCompatActivity implements
         this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP, getString(R.string.user_step_default));
         this.userGender = sharedPreferences.getString(PrimeHelper.KEY_GENDER, getString(R.string.gender_man));
         this.deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
+        Log.i(TAG,
+                userName + "\n" +
+                        userAge + "\n" +
+                        userHeight + "\n" +
+                        userWeight + "\n" +
+                        userStep + "\n" +
+                        userGender + "\n" +
+                        deviceAddress + "\n"
+        );
     }
 
 
     @DebugLog
     private void saveUserData(String name, String address) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PrimeHelper.KEY_NAME, userName);
-        editor.putString(PrimeHelper.KEY_AGE, userAge);
-        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
-        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
-        editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
-        editor.putString(PrimeHelper.KEY_GENDER, userGender);
+//        editor.putString(PrimeHelper.KEY_NAME, userName);
+//        editor.putString(PrimeHelper.KEY_AGE, userAge);
+//        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
+//        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
+//        editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
+//        editor.putString(PrimeHelper.KEY_GENDER, userGender);
         editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
         editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
         editor.apply();
@@ -456,43 +450,9 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @DebugLog
     @Override
-    public void onSettingSkip() {
-        loadUserData();
-
-        settingDialog.setTitle(R.string.dialog_skip);
-        settingDialog.setContent(R.string.dialog_skip_warning);
-        settingDialog.show();
-    }
-
-
-    @Override
-    public void onSettingAccept() {
-        loadUserData();
-
-        String dialogContent = "이름 : " + userName +
-                "\n성별 : " + userGender +
-                "\n나이 : " + userAge +
-                "\n키 : " + userHeight +
-                "\n몸무게 : " + userWeight +
-                "\n걸음너비 : " + userStep;
-
-        settingDialog.setTitle(R.string.dialog_accept_ok);
-        settingDialog.setContent(dialogContent);
-        settingDialog.show();
-    }
-
-
-    @DebugLog
-    @Override
     public void onDeviceSelect(final String name, final String address) {
-
         saveUserData(name, address);
-
         selectDeviceDialogFragment.dismiss();
-        getSupportFragmentManager().beginTransaction()
-                .remove(settingFragment)
-                .commitAllowingStateLoss();
-
         registerBluetooth();
     }
 
