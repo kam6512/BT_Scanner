@@ -64,25 +64,25 @@ public class PrimeHelper {
 
 
     public static byte[] SET_DEVICE_TIME_NOW() {
-        String setDate = "0xC207";
+
         Calendar cal = new GregorianCalendar();
 
-        String year = String.format("%02x", cal.get(Calendar.YEAR) - 2000);
-        String month = String.format("%02x", cal.get(Calendar.MONTH) + 1);
-        String date = String.format("%02x", cal.get(Calendar.DATE));
-        String hour = String.format("%02x", cal.get(Calendar.HOUR_OF_DAY));
-        String min = String.format("%02x", cal.get(Calendar.MINUTE));
-        String sec = String.format("%02x", cal.get(Calendar.SECOND));
-        int weekTemp = cal.get(Calendar.DAY_OF_WEEK) - 1;
-        if (weekTemp == 0) {
-            weekTemp = 7;
+        StringBuilder time = new StringBuilder();
+        time.append("0xC207");
+        time.append(String.format("%02x", cal.get(Calendar.YEAR) - 2000));
+        time.append(String.format("%02x", cal.get(Calendar.MONTH) + 1));
+        time.append(String.format("%02x", cal.get(Calendar.DATE)));
+        time.append(String.format("%02x", cal.get(Calendar.HOUR_OF_DAY)));
+        time.append(String.format("%02x", cal.get(Calendar.MINUTE)));
+        time.append(String.format("%02x", cal.get(Calendar.SECOND)));
+
+        int week = cal.get(Calendar.DAY_OF_WEEK) - 1;
+        if (week == 0) {
+            week = 7;
         }
-        String week = "0" + String.format("%2s", weekTemp);
+        time.append("0").append(String.format("%2s", week));
 
-
-        setDate += year + month + date + hour + min + sec + week;
-        Log.e("TIME", year + " / " + month + " / " + date + " / " + hour + " / " + min + " / " + sec + " / " + week);
-        return parseHexStringToBytes(setDate, true);
+        return parseHexStringToBytes(time.toString(), true);
     }
 
 
@@ -97,16 +97,23 @@ public class PrimeHelper {
 
 
     public static byte[] SET_USER_DATA(int gender, int height, int weight, int stride, int runningStride) {
+        String userData = "0x832f000000000000000000000000000000000000000000000000000000000000000000" +
+                String.format("%02d", gender) +
+                String.format("%02d", height) +
+                String.format("%02d", weight) +
+                String.format("%02d", stride) +
+                String.format("%02d", runningStride) +
+                "0b1e071e0200000000";
 
-        String info = "0x832f000000000000000000000000000000000000000000000000000000000000000000";
-        info += String.format("%02d", gender);
-        info += String.format("%02d", height);
-        info += String.format("%02d", weight);
-        info += String.format("%02d", stride);
-        info += String.format("%02d", runningStride);
-        info += "0b1e071e0200000000";
+        //        String info = "0x832f000000000000000000000000000000000000000000000000000000000000000000";
+//        info += String.format("%02d", gender);
+//        info += String.format("%02d", height);
+//        info += String.format("%02d", weight);
+//        info += String.format("%02d", stride);
+//        info += String.format("%02d", runningStride);
+//        info += "0b1e071e0200000000";
 
-        return parseHexStringToBytes(info, true);
+        return parseHexStringToBytes(userData, true);
     }
 
 
