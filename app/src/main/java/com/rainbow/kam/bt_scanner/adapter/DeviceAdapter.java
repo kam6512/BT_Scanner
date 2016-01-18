@@ -120,10 +120,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             bond = (TableRow) itemView.findViewById(R.id.row_bond);
             rssi = (TableRow) itemView.findViewById(R.id.row_rssi);
 
-            type.setVisibility(View.GONE);
-            bond.setVisibility(View.GONE);
-            rssi.setVisibility(View.GONE);
-
             expandAnimation = AnimationUtils.loadAnimation(activity, R.anim.expand_device_item);
             expandAnimation.setAnimationListener(this);
             collapseAnimation = AnimationUtils.loadAnimation(activity, R.anim.collapse_device_item);
@@ -146,6 +142,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             extraBondState.setText(String.valueOf(deviceItem.getExtraBondState()));
             extraType.setText(String.valueOf(deviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(deviceItem.getExtraRssi()));
+            type.setVisibility(View.GONE);
+            bond.setVisibility(View.GONE);
+            rssi.setVisibility(View.GONE);
         }
 
 

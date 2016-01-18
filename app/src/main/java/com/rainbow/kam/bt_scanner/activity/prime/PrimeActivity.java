@@ -61,8 +61,8 @@ import io.realm.RealmResults;
 public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
         TabLayout.OnTabSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener
-        , DeviceAdapter.OnDeviceSelectListener {
+        NavigationView.OnNavigationItemSelectedListener,
+        DeviceAdapter.OnDeviceSelectListener {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
 
@@ -163,6 +163,7 @@ public class PrimeActivity extends AppCompatActivity implements
             }
         } else {
             swipeRefreshLayout.setRefreshing(false);
+            registerBluetooth();
         }
     }
 
@@ -296,7 +297,6 @@ public class PrimeActivity extends AppCompatActivity implements
         userDataDialogFragment = new UserDataDialogFragment();
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
 
-
         dashboardFragment = new DashboardFragment();
         stepFragment = new StepFragment();
         calorieFragment = new CalorieFragment();
@@ -306,15 +306,14 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void setSnackBar() {
-        deviceSnackBar = Snackbar.make(coordinatorLayout, "you must Save own Prime Device", Snackbar.LENGTH_INDEFINITE).setAction("SAVE", new View.OnClickListener() {
+        deviceSnackBar = Snackbar.make(coordinatorLayout, "Prime 기기 설정이 필요합니다", Snackbar.LENGTH_INDEFINITE).setAction("설정", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                fragmentManager.beginTransaction().add(selectDeviceDialogFragment, "Device Select").commit();
                 selectDeviceDialogFragment.show(fragmentManager, "Device Select");
             }
         });
 
-        userSnackBar = Snackbar.make(coordinatorLayout, "신체 정보를 입력하시겠습니까?", Snackbar.LENGTH_LONG).setAction("SAVE", new View.OnClickListener() {
+        userSnackBar = Snackbar.make(coordinatorLayout, "신체 정보를 입력하시겠습니까?", Snackbar.LENGTH_LONG).setAction("입력", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fragmentManager.beginTransaction().add(userDataDialogFragment, "Setting").commit();
@@ -328,15 +327,14 @@ public class PrimeActivity extends AppCompatActivity implements
             if (!swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
-            if (!deviceSnackBar.isShown()) {
-                deviceSnackBar.show();
-            }
+            deviceSnackBar.show();
+
 
             return;
         } else if (sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default)).equals(getString(R.string.user_name_default))) {
-            if (!userSnackBar.isShown()) {
-                userSnackBar.show();
-            }
+
+            userSnackBar.show();
+
         }
         Log.i(TAG, "registerBluetooth");
         gattManager = new GattManager(this, gattCallbacks);
@@ -379,7 +377,7 @@ public class PrimeActivity extends AppCompatActivity implements
         this.userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
         this.userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
         this.userWeight = sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default));
-        this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP, getString(R.string.user_step_default));
+        this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP_STRIDE, getString(R.string.user_step_default));
         this.userGender = sharedPreferences.getString(PrimeHelper.KEY_GENDER, getString(R.string.gender_man));
         this.deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
         Log.i(TAG,
@@ -447,8 +445,10 @@ public class PrimeActivity extends AppCompatActivity implements
     @DebugLog
     @Override
     public void onDeviceSelect(final String name, final String address) {
+        if (selectDeviceDialogFragment != null) {
+            selectDeviceDialogFragment.dismiss();
+        }
         saveUserData(name, address);
-        selectDeviceDialogFragment.dismiss();
         registerBluetooth();
     }
 

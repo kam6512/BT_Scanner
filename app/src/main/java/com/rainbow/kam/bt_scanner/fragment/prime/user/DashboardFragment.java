@@ -25,8 +25,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view;
-        view = inflater.inflate(R.layout.f_prime_main_dashboard, container, false);
+        View view = inflater.inflate(R.layout.f_prime_main_dashboard, container, false);
 
         time = (TextView) view.findViewById(R.id.deviceTime);
         stepTextView = (TextView) view.findViewById(R.id.dashboard_step);
@@ -39,7 +38,7 @@ public class DashboardFragment extends Fragment {
 
     public void setTime(StringBuilder characteristicTime) {
         try {
-            time.setText("시간 : " + characteristicTime);
+            time.setText(characteristicTime);
         } catch (Exception e) {
             setTextFail();
         }
@@ -58,9 +57,9 @@ public class DashboardFragment extends Fragment {
 
 
     public void setTextFail() {
-        time.setText("시간 : 연결 실패");
-        stepTextView.setText("연결 실패");
-        calorieTextView.setText("연결 실패");
-        distanceTextView.setText("연결 실패");
+        time.setText("Access Denial");
+        stepTextView.setText("Access Denial");
+        calorieTextView.setText("Access Denial");
+        distanceTextView.setText("Access Denial");
     }
 }
