@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="CircleButton">
-        <attr name="cb_color" format="color" />
-        <attr name="cb_pressedRingWidth" format="dimension" />
-    </declare-styleable>
 
     <declare-styleable name="CircularMeter">
         <attr name="textColor" format="color" />
