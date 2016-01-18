@@ -144,14 +144,14 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
+        BluetoothHelper.ON_ACTIVITY_RESULT(requestCode, resultCode, this);
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
+        BluetoothHelper.ON_REQUEST_PERMISSIONS_RESULT(requestCode, grantResults, this);
     }
 
 
@@ -161,7 +161,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
-            BluetoothHelper.initBluetoothOn(this);
+            BluetoothHelper.BLUETOOTH_REQUEST(this);
         }
     }
 

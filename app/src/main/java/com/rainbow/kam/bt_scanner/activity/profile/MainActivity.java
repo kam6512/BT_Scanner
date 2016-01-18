@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements
     private DeviceAdapter deviceAdapter;
 
     private final Handler handler = new Handler();
-    private final Runnable runnable = new Runnable() {
+    private final Runnable stop = new Runnable() {
         @Override
         public void run() {
             stopScan();
@@ -91,8 +91,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_main);
 
-        if (BluetoothHelper.isBuildVersionLM) {
-            BluetoothHelper.check(this);
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
+            BluetoothHelper.CHECK_PERMISSIONS(this);
         }
 
         setToolbar();
@@ -160,14 +160,14 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
+        BluetoothHelper.ON_ACTIVITY_RESULT(requestCode, resultCode, this);
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
+        BluetoothHelper.ON_REQUEST_PERMISSIONS_RESULT(requestCode, grantResults, this);
     }
 
 
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     private void setScannerCallback() {
-        if (BluetoothHelper.isBuildVersionLM) {
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             setScannerL();
         } else {
             setScanner();
@@ -278,14 +278,14 @@ public class MainActivity extends AppCompatActivity implements
 
                 deviceAdapter.clear();
 
-                if (BluetoothHelper.isBuildVersionLM) {
+                if (BluetoothHelper.IS_BUILD_VERSION_LM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
 
                 startScan();
 
             } else {
-                BluetoothHelper.initBluetoothOn(this);
+                BluetoothHelper.BLUETOOTH_REQUEST(this);
             }
         } catch (Exception e) {
             Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();
@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        handler.postDelayed(runnable, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
+        handler.postDelayed(stop, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
 
         deviceAdapter.clear();
         isScanning = true;
@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements
         swipeRefreshLayout.post(postSwipeRefresh);
 
         //시작
-        if (BluetoothHelper.isBuildVersionLM) {
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
             }
@@ -331,14 +331,14 @@ public class MainActivity extends AppCompatActivity implements
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
-        handler.removeCallbacks(runnable);
+        handler.removeCallbacks(stop);
 
         isScanning = false;
         noDeviceTextView.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(false);
 
         //중지
-        if (BluetoothHelper.isBuildVersionLM) {
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
                 bleScanner.stopScan(scanCallback);
             }

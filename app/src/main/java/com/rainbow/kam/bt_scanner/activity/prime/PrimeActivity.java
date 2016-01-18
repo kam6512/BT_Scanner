@@ -28,12 +28,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.SettingFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.CalorieFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DashboardFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DistanceFragment;
@@ -81,7 +82,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private ListType listType;
 
     private FragmentManager fragmentManager;
-    private SettingFragment settingFragment;
+    private UserDataDialogFragment userDataDialogFragment;
     private SelectDeviceDialogFragment selectDeviceDialogFragment;
 
     private Snackbar deviceSnackBar, userSnackBar;
@@ -118,7 +119,7 @@ public class PrimeActivity extends AppCompatActivity implements
         setContentView(R.layout.a_prime);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            BluetoothHelper.check(PrimeActivity.this);
+            BluetoothHelper.CHECK_PERMISSIONS(PrimeActivity.this);
         }
 
         sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
@@ -137,6 +138,7 @@ public class PrimeActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        Log.e(TAG, "onResume");
         registerBluetooth();
     }
 
@@ -152,6 +154,7 @@ public class PrimeActivity extends AppCompatActivity implements
     @DebugLog
     @Override
     public void onRefresh() {
+
         if (gattManager != null) {
             if (gattManager.isConnected()) {
                 disconnectDevice();
@@ -236,14 +239,14 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
+        BluetoothHelper.ON_ACTIVITY_RESULT(requestCode, resultCode, this);
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
+        BluetoothHelper.ON_REQUEST_PERMISSIONS_RESULT(requestCode, grantResults, this);
     }
 
 
@@ -290,8 +293,9 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void setFragments() {
 
-        settingFragment = new SettingFragment();
+        userDataDialogFragment = new UserDataDialogFragment();
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
+
 
         dashboardFragment = new DashboardFragment();
         stepFragment = new StepFragment();
@@ -313,13 +317,13 @@ public class PrimeActivity extends AppCompatActivity implements
         userSnackBar = Snackbar.make(coordinatorLayout, "신체 정보를 입력하시겠습니까?", Snackbar.LENGTH_LONG).setAction("SAVE", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragmentManager.beginTransaction().add(settingFragment, "Setting").commit();
+                fragmentManager.beginTransaction().add(userDataDialogFragment, "Setting").commit();
             }
         });
     }
 
 
-    private void registerBluetooth() {
+    public void registerBluetooth() {
         if (sharedPreferences.getAll().isEmpty()) {
             if (!swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
@@ -333,8 +337,6 @@ public class PrimeActivity extends AppCompatActivity implements
             if (!userSnackBar.isShown()) {
                 userSnackBar.show();
             }
-
-            Log.i(TAG, "no name");
         }
         Log.i(TAG, "registerBluetooth");
         gattManager = new GattManager(this, gattCallbacks);
@@ -342,7 +344,7 @@ public class PrimeActivity extends AppCompatActivity implements
             loadUserData();
             connectDevice();
         } else {
-            BluetoothHelper.initBluetoothOn(this);
+            BluetoothHelper.BLUETOOTH_REQUEST(this);
         }
     }
 
@@ -355,8 +357,8 @@ public class PrimeActivity extends AppCompatActivity implements
                 listType = ListType.INIT;
             } catch (NullPointerException e) {
                 Log.e(TAG, e.getMessage());
-//                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//                finish();
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
@@ -395,12 +397,6 @@ public class PrimeActivity extends AppCompatActivity implements
     @DebugLog
     private void saveUserData(String name, String address) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-//        editor.putString(PrimeHelper.KEY_NAME, userName);
-//        editor.putString(PrimeHelper.KEY_AGE, userAge);
-//        editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
-//        editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
-//        editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
-//        editor.putString(PrimeHelper.KEY_GENDER, userGender);
         editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
         editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
         editor.apply();

@@ -22,7 +22,7 @@ import hugo.weaving.DebugLog;
  */
 public class BluetoothHelper {
 
-    public static final boolean isBuildVersionLM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    public static final boolean IS_BUILD_VERSION_LM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     public static final long SCAN_PERIOD = 5000;
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int RESULT_OK = -1;
@@ -41,7 +41,7 @@ public class BluetoothHelper {
 
     @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
-    public static void check(Activity activity) {
+    public static void CHECK_PERMISSIONS(Activity activity) {
         Log.d("BluetoothHelper", activity.getLocalClassName());
         if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -55,14 +55,14 @@ public class BluetoothHelper {
     }
 
 
-    public static void initBluetoothOn(Activity activity) {//블루투스 가동여부
+    public static void BLUETOOTH_REQUEST(Activity activity) {//블루투스 가동여부
 
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
     }
 
 
-    public static void onActivityResult(int requestCode, int resultCode, Activity activity) {
+    public static void ON_ACTIVITY_RESULT(int requestCode, int resultCode, Activity activity) {
 
         switch (requestCode) {
             case BluetoothHelper.REQUEST_ENABLE_BT:
@@ -79,8 +79,8 @@ public class BluetoothHelper {
     }
 
 
-    public static void onRequestPermissionsResult(int requestCode,
-                                                  @NonNull int[] grantResults, Activity activity) {
+    public static void ON_REQUEST_PERMISSIONS_RESULT(int requestCode,
+                                                     @NonNull int[] grantResults, Activity activity) {
 
         if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
