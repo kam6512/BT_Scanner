@@ -113,6 +113,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
+        dialog.dismiss();
         getActivity().finish();
         Toast.makeText(context, "you must Save own Prime Device", Toast.LENGTH_LONG).show();
     }
@@ -185,19 +186,25 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     private void setScannerL() {
         scanCallback = new ScanCallback() {
             @Override
+            @DebugLog
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-
-                    deviceAdapter.addDevice(result.getDevice(), result.getRssi());
+                    if (result.getDevice().getName() != null && result.getDevice().getName().equals("Prime")) {
+                        deviceAdapter.addDevice(result.getDevice(), result.getRssi());
+                    }
                 }
             }
 
 
             @Override
+            @DebugLog
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        deviceAdapter.addDevice(result.getDevice(), result.getRssi());
+                        if (result.getDevice().getName() != null && result.getDevice().getName().equals("Prime")) {
+                            deviceAdapter.addDevice(result.getDevice(), result.getRssi());
+                        }
+
                     }
                 }
             }
@@ -216,7 +223,9 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                deviceAdapter.addDevice(device, rssi);
+                if (device.getName() != null && device.getName().equals("Prime")) {
+                    deviceAdapter.addDevice(device, rssi);
+                }
             }
         };
     }

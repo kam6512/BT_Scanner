@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.menu;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +43,7 @@ public class UserDataDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.f_prime_user, container, false);
+        view = inflater.inflate(R.layout.df_prime_user, container, false);
         setUserInput();
         setBtn();
         return view;
@@ -100,7 +98,7 @@ public class UserDataDialogFragment extends DialogFragment {
             editor.putString(PrimeHelper.KEY_AGE, userAge);
             editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
             editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
-            editor.putString(PrimeHelper.KEY_STEP, userStep);
+            editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
             editor.putString(PrimeHelper.KEY_GENDER, userGender);
             editor.apply();
             getFragmentManager().beginTransaction().remove(this).commit();
