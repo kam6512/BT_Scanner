@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,10 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import hugo.weaving.DebugLog;
@@ -28,7 +23,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-11-02.
  */
-public class SettingFragment extends DialogFragment {
+public class UserDataDialogFragment extends DialogFragment {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -43,16 +38,7 @@ public class SettingFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            try {
-                sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
-
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnSettingListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
+        sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
     }
 
 
@@ -62,7 +48,6 @@ public class SettingFragment extends DialogFragment {
         view = inflater.inflate(R.layout.f_prime_user, container, false);
         setUserInput();
         setBtn();
-        Log.e(TAG, isVisible() + " / " + isInLayout() + " / " + isAdded());
         return view;
     }
 
@@ -109,7 +94,7 @@ public class SettingFragment extends DialogFragment {
                 break;
         }
 
-        if (!checkTextInputLayout(view.findViewById(R.id.prime_init_group))) {
+        if (!checkInputLayoutText(view.findViewById(R.id.prime_init_group))) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(PrimeHelper.KEY_NAME, userName);
             editor.putString(PrimeHelper.KEY_AGE, userAge);
@@ -124,7 +109,7 @@ public class SettingFragment extends DialogFragment {
 
 
     @DebugLog
-    private boolean checkTextInputLayout(View view) {
+    private boolean checkInputLayoutText(View view) {
         boolean hasError = false;
         if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;

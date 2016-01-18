@@ -9,10 +9,12 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -59,7 +61,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     private DeviceAdapter deviceAdapter;
 
     private final Handler handler = new Handler();
-    private final Runnable runnable = new Runnable() {
+    private final Runnable stop = new Runnable() {
         @Override
         public void run() {
             stopScan();
@@ -91,6 +93,10 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_prime_add_device, container, false);
 
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
+            BluetoothHelper.CHECK_PERMISSIONS((PrimeActivity) context);
+        }
+
         setWindowSetting();
         setRecyclerView();
         setOtherView();
@@ -99,7 +105,16 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
 
+
         return view;
+    }
+
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        getActivity().finish();
+        Toast.makeText(context, "you must Save own Prime Device", Toast.LENGTH_LONG).show();
     }
 
 
@@ -158,7 +173,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
 
     private void setScannerCallback() {
-        if (BluetoothHelper.isBuildVersionLM) {
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             setScannerL();
         } else {
             setScanner();
@@ -172,6 +187,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
+
                     deviceAdapter.addDevice(result.getDevice(), result.getRssi());
                 }
             }
@@ -216,13 +232,13 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
                 deviceAdapter.clear();
 
-                if (BluetoothHelper.isBuildVersionLM) {
+                if (BluetoothHelper.IS_BUILD_VERSION_LM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
 
                 startScan();
             } else {
-                BluetoothHelper.initBluetoothOn((PrimeActivity) context);
+                BluetoothHelper.BLUETOOTH_REQUEST((PrimeActivity) context);
             }
         } catch (Exception e) {
             Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
@@ -234,7 +250,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        handler.postDelayed(runnable, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
+        handler.postDelayed(stop, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
 
         deviceAdapter.clear();
         isScanning = true;
@@ -243,7 +259,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         swipeRefreshLayout.post(postSwipeRefresh);
 
         //시작
-        if (BluetoothHelper.isBuildVersionLM) {
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             if (bleScanner != null) {
                 bleScanner.startScan(scanCallback);
             }
@@ -257,14 +273,14 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
-        handler.removeCallbacks(runnable);
+        handler.removeCallbacks(stop);
 
         isScanning = false;
         noDeviceTextView.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(false);
 
         //중지
-        if (BluetoothHelper.isBuildVersionLM) {
+        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {
                 bleScanner.stopScan(scanCallback);
             }
