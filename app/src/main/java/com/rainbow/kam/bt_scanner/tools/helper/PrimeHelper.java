@@ -165,21 +165,32 @@ public class PrimeHelper {
     }
 
 
-    public static StringBuilder readTime(byte[] characteristicValue) {
-        StringBuilder result = new StringBuilder();
+    public static StringBuilder[] readTime(byte[] characteristicValue) {
+        StringBuilder date = new StringBuilder();
+        StringBuilder time = new StringBuilder();
+
         for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
             switch (i) {
-                default:
-                    result.append(Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
-                    result.append(timeSet[i - 2]).append(" ");
+                case 2:
+                case 3:
+                case 4:
+                    date.append(Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    date.append(timeSet[i - 2]).append(" ");
+                    break;
+
+                case 5:
+                case 6:
+                case 7:
+                    time.append(Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    time.append(timeSet[i - 2]).append(" ");
                     break;
                 case 8:
                     int j = characteristicValue[i];
-                    result.append(weekSet[j - 1]);
+                    date.append(weekSet[j - 1]);
                     break;
             }
         }
-        return result;
+        return new StringBuilder[]{date, time};
     }
 
 

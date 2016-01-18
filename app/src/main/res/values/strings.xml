@@ -76,7 +76,8 @@
     <string name="logo.company">Rainbow - Wireless</string>
 
 
-    <string name="dashboard.time">Device Time</string>
+    <string name="dashboard.time">Time</string>
+    <string name="dashboard.update">최근 업데이트</string>
 
     <string name="dashboard.step">STEP</string>
     <string name="dashboard.calorie">CALORIE</string>

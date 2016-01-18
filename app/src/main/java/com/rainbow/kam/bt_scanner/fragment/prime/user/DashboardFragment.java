@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +17,12 @@ public class DashboardFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private TextView time;
+    private TextView dateTextView, timeTextView;
     private TextView stepTextView;
     private TextView calorieTextView;
     private TextView distanceTextView;
+
+    private NestedScrollView nestedScrollView;
 
 
     @Override
@@ -27,18 +30,22 @@ public class DashboardFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.f_prime_main_dashboard, container, false);
 
-        time = (TextView) view.findViewById(R.id.deviceTime);
+        dateTextView = (TextView) view.findViewById(R.id.dashboard_date);
+        timeTextView = (TextView) view.findViewById(R.id.dashboard_time);
         stepTextView = (TextView) view.findViewById(R.id.dashboard_step);
         calorieTextView = (TextView) view.findViewById(R.id.dashboard_calorie);
         distanceTextView = (TextView) view.findViewById(R.id.dashboard_distance);
-
+        nestedScrollView = (NestedScrollView) view.findViewById(R.id.dashboard_root);
+//        nestedScrollView.setNestedScrollingEnabled(false);
+        nestedScrollView.setFillViewport(true);
         return view;
     }
 
 
-    public void setTime(StringBuilder characteristicTime) {
+    public void setTime(StringBuilder date, StringBuilder time) {
         try {
-            time.setText(characteristicTime);
+            this.dateTextView.setText(date);
+            this.timeTextView.setText(time);
         } catch (Exception e) {
             setTextFail();
         }
@@ -57,7 +64,8 @@ public class DashboardFragment extends Fragment {
 
 
     public void setTextFail() {
-        time.setText("Access Denial");
+        dateTextView.setText("Access Denial");
+        timeTextView.setText("Access Denial");
         stepTextView.setText("Access Denial");
         calorieTextView.setText("Access Denial");
         distanceTextView.setText("Access Denial");

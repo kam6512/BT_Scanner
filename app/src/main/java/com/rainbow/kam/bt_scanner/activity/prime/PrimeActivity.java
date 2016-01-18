@@ -534,7 +534,7 @@ public class PrimeActivity extends AppCompatActivity implements
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue()));
+                                dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue())[0],PrimeHelper.readTime(ch.getValue())[1]);
                             }
                         });
 
