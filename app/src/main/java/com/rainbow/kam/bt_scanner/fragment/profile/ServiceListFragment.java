@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,75 +34,10 @@ public class ServiceListFragment extends Fragment {
     private OnServiceReadyListener onServiceReadyListener;
 
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.e("Service", "onCreate");
-    }
-
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        Log.e("Service", "onViewStateRestored");
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.e("Service", "onStart");
-    }
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.e("Service", "onPause");
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.e("Service", "onResume");
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.e("Service", "onStop");
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.e("Service", "onDestroyView");
-
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.e("Service", "onDestroy");
-    }
-
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.e("Service", "onDetach");
-    }
-
-
     @DebugLog
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.e("Service", "onAttach");
         if (context instanceof Activity) {
             try {
                 this.context = context;
@@ -121,7 +55,6 @@ public class ServiceListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
-            Log.e("Service", "onCreateView");
             view = inflater.inflate(R.layout.f_profile_service, container, false);
             setRecyclerView();
         }
@@ -133,7 +66,6 @@ public class ServiceListFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.e("Service", "onViewCreated");
         onServiceReadyListener.onServiceReady();
     }
 

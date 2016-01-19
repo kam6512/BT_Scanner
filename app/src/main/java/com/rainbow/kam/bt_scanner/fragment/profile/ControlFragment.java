@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,75 +63,8 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d("Control", "onCreate");
-    }
-
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        Log.d("Control", "onViewStateRestored");
-    }
-
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Log.d("Control", "onViewCreated");
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d("Control", "onStart");
-    }
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d("Control", "onPause");
-        notificationEnabled = false;
-        onControlListener.setNotification(notificationEnabled);
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d("Control", "onStop");
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.d("Control", "onDestroyView");
-
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d("Control", "onDestroy");
-    }
-
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.d("Control", "onDetach");
-    }
-
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.d("Control", "onAttach");
         if (context instanceof Activity) {
             try {
                 this.context = context;
@@ -150,7 +81,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.f_profile_control, container, false);
-        Log.d("Control", "onCreateView");
+
         deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
         deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
 
@@ -181,9 +112,16 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     @Override
     public void onResume() {
-        Log.d("Control", "onResume");
         super.onResume();
         onControlListener.onControlReady();
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        notificationEnabled = false;
+        onControlListener.setNotification(notificationEnabled);
     }
 
 
@@ -289,7 +227,6 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
     private void setTimeStamp() {
         lastUpdateTime = new SimpleDateFormat(context.getString(R.string.profile_timestamp)).format(new Date());
-
     }
 
 
@@ -308,7 +245,6 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
             charStrValue.setText(strValue);
             charDateValue.setText(lastUpdateTime);
         }
-
     }
 
 

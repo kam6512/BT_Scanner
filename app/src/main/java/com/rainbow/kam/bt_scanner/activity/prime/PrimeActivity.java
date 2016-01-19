@@ -110,7 +110,12 @@ public class PrimeActivity extends AppCompatActivity implements
     private Realm realm;
 
     private final Handler handler = new Handler();
-
+    private final Runnable postSwipeRefresh = new Runnable() {
+        @Override
+        public void run() {
+            swipeRefreshLayout.setRefreshing(true);
+        }
+    };
 
     @DebugLog
     @Override
@@ -296,6 +301,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
         userDataDialogFragment = new UserDataDialogFragment();
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
+        selectDeviceDialogFragment.setCancelable(false);
 
         dashboardFragment = new DashboardFragment();
         stepFragment = new StepFragment();
@@ -316,19 +322,18 @@ public class PrimeActivity extends AppCompatActivity implements
         userSnackBar = Snackbar.make(coordinatorLayout, "신체 정보를 입력하시겠습니까?", Snackbar.LENGTH_LONG).setAction("입력", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragmentManager.beginTransaction().add(userDataDialogFragment, "Setting").commit();
+                fragmentManager.beginTransaction().add(userDataDialogFragment, "user info").commit();
             }
         });
     }
 
 
-    public void registerBluetooth() {
+    private void registerBluetooth() {
         if (sharedPreferences.getAll().isEmpty()) {
             if (!swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
             deviceSnackBar.show();
-
 
             return;
         } else if (sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default)).equals(getString(R.string.user_name_default))) {
@@ -353,6 +358,7 @@ public class PrimeActivity extends AppCompatActivity implements
             try {
                 gattManager.connect(deviceAddress);
                 listType = ListType.INIT;
+                swipeRefreshLayout.post(postSwipeRefresh);
             } catch (NullPointerException e) {
                 Log.e(TAG, e.getMessage());
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();

@@ -1,14 +1,10 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
-import android.util.Log;
-
 import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
-import hugo.weaving.DebugLog;
 
 /**
  * Created by kam6512 on 2016-01-08.
@@ -23,12 +19,12 @@ public class DeviceAdapterHelper {
             if (index++ == position) {
                 deviceItemEntry = entry;
             }
-            Log.i("getValue Entry", entry.getValue().getExtraAddress());
+//            Log.i("getValue Entry", entry.getValue().getExtraAddress());
         }
 
-        for (DeviceItem deviceItem : hashMap.values()) {
-            Log.i("getValue DeviceItem", deviceItem.getExtraAddress());
-        }
+//        for (DeviceItem deviceItem : hashMap.values()) {
+//            Log.i("getValue DeviceItem", deviceItem.getExtraAddress());
+//        }
         return deviceItemEntry.getValue();
     }
 }

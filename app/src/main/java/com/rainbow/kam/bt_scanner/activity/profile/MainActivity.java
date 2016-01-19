@@ -70,11 +70,6 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void run() {
             stopScan();
-
-            if (deviceAdapter.getItemCount() < 1) {
-                noDeviceTextView.setVisibility(View.VISIBLE);
-            }
-            deviceAdapter.notifyDataSetChanged();
         }
     };
     private final Runnable postSwipeRefresh = new Runnable() {
@@ -276,8 +271,6 @@ public class MainActivity extends AppCompatActivity implements
 
             if (bluetoothAdapter.isEnabled() && bluetoothManager != null && bluetoothAdapter != null) {
 
-                deviceAdapter.clear();
-
                 if (BluetoothHelper.IS_BUILD_VERSION_LM) {
                     bleScanner = bluetoothAdapter.getBluetoothLeScanner();
                 }
@@ -309,8 +302,9 @@ public class MainActivity extends AppCompatActivity implements
     private synchronized void startScan() {
         handler.postDelayed(stop, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
 
-        deviceAdapter.clear();
         isScanning = true;
+        deviceAdapter.clear();
+
         noDeviceTextView.setVisibility(View.INVISIBLE);
 
         swipeRefreshLayout.post(postSwipeRefresh);
@@ -334,7 +328,13 @@ public class MainActivity extends AppCompatActivity implements
         handler.removeCallbacks(stop);
 
         isScanning = false;
-        noDeviceTextView.setVisibility(View.INVISIBLE);
+
+        if (deviceAdapter.getItemCount() < 1) {
+            noDeviceTextView.setVisibility(View.VISIBLE);
+        }else {
+            noDeviceTextView.setVisibility(View.INVISIBLE);
+        }
+        deviceAdapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
 
         //중지

@@ -62,7 +62,6 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="0"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"/>
 
@@ -90,7 +89,7 @@
                     android:layout_height="match_parent"
                     android:layout_centerInParent="true"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/calorie_walpaper"
+                    android:src="@drawable/calorie_wallpaper"
                     android:tint="#88101010"
                     />
 
@@ -119,7 +118,6 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="0"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"/>
 
@@ -178,7 +176,6 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="0"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"/>
 
@@ -234,7 +231,6 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="0"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"/>
 
@@ -249,7 +245,6 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="0"
                     android:textColor="@android:color/white"
                     android:textSize="15sp"/>
             </RelativeLayout>

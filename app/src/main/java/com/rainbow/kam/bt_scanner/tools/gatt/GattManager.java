@@ -23,7 +23,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-10-29.
  */
-public class GattManager extends BluetoothGattCallback {
+public class GattManager {
 
     private final String TAG = getClass().getSimpleName();
     private static final int RSSI_UPDATE_TIME_INTERVAL = 5000;
@@ -67,7 +67,7 @@ public class GattManager extends BluetoothGattCallback {
             if (bluetoothDevice == null) {
                 throw new NullPointerException("RemoteDevice is not available");
             }
-            bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
         }
     }
 

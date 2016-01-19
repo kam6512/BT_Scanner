@@ -27,10 +27,17 @@ public class UserDataDialogFragment extends DialogFragment {
 
     private View view;
 
-    private TextInputLayout name, age, height, weight, step;
+    private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput, stepTextInput;
     private RadioGroup genderGroup;
 
     private SharedPreferences sharedPreferences;
+
+    private String name;
+    private String age;
+    private String height;
+    private String weight;
+    private String step;
+    private String gender;
 
 
     @Override
@@ -51,11 +58,11 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void setUserInput() {
-        name = (TextInputLayout) view.findViewById(R.id.prime_add_user_name);
-        age = (TextInputLayout) view.findViewById(R.id.prime_add_user_age);
-        height = (TextInputLayout) view.findViewById(R.id.prime_add_user_height);
-        weight = (TextInputLayout) view.findViewById(R.id.prime_add_user_weight);
-        step = (TextInputLayout) view.findViewById(R.id.prime_add_user_step);
+        nameTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_name);
+        ageTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_age);
+        heightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_height);
+        weightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_weight);
+        stepTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_step);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
     }
 
@@ -73,34 +80,25 @@ public class UserDataDialogFragment extends DialogFragment {
 
     @DebugLog
     private void onAccept() {
-        String userName = name.getEditText().getText().toString();
-        String userAge = age.getEditText().getText().toString();
-        String userHeight = height.getEditText().getText().toString();
-        String userWeight = weight.getEditText().getText().toString();
-        String userStep = step.getEditText().getText().toString();
-
-        String userGender;
+        name = nameTextInput.getEditText().getText().toString();
+        age = ageTextInput.getEditText().getText().toString();
+        height = heightTextInput.getEditText().getText().toString();
+        weight = weightTextInput.getEditText().getText().toString();
+        step = stepTextInput.getEditText().getText().toString();
         switch (genderGroup.getCheckedRadioButtonId()) {
             case R.id.radio_man:
-                userGender = getString(R.string.gender_man);
+                gender = getString(R.string.gender_man);
                 break;
             case R.id.radio_woman:
-                userGender = getString(R.string.gender_woman);
+                gender = getString(R.string.gender_woman);
                 break;
             default:
-                userGender = getString(R.string.gender_man);
+                gender = getString(R.string.gender_man);
                 break;
         }
 
         if (!checkInputLayoutText(view.findViewById(R.id.prime_init_group))) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(PrimeHelper.KEY_NAME, userName);
-            editor.putString(PrimeHelper.KEY_AGE, userAge);
-            editor.putString(PrimeHelper.KEY_HEIGHT, userHeight);
-            editor.putString(PrimeHelper.KEY_WEIGHT, userWeight);
-            editor.putString(PrimeHelper.KEY_STEP_STRIDE, userStep);
-            editor.putString(PrimeHelper.KEY_GENDER, userGender);
-            editor.apply();
+            saveUserInfo();
             getFragmentManager().beginTransaction().remove(this).commit();
         }
     }
@@ -127,5 +125,17 @@ public class UserDataDialogFragment extends DialogFragment {
             }
         }
         return hasError;
+    }
+
+
+    private void saveUserInfo() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PrimeHelper.KEY_NAME, name);
+        editor.putString(PrimeHelper.KEY_AGE, age);
+        editor.putString(PrimeHelper.KEY_HEIGHT, height);
+        editor.putString(PrimeHelper.KEY_WEIGHT, weight);
+        editor.putString(PrimeHelper.KEY_STEP_STRIDE, step);
+        editor.putString(PrimeHelper.KEY_GENDER, gender);
+        editor.apply();
     }
 }

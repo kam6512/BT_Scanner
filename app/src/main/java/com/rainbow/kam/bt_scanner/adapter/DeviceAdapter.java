@@ -32,7 +32,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private final OnDeviceSelectListener onDeviceSelectListener;
 
-    private Activity activity;
+    private final Activity activity;
 
 
     public DeviceAdapter(Activity activity) {
@@ -99,10 +99,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private final CardView deviceItemCardView;
 
-        private TableRow type, bond, rssi;
-        private Animation expandAnimation, collapseAnimation;
+        private final TableRow type;
+        private final TableRow bond;
+        private final TableRow rssi;
+        private final Animation expandAnimation;
+        private final Animation collapseAnimation;
 
-        private ImageView expendImageView;
+        private final ImageView expendImageView;
 
 
         public DeviceViewHolder(final View itemView) {
@@ -126,7 +129,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             collapseAnimation.setAnimationListener(this);
 
             expendImageView = (ImageView) itemView.findViewById(R.id.item_expend);
-            expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
             expendImageView.setOnClickListener(this);
             expendImageView.setColorFilter(Color.parseColor("#000000"));
         }
@@ -142,6 +144,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             extraBondState.setText(String.valueOf(deviceItem.getExtraBondState()));
             extraType.setText(String.valueOf(deviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(deviceItem.getExtraRssi()));
+
+
+            expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
+
             type.setVisibility(View.GONE);
             bond.setVisibility(View.GONE);
             rssi.setVisibility(View.GONE);
