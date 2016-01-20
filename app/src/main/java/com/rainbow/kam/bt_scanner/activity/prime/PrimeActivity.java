@@ -35,11 +35,8 @@ import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.CalorieFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.HistoryFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.DashboardFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.DistanceFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.SampleFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.StepFragment;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
@@ -62,7 +59,8 @@ public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
         TabLayout.OnTabSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
-        DeviceAdapter.OnDeviceSelectListener {
+        DeviceAdapter.OnDeviceSelectListener,
+        DashboardFragment.OnClickCardListener {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
 
@@ -74,7 +72,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private String userGender;
     private String deviceAddress;
 
-
     private enum ListType {
         INIT, READ_TIME, READ_STEP_DATA, ETC, FINISH
     }
@@ -82,24 +79,20 @@ public class PrimeActivity extends AppCompatActivity implements
     private ListType listType;
 
     private FragmentManager fragmentManager;
+
     private UserDataDialogFragment userDataDialogFragment;
     private SelectDeviceDialogFragment selectDeviceDialogFragment;
-
-    private Snackbar deviceSnackBar, userSnackBar;
-
-
     private DashboardFragment dashboardFragment;
-    private StepFragment stepFragment;
-    private CalorieFragment calorieFragment;
-    private DistanceFragment distanceFragment;
-    private SampleFragment sampleFragment;
+    private HistoryFragment historyFragment;
 
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private TabLayout tabLayout;
     private ViewPager viewPager;
+    private Snackbar deviceSnackBar, userSnackBar;
 
     private GattManager gattManager;
     private List<BluetoothGattCharacteristic> characteristicList;
@@ -116,6 +109,7 @@ public class PrimeActivity extends AppCompatActivity implements
             swipeRefreshLayout.setRefreshing(true);
         }
     };
+
 
     @DebugLog
     @Override
@@ -206,21 +200,6 @@ public class PrimeActivity extends AppCompatActivity implements
         item.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
         switch (item.getItemId()) {
-            case R.id.menu_prime_dashboard:
-                viewPager.setCurrentItem(0, true);
-                return true;
-            case R.id.menu_prime_dashboard_step:
-                viewPager.setCurrentItem(1, true);
-                return true;
-            case R.id.menu_prime_dashboard_calorie:
-                viewPager.setCurrentItem(2, true);
-                return true;
-            case R.id.menu_prime_dashboard_distance:
-                viewPager.setCurrentItem(3, true);
-                return true;
-            case R.id.menu_prime_dashboard_sleep:
-                viewPager.setCurrentItem(4, true);
-                return true;
             case R.id.menu_prime_info_user:
                 return true;
             case R.id.menu_prime_info_prime:
@@ -286,11 +265,11 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void setViewPager() {
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.prime_tabs);
+        tabLayout = (TabLayout) findViewById(R.id.prime_tabs);
         DashBoardAdapter dashBoardAdapter = new DashBoardAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.prime_viewpager);
         viewPager.setAdapter(dashBoardAdapter);
-        viewPager.setOffscreenPageLimit(5);
+        viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(this);
         tabLayout.setupWithViewPager(viewPager);
@@ -304,10 +283,7 @@ public class PrimeActivity extends AppCompatActivity implements
         selectDeviceDialogFragment.setCancelable(false);
 
         dashboardFragment = new DashboardFragment();
-        stepFragment = new StepFragment();
-        calorieFragment = new CalorieFragment();
-        distanceFragment = new DistanceFragment();
-        sampleFragment = new SampleFragment();
+        historyFragment = new HistoryFragment();
     }
 
 
@@ -398,6 +374,11 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
+    private void loadPrimeData() {
+        historyFragment.addHistory(realm.where(RealmPrimeItem.class).findAll());
+    }
+
+
     @DebugLog
     private void saveUserData(String name, String address) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -456,6 +437,27 @@ public class PrimeActivity extends AppCompatActivity implements
         }
         saveUserData(name, address);
         registerBluetooth();
+    }
+
+
+    @Override
+    public void onStepClick(int value) {
+        historyFragment.setCurrentCounter(0);
+        tabLayout.getTabAt(1).select();
+    }
+
+
+    @Override
+    public void onCalorieClick(int value) {
+        historyFragment.setCurrentCounter(1);
+        tabLayout.getTabAt(1).select();
+    }
+
+
+    @Override
+    public void onDistanceClick(int value) {
+        historyFragment.setCurrentCounter(2);
+        tabLayout.getTabAt(1).select();
     }
 
 
@@ -560,12 +562,9 @@ public class PrimeActivity extends AppCompatActivity implements
                             @Override
                             public void run() {
                                 dashboardFragment.setStepData(step, kcal, distance);
-                                stepFragment.setStep(step);
-                                calorieFragment.setCalorie(kcal);
-                                distanceFragment.setDist(distance);
-                                sampleFragment.setSample(distance);
 
                                 savePrimeData(step, kcal, distance);
+                                loadPrimeData();
                             }
                         });
 
@@ -573,6 +572,7 @@ public class PrimeActivity extends AppCompatActivity implements
                         break;
 
                     case ETC:
+
                         listType = ListType.FINISH;
                     case FINISH:
                     default:
@@ -618,7 +618,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private class DashBoardAdapter extends FragmentStatePagerAdapter {
 
-        private final String tabTitles[] = new String[]{"DASHBOARD", "STEP", "CALORIE", "DISTANCE", "ETC"};
+        private final String tabTitles[] = new String[]{"DASHBOARD", "HISTORY"};
         final int PAGE_COUNT = tabTitles.length;
 
 
@@ -633,13 +633,9 @@ public class PrimeActivity extends AppCompatActivity implements
                 case 0:
                     return dashboardFragment;
                 case 1:
-                    return stepFragment;
-                case 2:
-                    return calorieFragment;
-                case 3:
-                    return distanceFragment;
+                    return historyFragment;
                 default:
-                    return sampleFragment;
+                    return historyFragment;
             }
         }
 

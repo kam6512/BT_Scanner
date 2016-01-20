@@ -40,8 +40,8 @@
         <item name="android:layout_margin">@dimen/circle_counter_margin</item>
         <item name="metricSize">20sp</item>
         <item name="range">60</item>
-        <item name="textColor">@color/circle_text</item>
-        <item name="textSize">100sp</item>
+        <item name="textColor">@null</item>
+        <item name="textSize">60sp</item>
     </style>
 
 </resources>

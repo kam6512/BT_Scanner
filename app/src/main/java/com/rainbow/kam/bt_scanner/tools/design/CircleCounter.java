@@ -24,6 +24,7 @@ public class CircleCounter extends View {
 
     private final static float START_DEGREES = 90;
 
+    private TypedArray typedArray;
 
     private int mBackgroundCenter;
     private int mBackgroundRadius;
@@ -82,9 +83,6 @@ public class CircleCounter extends View {
     private Typeface mTypeface;
 
 
-    private SpeedHandler mSpinHandler;
-
-
     @SuppressLint("Recycle")
     public CircleCounter(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -96,7 +94,6 @@ public class CircleCounter extends View {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        mSpinHandler = new SpeedHandler(this);
         setupBounds();
         setupPaints();
         setupTextPosition();
@@ -107,7 +104,6 @@ public class CircleCounter extends View {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        mSpinHandler = null;
         mOnePaint = null;
         mOneBounds = null;
         mTwoPaint = null;
@@ -200,19 +196,21 @@ public class CircleCounter extends View {
     }
 
 
-    private void init(TypedArray a) {
+    private void init(TypedArray typedArray) {
+        this.typedArray = typedArray;
 
-        mTextSize = a.getDimension(R.styleable.CircularMeter_textSize,
+        mTextSize = typedArray.getDimension(R.styleable.CircularMeter_textSize,
                 getResources().getDimension(R.dimen.text_size));
-        mTextColor = a
+        mTextColor = typedArray
                 .getColor(R.styleable.CircularMeter_textColor, mTextColor);
 
-        mMetricSize = a.getDimension(R.styleable.CircularMeter_metricSize,
+        mMetricSize = typedArray.getDimension(R.styleable.CircularMeter_metricSize,
                 getResources().getDimension(R.dimen.metric_size));
-        mMetricText = a.getString(R.styleable.CircularMeter_metricText);
+        mMetricText = typedArray.getString(R.styleable.CircularMeter_metricText);
         mMetricPaddingY = getResources().getDimension(R.dimen.metric_padding_y);
 
-        mRange = a.getInt(R.styleable.CircularMeter_range, 100);
+        mRange = typedArray.getInt(R.styleable.CircularMeter_range, 100);
+
 
         mOneWidth = getResources().getDimension(R.dimen.width);
         mTwoWidth = getResources().getDimension(R.dimen.width);
@@ -226,7 +224,7 @@ public class CircleCounter extends View {
         mTwoDegrees = 0;
         mThreeDegrees = 0;
 
-        String aux = a.getString(R.styleable.CircularMeter_typeface);
+        String aux = typedArray.getString(R.styleable.CircularMeter_typeface);
         if (aux != null)
             mTypeface = Typeface.createFromAsset(this.getResources()
                     .getAssets(), aux);
@@ -276,9 +274,12 @@ public class CircleCounter extends View {
 
 
     public CircleCounter setRange(int range) {
+        invalidate();
         mRange = range;
+        invalidate();
         return this;
     }
+
 
     public void setTextSize(float size) {
         mTextSize = size;
@@ -292,16 +293,19 @@ public class CircleCounter extends View {
 
     public void setFirstColor(int color) {
         mOneColor = color;
+        invalidate();
     }
 
 
     public void setSecondColor(int color) {
         mTwoColor = color;
+        invalidate();
     }
 
 
     public void setThirdColor(int color) {
         mThreeColor = color;
+        invalidate();
     }
 
 
@@ -313,6 +317,7 @@ public class CircleCounter extends View {
 
     public CircleCounter setMetricText(String text) {
         mMetricText = text;
+        invalidate();
         return this;
     }
 
@@ -320,6 +325,7 @@ public class CircleCounter extends View {
     @Override
     public void setBackgroundColor(int color) {
         mBackgroundColor = color;
+        invalidate();
     }
 
 

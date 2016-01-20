@@ -2,15 +2,15 @@
 <FrameLayout
     android:id="@+id/prime_start_frame"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@null">
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/prime_drawer_layout"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"
@@ -74,7 +74,7 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     app:tabGravity="center"
-                    app:tabMode="scrollable"/>
+                    app:tabMode="fixed"/>
 
 
             </android.support.design.widget.AppBarLayout>
@@ -89,7 +89,7 @@
             <android.support.v4.widget.SwipeRefreshLayout
                 android:id="@+id/prime_swipeRefreshLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@null"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -98,7 +98,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
-                    android:foreground="?android:windowContentOverlay"/>
+                    android:foreground="?android:windowContentOverlay"
+                    />
             </android.support.v4.widget.SwipeRefreshLayout>
 
         </android.support.design.widget.CoordinatorLayout>
