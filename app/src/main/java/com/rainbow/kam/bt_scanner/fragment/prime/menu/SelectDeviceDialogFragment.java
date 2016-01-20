@@ -86,7 +86,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         view = inflater.inflate(R.layout.df_prime_add_device, container, false);
 
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
-            BluetoothHelper.CHECK_PERMISSIONS((PrimeActivity) context);
+            BluetoothHelper.checkPermissions((PrimeActivity) context);
         }
 
         setWindowSetting();
@@ -227,7 +227,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
                 startScan();
             } else {
-                BluetoothHelper.BLUETOOTH_REQUEST((PrimeActivity) context);
+                BluetoothHelper.bluetoothRequest((PrimeActivity) context);
             }
         } catch (Exception e) {
             Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();

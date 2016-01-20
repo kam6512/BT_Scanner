@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.a_main);
 
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
-            BluetoothHelper.CHECK_PERMISSIONS(this);
+            BluetoothHelper.checkPermissions(this);
         }
 
         setToolbar();
@@ -155,14 +155,14 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.ON_ACTIVITY_RESULT(requestCode, resultCode, this);
+        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        BluetoothHelper.ON_REQUEST_PERMISSIONS_RESULT(requestCode, grantResults, this);
+        BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
     }
 
 
@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements
                 startScan();
 
             } else {
-                BluetoothHelper.BLUETOOTH_REQUEST(this);
+                BluetoothHelper.bluetoothRequest(this);
             }
         } catch (Exception e) {
             Toast.makeText(this, R.string.bt_fail, Toast.LENGTH_LONG).show();

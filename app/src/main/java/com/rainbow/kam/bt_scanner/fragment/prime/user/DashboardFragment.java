@@ -3,12 +3,16 @@ package com.rainbow.kam.bt_scanner.fragment.prime.user;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by kam6512 on 2015-11-04.
@@ -42,11 +46,15 @@ public class DashboardFragment extends Fragment {
     }
 
 
-    public void setTime(StringBuilder date, StringBuilder time) {
+    public void setTime(Calendar calendar) {
         try {
-            this.dateTextView.setText(date);
-            this.timeTextView.setText(time);
+            SimpleDateFormat date = new SimpleDateFormat("yy년 MM 월 dd일");
+            SimpleDateFormat time = new SimpleDateFormat("HH시 mm분");
+
+            this.dateTextView.setText(date.format(calendar.getTime()));
+            this.timeTextView.setText(time.format(calendar.getTime()));
         } catch (Exception e) {
+            Log.e(TAG,e.getMessage());
             setTextFail();
         }
     }

@@ -124,7 +124,7 @@ public class PrimeActivity extends AppCompatActivity implements
         setContentView(R.layout.a_prime);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            BluetoothHelper.CHECK_PERMISSIONS(PrimeActivity.this);
+            BluetoothHelper.checkPermissions(PrimeActivity.this);
         }
 
         sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
@@ -245,14 +245,14 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.ON_ACTIVITY_RESULT(requestCode, resultCode, this);
+        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        BluetoothHelper.ON_REQUEST_PERMISSIONS_RESULT(requestCode, grantResults, this);
+        BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
     }
 
 
@@ -347,7 +347,7 @@ public class PrimeActivity extends AppCompatActivity implements
             loadUserData();
             connectDevice();
         } else {
-            BluetoothHelper.BLUETOOTH_REQUEST(this);
+            BluetoothHelper.bluetoothRequest(this);
         }
     }
 
@@ -531,7 +531,7 @@ public class PrimeActivity extends AppCompatActivity implements
                 switch (listType) {
                     case INIT: // BluetoothGattCharacteristic is nullable
 
-                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_DEVICE_TIME());
+                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadTime);
 
                         listType = ListType.READ_TIME;
                         break;
@@ -540,11 +540,11 @@ public class PrimeActivity extends AppCompatActivity implements
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue())[0],PrimeHelper.readTime(ch.getValue())[1]);
+                                dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue()));
                             }
                         });
 
-                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_STEP_DATA());
+                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
 
                         listType = ListType.READ_STEP_DATA;
                         break;

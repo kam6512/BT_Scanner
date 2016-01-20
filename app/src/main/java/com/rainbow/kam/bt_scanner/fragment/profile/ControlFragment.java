@@ -258,7 +258,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
                 String newValue = charHexValue.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
                     try {
-                        byte[] dataToWrite = PrimeHelper.WRITE_FROM_CONTROL(newValue);
+                        byte[] dataToWrite = PrimeHelper.getBytes(newValue);
                         onControlListener.setWriteValue(dataToWrite);
                     } catch (StringIndexOutOfBoundsException e) {
                         onControlListener.setWriteValue(null);
