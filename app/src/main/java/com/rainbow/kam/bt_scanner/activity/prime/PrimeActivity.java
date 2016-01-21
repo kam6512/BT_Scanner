@@ -32,7 +32,7 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
-import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.HistoryFragment;

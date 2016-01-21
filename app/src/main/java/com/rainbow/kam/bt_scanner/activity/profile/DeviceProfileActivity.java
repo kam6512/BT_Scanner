@@ -15,8 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
-import com.rainbow.kam.bt_scanner.adapter.ServiceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
+import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.profile.CharacteristicListFragment;
 import com.rainbow.kam.bt_scanner.fragment.profile.ControlFragment;
 import com.rainbow.kam.bt_scanner.fragment.profile.ServiceListFragment;

@@ -55,7 +55,6 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         calorieTextView = (TextView) view.findViewById(R.id.dashboard_calorie);
         distanceTextView = (TextView) view.findViewById(R.id.dashboard_distance);
         nestedScrollView = (NestedScrollView) view.findViewById(R.id.dashboard_root);
-//        nestedScrollView.setNestedScrollingEnabled(false);
         nestedScrollView.setFillViewport(true);
 
         stepCard = (CardView) view.findViewById(R.id.card_step);

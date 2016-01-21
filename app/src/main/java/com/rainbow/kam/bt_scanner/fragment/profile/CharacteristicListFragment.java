@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.DeviceProfileActivity;
-import com.rainbow.kam.bt_scanner.adapter.CharacteristicAdapter;
+import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
 
 import java.util.List;
 

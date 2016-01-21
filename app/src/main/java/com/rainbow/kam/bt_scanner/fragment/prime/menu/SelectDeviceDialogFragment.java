@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.adapter.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.List;

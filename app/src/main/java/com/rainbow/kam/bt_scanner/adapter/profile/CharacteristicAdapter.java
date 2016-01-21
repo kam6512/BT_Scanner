@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter;
+package com.rainbow.kam.bt_scanner.adapter.profile;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.support.v7.widget.RecyclerView;

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter;
+package com.rainbow.kam.bt_scanner.adapter.prime;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.HistoryFragment;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
 
+    private ArrayList<HistoryViewHolder> historyViewHolders = new ArrayList<>();
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -38,12 +41,20 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         HistoryViewHolder serviceViewHolder = (HistoryViewHolder) holder;
         serviceViewHolder.bindViews(historyArrayList.get(position));
+        historyViewHolders.add(serviceViewHolder);
     }
 
 
     @Override
     public int getItemCount() {
         return historyArrayList.size();
+    }
+
+
+    public void changeText(int dotsIndex) {
+        for (HistoryViewHolder historyViewHolder : historyViewHolders) {
+            historyViewHolder.onCircleCounterChange(dotsIndex);
+        }
     }
 
 
@@ -56,39 +67,42 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    public class HistoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class HistoryViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView stepTextView;
-        private final TextView calorieTextView;
-        private final TextView distanceTextView;
-        private final TextView calendarTextView;
+        private final TextView history_text;
+        String step;
+        String calorie;
+        String distance;
+        String calendar;
 
 
         public HistoryViewHolder(View itemView) {
             super(itemView);
-            stepTextView = (TextView) itemView.findViewById(R.id.prime_history_step);
-            calorieTextView = (TextView) itemView.findViewById(R.id.prime_history_calorie);
-            distanceTextView = (TextView) itemView.findViewById(R.id.prime_history_distance);
-            calendarTextView = (TextView) itemView.findViewById(R.id.prime_history_calendar);
-            itemView.setOnClickListener(this);
+            history_text = (TextView) itemView.findViewById(R.id.history_text);
         }
 
 
         private void bindViews(RealmPrimeItem realmPrimeItem) {
-            String step = String.valueOf(realmPrimeItem.getStep());
-            String calorie = String.valueOf(realmPrimeItem.getCalorie());
-            String distance = String.valueOf(realmPrimeItem.getDistance());
-            String calendar = realmPrimeItem.getCalendar();
-            stepTextView.setText(step);
-            calorieTextView.setText(calorie);
-            distanceTextView.setText(distance);
-            calendarTextView.setText(calendar);
+            step = String.valueOf(realmPrimeItem.getStep());
+            calorie = String.valueOf(realmPrimeItem.getCalorie());
+            distance = String.valueOf(realmPrimeItem.getDistance());
+            calendar = realmPrimeItem.getCalendar();
+            history_text.setText(step);
         }
 
 
-        @Override
-        public void onClick(View v) {
-
+        public void onCircleCounterChange(int dotsIndex) {
+            switch (dotsIndex) {
+                case 0:
+                    history_text.setText(step);
+                    break;
+                case 1:
+                    history_text.setText(calorie);
+                    break;
+                case 2:
+                    history_text.setText(distance);
+                    break;
+            }
         }
     }
 }

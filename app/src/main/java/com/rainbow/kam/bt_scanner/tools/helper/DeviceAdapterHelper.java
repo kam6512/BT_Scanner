@@ -1,6 +1,6 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
-import com.rainbow.kam.bt_scanner.adapter.DeviceItem;
+import com.rainbow.kam.bt_scanner.adapter.device.DeviceItem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

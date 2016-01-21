@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.DeviceProfileActivity;
-import com.rainbow.kam.bt_scanner.adapter.ServiceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
 
 import java.util.List;
 

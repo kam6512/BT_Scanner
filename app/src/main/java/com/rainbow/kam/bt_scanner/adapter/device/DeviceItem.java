@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter;
+package com.rainbow.kam.bt_scanner.adapter.device;
 
 import android.bluetooth.BluetoothDevice;
 

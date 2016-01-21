@@ -1,10 +1,10 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -14,9 +14,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.adapter.HistoryAdapter;
+import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
+import com.rainbow.kam.bt_scanner.tools.helper.NestedRecyclerViewHelper;
 
 import io.realm.RealmResults;
 
@@ -31,14 +32,12 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     private View view;
     private CircleCounter circleCounter;
 
-    private LinearLayout dotsLayout;
     private final int dotsCount = 3;
     private int currentCount = 0;
     private TextView[] dots;
 
-    int step, calorie, distance;
+    private int step, calorie, distance;
 
-    private RecyclerView recyclerView;
     private HistoryAdapter historyAdapter = new HistoryAdapter();
 
 
@@ -57,6 +56,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         setCircleCounter();
         setDotsLayout();
         setRecyclerView();
+        setCurrentCounter(0);
 
 
         return view;
@@ -71,13 +71,12 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         circleCounter.setBackgroundColor(ContextCompat.getColor(context, R.color.md_btn_selected_dark));
         circleCounter.setTextColor(ContextCompat.getColor(context, R.color.stepPrimaryDark));
         circleCounter.setOnClickListener(this);
-        setCurrentCounter(0);
     }
 
 
     private void setDotsLayout() {
 
-        dotsLayout = (LinearLayout) view.findViewById(R.id.pagerCountDots);
+        LinearLayout dotsLayout = (LinearLayout) view.findViewById(R.id.pagerCountDots);
         dots = new TextView[dotsCount];
         for (int i = 0; i < dotsCount; i++) {
             dots[i] = new TextView(context);
@@ -90,8 +89,8 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
 
 
     private void setRecyclerView() {
-        recyclerView = (RecyclerView) view.findViewById(R.id.history_recycler);
-        RecyclerView.LayoutManager layoutManager = new WrappingLinearLayoutManager(context);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.history_recycler);
+        RecyclerView.LayoutManager layoutManager = new NestedRecyclerViewHelper(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setHasFixedSize(false);
@@ -139,6 +138,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
                 setValue(distance);
                 break;
         }
+        historyAdapter.changeText(position);
     }
 
 
@@ -150,102 +150,4 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         setCurrentCounter(++currentCount);
     }
 
-
-    class WrappingLinearLayoutManager extends LinearLayoutManager {
-
-        public WrappingLinearLayoutManager(Context context) {
-            super(context);
-        }
-
-
-        private int[] mMeasuredDimension = new int[2];
-
-
-        @Override
-        public boolean canScrollVertically() {
-            return false;
-        }
-
-
-        @Override
-        public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state,
-                              int widthSpec, int heightSpec) {
-            final int widthMode = View.MeasureSpec.getMode(widthSpec);
-            final int heightMode = View.MeasureSpec.getMode(heightSpec);
-
-            final int widthSize = View.MeasureSpec.getSize(widthSpec);
-            final int heightSize = View.MeasureSpec.getSize(heightSpec);
-
-            int width = 0;
-            int height = 0;
-            for (int i = 0; i < getItemCount(); i++) {
-                if (getOrientation() == HORIZONTAL) {
-                    measureScrapChild(recycler, i,
-                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                            heightSpec,
-                            mMeasuredDimension);
-
-                    width = width + mMeasuredDimension[0];
-                    if (i == 0) {
-                        height = mMeasuredDimension[1];
-                    }
-                } else {
-                    measureScrapChild(recycler, i,
-                            widthSpec,
-                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                            mMeasuredDimension);
-
-                    height = height + mMeasuredDimension[1];
-                    if (i == 0) {
-                        width = mMeasuredDimension[0];
-                    }
-                }
-            }
-
-            switch (widthMode) {
-                case View.MeasureSpec.EXACTLY:
-                    width = widthSize;
-                case View.MeasureSpec.AT_MOST:
-                case View.MeasureSpec.UNSPECIFIED:
-            }
-
-            switch (heightMode) {
-                case View.MeasureSpec.EXACTLY:
-                    height = heightSize;
-                case View.MeasureSpec.AT_MOST:
-                case View.MeasureSpec.UNSPECIFIED:
-            }
-
-            setMeasuredDimension(width, height);
-        }
-
-
-        private void measureScrapChild(RecyclerView.Recycler recycler, int position, int widthSpec,
-                                       int heightSpec, int[] measuredDimension) {
-
-            View view = recycler.getViewForPosition(position);
-            if (view.getVisibility() == View.GONE) {
-                measuredDimension[0] = 0;
-                measuredDimension[1] = 0;
-                return;
-            }
-            // For adding Item Decor Insets to view
-            super.measureChildWithMargins(view, 0, 0);
-            RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) view.getLayoutParams();
-            int childWidthSpec = ViewGroup.getChildMeasureSpec(
-                    widthSpec,
-                    getPaddingLeft() + getPaddingRight() + getDecoratedLeft(view) + getDecoratedRight(view),
-                    p.width);
-            int childHeightSpec = ViewGroup.getChildMeasureSpec(
-                    heightSpec,
-                    getPaddingTop() + getPaddingBottom() + getDecoratedTop(view) + getDecoratedBottom(view),
-                    p.height);
-            view.measure(childWidthSpec, childHeightSpec);
-
-            // Get decorated measurements
-            measuredDimension[0] = getDecoratedMeasuredWidth(view) + p.leftMargin + p.rightMargin;
-            measuredDimension[1] = getDecoratedMeasuredHeight(view) + p.bottomMargin + p.topMargin;
-            recycler.recycleView(view);
-        }
-    }
 }
