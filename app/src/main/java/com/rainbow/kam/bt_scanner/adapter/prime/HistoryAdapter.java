@@ -23,9 +23,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = getClass().getSimpleName();
 
+    private final int index;
+
     private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
 
-    private final ArrayList<HistoryViewHolder> historyViewHolders = new ArrayList<>();
+    public HistoryAdapter(int index) {
+        this.index = index;
+    }
 
 
     @Override
@@ -41,7 +45,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         HistoryViewHolder serviceViewHolder = (HistoryViewHolder) holder;
         serviceViewHolder.bindViews(historyArrayList.get(position));
-        historyViewHolders.add(serviceViewHolder);
     }
 
 
@@ -49,14 +52,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public int getItemCount() {
         return historyArrayList.size();
     }
-
-
-    public void changeText(int dotsIndex) {
-        for (HistoryViewHolder historyViewHolder : historyViewHolders) {
-            historyViewHolder.onCircleCounterChange(dotsIndex);
-        }
-    }
-
 
     @DebugLog
     public void add(RealmResults<RealmPrimeItem> results) {
@@ -89,13 +84,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             distance = String.valueOf(realmPrimeItem.getDistance());
             calendar = realmPrimeItem.getCalendar();
 
-            history_text.setText(step);
             history_date.setText(calendar);
-        }
 
-
-        public void onCircleCounterChange(int dotsIndex) {
-            switch (dotsIndex) {
+            switch (index) {
                 case PrimeHelper.INDEX_STEP:
                     history_text.setText(step);
                     break;
@@ -103,6 +94,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     history_text.setText(calorie);
                     break;
                 case PrimeHelper.INDEX_DISTANCE:
+                    break;
+                default:
                     history_text.setText(distance);
                     break;
             }

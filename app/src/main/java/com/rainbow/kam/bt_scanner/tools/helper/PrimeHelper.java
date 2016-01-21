@@ -27,10 +27,11 @@ public class PrimeHelper {
     public static final String KEY_KCAL = "KCAL";
     public static final String KEY_DISTANCE = "DISTANCE";
 
+    public static final String KEY_INDEX = "INDEX";
+
     public static final int INDEX_STEP = 0;
     public static final int INDEX_CALORIE = 1;
     public static final int INDEX_DISTANCE = 2;
-    public static final int INDEX_DATETIME = 3;
 
 
     public static final byte[] getBytesForReadTime = parseHexStringToBytes("0x8900");
@@ -147,7 +148,7 @@ public class PrimeHelper {
 
 
     @DebugLog
-    public static Bundle readStep(byte[] characteristicValue, String userAge, String userHeight) {
+    public static Bundle readValue(byte[] characteristicValue, String userAge, String userHeight) {
         StringBuilder hexStep = new StringBuilder();
         StringBuilder hexCal = new StringBuilder();
 

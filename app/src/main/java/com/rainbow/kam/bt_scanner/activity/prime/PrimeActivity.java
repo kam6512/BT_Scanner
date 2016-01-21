@@ -35,8 +35,7 @@ import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.HistoryFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.DashboardFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
@@ -58,8 +57,7 @@ import io.realm.RealmResults;
 public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
         NavigationView.OnNavigationItemSelectedListener,
-        DeviceAdapter.OnDeviceSelectListener,
-        DashboardFragment.OnClickCardListener {
+        DeviceAdapter.OnDeviceSelectListener {
 
     private static final String TAG = PrimeActivity.class.getSimpleName();
 
@@ -82,8 +80,8 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private UserDataDialogFragment userDataDialogFragment;
     private SelectDeviceDialogFragment selectDeviceDialogFragment;
-    private DashboardFragment dashboardFragment;
-    private HistoryFragment historyFragment;
+
+    private PrimeFragment[] primeFragment = new PrimeFragment[3];
 
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
@@ -285,8 +283,9 @@ public class PrimeActivity extends AppCompatActivity implements
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
         selectDeviceDialogFragment.setCancelable(false);
 
-        dashboardFragment = new DashboardFragment();
-        historyFragment = new HistoryFragment();
+        primeFragment[PrimeHelper.INDEX_STEP] = PrimeFragment.newInstance(PrimeHelper.INDEX_STEP);
+        primeFragment[PrimeHelper.INDEX_CALORIE] = PrimeFragment.newInstance(PrimeHelper.INDEX_CALORIE);
+        primeFragment[PrimeHelper.INDEX_DISTANCE] = PrimeFragment.newInstance(PrimeHelper.INDEX_DISTANCE);
     }
 
 
@@ -369,7 +368,10 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void loadPrimeData() {
-        historyFragment.addHistory(realm.where(RealmPrimeItem.class).findAll());
+        RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
+        primeFragment[PrimeHelper.INDEX_STEP].addHistory(results);
+        primeFragment[PrimeHelper.INDEX_CALORIE].addHistory(results);
+        primeFragment[PrimeHelper.INDEX_DISTANCE].addHistory(results);
     }
 
 
@@ -434,20 +436,6 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    @Override
-    public void onClickCard(int index) {
-        if (index == PrimeHelper.INDEX_DATETIME) {
-            if (!swipeRefreshLayout.isRefreshing()) {
-                swipeRefreshLayout.post(postSwipeRefresh);
-                onRefresh();
-            }
-        } else {
-            historyFragment.setCurrentCounter(PrimeHelper.INDEX_DISTANCE);
-            tabLayout.getTabAt(1).select();
-        }
-    }
-
-
     private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
 
         public void onDeviceConnected() {
@@ -509,7 +497,9 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    dashboardFragment.setTextFail();
+                    primeFragment[PrimeHelper.INDEX_STEP].setTextFail();
+                    primeFragment[PrimeHelper.INDEX_CALORIE].setTextFail();
+                    primeFragment[PrimeHelper.INDEX_DISTANCE].setTextFail();
                 }
             });
         }
@@ -529,7 +519,10 @@ public class PrimeActivity extends AppCompatActivity implements
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                dashboardFragment.setTime(PrimeHelper.readTime(ch.getValue()));
+                                Calendar time = PrimeHelper.readTime(ch.getValue());
+                                primeFragment[PrimeHelper.INDEX_STEP].setTime(time);
+                                primeFragment[PrimeHelper.INDEX_CALORIE].setTime(time);
+                                primeFragment[PrimeHelper.INDEX_DISTANCE].setTime(time);
                             }
                         });
 
@@ -540,7 +533,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
                     case READ_STEP_DATA:
 
-                        final Bundle bundle = PrimeHelper.readStep(ch.getValue(), userAge, userHeight);
+                        final Bundle bundle = PrimeHelper.readValue(ch.getValue(), userAge, userHeight);
                         final int step = bundle.getInt(PrimeHelper.KEY_STEP);
                         final int kcal = bundle.getInt(PrimeHelper.KEY_KCAL);
                         final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
@@ -548,7 +541,15 @@ public class PrimeActivity extends AppCompatActivity implements
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                dashboardFragment.setStepData(step, kcal, distance);
+
+                                Log.e(TAG,
+                                        step + "\n" +
+                                                kcal + "\n" +
+                                                distance
+                                );
+                                primeFragment[PrimeHelper.INDEX_STEP].setValue(step);
+                                primeFragment[PrimeHelper.INDEX_CALORIE].setValue(kcal);
+                                primeFragment[PrimeHelper.INDEX_DISTANCE].setValue(distance);
 
                                 savePrimeData(step, kcal, distance);
                                 loadPrimeData();
@@ -576,7 +577,9 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    dashboardFragment.setTextFail();
+                    primeFragment[PrimeHelper.INDEX_STEP].setTextFail();
+                    primeFragment[PrimeHelper.INDEX_CALORIE].setTextFail();
+                    primeFragment[PrimeHelper.INDEX_DISTANCE].setTextFail();
                 }
             });
         }
@@ -605,7 +608,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private class DashBoardAdapter extends FragmentStatePagerAdapter {
 
-        private final String tabTitles[] = new String[]{"DASHBOARD", "HISTORY"};
+        private final String tabTitles[] = new String[]{"도보량", "소모열량", "활동거리"};
         final int PAGE_COUNT = tabTitles.length;
 
 
@@ -616,14 +619,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return dashboardFragment;
-                case 1:
-                    return historyFragment;
-                default:
-                    return historyFragment;
-            }
+            return primeFragment[position];
         }
 
 
