@@ -3,21 +3,21 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".activity.prime.PrimeActivity">
 
-    <item android:title="@string/menu.info">
+    <item android:title="@string/menu.setting">
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/menu.prime.info.user"
+                    android:id="@+id/menu.prime.setting.device"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu.info.scan"/>
+                    android:title="@string/menu.setting.device"/>
                 <item
-                    android:id="@+id/menu.prime.info.prime"
+                    android:id="@+id/menu.prime.setting.user"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu.info.prime"/>
+                    android:title="@string/menu.setting.user"/>
                 <item
-                    android:id="@+id/menu.prime.info.goal"
+                    android:id="@+id/menu.prime.setting.goal"
                     android:icon="@drawable/ic_menu"
-                    android:title="@string/menu.info.goal"/>
+                    android:title="@string/menu.setting.goal"/>
             </group>
 
         </menu>

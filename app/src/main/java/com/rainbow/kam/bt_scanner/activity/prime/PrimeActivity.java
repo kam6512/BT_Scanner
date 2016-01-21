@@ -57,7 +57,6 @@ import io.realm.RealmResults;
  */
 public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
-        TabLayout.OnTabSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
         DeviceAdapter.OnDeviceSelectListener,
         DashboardFragment.OnClickCardListener {
@@ -71,6 +70,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private String userStep;
     private String userGender;
     private String deviceAddress;
+
 
     private enum ListType {
         INIT, READ_TIME, READ_STEP_DATA, ETC, FINISH
@@ -111,7 +111,6 @@ public class PrimeActivity extends AppCompatActivity implements
     };
 
 
-    @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,10 +138,13 @@ public class PrimeActivity extends AppCompatActivity implements
         super.onResume();
         Log.e(TAG, "onResume");
         registerBluetooth();
+
+        if (selectDeviceDialogFragment.isVisible()) {
+            selectDeviceDialogFragment.dismiss();
+        }
     }
 
 
-    @DebugLog
     @Override
     public void onPause() {
         super.onPause();
@@ -168,23 +170,6 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onTabSelected(TabLayout.Tab tab) {
-        viewPager.setCurrentItem(tab.getPosition(), true);
-    }
-
-
-    @Override
-    public void onTabUnselected(TabLayout.Tab tab) {
-
-    }
-
-
-    @Override
-    public void onTabReselected(TabLayout.Tab tab) {
-    }
-
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -197,14 +182,17 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        item.setChecked(true);
+//        item.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
         switch (item.getItemId()) {
-            case R.id.menu_prime_info_user:
+            case R.id.menu_prime_setting_device:
+//                disconnectDevice();
+//                selectDeviceDialogFragment.show(fragmentManager, "Device Select");
                 return true;
-            case R.id.menu_prime_info_prime:
+            case R.id.menu_prime_setting_user:
+                fragmentManager.beginTransaction().add(userDataDialogFragment, "user info").commit();
                 return true;
-            case R.id.menu_prime_info_goal:
+            case R.id.menu_prime_setting_goal:
                 return true;
             case R.id.menu_prime_about_dev:
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
@@ -251,9 +239,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void setMaterialView() {
-
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.prime_coordinatorLayout);
-
         drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
@@ -271,7 +257,24 @@ public class PrimeActivity extends AppCompatActivity implements
         viewPager.setAdapter(dashBoardAdapter);
         viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(this);
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition(), true);
+            }
+
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -353,7 +356,6 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    @DebugLog
     private void loadUserData() {
         this.userName = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
         this.userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
@@ -362,15 +364,7 @@ public class PrimeActivity extends AppCompatActivity implements
         this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP_STRIDE, getString(R.string.user_step_default));
         this.userGender = sharedPreferences.getString(PrimeHelper.KEY_GENDER, getString(R.string.gender_man));
         this.deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, "");
-        Log.i(TAG,
-                userName + "\n" +
-                        userAge + "\n" +
-                        userHeight + "\n" +
-                        userWeight + "\n" +
-                        userStep + "\n" +
-                        userGender + "\n" +
-                        deviceAddress + "\n"
-        );
+
     }
 
 
@@ -394,7 +388,7 @@ public class PrimeActivity extends AppCompatActivity implements
         realm.beginTransaction();
         RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일");
         String today = formatter.format(Calendar.getInstance().getTime());
         String lastDay;
 
@@ -441,23 +435,16 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onStepClick(int value) {
-        historyFragment.setCurrentCounter(0);
-        tabLayout.getTabAt(1).select();
-    }
-
-
-    @Override
-    public void onCalorieClick(int value) {
-        historyFragment.setCurrentCounter(1);
-        tabLayout.getTabAt(1).select();
-    }
-
-
-    @Override
-    public void onDistanceClick(int value) {
-        historyFragment.setCurrentCounter(2);
-        tabLayout.getTabAt(1).select();
+    public void onClickCard(int index) {
+        if (index == PrimeHelper.INDEX_DATETIME) {
+            if (!swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.post(postSwipeRefresh);
+                onRefresh();
+            }
+        } else {
+            historyFragment.setCurrentCounter(PrimeHelper.INDEX_DISTANCE);
+            tabLayout.getTabAt(1).select();
+        }
     }
 
 

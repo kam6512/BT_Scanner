@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,9 +29,6 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
     private TextView dateTextView, timeTextView;
     private TextView stepTextView, calorieTextView, distanceTextView;
-    private CardView stepCard, calorieCard, distanceCard;
-
-    private NestedScrollView nestedScrollView;
 
     private OnClickCardListener onClickCardListener;
 
@@ -54,15 +52,21 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         stepTextView = (TextView) view.findViewById(R.id.dashboard_step);
         calorieTextView = (TextView) view.findViewById(R.id.dashboard_calorie);
         distanceTextView = (TextView) view.findViewById(R.id.dashboard_distance);
-        nestedScrollView = (NestedScrollView) view.findViewById(R.id.dashboard_root);
+
+        NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.dashboard_root);
         nestedScrollView.setFillViewport(true);
 
-        stepCard = (CardView) view.findViewById(R.id.card_step);
+        CardView stepCard = (CardView) view.findViewById(R.id.card_step);
         stepCard.setOnClickListener(this);
-        calorieCard = (CardView) view.findViewById(R.id.card_calorie);
+
+        CardView calorieCard = (CardView) view.findViewById(R.id.card_calorie);
         calorieCard.setOnClickListener(this);
-        distanceCard = (CardView) view.findViewById(R.id.card_distance);
+
+        CardView distanceCard = (CardView) view.findViewById(R.id.card_distance);
         distanceCard.setOnClickListener(this);
+
+        CardView datetimeCard = (CardView) view.findViewById(R.id.card_datetime);
+        datetimeCard.setOnClickListener(this);
 
         return view;
     }
@@ -87,9 +91,9 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             this.step = step;
             this.calorie = calorie;
             this.distance = distance;
-            stepTextView.setText(step + " 걸음");
-            calorieTextView.setText(calorie + " kcal");
-            distanceTextView.setText(distance + " M");
+            stepTextView.setText(step + getString(R.string.prime_step));
+            calorieTextView.setText(calorie + getString(R.string.prime_calorie));
+            distanceTextView.setText(distance + getString(R.string.prime_distance));
         } catch (Exception e) {
             setTextFail();
         }
@@ -97,11 +101,12 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
 
 
     public void setTextFail() {
-        dateTextView.setText("Access Denial");
-        timeTextView.setText("Access Denial");
-        stepTextView.setText("Access Denial");
-        calorieTextView.setText("Access Denial");
-        distanceTextView.setText("Access Denial");
+        String accessDenial = getString(R.string.prime_access_denial);
+        dateTextView.setText(accessDenial);
+        timeTextView.setText(accessDenial);
+        stepTextView.setText(accessDenial);
+        calorieTextView.setText(accessDenial);
+        distanceTextView.setText(accessDenial);
     }
 
 
@@ -109,23 +114,29 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.card_step:
-                onClickCardListener.onStepClick(step);
+                onClickCardListener.onClickCard(PrimeHelper.INDEX_STEP);
                 break;
             case R.id.card_calorie:
-                onClickCardListener.onCalorieClick(calorie);
+                onClickCardListener.onClickCard(PrimeHelper.INDEX_CALORIE);
                 break;
             case R.id.card_distance:
-                onClickCardListener.onDistanceClick(distance);
+                onClickCardListener.onClickCard(PrimeHelper.INDEX_DISTANCE);
+                break;
+            case R.id.card_datetime:
+                onClickCardListener.onClickCard(PrimeHelper.INDEX_DATETIME);
                 break;
         }
     }
 
 
     public interface OnClickCardListener {
-        void onStepClick(int value);
-
-        void onCalorieClick(int value);
-
-        void onDistanceClick(int value);
+//        void onStepClick();
+//
+//        void onCalorieClick();
+//
+//        void onDistanceClick();
+//
+//        void onDateTimeClick();
+        void onClickCard(int index);
     }
 }

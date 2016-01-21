@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -28,8 +27,13 @@ public class PrimeHelper {
     public static final String KEY_KCAL = "KCAL";
     public static final String KEY_DISTANCE = "DISTANCE";
 
+    public static final int INDEX_STEP = 0;
+    public static final int INDEX_CALORIE = 1;
+    public static final int INDEX_DISTANCE = 2;
+    public static final int INDEX_DATETIME = 3;
 
-    public static byte[] getBytesForReadTime = parseHexStringToBytes("0x8900");
+
+    public static final byte[] getBytesForReadTime = parseHexStringToBytes("0x8900");
 
 
     public static byte[] getBytesForReset = parseHexStringToBytes("0x8700");
@@ -38,7 +42,7 @@ public class PrimeHelper {
     public static byte[] getBytesForClear = parseHexStringToBytes("0x8800");
 
 
-    public static byte[] getBytesForReadExerciseData = parseHexStringToBytes("0xC60108");
+    public static final byte[] getBytesForReadExerciseData = parseHexStringToBytes("0xC60108");
 
 
     public static byte[] getBytesForCall = parseHexStringToBytes("0xf30101");

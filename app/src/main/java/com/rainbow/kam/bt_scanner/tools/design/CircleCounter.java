@@ -24,8 +24,6 @@ public class CircleCounter extends View {
 
     private final static float START_DEGREES = 90;
 
-    private TypedArray typedArray;
-
     private int mBackgroundCenter;
     private int mBackgroundRadius;
 
@@ -197,7 +195,6 @@ public class CircleCounter extends View {
 
 
     private void init(TypedArray typedArray) {
-        this.typedArray = typedArray;
 
         mTextSize = typedArray.getDimension(R.styleable.CircularMeter_textSize,
                 getResources().getDimension(R.dimen.text_size));
@@ -273,11 +270,9 @@ public class CircleCounter extends View {
     }
 
 
-    public CircleCounter setRange(int range) {
-        invalidate();
+    public void setRange(int range) {
         mRange = range;
         invalidate();
-        return this;
     }
 
 
@@ -309,16 +304,14 @@ public class CircleCounter extends View {
     }
 
 
-    public CircleCounter setTextColor(int color) {
+    public void setTextColor(int color) {
         mTextColor = color;
-        return this;
     }
 
 
-    public CircleCounter setMetricText(String text) {
+    public void setMetricText(String text) {
         mMetricText = text;
         invalidate();
-        return this;
     }
 
 

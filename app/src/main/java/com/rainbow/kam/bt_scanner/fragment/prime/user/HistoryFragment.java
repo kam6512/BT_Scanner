@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +17,7 @@ import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
 import com.rainbow.kam.bt_scanner.tools.helper.NestedRecyclerViewHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import io.realm.RealmResults;
 
@@ -25,9 +25,12 @@ import io.realm.RealmResults;
  * Created by kam6512 on 2015-11-04.
  */
 public class HistoryFragment extends Fragment implements View.OnClickListener {
+
     private final String TAG = getClass().getSimpleName();
 
     private Context context;
+
+    private int step, calorie, distance;
 
     private View view;
     private CircleCounter circleCounter;
@@ -36,9 +39,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     private int currentCount = 0;
     private TextView[] dots;
 
-    private int step, calorie, distance;
-
-    private HistoryAdapter historyAdapter = new HistoryAdapter();
+    private final HistoryAdapter historyAdapter = new HistoryAdapter();
 
 
     @Override
@@ -57,7 +58,6 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         setDotsLayout();
         setRecyclerView();
         setCurrentCounter(0);
-
 
         return view;
     }
@@ -98,17 +98,8 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    public void setValue(int value) {
+    private void setValue(int value) {
         circleCounter.setValues(value, value, value);
-    }
-
-
-    public void addHistory(RealmResults<RealmPrimeItem> results) {
-        historyAdapter.add(results);
-        step = results.last().getStep();
-        calorie = results.last().getCalorie();
-        distance = results.last().getDistance();
-        setCurrentCounter(0);
     }
 
 
@@ -120,21 +111,21 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         dots[position].setTextColor(ContextCompat.getColor(context, R.color.stepPrimaryDark));
 
         switch (position) {
-            case 0:
+            case PrimeHelper.INDEX_STEP:
                 circleCounter.setRange(20000);
-                circleCounter.setMetricText("걸음");
+                circleCounter.setMetricText(getString(R.string.prime_step));
                 setValue(step);
                 break;
 
-            case 1:
+            case PrimeHelper.INDEX_CALORIE:
                 circleCounter.setRange(100);
-                circleCounter.setMetricText("칼로리");
+                circleCounter.setMetricText(getString(R.string.prime_calorie));
                 setValue(calorie);
                 break;
 
-            case 2:
+            case PrimeHelper.INDEX_DISTANCE:
                 circleCounter.setRange(10000);
-                circleCounter.setMetricText("거리");
+                circleCounter.setMetricText(getString(R.string.prime_distance));
                 setValue(distance);
                 break;
         }
@@ -150,4 +141,12 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         setCurrentCounter(++currentCount);
     }
 
+
+    public void addHistory(RealmResults<RealmPrimeItem> results) {
+        historyAdapter.add(results);
+        step = results.last().getStep();
+        calorie = results.last().getCalorie();
+        distance = results.last().getDistance();
+        setCurrentCounter(0);
+    }
 }

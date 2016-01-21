@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.HistoryFragment;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,9 +23,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = getClass().getSimpleName();
 
-    private ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
+    private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
 
-    private ArrayList<HistoryViewHolder> historyViewHolders = new ArrayList<>();
+    private final ArrayList<HistoryViewHolder> historyViewHolders = new ArrayList<>();
 
 
     @Override
@@ -69,7 +69,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     class HistoryViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView history_text;
+        private final TextView history_text, history_date;
         String step;
         String calorie;
         String distance;
@@ -79,6 +79,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public HistoryViewHolder(View itemView) {
             super(itemView);
             history_text = (TextView) itemView.findViewById(R.id.history_text);
+            history_date = (TextView) itemView.findViewById(R.id.history_date);
         }
 
 
@@ -87,19 +88,21 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             calorie = String.valueOf(realmPrimeItem.getCalorie());
             distance = String.valueOf(realmPrimeItem.getDistance());
             calendar = realmPrimeItem.getCalendar();
+
             history_text.setText(step);
+            history_date.setText(calendar);
         }
 
 
         public void onCircleCounterChange(int dotsIndex) {
             switch (dotsIndex) {
-                case 0:
+                case PrimeHelper.INDEX_STEP:
                     history_text.setText(step);
                     break;
-                case 1:
+                case PrimeHelper.INDEX_CALORIE:
                     history_text.setText(calorie);
                     break;
-                case 2:
+                case PrimeHelper.INDEX_DISTANCE:
                     history_text.setText(distance);
                     break;
             }

@@ -17,7 +17,7 @@ public class NestedRecyclerViewHelper extends LinearLayoutManager {
     }
 
 
-    private int[] mMeasuredDimension = new int[2];
+    private final int[] mMeasuredDimension = new int[2];
 
 
     @Override

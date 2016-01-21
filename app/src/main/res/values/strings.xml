@@ -10,16 +10,11 @@
     <string name="menu.main.link">link</string>
 
     <string name="menu.dashboard">DASHBOARD</string>
-    <string name="menu.dashboard.main">메인</string>
-    <string name="menu.dashboard.step">걸음</string>
-    <string name="menu.dashboard.calorie">칼로리</string>
-    <string name="menu.dashboard.distance">거리</string>
-    <string name="menu.dashboard.etc">수면</string>
 
-    <string name="menu.info">USER INFO</string>
-    <string name="menu.info.scan">스캔</string>
-    <string name="menu.info.prime">Prime</string>
-    <string name="menu.info.goal">GOAL</string>
+    <string name="menu.setting">유저정보</string>
+    <string name="menu.setting.device">기기</string>
+    <string name="menu.setting.user">신체정보</string>
+    <string name="menu.setting.goal">목표</string>
 
     <string name="menu.about">ABOUT</string>
     <string name="menu.about.dev">개발자 모드</string>
@@ -75,7 +70,6 @@
     <string name="logo.pilot">A Pilot Program By</string>
     <string name="logo.company">Rainbow - Wireless</string>
 
-
     <string name="dashboard.time">Time</string>
     <string name="dashboard.update">최근 업데이트</string>
 
@@ -83,6 +77,12 @@
     <string name="dashboard.calorie">CALORIE</string>
     <string name="dashboard.distance">DISTANCE</string>
     <string name="dashboard.etc">ETC</string>
+
+    <string name="prime.step">"걸음"</string>
+    <string name="prime.calorie">"kcal"</string>
+    <string name="prime.distance">"M"</string>
+
+    <string name="prime.access.denial">"Access Denial"</string>
 
     <string name="add.user.name.hint">Name</string>
     <string name="add.user.age.hint">Age (in full)</string>
