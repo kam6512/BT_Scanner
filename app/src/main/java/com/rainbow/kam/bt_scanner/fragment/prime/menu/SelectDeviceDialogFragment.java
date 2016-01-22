@@ -9,6 +9,7 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,7 +38,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener,DialogInterface.OnCancelListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -114,6 +115,13 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     public void onPause() { //꺼짐
         super.onPause();
         stopScan();
+    }
+
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        deviceAdapter.cancel();
     }
 
 
