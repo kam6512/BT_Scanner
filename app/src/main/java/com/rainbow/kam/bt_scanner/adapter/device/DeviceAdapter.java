@@ -89,6 +89,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
+    public void cancel() {
+        onDeviceSelectListener.onDeviceUnSelected();
+    }
+
+
     public class DeviceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Animation.AnimationListener { //뷰 초기화
 
         private final TextView extraName;
@@ -223,5 +228,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public interface OnDeviceSelectListener {
         void onDeviceSelect(String name, String address);
+
+        void onDeviceUnSelected();
     }
 }

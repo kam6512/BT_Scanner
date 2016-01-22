@@ -357,5 +357,11 @@ public class MainActivity extends AppCompatActivity implements
         intent.putExtra(BluetoothHelper.KEY_DEVICE_ADDRESS, address);
         startActivity(intent);
     }
+
+
+    @Override
+    public void onDeviceUnSelected() {
+        finish();
+    }
 }
 

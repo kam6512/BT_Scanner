@@ -24,7 +24,7 @@ public class PrimeHelper {
     public static final String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
     public static final String KEY_STEP = "STEP";
-    public static final String KEY_KCAL = "KCAL";
+    public static final String KEY_CALORIE = "CALORIE";
     public static final String KEY_DISTANCE = "DISTANCE";
 
     public static final String KEY_INDEX = "INDEX";
@@ -179,7 +179,7 @@ public class PrimeHelper {
 
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_STEP, step);
-        bundle.putInt(KEY_KCAL, kcal);
+        bundle.putInt(KEY_CALORIE, kcal);
         bundle.putInt(KEY_DISTANCE, distance);
         return bundle;
     }

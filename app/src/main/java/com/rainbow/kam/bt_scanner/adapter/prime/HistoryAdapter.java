@@ -23,13 +23,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = getClass().getSimpleName();
 
-    private final int index;
+    private int index;
 
     private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
-
-    public HistoryAdapter(int index) {
-        this.index = index;
-    }
 
 
     @Override
@@ -52,6 +48,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public int getItemCount() {
         return historyArrayList.size();
     }
+
+
+    public void setCurrentIndex(int index) {
+        this.index = index;
+        notifyDataSetChanged();
+    }
+
 
     @DebugLog
     public void add(RealmResults<RealmPrimeItem> results) {
@@ -94,9 +97,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     history_text.setText(calorie);
                     break;
                 case PrimeHelper.INDEX_DISTANCE:
+                    history_text.setText(distance);
                     break;
                 default:
-                    history_text.setText(distance);
                     break;
             }
         }
