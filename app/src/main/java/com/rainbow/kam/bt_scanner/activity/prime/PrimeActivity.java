@@ -79,7 +79,7 @@ public class PrimeActivity extends AppCompatActivity implements
          READ_TIME, READ_STEP_DATA
     }
 
-    private GattReadType GattReadType;
+    private GattReadType gattReadType;
 
     private FragmentManager fragmentManager;
 
@@ -289,6 +289,7 @@ public class PrimeActivity extends AppCompatActivity implements
         datetimeCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                swipeRefreshLayout.post(postSwipeRefresh);
                 onRefresh();
             }
         });
@@ -357,7 +358,7 @@ public class PrimeActivity extends AppCompatActivity implements
         if (!gattManager.isConnected()) {
             try {
                 gattManager.connect(deviceAddress);
-                GattReadType = PrimeActivity.GattReadType.READ_TIME;
+                gattReadType = GattReadType.READ_TIME;
                 swipeRefreshLayout.post(postSwipeRefresh);
             } catch (NullPointerException e) {
                 Log.e(TAG, e.getMessage());
@@ -540,7 +541,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
         public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
             try {
-                switch (GattReadType) {
+                switch (gattReadType) {
                     case READ_TIME:
                         runOnUiThread(new Runnable() {
                             @Override
@@ -556,7 +557,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
                         gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
 
-                        GattReadType = PrimeActivity.GattReadType.READ_STEP_DATA;
+                        gattReadType = GattReadType.READ_STEP_DATA;
                         break;
 
                     case READ_STEP_DATA:
