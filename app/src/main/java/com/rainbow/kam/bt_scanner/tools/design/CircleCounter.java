@@ -24,7 +24,6 @@ public class CircleCounter extends View {
 
     private final static float START_DEGREES = 90;
 
-
     private int mBackgroundCenter;
     private int mBackgroundRadius;
 
@@ -82,9 +81,6 @@ public class CircleCounter extends View {
     private Typeface mTypeface;
 
 
-    private SpeedHandler mSpinHandler;
-
-
     @SuppressLint("Recycle")
     public CircleCounter(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -96,17 +92,16 @@ public class CircleCounter extends View {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        mSpinHandler = new SpeedHandler(this);
         setupBounds();
         setupPaints();
         setupTextPosition();
     }
 
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        mSpinHandler = null;
         mOnePaint = null;
         mOneBounds = null;
         mTwoPaint = null;
@@ -123,19 +118,21 @@ public class CircleCounter extends View {
         mOnePaint.setColor(mOneColor);
         mOnePaint.setAntiAlias(true);
         mOnePaint.setStyle(Style.STROKE);
-        mOnePaint.setStrokeWidth(mOneWidth);
+        mOnePaint.setStrokeWidth(getResources().getDimension(R.dimen.first));
 
         mTwoPaint = new Paint();
         mTwoPaint.setColor(mTwoColor);
         mTwoPaint.setAntiAlias(true);
         mTwoPaint.setStyle(Style.STROKE);
         mTwoPaint.setStrokeWidth(mTwoWidth);
+        mTwoPaint.setStrokeWidth(getResources().getDimension(R.dimen.second));
 
         mThreePaint = new Paint();
         mThreePaint.setColor(mThreeColor);
         mThreePaint.setAntiAlias(true);
         mThreePaint.setStyle(Style.STROKE);
         mThreePaint.setStrokeWidth(mThreeWidth);
+        mThreePaint.setStrokeWidth(getResources().getDimension(R.dimen.third));
 
         mBackgroundPaint = new Paint();
         mBackgroundPaint.setColor(mBackgroundColor);
@@ -158,6 +155,7 @@ public class CircleCounter extends View {
         mMetricPaint.setTypeface(mTypeface);
         mMetricPaint.setTextAlign(Align.CENTER);
     }
+
 
     private void setupBounds() {
 
@@ -196,19 +194,20 @@ public class CircleCounter extends View {
     }
 
 
-    private void init(TypedArray a) {
+    private void init(TypedArray typedArray) {
 
-        mTextSize = a.getDimension(R.styleable.CircularMeter_textSize,
-                getResources().getDimension(R.dimen.textSize));
-        mTextColor = a
+        mTextSize = typedArray.getDimension(R.styleable.CircularMeter_textSize,
+                getResources().getDimension(R.dimen.text_size));
+        mTextColor = typedArray
                 .getColor(R.styleable.CircularMeter_textColor, mTextColor);
 
-        mMetricSize = a.getDimension(R.styleable.CircularMeter_metricSize,
-                getResources().getDimension(R.dimen.metricSize));
-        mMetricText = a.getString(R.styleable.CircularMeter_metricText);
-        mMetricPaddingY = getResources().getDimension(R.dimen.metricPaddingY);
+        mMetricSize = typedArray.getDimension(R.styleable.CircularMeter_metricSize,
+                getResources().getDimension(R.dimen.metric_size));
+        mMetricText = typedArray.getString(R.styleable.CircularMeter_metricText);
+        mMetricPaddingY = getResources().getDimension(R.dimen.metric_padding_y);
 
-        mRange = a.getInt(R.styleable.CircularMeter_range, 100);
+        mRange = typedArray.getInt(R.styleable.CircularMeter_range, 100);
+
 
         mOneWidth = getResources().getDimension(R.dimen.width);
         mTwoWidth = getResources().getDimension(R.dimen.width);
@@ -222,7 +221,7 @@ public class CircleCounter extends View {
         mTwoDegrees = 0;
         mThreeDegrees = 0;
 
-        String aux = a.getString(R.styleable.CircularMeter_typeface);
+        String aux = typedArray.getString(R.styleable.CircularMeter_typeface);
         if (aux != null)
             mTypeface = Typeface.createFromAsset(this.getResources()
                     .getAssets(), aux);
@@ -271,79 +270,74 @@ public class CircleCounter extends View {
     }
 
 
-    public CircleCounter setRange(int range) {
+    public void setRange(int range) {
         mRange = range;
-        return this;
+        invalidate();
     }
 
-    public CircleCounter setFirstWidth(float width) {
-        mOneWidth = width;
-        return this;
-    }
 
-    public CircleCounter setSecondWidth(float width) {
-        mTwoWidth = width;
-        return this;
-    }
-
-    public CircleCounter setThirdWidth(float width) {
-        mThreeWidth = width;
-        return this;
-    }
-
-    public CircleCounter setTextSize(float size) {
+    public void setTextSize(float size) {
         mTextSize = size;
-        return this;
     }
 
-    public CircleCounter setMetricSize(float size) {
+
+    public void setMetricSize(float size) {
         mMetricSize = size;
-        return this;
     }
 
-    public CircleCounter setFirstColor(int color) {
+
+    public void setFirstColor(int color) {
         mOneColor = color;
-        return this;
+        invalidate();
     }
 
-    public CircleCounter setSecondColor(int color) {
+
+    public void setSecondColor(int color) {
         mTwoColor = color;
-        return this;
+        invalidate();
     }
 
-    public CircleCounter setThirdColor(int color) {
+
+    public void setThirdColor(int color) {
         mThreeColor = color;
-        return this;
+        invalidate();
     }
 
-    public CircleCounter setTextColor(int color) {
+
+    public void setTextColor(int color) {
         mTextColor = color;
-        return this;
     }
 
-    public CircleCounter setMetricText(String text) {
+
+    public void setMetricText(String text) {
         mMetricText = text;
-        return this;
+        invalidate();
     }
+
 
     @Override
     public void setBackgroundColor(int color) {
         mBackgroundColor = color;
+        invalidate();
     }
+
 
     public CircleCounter setTypeface(Typeface typeface) {
         mTypeface = typeface;
         return this;
     }
 
+
     private static class SpeedHandler extends Handler {
 
-        private CircleCounter act;
+        private final CircleCounter act;
+
 
         public SpeedHandler(CircleCounter act) {
             super();
             this.act = act;
         }
+
 
         @Override
         public void handleMessage(Message msg) {
