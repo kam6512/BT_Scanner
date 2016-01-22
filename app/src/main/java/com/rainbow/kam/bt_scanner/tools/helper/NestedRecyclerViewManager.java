@@ -10,9 +10,9 @@ import android.view.ViewGroup;
  * Created by kam6512 on 2016-01-21.
  */
 
-public class NestedRecyclerViewHelper extends LinearLayoutManager {
+public class NestedRecyclerViewManager extends LinearLayoutManager {
 
-    public NestedRecyclerViewHelper(Context context) {
+    public NestedRecyclerViewManager(Context context) {
         super(context);
     }
 

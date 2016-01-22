@@ -42,6 +42,8 @@
     <string name="profile.label.state">state :</string>
     <string name="profile.label.bondState">Bond State :</string>
 
+    <string name="profile.uuid.label">UUID : 0x</string>
+
     <string name="profile.label.peripheral">Peripheral:</string>
     <string name="profile.label.service">Service:</string>
     <string name="profile.label.uuid">UUID:</string>
@@ -78,9 +80,13 @@
     <string name="dashboard.distance">DISTANCE</string>
     <string name="dashboard.etc">ETC</string>
 
+    <string name="prime.step">"걸음"</string>
+    <string name="prime.calorie">"kcal"</string>
+    <string name="prime.distance">"(m)"</string>
+
     <string name="prime.total.step">"총 걸음"</string>
     <string name="prime.total.calorie">"누적 kcal"</string>
-    <string name="prime.total.distance">"누적 거리"</string>
+    <string name="prime.total.distance">"누적 거리(m)"</string>
 
     <string name="prime.access.denial">"Access Denial"</string>
 
@@ -107,4 +113,5 @@
     <string name="dialog.skip.warning">개인정보를 입력하지 않더라도 사용할 수 있으나 정확한 운동량 계산과 서버연동이 불가능하오니 이점 유의해두시기 바랍니다.</string>
     <string name="dialog.skip">무시하기</string>
     <string name="dialog.fix">수정</string>
+
 </resources>

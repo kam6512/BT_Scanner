@@ -1,6 +1,8 @@
 package com.rainbow.kam.bt_scanner.adapter.profile;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,13 +25,24 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final String TAG = getClass().getSimpleName();
 
+    private final Context context;
+
     private final ArrayList<BluetoothGattService> serviceItemArrayList = new ArrayList<>();
 
     private final OnServiceItemClickListener onServiceItemClickListener;
 
 
-    public ServiceAdapter(OnServiceItemClickListener onServiceItemClickListener) {
-        this.onServiceItemClickListener = onServiceItemClickListener;
+    public ServiceAdapter(Context context) {
+        if (context instanceof Activity) {
+            try {
+                this.context = context;
+                this.onServiceItemClickListener = (OnServiceItemClickListener) context;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement OnServiceItemClickListener");
+            }
+        } else {
+            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
+        }
     }
 
 
@@ -84,7 +97,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private void bindViews(BluetoothGattService bluetoothGattService) {
             String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = GattAttributes.resolveServiceName(uuid.substring(0, 8));
-            uuid = "UUID : 0x" + uuid.substring(4, 8);
+            uuid = context.getString(R.string.profile_uuid_label) + uuid.substring(4, 8);
             String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "secondary";
 
             serviceTitle.setText(name);

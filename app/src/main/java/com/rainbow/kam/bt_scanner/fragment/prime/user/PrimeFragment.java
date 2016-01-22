@@ -4,29 +4,16 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
-import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
-import com.rainbow.kam.bt_scanner.tools.helper.NestedRecyclerViewHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-04.

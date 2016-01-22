@@ -44,7 +44,7 @@ import com.rainbow.kam.bt_scanner.tools.design.CustomViewPager;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-import com.rainbow.kam.bt_scanner.tools.helper.NestedRecyclerViewHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.NestedRecyclerViewManager;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.text.SimpleDateFormat;
@@ -76,7 +76,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private enum GattReadType {
-         READ_TIME, READ_STEP_DATA
+        READ_TIME, READ_STEP_DATA
     }
 
     private GattReadType gattReadType;
@@ -276,7 +276,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void setRecyclerView() {
         RecyclerView historyRecyclerView = (RecyclerView) findViewById(R.id.history_recycler);
-        RecyclerView.LayoutManager layoutManager = new NestedRecyclerViewHelper(this);
+        RecyclerView.LayoutManager layoutManager = new NestedRecyclerViewManager(this);
         historyRecyclerView.setLayoutManager(layoutManager);
         historyRecyclerView.setNestedScrollingEnabled(false);
         historyRecyclerView.setHasFixedSize(false);
@@ -432,12 +432,29 @@ public class PrimeActivity extends AppCompatActivity implements
         realm.commitTransaction();
     }
 
+
     @DebugLog
     private void removeAllData() {
         realm.beginTransaction();
         realm.clear(RealmPrimeItem.class);
         realm.commitTransaction();
         sharedPreferences.edit().clear().apply();
+    }
+
+
+    private void setPrimeTotal() {
+        RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
+        historyAdapter.add(results);
+
+        int totalStep = 0, totalCalorie = 0, totalDistance = 0;
+        for (RealmPrimeItem realmPrimeItem : results) {
+            totalStep += realmPrimeItem.getStep();
+            totalCalorie += realmPrimeItem.getCalorie();
+            totalDistance += realmPrimeItem.getDistance();
+        }
+        primeFragment[PrimeHelper.INDEX_STEP].setCircleTotalValue(totalStep);
+        primeFragment[PrimeHelper.INDEX_CALORIE].setCircleTotalValue(totalCalorie);
+        primeFragment[PrimeHelper.INDEX_DISTANCE].setCircleTotalValue(totalDistance);
     }
 
 
@@ -526,7 +543,6 @@ public class PrimeActivity extends AppCompatActivity implements
                         @Override
                         public void run() {
                             gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadTime);
-
                         }
                     }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다
                 }
@@ -576,19 +592,8 @@ public class PrimeActivity extends AppCompatActivity implements
                                 primeFragment[PrimeHelper.INDEX_DISTANCE].setTextValue(distance);
 
                                 savePrimeData(step, calorie, distance);
+                                setPrimeTotal();
 
-                                RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
-                                historyAdapter.add(results);
-
-                                int totalStep = 0, totalCalorie = 0, totalDistance = 0;
-                                for (RealmPrimeItem realmPrimeItem : results) {
-                                    totalStep += realmPrimeItem.getStep();
-                                    totalCalorie += realmPrimeItem.getCalorie();
-                                    totalDistance += realmPrimeItem.getDistance();
-                                }
-                                primeFragment[PrimeHelper.INDEX_STEP].setCircleTotalValue(totalStep);
-                                primeFragment[PrimeHelper.INDEX_CALORIE].setCircleTotalValue(totalCalorie);
-                                primeFragment[PrimeHelper.INDEX_DISTANCE].setCircleTotalValue(totalDistance);
                             }
                         });
                         break;

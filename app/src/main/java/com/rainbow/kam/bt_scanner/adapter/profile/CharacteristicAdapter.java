@@ -1,6 +1,8 @@
 package com.rainbow.kam.bt_scanner.adapter.profile;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,13 +25,25 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private final String TAG = getClass().getSimpleName();
 
+    private final Context context;
+
     private final ArrayList<BluetoothGattCharacteristic> characteristicArrayList = new ArrayList<>();
 
     private final OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
 
-    public CharacteristicAdapter(OnCharacteristicItemClickListener onCharacteristicItemClickListener) {
-        this.onCharacteristicItemClickListener = onCharacteristicItemClickListener;
+    public CharacteristicAdapter(Context context) {
+        if (context instanceof Activity) {
+            try {
+                this.context = context;
+                this.onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) context;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement OnCharacteristicItemClickListener");
+            }
+        } else {
+            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
+        }
+
     }
 
 
@@ -83,7 +97,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             String uuid = characteristicItem.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = GattAttributes.resolveCharacteristicName(uuid.substring(0, 8));
-            uuid = "UUID : 0x" + uuid.substring(4, 8);
+            uuid = context.getString(R.string.profile_uuid_label) + uuid.substring(4, 8);
 
             characteristicTitle.setText(name);
             characteristicUuid.setText(uuid);
