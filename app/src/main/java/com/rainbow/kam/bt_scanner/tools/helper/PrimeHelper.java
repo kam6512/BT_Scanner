@@ -18,7 +18,6 @@ public class PrimeHelper {
     public static final String KEY_AGE = "USER_AGE";
     public static final String KEY_HEIGHT = "USER_HEIGHT";
     public static final String KEY_WEIGHT = "USER_WEIGHT";
-    public static final String KEY_STEP_STRIDE = "KEY_STEP_STRIDE";
     public static final String KEY_GENDER = "USER_GENDER";
     public static final String KEY_DEVICE_NAME = "DEVICE_NAME";
     public static final String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
@@ -33,20 +32,24 @@ public class PrimeHelper {
     public static final int INDEX_CALORIE = 1;
     public static final int INDEX_DISTANCE = 2;
 
-
-    public static final byte[] getBytesForReadTime = parseHexStringToBytes("0x8900");
-
-
-    public static byte[] getBytesForReset = parseHexStringToBytes("0x8700");
+    public static final String KEY_GOAL_STEP = "STEP_GOAL";
+    public static final String KEY_GOAL_CALORIE = "CALORIE_GOAL";
+    public static final String KEY_GOAL_DISTANCE = "DISTANCE_GOAL";
 
 
-    public static byte[] getBytesForClear = parseHexStringToBytes("0x8800");
+    public static final byte[] getBytesForReadTime = parseHexStringToBytes("8900");
 
 
-    public static final byte[] getBytesForReadExerciseData = parseHexStringToBytes("0xC60108");
+    public static byte[] getBytesForReset = parseHexStringToBytes("8700");
 
 
-    public static byte[] getBytesForCall = parseHexStringToBytes("0xf30101");
+    public static byte[] getBytesForClear = parseHexStringToBytes("8800");
+
+
+    public static final byte[] getBytesForReadExerciseData = parseHexStringToBytes("C60108");
+
+
+    public static byte[] getBytesForCall = parseHexStringToBytes("f30101");
 
 
     public static byte[] getBytesForDateTime() {
@@ -54,7 +57,7 @@ public class PrimeHelper {
         Calendar cal = new GregorianCalendar();
 
         StringBuilder time = new StringBuilder();
-        time.append("0xC207");
+        time.append("C207");
         time.append(String.format("%02x", cal.get(Calendar.YEAR) - 2000));
         time.append(String.format("%02x", cal.get(Calendar.MONTH) + 1));
         time.append(String.format("%02x", cal.get(Calendar.DATE)));
@@ -73,7 +76,7 @@ public class PrimeHelper {
 
 
     public static byte[] getBytesForUserData(int gender, int height, int weight, int stride, int runningStride) {
-        String userData = "0x832f000000000000000000000000000000000000000000000000000000000000000000" +
+        String userData = "832f000000000000000000000000000000000000000000000000000000000000000000" +
                 String.format("%02d", gender) +
                 String.format("%02d", height) +
                 String.format("%02d", weight) +
@@ -93,26 +96,26 @@ public class PrimeHelper {
     @DebugLog
     private static byte[] parseHexStringToBytes(String hex) {
 
-        hex = hex.toLowerCase(Locale.getDefault()).substring(2).replaceAll("[^[0-9][a-f]]", "");
+        hex = hex.toLowerCase(Locale.getDefault()).replaceAll("[^[0-9][a-f]]", "");
 
-        byte[] tempBytes = new byte[(hex.length() / 2) + 1];
+        byte[] bytes = new byte[(hex.length() / 2) + 1];
 
         int checksum = 0;
 
-        for (int i = 0; i < tempBytes.length - 1; ++i) {
-            tempBytes[i] = Long.decode("0x" + hex.substring(i * 2, i * 2 + 2)).byteValue();
+        for (int i = 0; i < bytes.length - 1; ++i) {
+            bytes[i] = Long.decode("0x" + hex.substring(i * 2, i * 2 + 2)).byteValue();
 
-            if (i > 1 && i <= tempBytes.length - 2) {
-                if (tempBytes[i] < 0x00) {
-                    checksum = checksum ^ tempBytes[i] + 256;
+            if (i > 1 && i <= bytes.length - 2) {
+                if (bytes[i] < 0x00) {
+                    checksum = checksum ^ bytes[i] + 256;
                 } else {
-                    checksum ^= tempBytes[i];
+                    checksum ^= bytes[i];
                 }
             }
         }
+        bytes[bytes.length - 1] = Long.decode("0x" + String.format("%02x", checksum)).byteValue();
 
-        tempBytes[tempBytes.length - 1] = Long.decode("0x" + String.format("%02x", checksum)).byteValue();
-        return tempBytes;
+        return bytes;
     }
 
 
@@ -124,24 +127,25 @@ public class PrimeHelper {
         for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
             switch (i) {
                 case 2:
-                    calendar.set(Calendar.YEAR, Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    calendar.set(Calendar.YEAR,characteristicValue[i]);
                     break;
                 case 3:
-                    calendar.set(Calendar.MONTH, Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    calendar.set(Calendar.MONTH,characteristicValue[i]-1);
                     break;
                 case 4:
-                    calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    calendar.set(Calendar.DAY_OF_MONTH,  characteristicValue[i]);
                     break;
                 case 5:
-                    calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    calendar.set(Calendar.HOUR_OF_DAY, characteristicValue[i]);
                     break;
                 case 6:
-                    calendar.set(Calendar.MINUTE, Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    calendar.set(Calendar.MINUTE, characteristicValue[i]);
                     break;
                 case 7:
-                    calendar.set(Calendar.SECOND, Integer.valueOf(Integer.toHexString(characteristicValue[i]), 16));
+                    calendar.set(Calendar.SECOND, characteristicValue[i]);
                     break;
             }
+//            Log.e("calendar",""+characteristicValue[i]);
         }
         return calendar;
     }
