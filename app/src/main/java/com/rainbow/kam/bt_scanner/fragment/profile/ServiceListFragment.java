@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.profile.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
 
 import java.util.List;
@@ -75,7 +74,7 @@ public class ServiceListFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        serviceAdapter = new ServiceAdapter((DeviceProfileActivity) context);
+        serviceAdapter = new ServiceAdapter(context);
         recyclerView.setAdapter(serviceAdapter);
     }
 

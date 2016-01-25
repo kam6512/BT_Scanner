@@ -14,55 +14,50 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/prime_add_user_name"
-            style="@style/AddUserEditText.AddUserInput">
+            style="@style/TextInputEditText.Input">
 
             <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/edit_add_user_name"
-                style="@style/AddUserEditText"
+                style="@style/TextInputEditText"
                 android:hint="@string/add.user.name.hint"
                 android:inputType="text"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/prime_add_user_age"
-            style="@style/AddUserEditText.AddUserInput">
+            style="@style/TextInputEditText.Input">
 
             <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/edit_add_user_age"
-                style="@style/AddUserEditText"
+                style="@style/TextInputEditText"
                 android:hint="@string/add.user.age.hint"
                 android:inputType="numberSigned"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/prime_add_user_height"
-            style="@style/AddUserEditText.AddUserInput">
+            style="@style/TextInputEditText.Input">
 
             <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/edit_add_user_height"
-                style="@style/AddUserEditText"
+                style="@style/TextInputEditText"
                 android:hint="@string/add.user.height.hint"
                 android:inputType="numberSigned"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/prime_add_user_weight"
-            style="@style/AddUserEditText.AddUserInput">
+            style="@style/TextInputEditText.Input">
 
             <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/edit_add_user_weight"
-                style="@style/AddUserEditText"
+                style="@style/TextInputEditText"
                 android:hint="@string/add.user.weight.hint"
                 android:inputType="numberSigned"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/prime_add_user_step"
-            style="@style/AddUserEditText.AddUserInput">
+            style="@style/TextInputEditText.Input">
 
             <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/edit_add_user_step"
-                style="@style/AddUserEditText"
+                style="@style/TextInputEditText"
                 android:hint="@string/add.user.step.hint"
                 android:inputType="number"/>
         </android.support.design.widget.TextInputLayout>

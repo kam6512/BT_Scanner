@@ -114,4 +114,8 @@
     <string name="dialog.skip">무시하기</string>
     <string name="dialog.fix">수정</string>
 
+    <string name="goal.def.step">20000</string>
+    <string name="goal.def.calorie">100</string>
+    <string name="goal.def.distance">10000</string>
+
 </resources>

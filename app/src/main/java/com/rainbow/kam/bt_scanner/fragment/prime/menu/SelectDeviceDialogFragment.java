@@ -38,7 +38,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener,DialogInterface.OnCancelListener {
+public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener, DialogInterface.OnCancelListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -85,7 +85,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_prime_add_device, container, false);
-
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             BluetoothHelper.checkPermissions((PrimeActivity) context);
         }
@@ -120,8 +119,8 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
         deviceAdapter.cancel();
+        super.onCancel(dialog);
     }
 
 
@@ -277,7 +276,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
         if (deviceAdapter.getItemCount() < 1) {
             noDeviceTextView.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             noDeviceTextView.setVisibility(View.INVISIBLE);
         }
         deviceAdapter.notifyDataSetChanged();

@@ -1,6 +1,7 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -15,6 +16,8 @@ import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
+import hugo.weaving.DebugLog;
+
 /**
  * Created by kam6512 on 2015-11-04.
  */
@@ -22,16 +25,19 @@ public class PrimeFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
+    private int index;
+
     private Context context;
     private View view;
     private TextView labelTextView, valueTextView;
     private ImageView cardImageView;
     private CircleCounter circleCounter;
 
+    private SharedPreferences sharedPreferences;
+
 
     public static PrimeFragment newInstance(int index) {
         PrimeFragment primeFragment = new PrimeFragment();
-
         Bundle bundle = new Bundle();
         bundle.putInt(PrimeHelper.KEY_INDEX, index);
         primeFragment.setArguments(bundle);
@@ -39,7 +45,7 @@ public class PrimeFragment extends Fragment {
     }
 
 
-    public int getIndex() {
+    private int getIndex() {
         return getArguments().getInt(PrimeHelper.KEY_INDEX);
     }
 
@@ -58,32 +64,32 @@ public class PrimeFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.f_prime, container, false);
 
-        int index = getIndex();
+        index = getIndex();
         setCardView();
         setCircleCounterView();
 
+        sharedPreferences = getActivity().getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+
         switch (index) {
             case PrimeHelper.INDEX_STEP:
-                labelTextView.setText(getString(R.string.dashboard_step));
+                labelTextView.setText(getString(R.string.prime_total_step));
                 cardImageView.setImageResource(R.drawable.step_wallpaper);
-                circleCounter.setRange(20000);
-                circleCounter.setMetricText(getString(R.string.prime_total_step));
+                circleCounter.setMetricText(getString(R.string.prime_step));
                 break;
 
             case PrimeHelper.INDEX_CALORIE:
-                labelTextView.setText(getString(R.string.dashboard_calorie));
+                labelTextView.setText(getString(R.string.prime_total_calorie));
                 cardImageView.setImageResource(R.drawable.calorie_wallpaper);
-                circleCounter.setRange(100);
-                circleCounter.setMetricText(getString(R.string.prime_total_calorie));
+                circleCounter.setMetricText(getString(R.string.prime_calorie));
                 break;
 
             case PrimeHelper.INDEX_DISTANCE:
-                labelTextView.setText(getString(R.string.dashboard_distance));
+                labelTextView.setText(getString(R.string.prime_total_distance));
                 cardImageView.setImageResource(R.drawable.distance_wallpaper);
-                circleCounter.setRange(10000);
-                circleCounter.setMetricText(getString(R.string.prime_total_distance));
+                circleCounter.setMetricText(getString(R.string.prime_distance));
                 break;
         }
+        setCircleCounterGoalRange();
 
         return view;
     }
@@ -106,18 +112,38 @@ public class PrimeFragment extends Fragment {
     }
 
 
-    public void setTextValue(int value) {
+    @DebugLog
+    public void setCircleCounterGoalRange() {
+        switch (index) {
+            case PrimeHelper.INDEX_STEP:
+                circleCounter.setRange(sharedPreferences.getString(PrimeHelper.KEY_GOAL_STEP, context.getString(R.string.goal_def_step)));
+                break;
+
+            case PrimeHelper.INDEX_CALORIE:
+                circleCounter.setRange(sharedPreferences.getString(PrimeHelper.KEY_GOAL_CALORIE, context.getString(R.string.goal_def_calorie)));
+                break;
+
+            case PrimeHelper.INDEX_DISTANCE:
+                circleCounter.setRange(sharedPreferences.getString(PrimeHelper.KEY_GOAL_DISTANCE, context.getString(R.string.goal_def_distance)));
+                break;
+        }
+        circleCounter.resetRange();
+    }
+
+
+    public void setCircleValue(int value) {
         try {
-            valueTextView.setText(String.valueOf(value));
+            circleCounter.setValues(value, value, value);
         } catch (Exception e) {
             setTextFail();
         }
     }
 
 
-    public void setCircleTotalValue(int totalValue) {
+    public void setTextTotalValue(int totalValue) {
         try {
-            circleCounter.setValues(totalValue, totalValue, totalValue);
+            valueTextView.setText(String.valueOf(totalValue));
+
         } catch (Exception e) {
             setTextFail();
         }

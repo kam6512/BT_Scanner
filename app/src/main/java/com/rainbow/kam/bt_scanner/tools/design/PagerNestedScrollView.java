@@ -32,7 +32,7 @@ public class PagerNestedScrollView extends NestedScrollView {
 
 
     // Return false if we're scrolling in the x direction
-    class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
+    private class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             return Math.abs(distanceY) > Math.abs(distanceX);

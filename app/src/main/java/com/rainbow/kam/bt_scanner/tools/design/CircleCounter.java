@@ -270,9 +270,12 @@ public class CircleCounter extends View {
     }
 
 
-    public void setRange(int range) {
-        mRange = range;
+    public void setRange(String range) {
+        mRange = Integer.valueOf(range);
         invalidate();
+    }
+    public void resetRange(){
+        setValues(mOneValue,mOneValue,mOneValue);
     }
 
 
