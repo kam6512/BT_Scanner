@@ -27,18 +27,16 @@ public class UserDataDialogFragment extends DialogFragment {
 
     private View view;
 
-    private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput, stepTextInput;
+    private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput;
     private RadioGroup genderGroup;
-
-    private SharedPreferences sharedPreferences;
 
     private String name;
     private String age;
     private String height;
     private String weight;
-    private String step;
-    private String gender;
+    private boolean gender;
 
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onAttach(Context context) {
@@ -62,8 +60,23 @@ public class UserDataDialogFragment extends DialogFragment {
         ageTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_age);
         heightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_height);
         weightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_weight);
-        stepTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_step);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
+
+        nameTextInput.getEditText().setText(
+                sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default)));
+        ageTextInput.getEditText().setText(
+                sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default)));
+        heightTextInput.getEditText().setText(
+                sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default)));
+        weightTextInput.getEditText().setText(
+                sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default)));
+
+
+        if (sharedPreferences.getBoolean(PrimeHelper.KEY_GENDER, true)) {
+            genderGroup.check(R.id.radio_man);
+        } else {
+            genderGroup.check(R.id.radio_woman);
+        }
     }
 
 
@@ -84,16 +97,15 @@ public class UserDataDialogFragment extends DialogFragment {
         age = ageTextInput.getEditText().getText().toString();
         height = heightTextInput.getEditText().getText().toString();
         weight = weightTextInput.getEditText().getText().toString();
-        step = stepTextInput.getEditText().getText().toString();
         switch (genderGroup.getCheckedRadioButtonId()) {
             case R.id.radio_man:
-                gender = getString(R.string.gender_man);
+                gender = true;
                 break;
             case R.id.radio_woman:
-                gender = getString(R.string.gender_woman);
+                gender = false;
                 break;
             default:
-                gender = getString(R.string.gender_man);
+                gender = true;
                 break;
         }
 
@@ -134,8 +146,7 @@ public class UserDataDialogFragment extends DialogFragment {
         editor.putString(PrimeHelper.KEY_AGE, age);
         editor.putString(PrimeHelper.KEY_HEIGHT, height);
         editor.putString(PrimeHelper.KEY_WEIGHT, weight);
-        editor.putString(PrimeHelper.KEY_STEP_STRIDE, step);
-        editor.putString(PrimeHelper.KEY_GENDER, gender);
+        editor.putBoolean(PrimeHelper.KEY_GENDER, gender);
         editor.apply();
     }
 }

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.design;
+package com.rainbow.kam.bt_scanner.tools.view;
 
 import android.content.Context;
 import android.support.v4.widget.NestedScrollView;

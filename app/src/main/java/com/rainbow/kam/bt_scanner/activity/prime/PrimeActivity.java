@@ -41,11 +41,11 @@ import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
-import com.rainbow.kam.bt_scanner.tools.design.CustomViewPager;
+import com.rainbow.kam.bt_scanner.tools.view.CustomViewPager;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-import com.rainbow.kam.bt_scanner.tools.helper.NestedRecyclerViewManager;
+import com.rainbow.kam.bt_scanner.tools.view.NestedRecyclerViewManager;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.text.SimpleDateFormat;
@@ -66,9 +66,13 @@ public class PrimeActivity extends AppCompatActivity implements
         DeviceAdapter.OnDeviceSelectListener,
         GoalDialogFragment.OnSettingGoalListener {
 
-    private static final String TAG = PrimeActivity.class.getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
-    private String userName, userAge, userHeight, userWeight, userStep, userGender, deviceAddress;
+    private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
+    private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;
+    private static final int INDEX_DISTANCE = PrimeHelper.INDEX_DISTANCE;
+
+    private String userAge, userHeight, deviceAddress;
 
     private enum GattReadType {
         READ_TIME, READ_STEP_DATA
@@ -128,7 +132,7 @@ public class PrimeActivity extends AppCompatActivity implements
         setMaterialView();
         setViewPager();
         setRecyclerView();
-        setCardView();
+        setDateTimeCardView();
     }
 
 
@@ -170,17 +174,18 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        item.setChecked(false);
         drawerLayout.closeDrawer(GravityCompat.START);
         switch (item.getItemId()) {
             case R.id.menu_prime_setting_device:
                 disconnectDevice();
-                selectDeviceDialogFragment.show(fragmentManager, "Device Select");
+                selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
                 return true;
             case R.id.menu_prime_setting_user:
-                fragmentManager.beginTransaction().add(userDataDialogFragment, "user info").commit();
+                userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
                 return true;
             case R.id.menu_prime_setting_goal:
-                goalDialogFragment.show(fragmentManager, "GOAL");
+                goalDialogFragment.show(fragmentManager,getString(R.string.prime_setting_goal_tag));
                 return true;
             case R.id.menu_prime_about_dev:
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
@@ -196,6 +201,7 @@ public class PrimeActivity extends AppCompatActivity implements
                 return true;
         }
     }
+
 
     @Override
     public void onBackPressed() {
@@ -248,15 +254,13 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void setViewPager() {
-        PrimeAdapter primeAdapter = new PrimeAdapter(getSupportFragmentManager());
-
         CustomViewPager viewPager = (CustomViewPager) findViewById(R.id.prime_viewpager);
+        PrimeAdapter primeAdapter = new PrimeAdapter(getSupportFragmentManager());
         viewPager.setAdapter(primeAdapter);
         viewPager.setOffscreenPageLimit(3);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
 
@@ -268,7 +272,6 @@ public class PrimeActivity extends AppCompatActivity implements
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
             }
         });
 
@@ -287,7 +290,7 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void setCardView() {
+    private void setDateTimeCardView() {
         CardView datetimeCard = (CardView) findViewById(R.id.prime_card_datetime);
         datetimeCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -308,9 +311,9 @@ public class PrimeActivity extends AppCompatActivity implements
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
         goalDialogFragment = new GoalDialogFragment();
 
-        primeFragment[PrimeHelper.INDEX_STEP] = PrimeFragment.newInstance(PrimeHelper.INDEX_STEP);
-        primeFragment[PrimeHelper.INDEX_CALORIE] = PrimeFragment.newInstance(PrimeHelper.INDEX_CALORIE);
-        primeFragment[PrimeHelper.INDEX_DISTANCE] = PrimeFragment.newInstance(PrimeHelper.INDEX_DISTANCE);
+        primeFragment[INDEX_STEP] = PrimeFragment.newInstance(INDEX_STEP);
+        primeFragment[INDEX_CALORIE] = PrimeFragment.newInstance(INDEX_CALORIE);
+        primeFragment[INDEX_DISTANCE] = PrimeFragment.newInstance(INDEX_DISTANCE);
     }
 
 
@@ -321,18 +324,18 @@ public class PrimeActivity extends AppCompatActivity implements
             if (!swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
-            Snackbar.make(coordinatorLayout, "Prime 기기 설정이 필요합니다", Snackbar.LENGTH_INDEFINITE).setAction("설정", new View.OnClickListener() {
+            Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_device), Snackbar.LENGTH_INDEFINITE).setAction(getString(R.string.prime_setting_device_action), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    selectDeviceDialogFragment.show(fragmentManager, "Device Select");
+                    selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
                 }
             }).show();
             return;
-        } else if (sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default)).equals(getString(R.string.user_name_default))) {
-            Snackbar.make(coordinatorLayout, "신체 정보를 입력하시겠습니까?", Snackbar.LENGTH_LONG).setAction("입력", new View.OnClickListener() {
+        } else if (!sharedPreferences.contains(PrimeHelper.KEY_NAME)) {
+            Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_user), Snackbar.LENGTH_LONG).setAction(getString(R.string.prime_setting_user_action), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fragmentManager.beginTransaction().add(userDataDialogFragment, "user info").commit();
+                    userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
                 }
             }).show();
         }
@@ -356,8 +359,7 @@ public class PrimeActivity extends AppCompatActivity implements
                 swipeRefreshLayout.post(postSwipeRefresh);
             } catch (NullPointerException e) {
                 Log.e(TAG, e.getMessage());
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                finish();
+                Toast.makeText(this, getString(R.string.bt_fail), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -372,19 +374,14 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void loadUserData() {
-        this.userName = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
         this.userAge = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
         this.userHeight = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
-        this.userWeight = sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default));
-        this.userStep = sharedPreferences.getString(PrimeHelper.KEY_STEP_STRIDE, getString(R.string.user_step_default));
-        this.userGender = sharedPreferences.getString(PrimeHelper.KEY_GENDER, getString(R.string.gender_man));
         this.deviceAddress = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, null);
-
     }
 
 
     @DebugLog
-    private void saveUserData(String name, String address) {
+    private void saveDeviceData(String name, String address) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
         editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
@@ -446,9 +443,9 @@ public class PrimeActivity extends AppCompatActivity implements
             totalCalorie += realmPrimeItem.getCalorie();
             totalDistance += realmPrimeItem.getDistance();
         }
-        primeFragment[PrimeHelper.INDEX_STEP].setTextTotalValue(totalStep);
-        primeFragment[PrimeHelper.INDEX_CALORIE].setTextTotalValue(totalCalorie);
-        primeFragment[PrimeHelper.INDEX_DISTANCE].setTextTotalValue(totalDistance);
+        primeFragment[INDEX_STEP].setTextTotalValue(totalStep);
+        primeFragment[INDEX_CALORIE].setTextTotalValue(totalCalorie);
+        primeFragment[INDEX_DISTANCE].setTextTotalValue(totalDistance);
     }
 
 
@@ -472,9 +469,10 @@ public class PrimeActivity extends AppCompatActivity implements
     @Override
     public void onDeviceSelect(final String name, final String address) {
         selectDeviceDialogFragment.dismiss();
-        saveUserData(name, address);
+        saveDeviceData(name, address);
         registerBluetooth();
     }
+
 
     @DebugLog
     @Override
@@ -482,12 +480,14 @@ public class PrimeActivity extends AppCompatActivity implements
         registerBluetooth();
     }
 
+
     @Override
     public void onSettingGoal() {
         for (PrimeFragment tempPrimeFragment : primeFragment) {
             tempPrimeFragment.setCircleCounterGoalRange();
         }
     }
+
 
     private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
 
@@ -582,9 +582,9 @@ public class PrimeActivity extends AppCompatActivity implements
                             @Override
                             public void run() {
 
-                                primeFragment[PrimeHelper.INDEX_STEP].setCircleValue(step);
-                                primeFragment[PrimeHelper.INDEX_CALORIE].setCircleValue(calorie);
-                                primeFragment[PrimeHelper.INDEX_DISTANCE].setCircleValue(distance);
+                                primeFragment[INDEX_STEP].setCircleValue(step);
+                                primeFragment[INDEX_CALORIE].setCircleValue(calorie);
+                                primeFragment[INDEX_DISTANCE].setCircleValue(distance);
 
                                 savePrimeData(step, calorie, distance);
                                 setPrimeTotal();
@@ -615,22 +615,12 @@ public class PrimeActivity extends AppCompatActivity implements
                 }
             });
         }
-
-
-        public void onRSSIMiss() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    toolbarRssi.setText("--");
-                }
-            });
-        }
     };
 
 
     private class PrimeAdapter extends FragmentStatePagerAdapter {
 
-        private final String tabTitles[] = new String[]{"도보량", "소모열량", "활동거리"};
+        private final int tabTitles[] = new int[]{R.string.prime_step_title, R.string.prime_calorie_title, R.string.prime_distance_title};
         final int PAGE_COUNT = tabTitles.length;
 
 
@@ -653,7 +643,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return tabTitles[position];
+            return getString(tabTitles[position]);
         }
     }
 }

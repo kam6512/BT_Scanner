@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.helper;
+package com.rainbow.kam.bt_scanner.tools.view;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
@@ -88,7 +88,7 @@ public class NestedRecyclerViewManager extends LinearLayoutManager {
             measuredDimension[1] = 0;
             return;
         }
-        // For adding Item Decor Insets to view
+
         super.measureChildWithMargins(view, 0, 0);
         RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) view.getLayoutParams();
         int childWidthSpec = ViewGroup.getChildMeasureSpec(
@@ -101,7 +101,6 @@ public class NestedRecyclerViewManager extends LinearLayoutManager {
                 p.height);
         view.measure(childWidthSpec, childHeightSpec);
 
-        // Get decorated measurements
         measuredDimension[0] = getDecoratedMeasuredWidth(view) + p.leftMargin + p.rightMargin;
         measuredDimension[1] = getDecoratedMeasuredHeight(view) + p.bottomMargin + p.topMargin;
         recycler.recycleView(view);

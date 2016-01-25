@@ -44,9 +44,6 @@ public class BluetoothHelper {
     public static void checkPermissions(Activity activity) {
         if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            if (activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-//                Toast.makeText(activity, "ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
-//            }
             activity.requestPermissions(new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
             }, REQUEST_ENABLE_BT);
@@ -56,7 +53,6 @@ public class BluetoothHelper {
 
     public static void onRequestPermissionsResult(int requestCode,
                                                   @NonNull int[] grantResults, Activity activity) {
-
         if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults.length != 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -85,20 +81,15 @@ public class BluetoothHelper {
 
 
     public static void onActivityResult(int requestCode, int resultCode, Activity activity) {
-
         switch (requestCode) {
             case BluetoothHelper.REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_OK) {
-                    //블루투스 켜짐
                     Toast.makeText(activity, R.string.bt_on, Toast.LENGTH_SHORT).show();
                 } else {
-                    //블루투스 에러
                     Toast.makeText(activity, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
                     activity.finish();
                 }
                 break;
         }
     }
-
-
 }

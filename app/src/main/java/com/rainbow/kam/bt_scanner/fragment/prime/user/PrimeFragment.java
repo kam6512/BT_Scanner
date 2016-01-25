@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.tools.design.CircleCounter;
+import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import hugo.weaving.DebugLog;
@@ -32,6 +32,13 @@ public class PrimeFragment extends Fragment {
     private TextView labelTextView, valueTextView;
     private ImageView cardImageView;
     private CircleCounter circleCounter;
+
+    private final int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
+    private final int[] cardImage = {R.drawable.step_wallpaper, R.drawable.calorie_wallpaper, R.drawable.distance_wallpaper};
+    private final int[] counterMetric = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
+
+    private final String[] keyRange = {PrimeHelper.KEY_GOAL_STEP, PrimeHelper.KEY_GOAL_CALORIE, PrimeHelper.KEY_GOAL_DISTANCE};
+    private final int[] defRange = {R.string.goal_def_step, R.string.goal_def_calorie, R.string.goal_def_distance};
 
     private SharedPreferences sharedPreferences;
 
@@ -55,6 +62,7 @@ public class PrimeFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof PrimeActivity) {
             this.context = context;
+            sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
         }
     }
 
@@ -68,27 +76,10 @@ public class PrimeFragment extends Fragment {
         setCardView();
         setCircleCounterView();
 
-        sharedPreferences = getActivity().getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+        labelTextView.setText(getString(label[index]));
+        cardImageView.setImageResource(cardImage[index]);
+        circleCounter.setMetricText(getString(counterMetric[index]));
 
-        switch (index) {
-            case PrimeHelper.INDEX_STEP:
-                labelTextView.setText(getString(R.string.prime_total_step));
-                cardImageView.setImageResource(R.drawable.step_wallpaper);
-                circleCounter.setMetricText(getString(R.string.prime_step));
-                break;
-
-            case PrimeHelper.INDEX_CALORIE:
-                labelTextView.setText(getString(R.string.prime_total_calorie));
-                cardImageView.setImageResource(R.drawable.calorie_wallpaper);
-                circleCounter.setMetricText(getString(R.string.prime_calorie));
-                break;
-
-            case PrimeHelper.INDEX_DISTANCE:
-                labelTextView.setText(getString(R.string.prime_total_distance));
-                cardImageView.setImageResource(R.drawable.distance_wallpaper);
-                circleCounter.setMetricText(getString(R.string.prime_distance));
-                break;
-        }
         setCircleCounterGoalRange();
 
         return view;
@@ -114,29 +105,8 @@ public class PrimeFragment extends Fragment {
 
     @DebugLog
     public void setCircleCounterGoalRange() {
-        switch (index) {
-            case PrimeHelper.INDEX_STEP:
-                circleCounter.setRange(sharedPreferences.getString(PrimeHelper.KEY_GOAL_STEP, context.getString(R.string.goal_def_step)));
-                break;
-
-            case PrimeHelper.INDEX_CALORIE:
-                circleCounter.setRange(sharedPreferences.getString(PrimeHelper.KEY_GOAL_CALORIE, context.getString(R.string.goal_def_calorie)));
-                break;
-
-            case PrimeHelper.INDEX_DISTANCE:
-                circleCounter.setRange(sharedPreferences.getString(PrimeHelper.KEY_GOAL_DISTANCE, context.getString(R.string.goal_def_distance)));
-                break;
-        }
+        circleCounter.setRange(sharedPreferences.getString(keyRange[index], getString(defRange[index])));
         circleCounter.resetRange();
-    }
-
-
-    public void setCircleValue(int value) {
-        try {
-            circleCounter.setValues(value, value, value);
-        } catch (Exception e) {
-            setTextFail();
-        }
     }
 
 
@@ -150,8 +120,16 @@ public class PrimeFragment extends Fragment {
     }
 
 
+    public void setCircleValue(int value) {
+        try {
+            circleCounter.setValues(value, value, value);
+        } catch (Exception e) {
+            setTextFail();
+        }
+    }
+
+
     public void setTextFail() {
-        String accessDenial = getString(R.string.prime_access_denial);
-        valueTextView.setText(accessDenial);
+        valueTextView.setText(getString(R.string.prime_access_denial));
     }
 }

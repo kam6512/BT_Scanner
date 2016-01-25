@@ -19,12 +19,7 @@ public class DeviceAdapterHelper {
             if (index++ == position) {
                 deviceItemEntry = entry;
             }
-//            Log.i("getValue Entry", entry.getValue().getExtraAddress());
         }
-
-//        for (DeviceItem deviceItem : hashMap.values()) {
-//            Log.i("getValue DeviceItem", deviceItem.getExtraAddress());
-//        }
         return deviceItemEntry.getValue();
     }
 }

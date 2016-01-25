@@ -65,14 +65,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    class HistoryViewHolder extends RecyclerView.ViewHolder {
+    private class HistoryViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView history_text, history_date;
-        String step;
-        String calorie;
-        String distance;
-        String calendar;
-
+        private String step, calorie, distance, calendar;
 
         public HistoryViewHolder(View itemView) {
             super(itemView);

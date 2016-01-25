@@ -142,7 +142,6 @@ public class GattManager {
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
 
-        // notification 을 enable 한뒤에 Descriptor 를 write 해주어야 응답함
         BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.Descriptor.CLIENT_CHARACTERISTIC_CONFIG));
         if (bluetoothGattDescriptor != null) {
             byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
@@ -174,7 +173,6 @@ public class GattManager {
         } else {
             gattCustomCallbacks.onWriteFail();
         }
-
     }
 
 
@@ -182,7 +180,6 @@ public class GattManager {
         @Override
         @DebugLog
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//            Log.e(TAG, "status = " + status + "   newState = " + newState);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 startServiceDiscovery();
@@ -230,7 +227,6 @@ public class GattManager {
         @Override
         @DebugLog
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onWriteSuccess();
             } else {
