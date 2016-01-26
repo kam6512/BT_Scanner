@@ -26,8 +26,6 @@ import hugo.weaving.DebugLog;
  */
 public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = "DeviceAdapter";
-
     private final LinkedHashMap<String, DeviceItem> deviceLinkedHashMap = new LinkedHashMap<>();
 
     private final OnDeviceSelectListener onDeviceSelectListener;
@@ -96,19 +94,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Animation.AnimationListener { //뷰 초기화
 
-        private final TextView extraName;
-        private final TextView extraAddress;
-        private final TextView extraBondState;
-        private final TextView extraType;
-        private final TextView extraRssi;
+        private final TextView extraName, extraAddress, extraBondState, extraType, extraRssi;
 
         private final CardView deviceItemCardView;
 
-        private final TableRow type;
-        private final TableRow bond;
-        private final TableRow rssi;
-        private final Animation expandAnimation;
-        private final Animation collapseAnimation;
+
+        private final TableRow[] expendRowGroup = new TableRow[3];
+        private final Animation expandAnimation, collapseAnimation;
 
         private final ImageView expendImageView;
 
@@ -124,9 +116,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             deviceItemCardView = (CardView) itemView.findViewById(R.id.device_item_card);
             deviceItemCardView.setOnClickListener(this);
 
-            type = (TableRow) itemView.findViewById(R.id.row_type);
-            bond = (TableRow) itemView.findViewById(R.id.row_bond);
-            rssi = (TableRow) itemView.findViewById(R.id.row_rssi);
+            expendRowGroup[0] = (TableRow) itemView.findViewById(R.id.row_type);
+            expendRowGroup[1] = (TableRow) itemView.findViewById(R.id.row_bond);
+            expendRowGroup[2] = (TableRow) itemView.findViewById(R.id.row_rssi);
 
             expandAnimation = AnimationUtils.loadAnimation(activity, R.anim.expand_device_item);
             expandAnimation.setAnimationListener(this);
@@ -142,7 +134,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private void bindViews(DeviceItem deviceItem) {
             String deviceName = deviceItem.getExtraName();
             if (deviceName == null) {
-                deviceName = "N/A";
+                deviceName = activity.getString(R.string.user_name_default);
             }
             extraName.setText(deviceName);
             extraAddress.setText(deviceItem.getExtraAddress());
@@ -150,19 +142,17 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             extraType.setText(String.valueOf(deviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(deviceItem.getExtraRssi()));
 
-
+            for (TableRow tableRow : expendRowGroup) {
+                tableRow.setVisibility(View.GONE);
+            }
             expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
-
-            type.setVisibility(View.GONE);
-            bond.setVisibility(View.GONE);
-            rssi.setVisibility(View.GONE);
         }
 
 
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.item_expend) {
-                if (type.isShown() && bond.isShown() && rssi.isShown()) {
+                if (expendRowGroup[0].isShown()) {
                     collapsedView();
                 } else {
                     expandView();
@@ -176,23 +166,19 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         void expandView() {
             expandAnimation.reset();
-            type.clearAnimation();
-            type.startAnimation(expandAnimation);
-            bond.clearAnimation();
-            bond.startAnimation(expandAnimation);
-            rssi.clearAnimation();
-            rssi.startAnimation(expandAnimation);
+            for (TableRow tableRow : expendRowGroup) {
+                tableRow.clearAnimation();
+                tableRow.startAnimation(expandAnimation);
+            }
         }
 
 
         void collapsedView() {
             collapseAnimation.reset();
-            type.clearAnimation();
-            type.startAnimation(collapseAnimation);
-            bond.clearAnimation();
-            bond.startAnimation(collapseAnimation);
-            rssi.clearAnimation();
-            rssi.startAnimation(collapseAnimation);
+            for (TableRow tableRow : expendRowGroup) {
+                tableRow.clearAnimation();
+                tableRow.startAnimation(collapseAnimation);
+            }
         }
 
 
@@ -200,9 +186,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onAnimationStart(Animation animation) {
             itemView.requestLayout();
             if (animation == expandAnimation) {
-                type.setVisibility(View.VISIBLE);
-                bond.setVisibility(View.VISIBLE);
-                rssi.setVisibility(View.VISIBLE);
+                for (TableRow tableRow : expendRowGroup) {
+                    tableRow.setVisibility(View.VISIBLE);
+                }
                 expendImageView.setImageResource(R.drawable.ic_expand_less_white_36dp);
             }
         }
@@ -212,9 +198,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onAnimationEnd(Animation animation) {
             itemView.requestLayout();
             if (animation == collapseAnimation) {
-                type.setVisibility(View.GONE);
-                bond.setVisibility(View.GONE);
-                rssi.setVisibility(View.GONE);
+                for (TableRow tableRow : expendRowGroup) {
+                    tableRow.setVisibility(View.GONE);
+                }
                 expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
             }
         }
@@ -224,7 +210,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onAnimationRepeat(Animation animation) {
         }
     }
-
 
     public interface OnDeviceSelectListener {
         void onDeviceSelect(String name, String address);

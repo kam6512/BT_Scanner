@@ -1,9 +1,11 @@
 package com.rainbow.kam.bt_scanner.adapter.prime;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
@@ -20,8 +22,6 @@ import io.realm.RealmResults;
  * Created by Kam6512 on 2015-10-14.
  */
 public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private final String TAG = getClass().getSimpleName();
 
     private int index;
 
@@ -67,37 +67,31 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private class HistoryViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView history_text, history_date;
-        private String step, calorie, distance, calendar;
+        private final TextView historyText, historyDate;
+        private ImageView historyImageView;
+        private int[] values = new int[3];
+        private String calendar;
+        private int[] iconResource = {R.drawable.ic_directions_walk_white_36dp, R.drawable.ic_whatshot_white_36dp, R.drawable.ic_beenhere_white_36dp};
+
 
         public HistoryViewHolder(View itemView) {
             super(itemView);
-            history_text = (TextView) itemView.findViewById(R.id.history_text);
-            history_date = (TextView) itemView.findViewById(R.id.history_date);
+            historyText = (TextView) itemView.findViewById(R.id.history_text);
+            historyDate = (TextView) itemView.findViewById(R.id.history_date);
+            historyImageView = (ImageView) itemView.findViewById(R.id.history_icon);
         }
 
 
         private void bindViews(RealmPrimeItem realmPrimeItem) {
-            step = String.valueOf(realmPrimeItem.getStep());
-            calorie = String.valueOf(realmPrimeItem.getCalorie());
-            distance = String.valueOf(realmPrimeItem.getDistance());
+            values[0] = realmPrimeItem.getStep();
+            values[1] = realmPrimeItem.getCalorie();
+            values[2] = realmPrimeItem.getDistance();
             calendar = realmPrimeItem.getCalendar();
 
-            history_date.setText(calendar);
-
-            switch (index) {
-                case PrimeHelper.INDEX_STEP:
-                    history_text.setText(step);
-                    break;
-                case PrimeHelper.INDEX_CALORIE:
-                    history_text.setText(calorie);
-                    break;
-                case PrimeHelper.INDEX_DISTANCE:
-                    history_text.setText(distance);
-                    break;
-                default:
-                    break;
-            }
+            historyText.setText(String.valueOf(values[index]));
+            historyDate.setText(calendar);
+            historyImageView.setImageResource(iconResource[index]);
+            historyImageView.setColorFilter(Color.parseColor("#0078ff"));
         }
     }
 }
