@@ -23,20 +23,16 @@ import hugo.weaving.DebugLog;
  */
 public class UserDataDialogFragment extends DialogFragment {
 
-    private final String TAG = getClass().getSimpleName();
-
     private View view;
 
     private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput;
     private RadioGroup genderGroup;
 
-    private String name;
-    private String age;
-    private String height;
-    private String weight;
+    private String name, age, height, weight;
     private boolean gender;
 
     private SharedPreferences sharedPreferences;
+
 
     @Override
     public void onAttach(Context context) {
@@ -51,6 +47,8 @@ public class UserDataDialogFragment extends DialogFragment {
         view = inflater.inflate(R.layout.df_prime_user, container, false);
         setUserInput();
         setBtn();
+        setSavedUserValue();
+        setUserValueView();
         return view;
     }
 
@@ -61,22 +59,6 @@ public class UserDataDialogFragment extends DialogFragment {
         heightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_height);
         weightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_weight);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
-
-        nameTextInput.getEditText().setText(
-                sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default)));
-        ageTextInput.getEditText().setText(
-                sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default)));
-        heightTextInput.getEditText().setText(
-                sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default)));
-        weightTextInput.getEditText().setText(
-                sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default)));
-
-
-        if (sharedPreferences.getBoolean(PrimeHelper.KEY_GENDER, true)) {
-            genderGroup.check(R.id.radio_man);
-        } else {
-            genderGroup.check(R.id.radio_woman);
-        }
     }
 
 
@@ -91,33 +73,54 @@ public class UserDataDialogFragment extends DialogFragment {
     }
 
 
+    private void setSavedUserValue() {
+        name = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
+        age = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
+        height = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
+        weight = sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default));
+        gender = sharedPreferences.getBoolean(PrimeHelper.KEY_GENDER, true);
+    }
+
+
+    private void setUserValueView() {
+        nameTextInput.getEditText().setText(name);
+        ageTextInput.getEditText().setText(age);
+        heightTextInput.getEditText().setText(height);
+        weightTextInput.getEditText().setText(weight);
+        if (gender) {
+            genderGroup.check(R.id.radio_man);
+        } else {
+            genderGroup.check(R.id.radio_woman);
+        }
+    }
+
+
     @DebugLog
     private void onAccept() {
-        name = nameTextInput.getEditText().getText().toString();
-        age = ageTextInput.getEditText().getText().toString();
-        height = heightTextInput.getEditText().getText().toString();
-        weight = weightTextInput.getEditText().getText().toString();
-        switch (genderGroup.getCheckedRadioButtonId()) {
-            case R.id.radio_man:
-                gender = true;
-                break;
-            case R.id.radio_woman:
-                gender = false;
-                break;
-            default:
-                gender = true;
-                break;
-        }
-
-        if (!checkInputLayoutText(view.findViewById(R.id.prime_init_group))) {
-            saveUserInfo();
+        if (!isValueHasError(view.findViewById(R.id.prime_init_group))) {
+            name = nameTextInput.getEditText().getText().toString();
+            age = ageTextInput.getEditText().getText().toString();
+            height = heightTextInput.getEditText().getText().toString();
+            weight = weightTextInput.getEditText().getText().toString();
+            switch (genderGroup.getCheckedRadioButtonId()) {
+                case R.id.radio_man:
+                    gender = true;
+                    break;
+                case R.id.radio_woman:
+                    gender = false;
+                    break;
+                default:
+                    gender = true;
+                    break;
+            }
+            saveUserValue();
             getFragmentManager().beginTransaction().remove(this).commit();
         }
     }
 
 
     @DebugLog
-    private boolean checkInputLayoutText(View view) {
+    private boolean isValueHasError(View view) {
         boolean hasError = false;
         if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;
@@ -140,7 +143,7 @@ public class UserDataDialogFragment extends DialogFragment {
     }
 
 
-    private void saveUserInfo() {
+    private void saveUserValue() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(PrimeHelper.KEY_NAME, name);
         editor.putString(PrimeHelper.KEY_AGE, age);

@@ -23,8 +23,6 @@ import hugo.weaving.DebugLog;
  */
 public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = getClass().getSimpleName();
-
     private final Context context;
 
     private final ArrayList<BluetoothGattCharacteristic> characteristicArrayList = new ArrayList<>();

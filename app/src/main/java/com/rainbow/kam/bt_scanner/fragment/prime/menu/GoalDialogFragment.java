@@ -23,19 +23,15 @@ import hugo.weaving.DebugLog;
  */
 public class GoalDialogFragment extends DialogFragment {
 
-    private final String TAG = getClass().getSimpleName();
-
     private View view;
 
     private TextInputLayout stepTextInput, calorieTextInput, distanceTextInput;
 
-    private String step;
-    private String calorie;
-    private String distance;
+    private String step, calorie, distance;
 
     private SharedPreferences sharedPreferences;
 
-    private OnSettingGoalListener onSettingGoalListener;
+    private OnSaveGoalListener onSaveGoalListener;
 
 
     @Override
@@ -43,7 +39,7 @@ public class GoalDialogFragment extends DialogFragment {
         super.onAttach(context);
         if (context instanceof PrimeActivity) {
             sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
-            onSettingGoalListener = (OnSettingGoalListener) context;
+            onSaveGoalListener = (OnSaveGoalListener) context;
         }
     }
 
@@ -54,6 +50,8 @@ public class GoalDialogFragment extends DialogFragment {
         view = inflater.inflate(R.layout.df_prime_goal, container, false);
         setGoalInput();
         setBtn();
+        setSavedGoalValue();
+        setGoalValueView();
         return view;
     }
 
@@ -62,18 +60,6 @@ public class GoalDialogFragment extends DialogFragment {
         stepTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_step);
         calorieTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_calorie);
         distanceTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_distance);
-        setGoalEditText();
-    }
-
-
-    private void setGoalEditText() {
-        stepTextInput.getEditText().setText(
-                sharedPreferences.getString(PrimeHelper.KEY_GOAL_STEP, getString(R.string.goal_def_step)));
-        calorieTextInput.getEditText().setText(
-                sharedPreferences.getString(PrimeHelper.KEY_GOAL_CALORIE, getString(R.string.goal_def_calorie)));
-        distanceTextInput.getEditText().setText(
-                sharedPreferences.getString(PrimeHelper.KEY_GOAL_DISTANCE, getString(R.string.goal_def_distance)));
-
     }
 
 
@@ -88,22 +74,34 @@ public class GoalDialogFragment extends DialogFragment {
     }
 
 
-    @DebugLog
-    private void onAccept() {
-        step = stepTextInput.getEditText().getText().toString();
-        calorie = calorieTextInput.getEditText().getText().toString();
-        distance = distanceTextInput.getEditText().getText().toString();
+    private void setSavedGoalValue() {
+        step = sharedPreferences.getString(PrimeHelper.KEY_GOAL_STEP, getString(R.string.goal_def_step));
+        calorie = sharedPreferences.getString(PrimeHelper.KEY_GOAL_CALORIE, getString(R.string.goal_def_calorie));
+        distance = sharedPreferences.getString(PrimeHelper.KEY_GOAL_DISTANCE, getString(R.string.goal_def_distance));
+    }
 
-        if (!checkInputLayoutText(view.findViewById(R.id.prime_goal_group))) {
+
+    private void setGoalValueView() {
+        stepTextInput.getEditText().setText(step);
+        calorieTextInput.getEditText().setText(calorie);
+        distanceTextInput.getEditText().setText(distance);
+    }
+
+
+    private void onAccept() {
+        if (!isValueHasError(view.findViewById(R.id.prime_goal_group))) {
+            step = stepTextInput.getEditText().getText().toString();
+            calorie = calorieTextInput.getEditText().getText().toString();
+            distance = distanceTextInput.getEditText().getText().toString();
             saveGoal();
             getFragmentManager().beginTransaction().remove(this).commit();
-            onSettingGoalListener.onSettingGoal();
+            onSaveGoalListener.onSave();
         }
     }
 
 
     @DebugLog
-    private boolean checkInputLayoutText(View view) {
+    private boolean isValueHasError(View view) {
         boolean hasError = false;
         if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;
@@ -114,7 +112,7 @@ public class GoalDialogFragment extends DialogFragment {
                     TextInputLayout textInputLayout = (TextInputLayout) v;
                     String goal = textInputLayout.getEditText().getText().toString();
                     if (TextUtils.isEmpty(goal) || Integer.valueOf(goal) < 5) {
-                        setGoalEditText();
+                        setGoalValueView();
                         hasError = true;
                     } else {
                         textInputLayout.setErrorEnabled(false);
@@ -135,7 +133,7 @@ public class GoalDialogFragment extends DialogFragment {
     }
 
 
-    public interface OnSettingGoalListener {
-        void onSettingGoal();
+    public interface OnSaveGoalListener {
+        void onSave();
     }
 }

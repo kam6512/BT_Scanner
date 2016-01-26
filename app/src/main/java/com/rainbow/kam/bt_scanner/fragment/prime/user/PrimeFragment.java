@@ -75,11 +75,7 @@ public class PrimeFragment extends Fragment {
         index = getIndex();
         setCardView();
         setCircleCounterView();
-
-        labelTextView.setText(getString(label[index]));
-        cardImageView.setImageResource(cardImage[index]);
-        circleCounter.setMetricText(getString(counterMetric[index]));
-
+        setResource();
         setCircleCounterGoalRange();
 
         return view;
@@ -103,6 +99,13 @@ public class PrimeFragment extends Fragment {
     }
 
 
+    private void setResource() {
+        labelTextView.setText(getString(label[index]));
+        cardImageView.setImageResource(cardImage[index]);
+        circleCounter.setMetricText(getString(counterMetric[index]));
+    }
+
+
     @DebugLog
     public void setCircleCounterGoalRange() {
         circleCounter.setRange(sharedPreferences.getString(keyRange[index], getString(defRange[index])));
@@ -111,25 +114,18 @@ public class PrimeFragment extends Fragment {
 
 
     public void setTextTotalValue(int totalValue) {
-        try {
-            valueTextView.setText(String.valueOf(totalValue));
-
-        } catch (Exception e) {
-            setTextFail();
-        }
+        valueTextView.setText(String.valueOf(totalValue));
     }
 
 
     public void setCircleValue(int value) {
-        try {
-            circleCounter.setValues(value, value, value);
-        } catch (Exception e) {
-            setTextFail();
-        }
+        circleCounter.setValues(value, value, value);
     }
 
 
     public void setTextFail() {
-        valueTextView.setText(getString(R.string.prime_access_denial));
+        if (isVisible()){
+            valueTextView.setText(getString(R.string.prime_access_denial));
+        }
     }
 }
