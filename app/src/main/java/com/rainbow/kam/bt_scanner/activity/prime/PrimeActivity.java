@@ -50,6 +50,7 @@ import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.view.NestedRecyclerViewManager;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.view.PagerNestedScrollView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -95,6 +96,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+
     private GattManager gattManager;
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
@@ -105,7 +107,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private SharedPreferences sharedPreferences;
     private Realm realm;
 
-    private final HistoryAdapter historyAdapter = new HistoryAdapter();
+    private final HistoryAdapter historyAdapter = new HistoryAdapter(this);
 
     private final Handler handler = new Handler();
     private final Runnable postSwipeRefresh = new Runnable() {
@@ -264,6 +266,16 @@ public class PrimeActivity extends AppCompatActivity implements
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        PagerNestedScrollView pagerNestedScrollView = (PagerNestedScrollView) findViewById(R.id.prime_nested);
+        pagerNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                for (PrimeFragment tempPrimeFragment : primeFragment) {
+                    tempPrimeFragment.setCardTransition(scrollY);
+                }
+            }
+        });
     }
 
 
@@ -301,18 +313,7 @@ public class PrimeActivity extends AppCompatActivity implements
         historyRecyclerView.setNestedScrollingEnabled(false);
         historyRecyclerView.setHasFixedSize(false);
         historyRecyclerView.setAdapter(historyAdapter);
-
-
     }
-
-
-    private class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return Math.abs(distanceY) > Math.abs(distanceX);
-        }
-    }
-
 
 
     private void registerBluetooth() {

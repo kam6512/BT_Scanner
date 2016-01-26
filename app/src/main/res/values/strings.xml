@@ -80,13 +80,13 @@
     <string name="prime.calorie.title">"소모열량"</string>
     <string name="prime.distance.title">"활동거리"</string>
 
-    <string name="prime.step">"걸음"</string>
-    <string name="prime.calorie">"kcal"</string>
-    <string name="prime.distance">"(m)"</string>
+    <string name="prime.step">" 걸음 "</string>
+    <string name="prime.calorie">" kcal "</string>
+    <string name="prime.distance">" m "</string>
 
     <string name="prime.total.step">"총 걸음"</string>
     <string name="prime.total.calorie">"누적 kcal"</string>
-    <string name="prime.total.distance">"누적 거리(m)"</string>
+    <string name="prime.total.distance">"누적 거리"</string>
 
     <string name="prime.access.denial">"Access Denial"</string>
 

@@ -67,6 +67,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:tabGravity="center"
                 app:tabMode="fixed"/>
 
@@ -117,6 +119,8 @@
                 </LinearLayout>
             </com.rainbow.kam.bt_scanner.tools.view.PagerNestedScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>
+
+
     </android.support.design.widget.CoordinatorLayout>
 
 

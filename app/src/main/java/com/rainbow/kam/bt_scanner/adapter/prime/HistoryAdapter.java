@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.adapter.prime;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,9 +23,16 @@ import io.realm.RealmResults;
  */
 public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private Context context;
+
     private int index;
 
     private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
+
+
+    public HistoryAdapter(Context context) {
+        this.context = context;
+    }
 
 
     @Override
@@ -72,6 +79,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private int[] values = new int[3];
         private String calendar;
         private int[] iconResource = {R.drawable.ic_directions_walk_white_36dp, R.drawable.ic_whatshot_white_36dp, R.drawable.ic_beenhere_white_36dp};
+        private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
 
 
         public HistoryViewHolder(View itemView) {
@@ -88,7 +96,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             values[2] = realmPrimeItem.getDistance();
             calendar = realmPrimeItem.getCalendar();
 
-            historyText.setText(String.valueOf(values[index]));
+            historyText.setText(String.valueOf(values[index] + context.getString(unit[index])));
             historyDate.setText(calendar);
             historyImageView.setImageResource(iconResource[index]);
             historyImageView.setColorFilter(Color.parseColor("#0078ff"));
