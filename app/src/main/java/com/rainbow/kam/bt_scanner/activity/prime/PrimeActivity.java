@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +27,9 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -92,8 +95,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private TextView dateTextView, timeTextView;
-
     private GattManager gattManager;
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
@@ -130,7 +131,6 @@ public class PrimeActivity extends AppCompatActivity implements
         setMaterialView();
         setViewPager();
         setRecyclerView();
-        setDateTimeCardView();
     }
 
 
@@ -301,21 +301,18 @@ public class PrimeActivity extends AppCompatActivity implements
         historyRecyclerView.setNestedScrollingEnabled(false);
         historyRecyclerView.setHasFixedSize(false);
         historyRecyclerView.setAdapter(historyAdapter);
+
+
     }
 
 
-    private void setDateTimeCardView() {
-        CardView datetimeCard = (CardView) findViewById(R.id.prime_card_datetime);
-        datetimeCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                swipeRefreshLayout.post(postSwipeRefresh);
-                onRefresh();
-            }
-        });
-        dateTextView = (TextView) findViewById(R.id.prime_date);
-        timeTextView = (TextView) findViewById(R.id.prime_time);
+    private class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return Math.abs(distanceY) > Math.abs(distanceX);
+        }
     }
+
 
 
     private void registerBluetooth() {
@@ -454,13 +451,9 @@ public class PrimeActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
                 for (PrimeFragment tempPrimeFragment : primeFragment) {
                     tempPrimeFragment.setTextFail();
                 }
-                String accessDenial = getString(R.string.prime_access_denial);
-                dateTextView.setText(accessDenial);
-                timeTextView.setText(accessDenial);
             }
         });
     }
@@ -558,12 +551,12 @@ public class PrimeActivity extends AppCompatActivity implements
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Calendar calendar = PrimeHelper.readTime(ch.getValue());
-                                SimpleDateFormat date = new SimpleDateFormat("yy년 MM 월 dd일");
-                                SimpleDateFormat time = new SimpleDateFormat("HH시 mm분");
-
-                                dateTextView.setText(date.format(calendar.getTime()));
-                                timeTextView.setText(time.format(calendar.getTime()));
+//                                Calendar calendar = PrimeHelper.readTime(ch.getValue());
+//                                SimpleDateFormat date = new SimpleDateFormat("yy년 MM 월 dd일");
+//                                SimpleDateFormat time = new SimpleDateFormat("HH시 mm분");
+//
+//                                dateTextView.setText(date.format(calendar.getTime()));
+//                                timeTextView.setText(time.format(calendar.getTime()));
                             }
                         });
 
