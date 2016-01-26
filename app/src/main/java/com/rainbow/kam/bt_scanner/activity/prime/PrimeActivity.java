@@ -64,15 +64,13 @@ public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
         NavigationView.OnNavigationItemSelectedListener,
         DeviceAdapter.OnDeviceSelectListener,
-        GoalDialogFragment.OnSettingGoalListener {
+        GoalDialogFragment.OnSaveGoalListener {
 
     private final String TAG = getClass().getSimpleName();
 
     private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
     private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;
     private static final int INDEX_DISTANCE = PrimeHelper.INDEX_DISTANCE;
-
-    private String userAge, userHeight, deviceAddress;
 
     private enum GattReadType {
         READ_TIME, READ_STEP_DATA
@@ -101,6 +99,8 @@ public class PrimeActivity extends AppCompatActivity implements
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForNotify;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
 
+    private String userAge, userHeight, deviceAddress;
+
     private SharedPreferences sharedPreferences;
     private Realm realm;
 
@@ -124,9 +124,7 @@ public class PrimeActivity extends AppCompatActivity implements
             BluetoothHelper.checkPermissions(PrimeActivity.this);
         }
 
-        sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
-        realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
-
+        initDB();
         setFragments();
         setToolbar();
         setMaterialView();
@@ -163,10 +161,8 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            drawerLayout.openDrawer(GravityCompat.START);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -185,15 +181,14 @@ public class PrimeActivity extends AppCompatActivity implements
                 userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
                 return true;
             case R.id.menu_prime_setting_goal:
-                goalDialogFragment.show(fragmentManager,getString(R.string.prime_setting_goal_tag));
+                goalDialogFragment.show(fragmentManager, getString(R.string.prime_setting_goal_tag));
                 return true;
             case R.id.menu_prime_about_dev:
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
-                finish();
                 return true;
             case R.id.menu_prime_about_setting:
                 removeAllData();
-                finish();
+                registerBluetooth();
                 return true;
             case R.id.menu_prime_about_about:
                 return true;
@@ -223,6 +218,25 @@ public class PrimeActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         BluetoothHelper.onRequestPermissionsResult(requestCode, grantResults, this);
+    }
+
+
+    private void initDB() {
+        sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
+        realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
+    }
+
+
+    private void setFragments() {
+        fragmentManager = getSupportFragmentManager();
+
+        userDataDialogFragment = new UserDataDialogFragment();
+        selectDeviceDialogFragment = new SelectDeviceDialogFragment();
+        goalDialogFragment = new GoalDialogFragment();
+
+        primeFragment[INDEX_STEP] = PrimeFragment.newInstance(INDEX_STEP);
+        primeFragment[INDEX_CALORIE] = PrimeFragment.newInstance(INDEX_CALORIE);
+        primeFragment[INDEX_DISTANCE] = PrimeFragment.newInstance(INDEX_DISTANCE);
     }
 
 
@@ -301,19 +315,6 @@ public class PrimeActivity extends AppCompatActivity implements
         });
         dateTextView = (TextView) findViewById(R.id.prime_date);
         timeTextView = (TextView) findViewById(R.id.prime_time);
-    }
-
-
-    private void setFragments() {
-        fragmentManager = getSupportFragmentManager();
-
-        userDataDialogFragment = new UserDataDialogFragment();
-        selectDeviceDialogFragment = new SelectDeviceDialogFragment();
-        goalDialogFragment = new GoalDialogFragment();
-
-        primeFragment[INDEX_STEP] = PrimeFragment.newInstance(INDEX_STEP);
-        primeFragment[INDEX_CALORIE] = PrimeFragment.newInstance(INDEX_CALORIE);
-        primeFragment[INDEX_DISTANCE] = PrimeFragment.newInstance(INDEX_DISTANCE);
     }
 
 
@@ -482,7 +483,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onSettingGoal() {
+    public void onSave() {
         for (PrimeFragment tempPrimeFragment : primeFragment) {
             tempPrimeFragment.setCircleCounterGoalRange();
         }
@@ -596,7 +597,7 @@ public class PrimeActivity extends AppCompatActivity implements
                         break;
                 }
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, "onDataNotify \n" + e.getMessage());
                 setFail();
             }
         }

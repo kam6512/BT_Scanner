@@ -26,15 +26,15 @@ public class PrimeHelper {
     public static final String KEY_CALORIE = "CALORIE";
     public static final String KEY_DISTANCE = "DISTANCE";
 
+    public static final String KEY_GOAL_STEP = "STEP_GOAL";
+    public static final String KEY_GOAL_CALORIE = "CALORIE_GOAL";
+    public static final String KEY_GOAL_DISTANCE = "DISTANCE_GOAL";
+
     public static final String KEY_INDEX = "INDEX";
 
     public static final int INDEX_STEP = 0;
     public static final int INDEX_CALORIE = 1;
     public static final int INDEX_DISTANCE = 2;
-
-    public static final String KEY_GOAL_STEP = "STEP_GOAL";
-    public static final String KEY_GOAL_CALORIE = "CALORIE_GOAL";
-    public static final String KEY_GOAL_DISTANCE = "DISTANCE_GOAL";
 
 
     public static final byte[] getBytesForReadTime = parseHexStringToBytes("8900");
@@ -53,7 +53,6 @@ public class PrimeHelper {
 
 
     public static byte[] getBytesForDateTime() {
-
         Calendar cal = new GregorianCalendar();
 
         StringBuilder time = new StringBuilder();
@@ -69,12 +68,13 @@ public class PrimeHelper {
         if (week == 0) {
             week = 7;
         }
-        time.append("0").append(String.format("%2s", week));
+        time.append(String.format("%2d", week));
 
         return parseHexStringToBytes(time.toString());
     }
 
 
+    //Test
     public static byte[] getBytesForUserData(int gender, int height, int weight, int stride, int runningStride) {
         String userData = "832f000000000000000000000000000000000000000000000000000000000000000000" +
                 String.format("%02d", gender) +
@@ -127,13 +127,13 @@ public class PrimeHelper {
         for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
             switch (i) {
                 case 2:
-                    calendar.set(Calendar.YEAR,characteristicValue[i]);
+                    calendar.set(Calendar.YEAR, characteristicValue[i]);
                     break;
                 case 3:
-                    calendar.set(Calendar.MONTH,characteristicValue[i]-1);
+                    calendar.set(Calendar.MONTH, characteristicValue[i] - 1);
                     break;
                 case 4:
-                    calendar.set(Calendar.DAY_OF_MONTH,  characteristicValue[i]);
+                    calendar.set(Calendar.DAY_OF_MONTH, characteristicValue[i]);
                     break;
                 case 5:
                     calendar.set(Calendar.HOUR_OF_DAY, characteristicValue[i]);
@@ -145,7 +145,6 @@ public class PrimeHelper {
                     calendar.set(Calendar.SECOND, characteristicValue[i]);
                     break;
             }
-//            Log.e("calendar",""+characteristicValue[i]);
         }
         return calendar;
     }
