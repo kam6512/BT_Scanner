@@ -94,8 +94,6 @@ public class GoalDialogFragment extends DialogFragment {
             calorie = calorieTextInput.getEditText().getText().toString();
             distance = distanceTextInput.getEditText().getText().toString();
             saveGoal();
-            getFragmentManager().beginTransaction().remove(this).commit();
-            onSaveGoalListener.onSave();
         }
     }
 
@@ -130,10 +128,11 @@ public class GoalDialogFragment extends DialogFragment {
         editor.putString(PrimeHelper.KEY_GOAL_CALORIE, calorie);
         editor.putString(PrimeHelper.KEY_GOAL_DISTANCE, distance);
         editor.apply();
+        onSaveGoalListener.onSaveGoal();
     }
 
 
     public interface OnSaveGoalListener {
-        void onSave();
+        void onSaveGoal();
     }
 }

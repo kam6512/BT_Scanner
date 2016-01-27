@@ -58,68 +58,29 @@
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:contentDescription="@string/bt.rssi"/>
-
-
             </LinearLayout>
-
-            <android.support.design.widget.TabLayout
-                android:id="@+id/prime_tabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:tabGravity="center"
-                app:tabMode="fixed"/>
-
-
         </android.support.design.widget.AppBarLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="3dp"
             android:background="@drawable/toolbar_drop_shadow"
-            app:layout_anchor="@id/prime_tabs"
+            app:layout_anchor="@id/prime_toolbar"
             app:layout_anchorGravity="bottom|center"/>
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/prime_swipeRefreshLayout"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <com.rainbow.kam.bt_scanner.tools.view.PagerNestedScrollView
-                android:id="@+id/prime_nested"
+            <FrameLayout
+                android:id="@+id/prime_fragment_frame"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@null"
-                android:fillViewport="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <com.rainbow.kam.bt_scanner.tools.view.CustomViewPager
-                        android:id="@+id/prime_viewpager"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/history_recycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@null"
-                        />
-                </LinearLayout>
-            </com.rainbow.kam.bt_scanner.tools.view.PagerNestedScrollView>
+                android:layout_height="wrap_content"/>
         </android.support.v4.widget.SwipeRefreshLayout>
-
 
     </android.support.design.widget.CoordinatorLayout>
 
