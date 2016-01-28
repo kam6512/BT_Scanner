@@ -3,19 +3,23 @@ package com.rainbow.kam.bt_scanner.fragment.prime.user;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -39,35 +43,38 @@ import io.realm.RealmResults;
  */
 public class PrimeFragment extends Fragment {
 
-    private final String TAG = getClass().getSimpleName();
+    private Context context;
+    private View view;
+
     private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
     private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;
     private static final int INDEX_DISTANCE = PrimeHelper.INDEX_DISTANCE;
     private int index;
+    private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
 
-    private Context context;
-    private View view;
 
-    private final PrimeCircleFragment[] primeCircleFragments = new PrimeCircleFragment[3];
+    private CardView totalCardView;
 
-    private CardView cardView;
-    private TextView labelTextView, valueTextView;
-    private ImageView cardImageView;
-
+    private TextView labelTextView, totalTextView;
+    private int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
     int[] total = new int[3];
 
-    private int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
+    private ImageView cardImageView;
     private final int[] cardImage = {R.drawable.step_wallpaper, R.drawable.calorie_wallpaper, R.drawable.distance_wallpaper};
     private final Drawable[] cardImageDrawable = new Drawable[cardImage.length];
-    private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
+
+    private CustomViewPager viewPager;
+    private final PrimeCircleFragment[] primeCircleFragments = new PrimeCircleFragment[3];
+
+    private CardView graphCardView;
+    private LineChartView chart;
+    private String[] chartLabels;
+    private float[][] chartValues;
 
 
     private HistoryAdapter historyAdapter;
 
-
-    private LineChartView chart;
-    private String[] chartLabels;
-    private float[][] chartValues;
+    private int scrollHeight;
 
 
     @Override
@@ -85,12 +92,7 @@ public class PrimeFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.f_prime, container, false);
 
-        cardImageDrawable[0] = getResources().getDrawable(cardImage[0]);
-        cardImageDrawable[1] = getResources().getDrawable(cardImage[1]);
-        cardImageDrawable[2] = getResources().getDrawable(cardImage[2]);
-
-        setCardView();
-        setCardResource();
+        setTotalCardView();
         setFragments();
         setNestedScrollView();
         setViewPager();
@@ -102,21 +104,27 @@ public class PrimeFragment extends Fragment {
     }
 
 
-    private void setCardView() {
-        cardView = (CardView) view.findViewById(R.id.prime_card);
-        labelTextView = (TextView) view.findViewById(R.id.prime_label);
-        valueTextView = (TextView) view.findViewById(R.id.prime_value);
-        cardImageView = (ImageView) view.findViewById(R.id.prime_card_image);
+    public void onViewCreated(View view, Bundle saved) {
+        super.onViewCreated(view, saved);
+        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            public void onGlobalLayout() {
+                scrollHeight = totalCardView.getHeight() + viewPager.getHeight();
+            }
+        });
     }
 
 
-    private void setCardResource() {
+    private void setTotalCardView() {
+        totalCardView = (CardView) view.findViewById(R.id.prime_card);
+        labelTextView = (TextView) view.findViewById(R.id.prime_label);
         labelTextView.setText(getString(label[index]));
+        totalTextView = (TextView) view.findViewById(R.id.prime_value);
 
-//        cardImageView.setImageDrawable(cardImageDrawable[index]);
-        TransitionDrawable transitionDrawable = new TransitionDrawable(cardImageDrawable);
-        cardImageView.setImageDrawable(transitionDrawable);
-        transitionDrawable.startTransition(100);
+        cardImageView = (ImageView) view.findViewById(R.id.prime_card_image);
+        cardImageDrawable[0] = ContextCompat.getDrawable(context, cardImage[0]);
+        cardImageDrawable[1] = ContextCompat.getDrawable(context, cardImage[1]);
+        cardImageDrawable[2] = ContextCompat.getDrawable(context, cardImage[2]);
+        cardImageView.setImageDrawable(cardImageDrawable[index]);
     }
 
 
@@ -132,16 +140,19 @@ public class PrimeFragment extends Fragment {
         pagerNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-
-                setCardTransition(scrollY);
-
+                if (scrollY > scrollHeight) {
+                    setGraphTransition(scrollY - scrollHeight);
+                } else {
+                    setCardTransition(scrollY);
+                    setGraphTransition(0);
+                }
             }
         });
     }
 
 
     private void setViewPager() {
-        CustomViewPager viewPager = (CustomViewPager) view.findViewById(R.id.prime_viewpager);
+        viewPager = (CustomViewPager) view.findViewById(R.id.prime_viewpager);
         PrimeAdapter primeAdapter = new PrimeAdapter(getActivity().getSupportFragmentManager());
         viewPager.setAdapter(primeAdapter);
         viewPager.setOffscreenPageLimit(3);
@@ -153,12 +164,13 @@ public class PrimeFragment extends Fragment {
 
             @Override
             public void onPageSelected(int position) {
-                historyAdapter.setCurrentIndex(position);
                 index = position;
-                valueTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
-//                setCardResource();
-                chart.dismiss();
-                setChartValues();
+                historyAdapter.setCurrentIndex(index);
+                totalTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
+                labelTextView.setText(getString(label[index]));
+                cardImageView.setImageDrawable(cardImageDrawable[index]);
+//                chart.dismiss();
+//                setChartValues();
             }
 
 
@@ -173,6 +185,9 @@ public class PrimeFragment extends Fragment {
 
 
     private void setChartView() {
+
+        graphCardView = (CardView) view.findViewById(R.id.prime_tab_graph);
+
         chart = (LineChartView) view.findViewById(R.id.chart1);
         chart.setBorderSpacing(Tools.fromDpToPx(15))
                 .setYLabels(AxisController.LabelPosition.NONE)
@@ -226,20 +241,25 @@ public class PrimeFragment extends Fragment {
             chartValues[2][i] = realmPrimeItem.getDistance();
         }
 
-        valueTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
+        totalTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
         setChartValues();
     }
 
 
     public void setTextFail() {
         if (isVisible()) {
-            valueTextView.setText(getString(R.string.prime_access_denial));
+            totalTextView.setText(getString(R.string.prime_access_denial));
         }
     }
 
 
     public void setCardTransition(int y) {
-        cardView.setTranslationY(y);
+        totalCardView.setTranslationY(y);
+    }
+
+
+    public void setGraphTransition(int y) {
+        graphCardView.setTranslationY(y);
     }
 
 
