@@ -3,6 +3,7 @@ package com.rainbow.kam.bt_scanner.fragment.prime.user;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -18,7 +19,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.db.chart.Tools;
 import com.db.chart.model.LineSet;
+import com.db.chart.view.AxisController;
 import com.db.chart.view.LineChartView;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
@@ -53,7 +56,7 @@ public class PrimeFragment extends Fragment {
 
     int[] total = new int[3];
 
-    private final int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
+    private int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
     private final int[] cardImage = {R.drawable.step_wallpaper, R.drawable.calorie_wallpaper, R.drawable.distance_wallpaper};
     private final Drawable[] cardImageDrawable = new Drawable[cardImage.length];
     private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
@@ -63,9 +66,8 @@ public class PrimeFragment extends Fragment {
 
 
     private LineChartView chart;
-    private final String[] mLabels = {"Jan", "Fev", "Mar", "Apr", "Jun", "May", "Jul", "Aug", "Sep"};
-    private final float[][] mValues = {{3.5f, 4.7f, 4.3f, 8f, 6.5f, 9.9f, 7f, 8.3f, 7.0f},
-            {4.5f, 2.5f, 2.5f, 9f, 4.5f, 9.5f, 5f, 8.3f, 1.8f}};
+    private String[] chartLabels;
+    private float[][] chartValues;
 
 
     @Override
@@ -83,28 +85,19 @@ public class PrimeFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.f_prime, container, false);
 
-
         cardImageDrawable[0] = getResources().getDrawable(cardImage[0]);
         cardImageDrawable[1] = getResources().getDrawable(cardImage[1]);
         cardImageDrawable[2] = getResources().getDrawable(cardImage[2]);
 
         setCardView();
+        setCardResource();
         setFragments();
-        setResource();
-        setViewPager();
         setNestedScrollView();
+        setViewPager();
+        setChartView();
         setRecyclerView();
 
 
-        chart = (LineChartView) view.findViewById(R.id.chart1);
-
-        LineSet dataset = new LineSet(mLabels, mValues[0]);
-        dataset.setColor(Color.parseColor("#b3b5bb"))
-                .setFill(Color.parseColor("#2d374c"))
-                .setDotsColor(Color.parseColor("#ffc755"))
-                .setThickness(4);
-        chart.addData(dataset);
-        chart.show();
         return view;
     }
 
@@ -117,10 +110,33 @@ public class PrimeFragment extends Fragment {
     }
 
 
+    private void setCardResource() {
+        labelTextView.setText(getString(label[index]));
+
+//        cardImageView.setImageDrawable(cardImageDrawable[index]);
+        TransitionDrawable transitionDrawable = new TransitionDrawable(cardImageDrawable);
+        cardImageView.setImageDrawable(transitionDrawable);
+        transitionDrawable.startTransition(100);
+    }
+
+
     private void setFragments() {
         primeCircleFragments[INDEX_STEP] = PrimeCircleFragment.newInstance(INDEX_STEP);
         primeCircleFragments[INDEX_CALORIE] = PrimeCircleFragment.newInstance(INDEX_CALORIE);
         primeCircleFragments[INDEX_DISTANCE] = PrimeCircleFragment.newInstance(INDEX_DISTANCE);
+    }
+
+
+    private void setNestedScrollView() {
+        NestedScrollView pagerNestedScrollView = (NestedScrollView) view.findViewById(R.id.prime_nested);
+        pagerNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
+                setCardTransition(scrollY);
+
+            }
+        });
     }
 
 
@@ -140,7 +156,9 @@ public class PrimeFragment extends Fragment {
                 historyAdapter.setCurrentIndex(position);
                 index = position;
                 valueTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
-                setResource();
+//                setCardResource();
+                chart.dismiss();
+                setChartValues();
             }
 
 
@@ -154,16 +172,13 @@ public class PrimeFragment extends Fragment {
     }
 
 
-    private void setNestedScrollView() {
-        NestedScrollView pagerNestedScrollView = (NestedScrollView) view.findViewById(R.id.prime_nested);
-        pagerNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-
-                setCardTransition(scrollY);
-
-            }
-        });
+    private void setChartView() {
+        chart = (LineChartView) view.findViewById(R.id.chart1);
+        chart.setBorderSpacing(Tools.fromDpToPx(15))
+                .setYLabels(AxisController.LabelPosition.NONE)
+                .setLabelsColor(Color.parseColor("#6a84c3"))
+                .setXAxis(true)
+                .setYAxis(false);
     }
 
 
@@ -177,10 +192,15 @@ public class PrimeFragment extends Fragment {
     }
 
 
-    private void setResource() {
-        labelTextView.setText(getString(label[index]));
-//        cardImageView.setImageResource(cardImage[index]);
-        cardImageView.setImageDrawable(cardImageDrawable[index]);
+    private void setChartValues() {
+        LineSet dataSet = new LineSet(chartLabels, chartValues[index]);
+        dataSet.setColor(Color.parseColor("#b3b5bb"))
+                .setFill(Color.parseColor("#2d374c"))
+                .setDotsColor(Color.parseColor("#ffc755"))
+                .setThickness(4);
+        chart.addData(dataSet);
+
+        chart.show();
     }
 
 
@@ -190,12 +210,24 @@ public class PrimeFragment extends Fragment {
         total[1] = 0;
         total[2] = 0;
 
-        for (RealmPrimeItem realmPrimeItem : results) {
+        int length = results.size();
+        chartLabels = new String[length];
+        chartValues = new float[3][length];
+
+        for (int i = 0; i < length; i++) {
+            RealmPrimeItem realmPrimeItem = results.get(i);
             total[0] += realmPrimeItem.getStep();
             total[1] += realmPrimeItem.getCalorie();
             total[2] += realmPrimeItem.getDistance();
+
+            chartLabels[i] = realmPrimeItem.getCalendar();
+            chartValues[0][i] = realmPrimeItem.getStep();
+            chartValues[1][i] = realmPrimeItem.getCalorie() * 45;
+            chartValues[2][i] = realmPrimeItem.getDistance();
         }
+
         valueTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
+        setChartValues();
     }
 
 
@@ -220,13 +252,9 @@ public class PrimeFragment extends Fragment {
 
 
     public void setCircleValue(Bundle bundle) {
-
-        final int step = bundle.getInt(PrimeHelper.KEY_STEP);
-        final int calorie = bundle.getInt(PrimeHelper.KEY_CALORIE);
-        final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
-        primeCircleFragments[INDEX_STEP].setCircleValue(step);
-        primeCircleFragments[INDEX_CALORIE].setCircleValue(calorie);
-        primeCircleFragments[INDEX_DISTANCE].setCircleValue(distance);
+        primeCircleFragments[INDEX_STEP].setCircleValue(bundle.getInt(PrimeHelper.KEY_STEP));
+        primeCircleFragments[INDEX_CALORIE].setCircleValue(bundle.getInt(PrimeHelper.KEY_CALORIE));
+        primeCircleFragments[INDEX_DISTANCE].setCircleValue(bundle.getInt(PrimeHelper.KEY_DISTANCE));
     }
 
 
