@@ -61,13 +61,6 @@
             </LinearLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:background="@drawable/toolbar_drop_shadow"
-            app:layout_anchor="@id/prime_toolbar"
-            app:layout_anchorGravity="bottom|center"/>
-
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/prime_swipeRefreshLayout"
 

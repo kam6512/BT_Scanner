@@ -3,6 +3,7 @@
     android:id="@+id/device_item_card"
     style="@style/DeviceItemCard"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@null"
     android:clickable="true"
     android:foreground="?android:attr/selectableItemBackground">
 
@@ -88,7 +89,8 @@
     <ImageView
         android:id="@+id/item_expend"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="end|top"
         android:layout_margin="7dp"
-        android:layout_height="wrap_content"/>
+        android:background="@null"/>
 </android.support.v7.widget.CardView>
