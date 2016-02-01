@@ -244,32 +244,16 @@ public class PrimeActivity extends AppCompatActivity implements
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-
     }
 
 
     private void registerBluetooth() {
-        Log.i(TAG, "registerBluetooth");
-
         if (sharedPreferences.getAll().isEmpty()) {
-            if (!swipeRefreshLayout.isRefreshing()) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-            Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_device), Snackbar.LENGTH_INDEFINITE).setAction(getString(R.string.prime_setting_device_action), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
-                }
-            }).show();
+            swipeRefreshLayout.setRefreshing(false);
+            showDeviceSnackBar();
             return;
         } else if (!sharedPreferences.contains(PrimeHelper.KEY_NAME)) {
-            Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_user), Snackbar.LENGTH_LONG).setAction(getString(R.string.prime_setting_user_action), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
-                }
-            }).show();
+            showUserSettingSnackBar();
         }
 
         gattManager = new GattManager(this, gattCallbacks);
@@ -279,6 +263,26 @@ public class PrimeActivity extends AppCompatActivity implements
         } else {
             BluetoothHelper.bluetoothRequest(this);
         }
+    }
+
+
+    private void showDeviceSnackBar() {
+        Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_device), Snackbar.LENGTH_INDEFINITE).setAction(getString(R.string.prime_setting_device_action), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
+            }
+        }).show();
+    }
+
+
+    private void showUserSettingSnackBar() {
+        Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_user), Snackbar.LENGTH_LONG).setAction(getString(R.string.prime_setting_user_action), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
+            }
+        }).show();
     }
 
 
@@ -455,49 +459,45 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
         public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
-            try {
-                switch (gattReadType) {
-                    case READ_TIME:
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-//                                Calendar calendar = PrimeHelper.readTime(ch.getValue());
-//                                SimpleDateFormat date = new SimpleDateFormat("yy년 MM 월 dd일");
-//                                SimpleDateFormat time = new SimpleDateFormat("HH시 mm분");
-//
-//                                dateTextView.setText(date.format(calendar.getTime()));
-//                                timeTextView.setText(time.format(calendar.getTime()));
-                            }
-                        });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        switch (gattReadType) {
+                            case READ_TIME:
 
-                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
+                                Calendar calendar = PrimeHelper.readTime(ch.getValue());
+                                SimpleDateFormat update = new SimpleDateFormat("최근 업데이트 : dd일  HH : mm");
 
-                        gattReadType = GattReadType.READ_STEP_DATA;
-                        break;
+                                primeFragment.setUpdateValue(update.format(calendar.getTime()));
 
-                    case READ_STEP_DATA:
+                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
 
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                                gattReadType = GattReadType.READ_STEP_DATA;
+                                break;
+
+                            case READ_STEP_DATA:
+
+
                                 final Bundle bundle = PrimeHelper.readValue(ch.getValue(), userAge, userHeight);
                                 final int step = bundle.getInt(PrimeHelper.KEY_STEP);
                                 final int calorie = bundle.getInt(PrimeHelper.KEY_CALORIE);
                                 final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
 
                                 primeFragment.setCircleValue(bundle);
-                                primeFragment.setTextTotalValue(realm.where(RealmPrimeItem.class).findAll());
+                                primeFragment.setRealmPrimeItemValue(realm.where(RealmPrimeItem.class).findAll());
                                 savePrimeData(step, calorie, distance);
-                            }
-                        });
-                        break;
-                    default:
-                        break;
+
+                                break;
+                            default:
+                                break;
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "onDataNotify \n" + e.getMessage());
+                        setFail();
+                    }
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "onDataNotify \n" + e.getMessage());
-                setFail();
-            }
+            });
         }
 
 

@@ -1,11 +1,8 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,8 +11,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,16 +29,19 @@ import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
-import com.rainbow.kam.bt_scanner.tools.view.CustomViewPager;
-import com.rainbow.kam.bt_scanner.tools.view.NestedRecyclerViewManager;
 
 import hugo.weaving.DebugLog;
 import io.realm.RealmResults;
 
+import static android.support.v7.widget.RecyclerView.OnScrollListener;
+
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class PrimeFragment extends Fragment {
+public class PrimeFragment extends Fragment
+        implements ViewTreeObserver.OnGlobalLayoutListener,
+        NestedScrollView.OnScrollChangeListener,
+        ViewPager.OnPageChangeListener {
 
     private Context context;
     private View view;
@@ -49,32 +49,34 @@ public class PrimeFragment extends Fragment {
     private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
     private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;
     private static final int INDEX_DISTANCE = PrimeHelper.INDEX_DISTANCE;
+
     private int index;
+
+    private final int[] total = new int[3];
+
     private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
 
-
     private CardView totalCardView;
-
     private TextView labelTextView, totalTextView;
-    private int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
-    int[] total = new int[3];
-
+    private final int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
     private ImageView cardImageView;
     private final int[] cardImage = {R.drawable.step_wallpaper, R.drawable.calorie_wallpaper, R.drawable.distance_wallpaper};
     private final Drawable[] cardImageDrawable = new Drawable[cardImage.length];
 
-    private CustomViewPager viewPager;
+    private ViewPager viewPager;
     private final PrimeCircleFragment[] primeCircleFragments = new PrimeCircleFragment[3];
 
-    private CardView graphCardView;
+    private CardView chartCardView;
     private LineChartView chart;
     private String[] chartLabels;
     private float[][] chartValues;
 
+    private TextView updateTextView;
 
+    private RecyclerView historyRecyclerView;
     private HistoryAdapter historyAdapter;
 
-    private int scrollHeight;
+    private int scrollHeight, viewPagerHeight;
 
 
     @Override
@@ -82,7 +84,9 @@ public class PrimeFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof PrimeActivity) {
             this.context = context;
-            historyAdapter = new HistoryAdapter(context);
+            cardImageDrawable[0] = ContextCompat.getDrawable(context, cardImage[0]);
+            cardImageDrawable[1] = ContextCompat.getDrawable(context, cardImage[1]);
+            cardImageDrawable[2] = ContextCompat.getDrawable(context, cardImage[2]);
         }
     }
 
@@ -99,18 +103,22 @@ public class PrimeFragment extends Fragment {
         setChartView();
         setRecyclerView();
 
-
         return view;
     }
 
 
-    public void onViewCreated(View view, Bundle saved) {
+    @DebugLog
+    public void onViewCreated(final View view, Bundle saved) {
         super.onViewCreated(view, saved);
-        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            public void onGlobalLayout() {
-                scrollHeight = totalCardView.getHeight() + viewPager.getHeight();
-            }
-        });
+        view.getViewTreeObserver().addOnGlobalLayoutListener(this);
+    }
+
+
+    @Override
+    public void onGlobalLayout() {
+        viewPagerHeight = viewPager.getHeight();
+        scrollHeight = totalCardView.getHeight() + viewPagerHeight + 100;
+        historyRecyclerView.getLayoutParams().height = view.getHeight() - chartCardView.getHeight();
     }
 
 
@@ -121,9 +129,6 @@ public class PrimeFragment extends Fragment {
         totalTextView = (TextView) view.findViewById(R.id.prime_value);
 
         cardImageView = (ImageView) view.findViewById(R.id.prime_card_image);
-        cardImageDrawable[0] = ContextCompat.getDrawable(context, cardImage[0]);
-        cardImageDrawable[1] = ContextCompat.getDrawable(context, cardImage[1]);
-        cardImageDrawable[2] = ContextCompat.getDrawable(context, cardImage[2]);
         cardImageView.setImageDrawable(cardImageDrawable[index]);
     }
 
@@ -136,91 +141,88 @@ public class PrimeFragment extends Fragment {
 
 
     private void setNestedScrollView() {
-        NestedScrollView pagerNestedScrollView = (NestedScrollView) view.findViewById(R.id.prime_nested);
-        pagerNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (scrollY > scrollHeight) {
-                    setGraphTransition(scrollY - scrollHeight);
-                } else {
-                    setCardTransition(scrollY);
-                    setGraphTransition(0);
-                }
+        NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.prime_nested);
+        nestedScrollView.setOnScrollChangeListener(this);
+    }
+
+
+    @Override
+    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+        if (scrollY > viewPagerHeight) {
+            if (scrollY > scrollHeight) {
+                setChartTransition(scrollY - scrollHeight);
+            } else {
+                setChartTransition(totalCardView.getVerticalScrollbarPosition());
             }
-        });
+        } else {
+            setTotalCardTransition(scrollY);
+            if (chartCardView.getTranslationY() != 0) {
+                setChartTransition(0);
+            }
+        }
     }
 
 
     private void setViewPager() {
-        viewPager = (CustomViewPager) view.findViewById(R.id.prime_viewpager);
+        viewPager = (ViewPager) view.findViewById(R.id.prime_viewpager);
         PrimeAdapter primeAdapter = new PrimeAdapter(getActivity().getSupportFragmentManager());
         viewPager.setAdapter(primeAdapter);
         viewPager.setOffscreenPageLimit(3);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-
-            @Override
-            public void onPageSelected(int position) {
-                index = position;
-                historyAdapter.setCurrentIndex(index);
-                totalTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
-                labelTextView.setText(getString(label[index]));
-                cardImageView.setImageDrawable(cardImageDrawable[index]);
-//                chart.dismiss();
-//                setChartValues();
-            }
-
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
+        viewPager.addOnPageChangeListener(this);
 
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.prime_tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
 
 
-    private void setChartView() {
+    @Override
+    public void onPageSelected(int position) {
+        index = position;
+        labelTextView.setText(getString(label[index]));
+        totalTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
+        cardImageView.setImageDrawable(cardImageDrawable[index]);
+        historyAdapter.setCurrentIndex(index);
+//                chart.dismiss();
+//                setChartValues();
+    }
 
-        graphCardView = (CardView) view.findViewById(R.id.prime_tab_graph);
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+    }
+
+
+    private void setChartView() {
+        chartCardView = (CardView) view.findViewById(R.id.prime_tab_graph);
 
         chart = (LineChartView) view.findViewById(R.id.chart1);
         chart.setBorderSpacing(Tools.fromDpToPx(15))
                 .setYLabels(AxisController.LabelPosition.NONE)
-                .setLabelsColor(Color.parseColor("#6a84c3"))
+                .setLabelsColor(ContextCompat.getColor(context, R.color.chart_label))
                 .setXAxis(true)
                 .setYAxis(false);
+
+        updateTextView = (TextView) view.findViewById(R.id.prime_update);
     }
 
 
     private void setRecyclerView() {
-        RecyclerView historyRecyclerView = (RecyclerView) view.findViewById(R.id.history_recycler);
-        RecyclerView.LayoutManager layoutManager = new NestedRecyclerViewManager(context);
-        historyRecyclerView.setLayoutManager(layoutManager);
-        historyRecyclerView.setNestedScrollingEnabled(false);
-        historyRecyclerView.setHasFixedSize(false);
+        historyRecyclerView = (RecyclerView) view.findViewById(R.id.history_recycler);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        historyRecyclerView.setLayoutManager(linearLayoutManager);
+        historyRecyclerView.setHasFixedSize(true);
+        historyAdapter = new HistoryAdapter(context);
         historyRecyclerView.setAdapter(historyAdapter);
+        historyRecyclerView.setFocusable(true);
     }
 
 
-    private void setChartValues() {
-        LineSet dataSet = new LineSet(chartLabels, chartValues[index]);
-        dataSet.setColor(Color.parseColor("#b3b5bb"))
-                .setFill(Color.parseColor("#2d374c"))
-                .setDotsColor(Color.parseColor("#ffc755"))
-                .setThickness(4);
-        chart.addData(dataSet);
-
-        chart.show();
-    }
-
-
-    public void setTextTotalValue(RealmResults<RealmPrimeItem> results) {
-        historyAdapter.add(results);
+    public void setRealmPrimeItemValue(RealmResults<RealmPrimeItem> results) {
         total[0] = 0;
         total[1] = 0;
         total[2] = 0;
@@ -241,8 +243,26 @@ public class PrimeFragment extends Fragment {
             chartValues[2][i] = realmPrimeItem.getDistance();
         }
 
+
         totalTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
         setChartValues();
+        historyAdapter.add(results);
+    }
+
+
+    private void setChartValues() {
+        LineSet dataSet = new LineSet(chartLabels, chartValues[index]);
+        dataSet.setColor(ContextCompat.getColor(context, R.color.chart_line))
+                .setFill(ContextCompat.getColor(context, R.color.chart_fill))
+                .setDotsColor(ContextCompat.getColor(context, R.color.chart_dots))
+                .setThickness(4);
+        chart.addData(dataSet);
+        chart.show();
+    }
+
+
+    public void setUpdateValue(String updateValue) {
+        updateTextView.setText(updateValue);
     }
 
 
@@ -253,13 +273,13 @@ public class PrimeFragment extends Fragment {
     }
 
 
-    public void setCardTransition(int y) {
-        totalCardView.setTranslationY(y);
+    private void setTotalCardTransition(int scrollY) {
+        totalCardView.setTranslationY(scrollY);
     }
 
 
-    public void setGraphTransition(int y) {
-        graphCardView.setTranslationY(y);
+    private void setChartTransition(int scrollY) {
+        chartCardView.setTranslationY(scrollY);
     }
 
 
@@ -281,7 +301,7 @@ public class PrimeFragment extends Fragment {
     private class PrimeAdapter extends FragmentStatePagerAdapter {
 
         private final int tabTitles[] = new int[]{R.string.prime_step_title, R.string.prime_calorie_title, R.string.prime_distance_title};
-        final int PAGE_COUNT = tabTitles.length;
+        private final int PAGE_COUNT = tabTitles.length;
 
 
         public PrimeAdapter(FragmentManager fm) {
