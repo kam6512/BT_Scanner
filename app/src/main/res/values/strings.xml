@@ -106,5 +106,6 @@
     <string name="goal.def.step">20000</string>
     <string name="goal.def.calorie">100</string>
     <string name="goal.def.distance">10000</string>
+    <string name="prime_chart_update_wait">대기중...</string>
 
 </resources>

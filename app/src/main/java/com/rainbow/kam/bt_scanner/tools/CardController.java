@@ -3,15 +3,11 @@ package com.rainbow.kam.bt_scanner.tools;
 /**
  * Created by kam6512 on 2016-01-28.
  */
+
 import android.os.Handler;
 import android.support.v7.widget.CardView;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 
-import com.rainbow.kam.bt_scanner.R;
-
-public class CardController {
+class CardController {
 
 
 
@@ -39,10 +35,10 @@ public class CardController {
     };
 
 
-    protected boolean firstStage;
+    boolean firstStage;
 
 
-    protected CardController(CardView card){
+    CardController(CardView card){
         super();
 //        mPlayBtn.setOnClickListener(new View.OnClickListener() {
 //
@@ -67,17 +63,17 @@ public class CardController {
     }
 
 
-    protected void show(Runnable action){
+    void show(Runnable action){
         lock();
         firstStage = false;
     }
 
-    protected void update(){
+    void update(){
         lock();
         firstStage = !firstStage;
     }
 
-    protected void dismiss(Runnable action){
+    void dismiss(Runnable action){
         lock();
     }
 

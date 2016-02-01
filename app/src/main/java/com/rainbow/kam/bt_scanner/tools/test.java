@@ -1,19 +1,13 @@
 package com.rainbow.kam.bt_scanner.tools;
 
-import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.os.Build;
 import android.support.v7.widget.CardView;
-import android.view.View;
-import android.widget.TextView;
 
 import com.db.chart.Tools;
 import com.db.chart.model.LineSet;
 import com.db.chart.view.AxisController;
 import com.db.chart.view.LineChartView;
-import com.db.chart.view.Tooltip;
 import com.db.chart.view.animation.Animation;
 import com.db.chart.view.animation.easing.BounceEase;
 import com.rainbow.kam.bt_scanner.R;
