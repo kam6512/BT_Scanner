@@ -92,7 +92,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         setWindowSetting();
         setRecyclerView();
         setOtherView();
-
         setScannerCallback();
 
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -257,7 +256,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
         //시작
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
-            if (bleScanner != null) {
+            if (bleScanner != null && bluetoothAdapter.isEnabled()) {
                 bleScanner.startScan(scanCallback);
             }
         } else {
@@ -279,9 +278,10 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         } else {
             noDeviceTextView.setVisibility(View.INVISIBLE);
         }
-        deviceAdapter.notifyDataSetChanged();
+
         swipeRefreshLayout.setRefreshing(false);
 
+        deviceAdapter.notifyDataSetChanged();
         //중지
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {

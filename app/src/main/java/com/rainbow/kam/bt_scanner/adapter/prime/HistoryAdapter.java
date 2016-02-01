@@ -2,6 +2,8 @@ package com.rainbow.kam.bt_scanner.adapter.prime;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,15 +25,22 @@ import io.realm.RealmResults;
  */
 public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context context;
+    private final Context context;
 
     private int index;
 
     private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
 
+    private final Drawable[] iconDrawable;
+    private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
+
 
     public HistoryAdapter(Context context) {
         this.context = context;
+        iconDrawable = new Drawable[]{ContextCompat.getDrawable(context, R.drawable.ic_directions_walk_white_36dp),
+                ContextCompat.getDrawable(context, R.drawable.ic_whatshot_white_36dp),
+                ContextCompat.getDrawable(context, R.drawable.ic_beenhere_white_36dp)};
+
     }
 
 
@@ -43,11 +52,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        HistoryViewHolder serviceViewHolder = (HistoryViewHolder) holder;
-        serviceViewHolder.bindViews(historyArrayList.get(position));
+        HistoryViewHolder historyViewHolder = (HistoryViewHolder) holder;
+        historyViewHolder.bindViews(historyArrayList.get(position));
     }
 
 
@@ -67,6 +75,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void add(RealmResults<RealmPrimeItem> results) {
         historyArrayList.clear();
         historyArrayList.addAll(results);
+        historyArrayList.addAll(results);
+        historyArrayList.addAll(results);
+
         Collections.reverse(historyArrayList);
         notifyDataSetChanged();
     }
@@ -75,11 +86,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private class HistoryViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView historyText, historyDate;
-        private ImageView historyImageView;
-        private int[] values = new int[3];
+        private final ImageView historyImageView;
+        private final int[] values = new int[3];
         private String calendar;
-        private int[] iconResource = {R.drawable.ic_directions_walk_white_36dp, R.drawable.ic_whatshot_white_36dp, R.drawable.ic_beenhere_white_36dp};
-        private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
 
 
         public HistoryViewHolder(View itemView) {
@@ -96,10 +105,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             values[2] = realmPrimeItem.getDistance();
             calendar = realmPrimeItem.getCalendar();
 
-            historyText.setText(String.valueOf(values[index] + context.getString(unit[index])));
+            historyText.setText(values[index] + context.getString(unit[index]));
             historyDate.setText(calendar);
-            historyImageView.setImageResource(iconResource[index]);
-            historyImageView.setColorFilter(Color.parseColor("#0078ff"));
+            historyImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    historyImageView.setImageDrawable(iconDrawable[index]);
+                    historyImageView.setColorFilter(Color.parseColor("#0078ff"));
+                }
+            });
         }
     }
 }

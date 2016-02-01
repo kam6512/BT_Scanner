@@ -151,22 +151,19 @@ public class PrimeHelper {
 
 
     @DebugLog
-    public static Bundle readValue(byte[] characteristicValue, String userAge, String userHeight) {
-        StringBuilder hexStep = new StringBuilder();
-        StringBuilder hexCal = new StringBuilder();
+    public static Bundle readValue(byte[] characteristicValue, String userAge, String userHeight) throws ArrayIndexOutOfBoundsException {
+        String hexStep = String.format("%02x", characteristicValue[2] & 0xff) +
+                String.format("%02x", characteristicValue[3] & 0xff) +
+                String.format("%02x", characteristicValue[4] & 0xff);
+        String hexCal = String.format("%02x", characteristicValue[5] & 0xff) +
+                String.format("%02x", characteristicValue[6] & 0xff) +
+                String.format("%02x", characteristicValue[7] & 0xff);
 
         int step, kcal, distance, age;
         double height;
 
-        hexStep.append(String.format("%02x", characteristicValue[2] & 0xff));
-        hexStep.append(String.format("%02x", characteristicValue[3] & 0xff));
-        hexStep.append(String.format("%02x", characteristicValue[4] & 0xff));
-        step = Integer.parseInt(hexStep.toString(), 16);
-
-        hexCal.append(String.format("%02x", characteristicValue[5] & 0xff));
-        hexCal.append(String.format("%02x", characteristicValue[6] & 0xff));
-        hexCal.append(String.format("%02x", characteristicValue[7] & 0xff));
-        kcal = Integer.parseInt(hexCal.toString(), 16);
+        step = Integer.parseInt(hexStep, 16);
+        kcal = Integer.parseInt(hexCal, 16);
 
         age = Integer.parseInt(userAge);
         height = Integer.parseInt(userHeight);
