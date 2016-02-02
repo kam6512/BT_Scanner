@@ -273,11 +273,8 @@ public class CircleCounter extends View {
     public void setRange(String range) {
         mRange = Integer.valueOf(range);
         invalidate();
-    }
-    public void resetRange(){
         setValues(mOneValue,mOneValue,mOneValue);
     }
-
 
     public void setTextSize(float size) {
         mTextSize = size;

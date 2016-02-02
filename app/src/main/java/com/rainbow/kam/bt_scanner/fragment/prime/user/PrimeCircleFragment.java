@@ -11,8 +11,12 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
+import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
+
+import java.util.Arrays;
+import java.util.List;
 
 import hugo.weaving.DebugLog;
 
@@ -29,10 +33,9 @@ public class PrimeCircleFragment extends Fragment {
 
     private CircleCounter circleCounter;
 
-    private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
-
-    private final String[] keyRange = {PrimeHelper.KEY_GOAL_STEP, PrimeHelper.KEY_GOAL_CALORIE, PrimeHelper.KEY_GOAL_DISTANCE};
-    private final int[] defRange = {R.string.goal_def_step, R.string.goal_def_calorie, R.string.goal_def_distance};
+    private static List<String> units;
+    private static final List<String> goalRangeKey = Arrays.asList(PrimeHelper.KEY_GOAL_STEP, PrimeHelper.KEY_GOAL_CALORIE, PrimeHelper.KEY_GOAL_DISTANCE);
+    private static List<String> defaultGoalRange;
 
     private SharedPreferences sharedPreferences;
 
@@ -57,6 +60,8 @@ public class PrimeCircleFragment extends Fragment {
         if (context instanceof PrimeActivity) {
             this.context = context;
             sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+            units = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
+            defaultGoalRange = Arrays.asList(getString(R.string.goal_def_step), getString(R.string.goal_def_calorie), getString(R.string.goal_def_distance));
         }
     }
 
@@ -68,7 +73,6 @@ public class PrimeCircleFragment extends Fragment {
 
         index = getIndex();
         setCircleCounterView();
-        setResource();
         setCircleCounterGoalRange();
 
         return view;
@@ -82,22 +86,31 @@ public class PrimeCircleFragment extends Fragment {
         circleCounter.setThirdColor(ContextCompat.getColor(context, R.color.stepAccent));
         circleCounter.setBackgroundColor(ContextCompat.getColor(context, R.color.text_dark));
         circleCounter.setTextColor(ContextCompat.getColor(context, R.color.stepPrimaryDark));
+        circleCounter.setMetricText(units.get(index));
     }
 
 
-    private void setResource() {
-        circleCounter.setMetricText(getString(unit[index]));
-    }
-
-
-    @DebugLog
     public void setCircleCounterGoalRange() {
-        circleCounter.setRange(sharedPreferences.getString(keyRange[index], getString(defRange[index])));
-        circleCounter.resetRange();
+        circleCounter.setRange(sharedPreferences.getString(goalRangeKey.get(index), defaultGoalRange.get(index)));
     }
 
 
-    public void setCircleValue(int value) {
+    public void setCircleValue(RealmPrimeItem realmPrimeItem) {
+        int value;
+        switch (index) {
+            case PrimeHelper.INDEX_STEP:
+                value = realmPrimeItem.getStep();
+                break;
+            case PrimeHelper.INDEX_CALORIE:
+                value = realmPrimeItem.getCalorie();
+                break;
+            case PrimeHelper.INDEX_DISTANCE:
+                value = realmPrimeItem.getDistance();
+                break;
+            default:
+                value = realmPrimeItem.getStep();
+                break;
+        }
         circleCounter.setValues(value, value, value);
     }
 }

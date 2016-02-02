@@ -2,6 +2,8 @@ package com.rainbow.kam.bt_scanner.tools.helper;
 
 import android.os.Bundle;
 
+import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -21,10 +23,6 @@ public class PrimeHelper {
     public static final String KEY_GENDER = "USER_GENDER";
     public static final String KEY_DEVICE_NAME = "DEVICE_NAME";
     public static final String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-
-    public static final String KEY_STEP = "STEP";
-    public static final String KEY_CALORIE = "CALORIE";
-    public static final String KEY_DISTANCE = "DISTANCE";
 
     public static final String KEY_GOAL_STEP = "STEP_GOAL";
     public static final String KEY_GOAL_CALORIE = "CALORIE_GOAL";
@@ -151,7 +149,7 @@ public class PrimeHelper {
 
 
     @DebugLog
-    public static Bundle readValue(byte[] characteristicValue, String userAge, String userHeight) throws ArrayIndexOutOfBoundsException {
+    public static RealmPrimeItem readValue(byte[] characteristicValue, String userAge, String userHeight) throws ArrayIndexOutOfBoundsException {
         String hexStep = String.format("%02x", characteristicValue[2] & 0xff) +
                 String.format("%02x", characteristicValue[3] & 0xff) +
                 String.format("%02x", characteristicValue[4] & 0xff);
@@ -177,10 +175,11 @@ public class PrimeHelper {
             distance = (int) ((height * 0.30) * step) / 100;
         }
 
-        Bundle bundle = new Bundle();
-        bundle.putInt(KEY_STEP, step);
-        bundle.putInt(KEY_CALORIE, kcal);
-        bundle.putInt(KEY_DISTANCE, distance);
-        return bundle;
+        RealmPrimeItem realmPrimeItem = new RealmPrimeItem();
+        realmPrimeItem.setStep(step);
+        realmPrimeItem.setCalorie(kcal);
+        realmPrimeItem.setDistance(distance);
+
+        return realmPrimeItem;
     }
 }

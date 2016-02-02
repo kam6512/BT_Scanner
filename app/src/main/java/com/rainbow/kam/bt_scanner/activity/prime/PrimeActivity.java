@@ -105,7 +105,7 @@ public class PrimeActivity extends AppCompatActivity implements
         setContentView(R.layout.a_prime);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            BluetoothHelper.checkPermissions(PrimeActivity.this);
+            BluetoothHelper.checkPermissions(this);
         }
 
         initDB();
@@ -129,7 +129,6 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    @DebugLog
     @Override
     public void onRefresh() {
         if (gattManager != null && gattManager.isConnected()) {
@@ -211,17 +210,17 @@ public class PrimeActivity extends AppCompatActivity implements
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
+        primeFragment = new PrimeFragment();
+        fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
+
         userDataDialogFragment = new UserDataDialogFragment();
         selectDeviceDialogFragment = new SelectDeviceDialogFragment();
         goalDialogFragment = new GoalDialogFragment();
-
-        primeFragment = new PrimeFragment();
-        fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
     }
 
 
     private void setToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.prime_toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.prime_toolbar);
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -231,7 +230,6 @@ public class PrimeActivity extends AppCompatActivity implements
 
         toolbarRssi = (TextView) findViewById(R.id.prime_toolbar_rssi);
         toolbarBluetoothFlag = (ImageView) findViewById(R.id.prime_toolbar_bluetoothFlag);
-        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_white_24dp);
     }
 
 
@@ -288,15 +286,13 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @DebugLog
     private void connectDevice() {
-        if (!gattManager.isConnected()) {
-            try {
-                gattManager.connect(deviceAddress);
-                gattReadType = GattReadType.READ_TIME;
-                swipeRefreshLayout.post(postSwipeRefresh);
-            } catch (NullPointerException e) {
-                Log.e(TAG, e.getMessage());
-                Toast.makeText(this, getString(R.string.bt_fail), Toast.LENGTH_SHORT).show();
-            }
+        try {
+            gattManager.connect(deviceAddress);
+            gattReadType = GattReadType.READ_TIME;
+            swipeRefreshLayout.post(postSwipeRefresh);
+        } catch (NullPointerException e) {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(this, getString(R.string.bt_fail), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -326,33 +322,38 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @DebugLog
-    private void savePrimeData(int step, int calorie, int distance) {
-
-        realm.beginTransaction();
-        RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
+    private void savePrimeData(RealmPrimeItem realmPrimeItem) {
+        int step = realmPrimeItem.getStep();
+        int calorie = realmPrimeItem.getCalorie();
+        int distance = realmPrimeItem.getDistance();
 
         SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일");
         String today = formatter.format(Calendar.getInstance().getTime());
 
+        RealmPrimeItem newRealmPrimeItem;
+        realm.beginTransaction();
+        RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
+
         if (results.isEmpty()) {
-            RealmPrimeItem realmPrimeItem = realm.createObject(RealmPrimeItem.class);
-            realmPrimeItem.setCalendar(today);
-            realmPrimeItem.setStep(step);
-            realmPrimeItem.setCalorie(calorie);
-            realmPrimeItem.setDistance(distance);
+            newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
+            newRealmPrimeItem.setCalendar(today);
+            newRealmPrimeItem.setStep(step);
+            newRealmPrimeItem.setCalorie(calorie);
+            newRealmPrimeItem.setDistance(distance);
         } else {
             String lastDay = results.get(results.size() - 1).getCalendar();
             if (lastDay.equals(today)) {
-                results.last().setCalendar(today);
-                results.last().setStep(step);
-                results.last().setCalorie(calorie);
-                results.last().setDistance(distance);
+                RealmPrimeItem lastRealmPrimeItem = results.last();
+                lastRealmPrimeItem.setCalendar(today);
+                lastRealmPrimeItem.setStep(step);
+                lastRealmPrimeItem.setCalorie(calorie);
+                lastRealmPrimeItem.setDistance(distance);
             } else {
-                RealmPrimeItem realmPrimeItem = realm.createObject(RealmPrimeItem.class);
-                realmPrimeItem.setCalendar(today);
-                realmPrimeItem.setStep(step);
-                realmPrimeItem.setCalorie(calorie);
-                realmPrimeItem.setDistance(distance);
+                newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
+                newRealmPrimeItem.setCalendar(today);
+                newRealmPrimeItem.setStep(step);
+                newRealmPrimeItem.setCalorie(calorie);
+                newRealmPrimeItem.setDistance(distance);
             }
         }
 
@@ -479,14 +480,12 @@ public class PrimeActivity extends AppCompatActivity implements
                             case READ_STEP_DATA:
 
 
-                                final Bundle bundle = PrimeHelper.readValue(ch.getValue(), userAge, userHeight);
-                                final int step = bundle.getInt(PrimeHelper.KEY_STEP);
-                                final int calorie = bundle.getInt(PrimeHelper.KEY_CALORIE);
-                                final int distance = bundle.getInt(PrimeHelper.KEY_DISTANCE);
+                                final RealmPrimeItem realmPrimeItem = PrimeHelper.readValue(ch.getValue(), userAge, userHeight);
 
-                                primeFragment.setCircleValue(bundle);
+                                savePrimeData(realmPrimeItem);
+                                primeFragment.setCircleValue(realmPrimeItem);
                                 primeFragment.setRealmPrimeItemValue(realm.where(RealmPrimeItem.class).findAll());
-                                savePrimeData(step, calorie, distance);
+
 
                                 break;
                             default:

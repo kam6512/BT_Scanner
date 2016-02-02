@@ -30,6 +30,10 @@ import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import hugo.weaving.DebugLog;
 import io.realm.RealmResults;
 
@@ -46,25 +50,24 @@ public class PrimeFragment extends Fragment
     private Context context;
     private View view;
 
-    private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
-    private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;
-    private static final int INDEX_DISTANCE = PrimeHelper.INDEX_DISTANCE;
-
     private int index;
 
     private final int[] total = new int[3];
 
-    private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
+    private List<PrimeCircleFragment> primeCircleFragments;
+    private List<String> units;
+    private List<String> totalLabels;
+    private List<Drawable> totalCardImageDrawable;
+
 
     private CardView totalCardView;
     private TextView labelTextView, totalTextView;
-    private final int[] label = {R.string.prime_total_step, R.string.prime_total_calorie, R.string.prime_total_distance};
+
     private ImageView cardImageView;
-    private final int[] cardImage = {R.drawable.step_wallpaper, R.drawable.calorie_wallpaper, R.drawable.distance_wallpaper};
-    private final Drawable[] cardImageDrawable = new Drawable[cardImage.length];
+
 
     private ViewPager viewPager;
-    private final PrimeCircleFragment[] primeCircleFragments = new PrimeCircleFragment[3];
+
 
     private CardView chartCardView;
     private LineChartView chart;
@@ -84,9 +87,12 @@ public class PrimeFragment extends Fragment
         super.onAttach(context);
         if (context instanceof PrimeActivity) {
             this.context = context;
-            cardImageDrawable[0] = ContextCompat.getDrawable(context, cardImage[0]);
-            cardImageDrawable[1] = ContextCompat.getDrawable(context, cardImage[1]);
-            cardImageDrawable[2] = ContextCompat.getDrawable(context, cardImage[2]);
+            units = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
+            totalLabels = Arrays.asList(getString(R.string.prime_total_step), getString(R.string.prime_total_calorie), getString(R.string.prime_total_distance));
+            totalCardImageDrawable = Arrays.asList(
+                    ContextCompat.getDrawable(context, R.drawable.step_wallpaper),
+                    ContextCompat.getDrawable(context, R.drawable.calorie_wallpaper),
+                    ContextCompat.getDrawable(context, R.drawable.distance_wallpaper));
         }
     }
 
@@ -125,18 +131,20 @@ public class PrimeFragment extends Fragment
     private void setTotalCardView() {
         totalCardView = (CardView) view.findViewById(R.id.prime_card);
         labelTextView = (TextView) view.findViewById(R.id.prime_label);
-        labelTextView.setText(getString(label[index]));
+        labelTextView.setText(totalLabels.get(index));
         totalTextView = (TextView) view.findViewById(R.id.prime_value);
 
         cardImageView = (ImageView) view.findViewById(R.id.prime_card_image);
-        cardImageView.setImageDrawable(cardImageDrawable[index]);
+        cardImageView.setImageDrawable(totalCardImageDrawable.get(index));
     }
 
 
     private void setFragments() {
-        primeCircleFragments[INDEX_STEP] = PrimeCircleFragment.newInstance(INDEX_STEP);
-        primeCircleFragments[INDEX_CALORIE] = PrimeCircleFragment.newInstance(INDEX_CALORIE);
-        primeCircleFragments[INDEX_DISTANCE] = PrimeCircleFragment.newInstance(INDEX_DISTANCE);
+        primeCircleFragments = Arrays.asList(
+                PrimeCircleFragment.newInstance(0),
+                PrimeCircleFragment.newInstance(1),
+                PrimeCircleFragment.newInstance(2)
+        );
     }
 
 
@@ -178,9 +186,9 @@ public class PrimeFragment extends Fragment
     @Override
     public void onPageSelected(int position) {
         index = position;
-        labelTextView.setText(getString(label[index]));
-        totalTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
-        cardImageView.setImageDrawable(cardImageDrawable[index]);
+        labelTextView.setText(totalLabels.get(index));
+        totalTextView.setText(String.valueOf(total[index]) + units.get(index));
+        cardImageView.setImageDrawable(totalCardImageDrawable.get(index));
         historyAdapter.setCurrentIndex(index);
 //                chart.dismiss();
 //                setChartValues();
@@ -244,7 +252,7 @@ public class PrimeFragment extends Fragment
         }
 
 
-        totalTextView.setText(String.valueOf(total[index]) + getString(unit[index]));
+        totalTextView.setText(String.valueOf(total[index]) + units.get(index));
         setChartValues();
         historyAdapter.add(results);
     }
@@ -291,10 +299,10 @@ public class PrimeFragment extends Fragment
     }
 
 
-    public void setCircleValue(Bundle bundle) {
-        primeCircleFragments[INDEX_STEP].setCircleValue(bundle.getInt(PrimeHelper.KEY_STEP));
-        primeCircleFragments[INDEX_CALORIE].setCircleValue(bundle.getInt(PrimeHelper.KEY_CALORIE));
-        primeCircleFragments[INDEX_DISTANCE].setCircleValue(bundle.getInt(PrimeHelper.KEY_DISTANCE));
+    public void setCircleValue(RealmPrimeItem realmPrimeItem) {
+        for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
+            primeCircleFragment.setCircleValue(realmPrimeItem);
+        }
     }
 
 
@@ -311,7 +319,7 @@ public class PrimeFragment extends Fragment
 
         @Override
         public Fragment getItem(int position) {
-            return primeCircleFragments[position];
+            return primeCircleFragments.get(position);
         }
 
 
