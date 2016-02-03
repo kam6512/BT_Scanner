@@ -119,6 +119,7 @@ public class PrimeActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         registerBluetooth();
+
     }
 
 
@@ -246,21 +247,27 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void registerBluetooth() {
+        if (checkDataAvailable()) {
+            gattManager = new GattManager(this, gattCallbacks);
+            if (gattManager.isBluetoothAvailable()) {
+                loadUserData();
+                connectDevice();
+            } else {
+                BluetoothHelper.bluetoothRequest(this);
+            }
+        }
+    }
+
+
+    private boolean checkDataAvailable() {
         if (sharedPreferences.getAll().isEmpty()) {
             swipeRefreshLayout.setRefreshing(false);
             showDeviceSnackBar();
-            return;
+            return false;
         } else if (!sharedPreferences.contains(PrimeHelper.KEY_NAME)) {
             showUserSettingSnackBar();
         }
-
-        gattManager = new GattManager(this, gattCallbacks);
-        if (gattManager.isBluetoothAvailable()) {
-            loadUserData();
-            connectDevice();
-        } else {
-            BluetoothHelper.bluetoothRequest(this);
-        }
+        return true;
     }
 
 
@@ -314,7 +321,6 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @DebugLog
     private void saveDeviceData(String name, String address) {
-
         editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
         editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
         editor.apply();
@@ -330,12 +336,12 @@ public class PrimeActivity extends AppCompatActivity implements
         SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일");
         String today = formatter.format(Calendar.getInstance().getTime());
 
-        RealmPrimeItem newRealmPrimeItem;
-        realm.beginTransaction();
         RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
 
+        realm.beginTransaction();
+
         if (results.isEmpty()) {
-            newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
+            RealmPrimeItem newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
             newRealmPrimeItem.setCalendar(today);
             newRealmPrimeItem.setStep(step);
             newRealmPrimeItem.setCalorie(calorie);
@@ -349,7 +355,7 @@ public class PrimeActivity extends AppCompatActivity implements
                 lastRealmPrimeItem.setCalorie(calorie);
                 lastRealmPrimeItem.setDistance(distance);
             } else {
-                newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
+                RealmPrimeItem newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
                 newRealmPrimeItem.setCalendar(today);
                 newRealmPrimeItem.setStep(step);
                 newRealmPrimeItem.setCalorie(calorie);
@@ -358,6 +364,8 @@ public class PrimeActivity extends AppCompatActivity implements
         }
 
         realm.commitTransaction();
+
+        RealmPrimeItem.setTotalValue(results);
     }
 
 
@@ -466,33 +474,24 @@ public class PrimeActivity extends AppCompatActivity implements
                     try {
                         switch (gattReadType) {
                             case READ_TIME:
-
-                                Calendar calendar = PrimeHelper.readTime(ch.getValue());
-                                SimpleDateFormat update = new SimpleDateFormat("최근 업데이트 : dd일  HH : mm");
-
-                                primeFragment.setUpdateValue(update.format(calendar.getTime()));
+                                primeFragment.setUpdateValue(PrimeHelper.readTime(ch.getValue()));
 
                                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
-
                                 gattReadType = GattReadType.READ_STEP_DATA;
+
                                 break;
 
                             case READ_STEP_DATA:
 
-
-                                final RealmPrimeItem realmPrimeItem = PrimeHelper.readValue(ch.getValue(), userAge, userHeight);
-
-                                savePrimeData(realmPrimeItem);
-                                primeFragment.setCircleValue(realmPrimeItem);
-                                primeFragment.setRealmPrimeItemValue(realm.where(RealmPrimeItem.class).findAll());
-
+                                savePrimeData(PrimeHelper.readValue(ch.getValue(), userAge, userHeight));
+                                primeFragment.setRealmPrimeValue(realm.where(RealmPrimeItem.class).findAll());
 
                                 break;
                             default:
                                 break;
                         }
                     } catch (Exception e) {
-                        Log.e(TAG, "onDataNotify \n" + e.getMessage());
+                        Log.e(TAG, "onDataNotify : " + e.getMessage());
                         setFail();
                     }
                 }
