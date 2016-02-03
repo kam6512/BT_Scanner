@@ -28,16 +28,14 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
 import io.realm.RealmResults;
-
-import static android.support.v7.widget.RecyclerView.OnScrollListener;
 
 /**
  * Created by kam6512 on 2015-11-04.
@@ -52,7 +50,7 @@ public class PrimeFragment extends Fragment
 
     private int index;
 
-    private final int[] total = new int[3];
+//    private final int[] total = new int[3];
 
     private List<PrimeCircleFragment> primeCircleFragments;
     private List<String> units;
@@ -79,7 +77,7 @@ public class PrimeFragment extends Fragment
     private RecyclerView historyRecyclerView;
     private HistoryAdapter historyAdapter;
 
-    private int scrollHeight, viewPagerHeight;
+    private int stickyChartCardScroll, stickyTotalCardScroll;
 
 
     @Override
@@ -122,8 +120,13 @@ public class PrimeFragment extends Fragment
 
     @Override
     public void onGlobalLayout() {
-        viewPagerHeight = viewPager.getHeight();
-        scrollHeight = totalCardView.getHeight() + viewPagerHeight + 100;
+
+        totalCardView.getLayoutParams().height = totalCardView.getWidth() / 3;
+        viewPager.getLayoutParams().height = getResources().getDimensionPixelSize(R.dimen.circle_counter_size);
+        chart.getLayoutParams().height = chart.getWidth() / 2;
+
+        stickyTotalCardScroll = viewPager.getHeight();
+        stickyChartCardScroll = totalCardView.getHeight() + stickyTotalCardScroll;
         historyRecyclerView.getLayoutParams().height = view.getHeight() - chartCardView.getHeight();
     }
 
@@ -156,9 +159,9 @@ public class PrimeFragment extends Fragment
 
     @Override
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        if (scrollY > viewPagerHeight) {
-            if (scrollY > scrollHeight) {
-                setChartTransition(scrollY - scrollHeight);
+        if (scrollY > stickyTotalCardScroll) {
+            if (scrollY > stickyChartCardScroll) {
+                setChartTransition(scrollY - stickyChartCardScroll);
             } else {
                 setChartTransition(totalCardView.getVerticalScrollbarPosition());
             }
@@ -187,7 +190,7 @@ public class PrimeFragment extends Fragment
     public void onPageSelected(int position) {
         index = position;
         labelTextView.setText(totalLabels.get(index));
-        totalTextView.setText(String.valueOf(total[index]) + units.get(index));
+        totalTextView.setText(RealmPrimeItem.getTotalValue(index) + units.get(index));
         cardImageView.setImageDrawable(totalCardImageDrawable.get(index));
         historyAdapter.setCurrentIndex(index);
 //                chart.dismiss();
@@ -206,9 +209,9 @@ public class PrimeFragment extends Fragment
 
 
     private void setChartView() {
-        chartCardView = (CardView) view.findViewById(R.id.prime_tab_graph);
+        chartCardView = (CardView) view.findViewById(R.id.prime_tab_chart);
 
-        chart = (LineChartView) view.findViewById(R.id.chart1);
+        chart = (LineChartView) view.findViewById(R.id.prime_chart);
         chart.setBorderSpacing(Tools.fromDpToPx(15))
                 .setYLabels(AxisController.LabelPosition.NONE)
                 .setLabelsColor(ContextCompat.getColor(context, R.color.chart_label))
@@ -230,10 +233,8 @@ public class PrimeFragment extends Fragment
     }
 
 
-    public void setRealmPrimeItemValue(RealmResults<RealmPrimeItem> results) {
-        total[0] = 0;
-        total[1] = 0;
-        total[2] = 0;
+    public void setRealmPrimeValue(RealmResults<RealmPrimeItem> results) {
+
 
         int length = results.size();
         chartLabels = new String[length];
@@ -241,9 +242,6 @@ public class PrimeFragment extends Fragment
 
         for (int i = 0; i < length; i++) {
             RealmPrimeItem realmPrimeItem = results.get(i);
-            total[0] += realmPrimeItem.getStep();
-            total[1] += realmPrimeItem.getCalorie();
-            total[2] += realmPrimeItem.getDistance();
 
             chartLabels[i] = realmPrimeItem.getCalendar();
             chartValues[0][i] = realmPrimeItem.getStep();
@@ -252,7 +250,8 @@ public class PrimeFragment extends Fragment
         }
 
 
-        totalTextView.setText(String.valueOf(total[index]) + units.get(index));
+        totalTextView.setText(RealmPrimeItem.getTotalValue(index) + units.get(index));
+        setCircleValue(results.last());
         setChartValues();
         historyAdapter.add(results);
     }
@@ -264,13 +263,15 @@ public class PrimeFragment extends Fragment
                 .setFill(ContextCompat.getColor(context, R.color.chart_fill))
                 .setDotsColor(ContextCompat.getColor(context, R.color.chart_dots))
                 .setThickness(4);
+
         chart.addData(dataSet);
         chart.show();
     }
 
 
-    public void setUpdateValue(String updateValue) {
-        updateTextView.setText(updateValue);
+    public void setUpdateValue(Calendar calendar) {
+        final SimpleDateFormat update = new SimpleDateFormat("최근 업데이트 : dd일  HH : mm");
+        updateTextView.setText(update.format(calendar.getTime()));
     }
 
 

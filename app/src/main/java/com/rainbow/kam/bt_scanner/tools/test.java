@@ -35,7 +35,7 @@ public class test extends CardController {
         super(card);
 
         mContext = context;
-        mChart = (LineChartView) card.findViewById(R.id.chart1);
+        mChart = (LineChartView) card.findViewById(R.id.prime_chart);
     }
 
 
