@@ -149,7 +149,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
         selectDeviceRecyclerView.setHasFixedSize(true);
-        deviceAdapter = new DeviceAdapter((PrimeActivity) context);
+        deviceAdapter = new DeviceAdapter(context);
         selectDeviceRecyclerView.setAdapter(deviceAdapter);
     }
 
@@ -281,7 +281,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
         swipeRefreshLayout.setRefreshing(false);
 
-        deviceAdapter.notifyDataSetChanged();
         //중지
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             if (bleScanner != null && bluetoothAdapter.isEnabled()) {

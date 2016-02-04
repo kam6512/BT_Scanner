@@ -55,15 +55,11 @@ public class PrimeFragment extends Fragment
     private List<String> totalLabels;
     private List<Drawable> totalCardImageDrawable;
 
-
     private CardView totalCardView;
     private TextView labelTextView, totalTextView;
-
     private ImageView cardImageView;
 
-
     private ViewPager viewPager;
-
 
     private CardView chartCardView;
     private LineChartView chart;

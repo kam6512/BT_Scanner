@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements
         }else {
             noDeviceTextView.setVisibility(View.INVISIBLE);
         }
-        deviceAdapter.notifyDataSetChanged();
+
         swipeRefreshLayout.setRefreshing(false);
 
         //중지
