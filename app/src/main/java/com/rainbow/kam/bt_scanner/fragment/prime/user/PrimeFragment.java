@@ -50,8 +50,6 @@ public class PrimeFragment extends Fragment
 
     private int index;
 
-//    private final int[] total = new int[3];
-
     private List<PrimeCircleFragment> primeCircleFragments;
     private List<String> units;
     private List<String> totalLabels;
@@ -70,7 +68,8 @@ public class PrimeFragment extends Fragment
     private CardView chartCardView;
     private LineChartView chart;
     private String[] chartLabels;
-    private float[][] chartValues;
+    private float[] chartValues;
+    private LineSet dataSet;
 
     private TextView updateTextView;
 
@@ -193,8 +192,6 @@ public class PrimeFragment extends Fragment
         totalTextView.setText(RealmPrimeItem.getTotalValue(index) + units.get(index));
         cardImageView.setImageDrawable(totalCardImageDrawable.get(index));
         historyAdapter.setCurrentIndex(index);
-//                chart.dismiss();
-//                setChartValues();
     }
 
 
@@ -230,6 +227,7 @@ public class PrimeFragment extends Fragment
         historyAdapter = new HistoryAdapter(context);
         historyRecyclerView.setAdapter(historyAdapter);
         historyRecyclerView.setFocusable(true);
+
     }
 
 
@@ -238,15 +236,15 @@ public class PrimeFragment extends Fragment
 
         int length = results.size();
         chartLabels = new String[length];
-        chartValues = new float[3][length];
+        chartValues = new float[length];
 
         for (int i = 0; i < length; i++) {
             RealmPrimeItem realmPrimeItem = results.get(i);
 
             chartLabels[i] = realmPrimeItem.getCalendar();
-            chartValues[0][i] = realmPrimeItem.getStep();
-            chartValues[1][i] = realmPrimeItem.getCalorie() * 45;
-            chartValues[2][i] = realmPrimeItem.getDistance();
+            chartValues[i] = (realmPrimeItem.getStep()
+                    + realmPrimeItem.getCalorie()
+                    + realmPrimeItem.getDistance()) / 3;
         }
 
 
@@ -258,14 +256,28 @@ public class PrimeFragment extends Fragment
 
 
     private void setChartValues() {
-        LineSet dataSet = new LineSet(chartLabels, chartValues[index]);
-        dataSet.setColor(ContextCompat.getColor(context, R.color.chart_line))
-                .setFill(ContextCompat.getColor(context, R.color.chart_fill))
-                .setDotsColor(ContextCompat.getColor(context, R.color.chart_dots))
-                .setThickness(4);
+        float[] weekValues;
+        String[] weekLabels;
+        if (chartValues.length < 7 && chartLabels.length < 7) {
+            weekValues = Arrays.copyOfRange(chartValues, 0, chartValues.length);
+            weekLabels = Arrays.copyOfRange(chartLabels, 0, chartLabels.length);
+        } else {
+            weekValues = Arrays.copyOfRange(chartValues, chartValues.length-7, chartValues.length);
+            weekLabels = Arrays.copyOfRange(chartLabels, chartLabels.length-7, chartLabels.length);
+        }
 
-        chart.addData(dataSet);
-        chart.show();
+        if (dataSet != null) {
+            dataSet.updateValues(weekValues);
+            chart.notifyDataUpdate();
+        } else {
+            dataSet = new LineSet(weekLabels, weekValues);
+            dataSet.setColor(ContextCompat.getColor(context, R.color.chart_line))
+                    .setFill(ContextCompat.getColor(context, R.color.chart_fill))
+                    .setDotsColor(ContextCompat.getColor(context, R.color.chart_dots))
+                    .setThickness(4);
+            chart.addData(dataSet);
+            chart.show();
+        }
     }
 
 

@@ -154,6 +154,9 @@ public class PrimeActivity extends AppCompatActivity implements
         drawerLayout.closeDrawer(GravityCompat.START);
         switch (item.getItemId()) {
             case R.id.menu_prime_setting_device:
+                if (swipeRefreshLayout.isRefreshing()) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
                 disconnectDevice();
                 selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
                 return true;

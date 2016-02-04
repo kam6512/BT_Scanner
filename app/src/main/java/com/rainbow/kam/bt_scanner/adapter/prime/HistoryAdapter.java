@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,12 +75,20 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @DebugLog
     public void add(RealmResults<RealmPrimeItem> results) {
         historyArrayList.clear();
-        historyArrayList.addAll(results);
-        historyArrayList.addAll(results);
+        addDummyData(results);
         historyArrayList.addAll(results);
 
         Collections.reverse(historyArrayList);
         notifyDataSetChanged();
+    }
+
+
+    private void addDummyData(RealmResults<RealmPrimeItem> results) {
+        if (results.size() <= 31) {
+            for (int i = results.size(); i < 31; i++) {
+                historyArrayList.add(new RealmPrimeItem());
+            }
+        }
     }
 
 
@@ -104,6 +113,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             values[1] = realmPrimeItem.getCalorie();
             values[2] = realmPrimeItem.getDistance();
             calendar = realmPrimeItem.getCalendar();
+            if (TextUtils.isEmpty(calendar)) {
+                calendar = "--";
+            }
 
             historyText.setText(values[index] + context.getString(unit[index]));
             historyDate.setText(calendar);
