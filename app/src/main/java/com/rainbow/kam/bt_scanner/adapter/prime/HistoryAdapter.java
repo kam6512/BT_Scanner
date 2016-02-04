@@ -16,7 +16,9 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import hugo.weaving.DebugLog;
 import io.realm.RealmResults;
@@ -32,16 +34,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
 
-    private final Drawable[] iconDrawable;
-    private final int[] unit = {R.string.prime_step, R.string.prime_calorie, R.string.prime_distance};
+    private final List<Drawable> iconDrawable;
+    private final List<String> unit;
 
 
     public HistoryAdapter(Context context) {
         this.context = context;
-        iconDrawable = new Drawable[]{ContextCompat.getDrawable(context, R.drawable.ic_directions_walk_white_36dp),
+        iconDrawable = Arrays.asList(ContextCompat.getDrawable(context, R.drawable.ic_directions_walk_white_36dp),
                 ContextCompat.getDrawable(context, R.drawable.ic_whatshot_white_36dp),
-                ContextCompat.getDrawable(context, R.drawable.ic_beenhere_white_36dp)};
-
+                ContextCompat.getDrawable(context, R.drawable.ic_beenhere_white_36dp));
+        unit = Arrays.asList(context.getString(R.string.prime_step), context.getString(R.string.prime_calorie), context.getString(R.string.prime_distance));
     }
 
 
@@ -96,7 +98,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         private final TextView historyText, historyDate;
         private final ImageView historyImageView;
-        private final int[] values = new int[3];
+        private List<Integer> values;
         private String calendar;
 
 
@@ -109,20 +111,22 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
         private void bindViews(RealmPrimeItem realmPrimeItem) {
-            values[0] = realmPrimeItem.getStep();
-            values[1] = realmPrimeItem.getCalorie();
-            values[2] = realmPrimeItem.getDistance();
+            values = Arrays.asList(
+                    realmPrimeItem.getStep(),
+                    realmPrimeItem.getCalorie(),
+                    realmPrimeItem.getDistance());
+
             calendar = realmPrimeItem.getCalendar();
             if (TextUtils.isEmpty(calendar)) {
                 calendar = "--";
             }
 
-            historyText.setText(values[index] + context.getString(unit[index]));
+            historyText.setText(values.get(index) + unit.get(index));
             historyDate.setText(calendar);
             historyImageView.post(new Runnable() {
                 @Override
                 public void run() {
-                    historyImageView.setImageDrawable(iconDrawable[index]);
+                    historyImageView.setImageDrawable(iconDrawable.get(index));
                     historyImageView.setColorFilter(Color.parseColor("#0078ff"));
                 }
             });

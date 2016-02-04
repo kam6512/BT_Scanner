@@ -82,6 +82,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private GattManager gattManager;
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
     private String userAge, userHeight, deviceAddress;
 
@@ -454,6 +455,7 @@ public class PrimeActivity extends AppCompatActivity implements
             List<BluetoothGattCharacteristic> characteristicList = services.get(4).getCharacteristics();
             gattManager.setNotification(characteristicList.get(1), true);
             bluetoothGattCharacteristicForWrite = characteristicList.get(0); // 0xFFF2
+            bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
 
 
             handler.postDelayed(new Runnable() {
@@ -466,6 +468,30 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
         public void onServicesNotFound() {
+            setFail();
+        }
+
+
+        @Override
+        public void onReadSuccess(BluetoothGattCharacteristic ch) {
+
+            byte[] batteryValue = ch.getValue();
+            final StringBuilder stringBuilder = new StringBuilder(batteryValue.length);
+            for (byte byteChar : batteryValue) {
+//                stringBuilder.append(String.format("%02X", byteChar));
+                stringBuilder.append(String.format("%02d", byteChar));
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(PrimeActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+
+        @Override
+        public void onReadFail() {
             setFail();
         }
 
@@ -489,8 +515,10 @@ public class PrimeActivity extends AppCompatActivity implements
                                 savePrimeData(PrimeHelper.readValue(ch.getValue(), userAge, userHeight));
                                 primeFragment.setRealmPrimeValue(realm.where(RealmPrimeItem.class).findAll());
 
+                                gattManager.readValue(bluetoothGattCharacteristicForBattery);
                                 break;
                             default:
+
                                 break;
                         }
                     } catch (Exception e) {

@@ -119,14 +119,13 @@ public class PrimeFragment extends Fragment
 
     @Override
     public void onGlobalLayout() {
-
         totalCardView.getLayoutParams().height = totalCardView.getWidth() / 3;
-        viewPager.getLayoutParams().height = getResources().getDimensionPixelSize(R.dimen.circle_counter_size);
         chart.getLayoutParams().height = chart.getWidth() / 2;
+        historyRecyclerView.getLayoutParams().height = view.getHeight() - chartCardView.getHeight();
+
 
         stickyTotalCardScroll = viewPager.getHeight();
         stickyChartCardScroll = totalCardView.getHeight() + stickyTotalCardScroll;
-        historyRecyclerView.getLayoutParams().height = view.getHeight() - chartCardView.getHeight();
     }
 
 
@@ -262,8 +261,8 @@ public class PrimeFragment extends Fragment
             weekValues = Arrays.copyOfRange(chartValues, 0, chartValues.length);
             weekLabels = Arrays.copyOfRange(chartLabels, 0, chartLabels.length);
         } else {
-            weekValues = Arrays.copyOfRange(chartValues, chartValues.length-7, chartValues.length);
-            weekLabels = Arrays.copyOfRange(chartLabels, chartLabels.length-7, chartLabels.length);
+            weekValues = Arrays.copyOfRange(chartValues, chartValues.length - 7, chartValues.length);
+            weekLabels = Arrays.copyOfRange(chartLabels, chartLabels.length - 7, chartLabels.length);
         }
 
         if (dataSet != null) {
@@ -321,8 +320,11 @@ public class PrimeFragment extends Fragment
 
     private class PrimeAdapter extends FragmentStatePagerAdapter {
 
-        private final int tabTitles[] = new int[]{R.string.prime_step_title, R.string.prime_calorie_title, R.string.prime_distance_title};
-        private final int PAGE_COUNT = tabTitles.length;
+
+        private final List<String> tabTitles = Arrays.asList(getString(R.string.prime_step_title),
+                getString(R.string.prime_calorie_title), getString(
+                        R.string.prime_distance_title));
+        private final int PAGE_COUNT = tabTitles.size();
 
 
         public PrimeAdapter(FragmentManager fm) {
@@ -344,7 +346,7 @@ public class PrimeFragment extends Fragment
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return getString(tabTitles[position]);
+            return tabTitles.get(position);
         }
     }
 
