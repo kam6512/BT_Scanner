@@ -362,9 +362,13 @@ public class PrimeActivity extends AppCompatActivity implements
             newRealmPrimeItem.setCalorie(calorie);
             newRealmPrimeItem.setDistance(distance);
         } else {
-            String lastDay = results.get(results.size() - 1).getCalendar();
-            if (lastDay.equals(today)) {
-                RealmPrimeItem lastRealmPrimeItem = results.last();
+            RealmPrimeItem lastRealmPrimeItem = results.last();
+            if (lastRealmPrimeItem.getCalendar().equals(today)) {
+                if (lastRealmPrimeItem.getStep() > step || lastRealmPrimeItem.getCalorie() > calorie || lastRealmPrimeItem.getDistance() > distance) {
+                    step += lastRealmPrimeItem.getStep();
+                    calorie += lastRealmPrimeItem.getCalorie();
+                    distance += lastRealmPrimeItem.getDistance();
+                }
                 lastRealmPrimeItem.setCalendar(today);
                 lastRealmPrimeItem.setStep(step);
                 lastRealmPrimeItem.setCalorie(calorie);
