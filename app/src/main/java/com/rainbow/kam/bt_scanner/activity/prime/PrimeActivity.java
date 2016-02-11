@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -42,6 +41,7 @@ import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
@@ -81,6 +81,8 @@ public class PrimeActivity extends AppCompatActivity implements
     private SwipeRefreshLayout swipeRefreshLayout;
     private NavigationView navigationView;
 
+    private Snackbar disconnectDeviceSnackBar;
+
     private GattManager gattManager;
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
@@ -89,7 +91,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private String userAge, userHeight, deviceAddress;
 
     private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
     private Realm realm;
 
 
@@ -116,6 +117,13 @@ public class PrimeActivity extends AppCompatActivity implements
         setToolbar();
         setMaterialView();
         setNavInfoView();
+
+        disconnectDeviceSnackBar = Snackbar.make(coordinatorLayout, R.string.prime_disconnect_snack, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_ignore, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
 
@@ -190,7 +198,8 @@ public class PrimeActivity extends AppCompatActivity implements
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            showDisconnectDeviceSnackBar();
+            disconnectDevice();
         }
     }
 
@@ -210,7 +219,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void initDB() {
         sharedPreferences = getSharedPreferences(PrimeHelper.KEY, MODE_PRIVATE);
-        editor = sharedPreferences.edit();
+
         realm = Realm.getInstance(new RealmConfiguration.Builder(this).build());
     }
 
@@ -277,7 +286,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private boolean checkDataAvailable() {
         if (sharedPreferences.getAll().isEmpty()) {
             swipeRefreshLayout.setRefreshing(false);
-            showDeviceSnackBar();
+            showDeviceSettingSnackBar();
             return false;
         } else if (!sharedPreferences.contains(PrimeHelper.KEY_NAME)) {
             showUserSettingSnackBar();
@@ -286,8 +295,8 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void showDeviceSnackBar() {
-        Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_device), Snackbar.LENGTH_INDEFINITE).setAction(getString(R.string.prime_setting_device_action), new View.OnClickListener() {
+    private void showDeviceSettingSnackBar() {
+        Snackbar.make(coordinatorLayout, R.string.prime_setting_device, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_setting_device_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
@@ -297,12 +306,17 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void showUserSettingSnackBar() {
-        Snackbar.make(coordinatorLayout, getString(R.string.prime_setting_user), Snackbar.LENGTH_LONG).setAction(getString(R.string.prime_setting_user_action), new View.OnClickListener() {
+        Snackbar.make(coordinatorLayout, R.string.prime_setting_user, Snackbar.LENGTH_LONG).setAction(R.string.prime_setting_user_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
             }
         }).show();
+    }
+
+
+    private void showDisconnectDeviceSnackBar() {
+        disconnectDeviceSnackBar.show();
     }
 
 
@@ -336,6 +350,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @DebugLog
     private void saveDeviceData(String name, String address) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(PrimeHelper.KEY_DEVICE_NAME, name);
         editor.putString(PrimeHelper.KEY_DEVICE_ADDRESS, address);
         editor.apply();
@@ -348,7 +363,9 @@ public class PrimeActivity extends AppCompatActivity implements
         int calorie = realmPrimeItem.getCalorie();
         int distance = realmPrimeItem.getDistance();
 
-        SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일");
+        String format = getString(R.string.prime_save_date_format);
+
+        SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         String today = formatter.format(Calendar.getInstance().getTime());
 
         RealmResults<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
@@ -398,13 +415,15 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     public void setUpdateValue(Calendar calendar) {
-        final SimpleDateFormat update = new SimpleDateFormat("최근 업데이트 : dd일  HH : mm");
+        String format = getString(R.string.prime_update_format);
+        final SimpleDateFormat update = new SimpleDateFormat(format, Locale.getDefault());
         navUpdate.setText(update.format(calendar.getTime()));
     }
 
 
     public void setBatteryValue(String batteryValue) {
-        navBattery.setText(batteryValue + "%");
+        String value = batteryValue + getString(R.string.prime_battery_unit);
+        navBattery.setText(value);
     }
 
 
@@ -413,7 +432,6 @@ public class PrimeActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 primeFragment.setTextFail();
-
             }
         });
     }
@@ -465,12 +483,15 @@ public class PrimeActivity extends AppCompatActivity implements
                 @Override
                 public void run() {
                     Log.e(TAG, "Disconnected");
+                    if (disconnectDeviceSnackBar.isShown()) {
+                        finish();
+                    } else {
+                        toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
+                        toolbarRssi.setText("--");
 
-                    toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
-                    toolbarRssi.setText("--");
-
-                    if (swipeRefreshLayout.isRefreshing()) {
-                        registerBluetooth();
+                        if (swipeRefreshLayout.isRefreshing()) {
+                            registerBluetooth();
+                        }
                     }
                 }
             });
@@ -521,7 +542,7 @@ public class PrimeActivity extends AppCompatActivity implements
         }
 
 
-        public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
+        public void onDataNotify(final BluetoothGattCharacteristic ch) {
 
             try {
                 switch (gattReadType) {
@@ -568,10 +589,11 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
         public void onRSSIUpdate(final int rssi) {
+            final String rssiValue = rssi + getString(R.string.rssi_unit);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    toolbarRssi.setText(rssi + "db");
+                    toolbarRssi.setText(rssiValue);
                 }
             });
         }
