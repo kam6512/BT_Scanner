@@ -67,7 +67,6 @@ public class PrimeFragment extends Fragment
     private float[] chartValues;
     private LineSet dataSet;
 
-    private TextView updateTextView;
 
     private RecyclerView historyRecyclerView;
     private HistoryAdapter historyAdapter;
@@ -210,7 +209,7 @@ public class PrimeFragment extends Fragment
                 .setXAxis(true)
                 .setYAxis(false);
 
-        updateTextView = (TextView) view.findViewById(R.id.prime_update);
+
     }
 
 
@@ -273,12 +272,6 @@ public class PrimeFragment extends Fragment
             chart.addData(dataSet);
             chart.show();
         }
-    }
-
-
-    public void setUpdateValue(Calendar calendar) {
-        final SimpleDateFormat update = new SimpleDateFormat("최근 업데이트 : dd일  HH : mm");
-        updateTextView.setText(update.format(calendar.getTime()));
     }
 
 

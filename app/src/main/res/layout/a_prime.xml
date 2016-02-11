@@ -85,6 +85,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/v_nav_header"
+        app:headerLayout="@layout/v_nav_header_prime"
         app:menu="@menu/menu_prime"/>
 </android.support.v4.widget.DrawerLayout>

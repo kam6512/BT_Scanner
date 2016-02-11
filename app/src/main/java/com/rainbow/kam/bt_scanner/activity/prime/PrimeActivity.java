@@ -73,11 +73,13 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private PrimeFragment primeFragment;
 
+    private TextView navUpdate, navBattery;
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private NavigationView navigationView;
 
     private GattManager gattManager;
 
@@ -113,6 +115,7 @@ public class PrimeActivity extends AppCompatActivity implements
         setFragments();
         setToolbar();
         setMaterialView();
+        setNavInfoView();
     }
 
 
@@ -245,8 +248,16 @@ public class PrimeActivity extends AppCompatActivity implements
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
+        navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+    }
+
+
+    private void setNavInfoView() {
+        View nav = View.inflate(this, R.layout.v_nav_header_prime, navigationView);
+        navUpdate = (TextView) nav.findViewById(R.id.prime_update);
+        navBattery = (TextView) nav.findViewById(R.id.prime_battery);
     }
 
 
@@ -382,6 +393,17 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
+    public void setUpdateValue(Calendar calendar) {
+        final SimpleDateFormat update = new SimpleDateFormat("최근 업데이트 : dd일  HH : mm");
+        navUpdate.setText(update.format(calendar.getTime()));
+    }
+
+
+    public void setBatteryValue(String batteryValue) {
+        navBattery.setText(batteryValue + "%");
+    }
+
+
     private void setFail() {
         runOnUiThread(new Runnable() {
             @Override
@@ -475,16 +497,15 @@ public class PrimeActivity extends AppCompatActivity implements
         @Override
         public void onReadSuccess(BluetoothGattCharacteristic ch) {
 
-            byte[] batteryValue = ch.getValue();
-            final StringBuilder stringBuilder = new StringBuilder(batteryValue.length);
-            for (byte byteChar : batteryValue) {
-//                stringBuilder.append(String.format("%02X", byteChar));
-                stringBuilder.append(String.format("%02d", byteChar));
+            final byte[] batteryByteValue = ch.getValue();
+            final StringBuilder batteryValue = new StringBuilder(batteryByteValue.length);
+            for (byte byteChar : batteryByteValue) {
+                batteryValue.append(String.format("%02d", byteChar));
             }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(PrimeActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
+                    setBatteryValue(batteryValue.toString());
                 }
             });
         }
@@ -497,36 +518,43 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
         public void onDataNotify(@Nullable final BluetoothGattCharacteristic ch) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        switch (gattReadType) {
-                            case READ_TIME:
-                                primeFragment.setUpdateValue(PrimeHelper.readTime(ch.getValue()));
 
-                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
-                                gattReadType = GattReadType.READ_STEP_DATA;
+            try {
+                switch (gattReadType) {
+                    case READ_TIME:
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setUpdateValue(PrimeHelper.readTime(ch.getValue()));
+                            }
+                        });
 
-                                break;
 
-                            case READ_STEP_DATA:
+                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
+                        gattReadType = GattReadType.READ_STEP_DATA;
 
+                        break;
+
+                    case READ_STEP_DATA:
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
                                 savePrimeData(PrimeHelper.readValue(ch.getValue(), userAge, userHeight));
                                 primeFragment.setRealmPrimeValue(realm.where(RealmPrimeItem.class).findAll());
+                            }
+                        });
 
-                                gattManager.readValue(bluetoothGattCharacteristicForBattery);
-                                break;
-                            default:
+                        gattManager.readValue(bluetoothGattCharacteristicForBattery);
+                        break;
+                    default:
 
-                                break;
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "onDataNotify : " + e.getMessage());
-                        setFail();
-                    }
+                        break;
                 }
-            });
+            } catch (Exception e) {
+                Log.e(TAG, "onDataNotify : " + e.getMessage());
+                setFail();
+            }
+
         }
 
 
