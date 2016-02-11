@@ -28,8 +28,6 @@ import io.realm.RealmResults;
  */
 public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final Context context;
-
     private int index;
 
     private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
@@ -39,7 +37,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     public HistoryAdapter(Context context) {
-        this.context = context;
         iconDrawable = Arrays.asList(ContextCompat.getDrawable(context, R.drawable.ic_directions_walk_white_36dp),
                 ContextCompat.getDrawable(context, R.drawable.ic_whatshot_white_36dp),
                 ContextCompat.getDrawable(context, R.drawable.ic_beenhere_white_36dp));

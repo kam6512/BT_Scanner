@@ -44,7 +44,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-    private static final String RSSI_UNIT = "db";
+    private  final String RSSI_UNIT = getString(R.string.rssi_unit);
 
     private String deviceName;
     private String deviceAddress;

@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.menu;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -14,9 +13,7 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
-
-import hugo.weaving.DebugLog;
+import com.rainbow.kam.bt_scanner.tools.PrimeDao;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -29,7 +26,7 @@ public class GoalDialogFragment extends DialogFragment {
 
     private String step, calorie, distance;
 
-    private SharedPreferences sharedPreferences;
+    private PrimeDao primeDao;
 
     private OnSaveGoalListener onSaveGoalListener;
 
@@ -38,13 +35,12 @@ public class GoalDialogFragment extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof PrimeActivity) {
-            sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+            primeDao = new PrimeDao(context);
             onSaveGoalListener = (OnSaveGoalListener) context;
         }
     }
 
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_prime_goal, container, false);
@@ -75,9 +71,10 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void setSavedGoalValue() {
-        step = sharedPreferences.getString(PrimeHelper.KEY_GOAL_STEP, getString(R.string.goal_def_step));
-        calorie = sharedPreferences.getString(PrimeHelper.KEY_GOAL_CALORIE, getString(R.string.goal_def_calorie));
-        distance = sharedPreferences.getString(PrimeHelper.KEY_GOAL_DISTANCE, getString(R.string.goal_def_distance));
+        PrimeDao.PrimeData primeData = primeDao.loadPrimeData();
+        step = primeData.getStep();
+        calorie = primeData.getCalorie();
+        distance = primeData.getDistance();
     }
 
 
@@ -98,7 +95,6 @@ public class GoalDialogFragment extends DialogFragment {
     }
 
 
-    @DebugLog
     private boolean isValueHasError(View view) {
         boolean hasError = false;
         if (view instanceof ViewGroup) {
@@ -123,11 +119,7 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void saveGoal() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PrimeHelper.KEY_GOAL_STEP, step);
-        editor.putString(PrimeHelper.KEY_GOAL_CALORIE, calorie);
-        editor.putString(PrimeHelper.KEY_GOAL_DISTANCE, distance);
-        editor.apply();
+        primeDao.saveGoalData(step,calorie,distance);
         onSaveGoalListener.onSaveGoal();
     }
 

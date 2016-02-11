@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.tools.PrimeDao;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import hugo.weaving.DebugLog;
@@ -31,17 +32,16 @@ public class UserDataDialogFragment extends DialogFragment {
     private String name, age, height, weight;
     private boolean gender;
 
-    private SharedPreferences sharedPreferences;
+    private PrimeDao primeDao;
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+        primeDao = new PrimeDao(context);
     }
 
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_prime_user, container, false);
@@ -74,11 +74,12 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void setSavedUserValue() {
-        name = sharedPreferences.getString(PrimeHelper.KEY_NAME, getString(R.string.user_name_default));
-        age = sharedPreferences.getString(PrimeHelper.KEY_AGE, getString(R.string.user_age_default));
-        height = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, getString(R.string.user_height_default));
-        weight = sharedPreferences.getString(PrimeHelper.KEY_WEIGHT, getString(R.string.user_weight_default));
-        gender = sharedPreferences.getBoolean(PrimeHelper.KEY_GENDER, true);
+        PrimeDao.UserData userData = primeDao.loadUserData();
+        name = userData.getName();
+        age = userData.getAge();
+        height = userData.getHeight();
+        weight = userData.getWeight();
+        gender = userData.isGender();
     }
 
 
@@ -95,7 +96,6 @@ public class UserDataDialogFragment extends DialogFragment {
     }
 
 
-    @DebugLog
     private void onAccept() {
         if (!isValueHasError(view.findViewById(R.id.prime_init_group))) {
             name = nameTextInput.getEditText().getText().toString();
@@ -113,7 +113,7 @@ public class UserDataDialogFragment extends DialogFragment {
                     gender = true;
                     break;
             }
-            saveUserValue();
+            primeDao.saveUserData(name, age, height, weight, gender);
             getFragmentManager().beginTransaction().remove(this).commit();
         }
     }
@@ -140,16 +140,5 @@ public class UserDataDialogFragment extends DialogFragment {
             }
         }
         return hasError;
-    }
-
-
-    private void saveUserValue() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PrimeHelper.KEY_NAME, name);
-        editor.putString(PrimeHelper.KEY_AGE, age);
-        editor.putString(PrimeHelper.KEY_HEIGHT, height);
-        editor.putString(PrimeHelper.KEY_WEIGHT, weight);
-        editor.putBoolean(PrimeHelper.KEY_GENDER, gender);
-        editor.apply();
     }
 }

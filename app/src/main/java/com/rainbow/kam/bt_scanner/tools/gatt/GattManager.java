@@ -48,9 +48,6 @@ public class GattManager {
         if (bluetoothManager == null || bluetoothAdapter == null) {
             bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
-            if (bluetoothManager == null) {
-                Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
-            }
         }
     }
 

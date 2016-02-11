@@ -247,24 +247,24 @@ public class CircleCounter extends View {
     }
 
 
-    public void setValues(int v1, int v2, int v3) {
+    public void setValues(int value) {
 
-        if (v1 <= mRange)
-            mOneDegrees = Math.round(((float) v1 * 360) / mRange);
+        if (value <= mRange)
+            mOneDegrees = Math.round(((float) value * 360) / mRange);
         else
             mOneDegrees = 360;
 
-        if (v2 <= mRange)
-            mTwoDegrees = Math.round(((float) v2 * 360) / mRange);
+        if (value <= mRange)
+            mTwoDegrees = Math.round(((float) value * 360) / mRange);
         else
             mTwoDegrees = 360;
 
-        if (v3 <= mRange)
-            mThreeDegrees = Math.round(((float) v3 * 360) / mRange);
+        if (value <= mRange)
+            mThreeDegrees = Math.round(((float) value * 360) / mRange);
         else
             mThreeDegrees = 360;
 
-        mOneValue = v1;
+        mOneValue = value;
         invalidate();
 //        mSpinHandler.sendEmptyMessage(0);
     }
@@ -273,7 +273,7 @@ public class CircleCounter extends View {
     public void setRange(String range) {
         mRange = Integer.valueOf(range);
         invalidate();
-        setValues(mOneValue,mOneValue,mOneValue);
+        setValues(mOneValue);
     }
 
     public void setTextSize(float size) {

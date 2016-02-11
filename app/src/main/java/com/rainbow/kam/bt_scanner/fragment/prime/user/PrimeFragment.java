@@ -29,9 +29,7 @@ import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import hugo.weaving.DebugLog;

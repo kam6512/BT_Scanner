@@ -3,14 +3,11 @@ package com.rainbow.kam.bt_scanner.fragment.prime.user;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
@@ -20,8 +17,6 @@ import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
 
 import java.util.Arrays;
 import java.util.List;
-
-import hugo.weaving.DebugLog;
 
 /**
  * Created by kam6512 on 2016-01-27.
@@ -114,6 +109,6 @@ public class PrimeCircleFragment extends Fragment {
                 value = realmPrimeItem.getStep();
                 break;
         }
-        circleCounter.setValues(value, value, value);
+        circleCounter.setValues(value);
     }
 }

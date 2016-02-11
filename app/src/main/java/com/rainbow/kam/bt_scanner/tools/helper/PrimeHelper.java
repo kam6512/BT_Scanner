@@ -1,10 +1,9 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
-import android.os.Bundle;
-
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
@@ -120,6 +119,7 @@ public class PrimeHelper {
     @DebugLog
     public static Calendar readTime(byte[] characteristicValue) {
 
+
         Calendar calendar = new GregorianCalendar();
 
         for (int i = 2; i < characteristicValue.length - 1; i++) {  // 0 : Positive - Negative / 1 : Length / last index : checksum
@@ -144,6 +144,7 @@ public class PrimeHelper {
                     break;
             }
         }
+
         return calendar;
     }
 
