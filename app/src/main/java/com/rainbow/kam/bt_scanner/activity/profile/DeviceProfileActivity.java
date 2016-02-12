@@ -68,7 +68,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private BluetoothGattCharacteristic controlCharacteristic;
 
-    private Runnable deviceDisconnect = new Runnable() {
+    private final Runnable deviceDisconnect = new Runnable() {
         @Override
         public void run() {
             deviceStateTextView.setText(R.string.bt_disconnected);

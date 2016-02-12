@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
+import com.rainbow.kam.bt_scanner.tools.PrimeDao;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
@@ -31,11 +31,9 @@ public class PrimeCircleFragment extends Fragment {
 
     private CircleCounter circleCounter;
 
-    private static List<String> units;
-    private static final List<String> goalRangeKey = Arrays.asList(PrimeHelper.KEY_GOAL_STEP, PrimeHelper.KEY_GOAL_CALORIE, PrimeHelper.KEY_GOAL_DISTANCE);
-    private static List<String> defaultGoalRange;
+    private static List<String> unitList;
 
-    private SharedPreferences sharedPreferences;
+    private PrimeDao primeDao;
 
 
     public static PrimeCircleFragment newInstance(int index) {
@@ -57,9 +55,8 @@ public class PrimeCircleFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof PrimeActivity) {
             this.context = context;
-            sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
-            units = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
-            defaultGoalRange = Arrays.asList(getString(R.string.goal_def_step), getString(R.string.goal_def_calorie), getString(R.string.goal_def_distance));
+            primeDao = PrimeDao.getInstance(context);
+            unitList = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
         }
     }
 
@@ -84,12 +81,29 @@ public class PrimeCircleFragment extends Fragment {
         circleCounter.setThirdColor(ContextCompat.getColor(context, R.color.stepAccent));
         circleCounter.setBackgroundColor(ContextCompat.getColor(context, R.color.text_dark));
         circleCounter.setTextColor(ContextCompat.getColor(context, R.color.stepPrimaryDark));
-        circleCounter.setMetricText(units.get(index));
+        circleCounter.setMetricText(unitList.get(index));
     }
 
 
     public void setCircleCounterGoalRange() {
-        circleCounter.setRange(sharedPreferences.getString(goalRangeKey.get(index), defaultGoalRange.get(index)));
+        String goalRange;
+        PrimeDao.GoalVO goalVO = primeDao.loadGoalData();
+        switch (index) {
+            case PrimeHelper.INDEX_STEP:
+                goalRange = goalVO.getStepGoal();
+                break;
+            case PrimeHelper.INDEX_CALORIE:
+                goalRange = goalVO.getCalorieGoal();
+                break;
+            case PrimeHelper.INDEX_DISTANCE:
+                goalRange = goalVO.getDistanceGoal();
+                break;
+            default:
+                goalRange = goalVO.getStepGoal();
+                break;
+        }
+
+        circleCounter.setRange(goalRange);
     }
 
 

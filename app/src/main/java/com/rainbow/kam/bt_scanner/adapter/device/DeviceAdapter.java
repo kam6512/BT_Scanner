@@ -31,7 +31,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private final OnDeviceSelectListener onDeviceSelectListener;
 
-    private SortedListAdapterCallback sortedListAdapterCallback = new SortedListAdapterCallback<DeviceItem>(this) {
+    private final SortedListAdapterCallback sortedListAdapterCallback = new SortedListAdapterCallback<DeviceItem>(this) {
         @Override
         public int compare(DeviceItem deviceItem1, DeviceItem deviceItem2) {
             return deviceItem1.getExtraAddress().compareTo(deviceItem2.getExtraAddress());

@@ -298,7 +298,7 @@ public class PrimeFragment extends Fragment
     }
 
 
-    public void setCircleValue(RealmPrimeItem realmPrimeItem) {
+    private void setCircleValue(RealmPrimeItem realmPrimeItem) {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
             primeCircleFragment.setCircleValue(realmPrimeItem);
         }

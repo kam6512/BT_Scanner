@@ -220,7 +220,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void initDB() {
-        primeDao = new PrimeDao(this);
+        primeDao =  PrimeDao.getInstance(this);
     }
 
 
@@ -284,7 +284,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private boolean checkDataAvailable() {
-        if (primeDao.isUserDeviceDataEmpty()) {
+        if (primeDao.isAllDataEmpty()) {
             swipeRefreshLayout.setRefreshing(false);
             showDeviceSettingSnackBar();
             return false;
@@ -342,11 +342,11 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void loadUserDeviceData() {
-        PrimeDao.DeviceData deviceData = primeDao.loadDeviceData();
-        PrimeDao.UserData userData = primeDao.loadUserData();
-        userAge = userData.getAge();
-        userHeight = userData.getHeight();
-        deviceAddress = deviceData.getAddress();
+        PrimeDao.DeviceVO deviceVO = primeDao.loadDeviceData();
+        PrimeDao.UserVO userVO = primeDao.loadUserData();
+        userAge = userVO.getAge();
+        userHeight = userVO.getHeight();
+        deviceAddress = deviceVO.getAddress();
     }
 
 
@@ -365,20 +365,17 @@ public class PrimeActivity extends AppCompatActivity implements
     @DebugLog
     private void removeAllData() {
         primeDao.removeUserDeviceData();
-//        realm.beginTransaction();
-//        realm.clear(RealmPrimeItem.class);
-//        realm.commitTransaction();
     }
 
 
-    public void setUpdateValue(Calendar calendar) {
+    private void setUpdateValue(Calendar calendar) {
         String format = getString(R.string.prime_update_format);
         final SimpleDateFormat update = new SimpleDateFormat(format, Locale.getDefault());
         navUpdate.setText(update.format(calendar.getTime()));
     }
 
 
-    public void setBatteryValue(String batteryValue) {
+    private void setBatteryValue(String batteryValue) {
         String value = batteryValue + getString(R.string.prime_battery_unit);
         navBattery.setText(value);
     }
@@ -461,7 +458,6 @@ public class PrimeActivity extends AppCompatActivity implements
             bluetoothGattCharacteristicForWrite = characteristicList.get(0);
             bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
 
-
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -505,7 +501,6 @@ public class PrimeActivity extends AppCompatActivity implements
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-
                                 setUpdateValue(PrimeHelper.readTime(ch.getValue()));
                             }
                         });

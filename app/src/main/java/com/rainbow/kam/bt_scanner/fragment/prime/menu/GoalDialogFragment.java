@@ -35,7 +35,7 @@ public class GoalDialogFragment extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof PrimeActivity) {
-            primeDao = new PrimeDao(context);
+            primeDao = PrimeDao.getInstance(context);
             onSaveGoalListener = (OnSaveGoalListener) context;
         }
     }
@@ -71,10 +71,10 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void setSavedGoalValue() {
-        PrimeDao.PrimeData primeData = primeDao.loadPrimeData();
-        step = primeData.getStep();
-        calorie = primeData.getCalorie();
-        distance = primeData.getDistance();
+        PrimeDao.GoalVO goalVO = primeDao.loadGoalData();
+        step = goalVO.getStepGoal();
+        calorie = goalVO.getCalorieGoal();
+        distance = goalVO.getDistanceGoal();
     }
 
 

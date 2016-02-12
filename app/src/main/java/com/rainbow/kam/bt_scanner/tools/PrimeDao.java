@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.tools;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
@@ -18,21 +19,39 @@ import io.realm.RealmResults;
  * Created by kam6512 on 2016-02-11.
  */
 public class PrimeDao {
-    private Context context;
 
-    private SharedPreferences sharedPreferences;
-    private Realm realm;
+    private static class PrimeDaoLoader {
+        private static final PrimeDao INSTANCE = new PrimeDao();
+    }
+
+    private static Context context = null;
+
+    private static SharedPreferences sharedPreferences = null;
+    private static Realm realm = null;
 
 
-    public PrimeDao(Context context) {
-        this.context = context;
-
-        sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
-        realm = Realm.getInstance(new RealmConfiguration.Builder(context).build());
+    private PrimeDao() {
+        if (PrimeDaoLoader.INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
     }
 
 
-    public boolean isUserDeviceDataEmpty() {
+    public static PrimeDao getInstance(Context instanceContext) {
+        if (context == null) {
+            context = instanceContext;
+            sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+            realm = Realm.getInstance(new RealmConfiguration.Builder(context).build());
+            Log.e("getInstance", "new INSTANCE");
+        } else {
+            Log.e("getInstance", "maintain INSTANCE");
+        }
+
+        return PrimeDaoLoader.INSTANCE;
+    }
+
+
+    public boolean isAllDataEmpty() {
         return sharedPreferences.getAll().isEmpty();
     }
 
@@ -42,13 +61,18 @@ public class PrimeDao {
     }
 
 
-    public UserData loadUserData() {
-        return new UserData();
+    public UserVO loadUserData() {
+        return new UserVO();
     }
 
 
-    public DeviceData loadDeviceData() {
-        return new DeviceData();
+    public DeviceVO loadDeviceData() {
+        return new DeviceVO();
+    }
+
+
+    public GoalVO loadGoalData() {
+        return new GoalVO();
     }
 
 
@@ -71,8 +95,24 @@ public class PrimeDao {
     }
 
 
+    public void saveGoalData(String step, String calorie, String distance) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PrimeHelper.KEY_GOAL_STEP, step);
+        editor.putString(PrimeHelper.KEY_GOAL_CALORIE, calorie);
+        editor.putString(PrimeHelper.KEY_GOAL_DISTANCE, distance);
+        editor.apply();
+    }
+
+
     public void removeUserDeviceData() {
         sharedPreferences.edit().clear().apply();
+    }
+
+
+    public void removePrimeData() {
+        realm.beginTransaction();
+        realm.clear(RealmPrimeItem.class);
+        realm.commitTransaction();
     }
 
 
@@ -127,26 +167,15 @@ public class PrimeDao {
     }
 
 
-    public PrimeData loadPrimeData() {
-        return new PrimeData();
-    }
+    public class UserVO {
+        private final String name;
+        private final String age;
+        private final String height;
+        private final String weight;
+        private final boolean gender;
 
 
-    public void saveGoalData(String step, String calorie, String distance) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PrimeHelper.KEY_GOAL_STEP, step);
-        editor.putString(PrimeHelper.KEY_GOAL_CALORIE, calorie);
-        editor.putString(PrimeHelper.KEY_GOAL_DISTANCE, distance);
-        editor.apply();
-    }
-
-
-    public class UserData {
-        private String name, age, height, weight;
-        private boolean gender;
-
-
-        public UserData() {
+        public UserVO() {
             name = sharedPreferences.getString(PrimeHelper.KEY_NAME, context.getString(R.string.user_name_default));
             age = sharedPreferences.getString(PrimeHelper.KEY_AGE, context.getString(R.string.user_age_default));
             height = sharedPreferences.getString(PrimeHelper.KEY_HEIGHT, context.getString(R.string.user_height_default));
@@ -180,11 +209,12 @@ public class PrimeDao {
         }
     }
 
-    public class DeviceData {
-        private String name, address;
+    public class DeviceVO {
+        private final String name;
+        private final String address;
 
 
-        public DeviceData() {
+        public DeviceVO() {
             name = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_NAME, null);
             address = sharedPreferences.getString(PrimeHelper.KEY_DEVICE_ADDRESS, null);
         }
@@ -201,29 +231,31 @@ public class PrimeDao {
 
     }
 
-    public class PrimeData {
-        private String step, calorie, distance;
+    public class GoalVO {
+        private final String stepGoal;
+        private final String calorieGoal;
+        private final String distanceGoal;
 
 
-        public PrimeData() {
-            step = sharedPreferences.getString(PrimeHelper.KEY_GOAL_STEP, context.getString(R.string.goal_def_step));
-            calorie = sharedPreferences.getString(PrimeHelper.KEY_GOAL_CALORIE, context.getString(R.string.goal_def_calorie));
-            distance = sharedPreferences.getString(PrimeHelper.KEY_GOAL_DISTANCE, context.getString(R.string.goal_def_distance));
+        public GoalVO() {
+            stepGoal = sharedPreferences.getString(PrimeHelper.KEY_GOAL_STEP, context.getString(R.string.goal_def_step));
+            calorieGoal = sharedPreferences.getString(PrimeHelper.KEY_GOAL_CALORIE, context.getString(R.string.goal_def_calorie));
+            distanceGoal = sharedPreferences.getString(PrimeHelper.KEY_GOAL_DISTANCE, context.getString(R.string.goal_def_distance));
         }
 
 
-        public String getStep() {
-            return step;
+        public String getStepGoal() {
+            return stepGoal;
         }
 
 
-        public String getCalorie() {
-            return calorie;
+        public String getCalorieGoal() {
+            return calorieGoal;
         }
 
 
-        public String getDistance() {
-            return distance;
+        public String getDistanceGoal() {
+            return distanceGoal;
         }
     }
 }

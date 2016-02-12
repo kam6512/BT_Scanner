@@ -3,7 +3,6 @@ package com.rainbow.kam.bt_scanner.tools.helper;
 import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 

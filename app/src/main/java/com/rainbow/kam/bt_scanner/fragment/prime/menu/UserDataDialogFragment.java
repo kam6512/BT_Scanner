@@ -1,7 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.menu;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -15,7 +14,6 @@ import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.PrimeDao;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import hugo.weaving.DebugLog;
 
@@ -38,7 +36,7 @@ public class UserDataDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        primeDao = new PrimeDao(context);
+        primeDao = PrimeDao.getInstance(context);
     }
 
 
@@ -74,12 +72,12 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void setSavedUserValue() {
-        PrimeDao.UserData userData = primeDao.loadUserData();
-        name = userData.getName();
-        age = userData.getAge();
-        height = userData.getHeight();
-        weight = userData.getWeight();
-        gender = userData.isGender();
+        PrimeDao.UserVO userVO = primeDao.loadUserData();
+        name = userVO.getName();
+        age = userVO.getAge();
+        height = userVO.getHeight();
+        weight = userVO.getWeight();
+        gender = userVO.isGender();
     }
 
 

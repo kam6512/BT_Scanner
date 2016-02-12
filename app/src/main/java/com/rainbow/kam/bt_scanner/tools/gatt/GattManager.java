@@ -11,9 +11,6 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.widget.Toast;
-
-import com.rainbow.kam.bt_scanner.R;
 
 import java.util.List;
 import java.util.UUID;
