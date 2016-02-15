@@ -1,5 +1,6 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
 import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.tools.data.vo.GoalVo;
@@ -26,6 +26,11 @@ public class PrimeCircleFragment extends Fragment {
     private Context context;
 
     private int index;
+    public static final String KEY_INDEX = "INDEX";
+
+    private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
+    private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;
+    private static final int INDEX_DISTANCE = PrimeHelper.INDEX_DISTANCE;
 
     private View view;
     private CircleCounter circleCounter;
@@ -38,21 +43,21 @@ public class PrimeCircleFragment extends Fragment {
     public static PrimeCircleFragment newInstance(int index) {
         PrimeCircleFragment primeCircleFragment = new PrimeCircleFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(PrimeHelper.KEY_INDEX, index);
+        bundle.putInt(KEY_INDEX, index);
         primeCircleFragment.setArguments(bundle);
         return primeCircleFragment;
     }
 
 
     private int getIndex() {
-        return getArguments().getInt(PrimeHelper.KEY_INDEX);
+        return getArguments().getInt(KEY_INDEX);
     }
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof PrimeActivity) {
+        if (context instanceof Activity) {
             this.context = context;
             primeDao = PrimeDao.getInstance(context);
             unitList = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
@@ -88,13 +93,13 @@ public class PrimeCircleFragment extends Fragment {
         String goalRange;
         GoalVo goalVo = primeDao.loadGoalData();
         switch (index) {
-            case PrimeHelper.INDEX_STEP:
+            case INDEX_STEP:
                 goalRange = goalVo.stepGoal;
                 break;
-            case PrimeHelper.INDEX_CALORIE:
+            case INDEX_CALORIE:
                 goalRange = goalVo.calorieGoal;
                 break;
-            case PrimeHelper.INDEX_DISTANCE:
+            case INDEX_DISTANCE:
                 goalRange = goalVo.distanceGoal;
                 break;
             default:
@@ -108,13 +113,13 @@ public class PrimeCircleFragment extends Fragment {
     public void setCircleValue(RealmPrimeItem realmPrimeItem) {
         int value;
         switch (index) {
-            case PrimeHelper.INDEX_STEP:
+            case INDEX_STEP:
                 value = realmPrimeItem.getStep();
                 break;
-            case PrimeHelper.INDEX_CALORIE:
+            case INDEX_CALORIE:
                 value = realmPrimeItem.getCalorie();
                 break;
-            case PrimeHelper.INDEX_DISTANCE:
+            case INDEX_DISTANCE:
                 value = realmPrimeItem.getDistance();
                 break;
             default:

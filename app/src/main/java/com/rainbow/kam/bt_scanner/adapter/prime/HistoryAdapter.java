@@ -3,6 +3,7 @@ package com.rainbow.kam.bt_scanner.adapter.prime;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -13,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
-import io.realm.RealmResults;
 
 /**
  * Created by Kam6512 on 2015-10-14.
@@ -48,6 +48,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.i_prime_history, parent, false);
+        addDummyData();
         return new HistoryViewHolder(view);
     }
 
@@ -72,7 +73,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     @DebugLog
-    public void add(RealmResults<RealmPrimeItem> results) {
+    public void set(List<RealmPrimeItem> results) {
         historyArrayList.clear();
         addDummyData(results);
         historyArrayList.addAll(results);
@@ -82,7 +83,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    private void addDummyData(RealmResults<RealmPrimeItem> results) {
+    private void addDummyData() {
+        for (int i = 0; i < 7; i++) {
+            historyArrayList.add(new RealmPrimeItem());
+        }
+    }
+
+
+    private void addDummyData(List<RealmPrimeItem> results) {
         if (results.size() <= 31) {
             for (int i = results.size(); i < 31; i++) {
                 historyArrayList.add(new RealmPrimeItem());
@@ -104,6 +112,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             historyText = (TextView) itemView.findViewById(R.id.history_text);
             historyDate = (TextView) itemView.findViewById(R.id.history_date);
             historyImageView = (ImageView) itemView.findViewById(R.id.history_icon);
+            historyImageView.setColorFilter(Color.parseColor("#0078ff"));
         }
 
 
@@ -117,14 +126,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (TextUtils.isEmpty(calendar)) {
                 calendar = "--";
             }
-
-            historyText.setText(values.get(index) + unit.get(index));
+            String history = values.get(index) + unit.get(index);
+            historyText.setText(history);
             historyDate.setText(calendar);
             historyImageView.post(new Runnable() {
                 @Override
                 public void run() {
                     historyImageView.setImageDrawable(iconDrawable.get(index));
-                    historyImageView.setColorFilter(Color.parseColor("#0078ff"));
                 }
             });
         }

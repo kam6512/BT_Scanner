@@ -41,7 +41,9 @@ import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -88,6 +90,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
     private String userAge, userHeight, deviceAddress;
+    private String rssiUnit;
 
     private PrimeDao primeDao;
 
@@ -105,7 +108,7 @@ public class PrimeActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_prime);
-
+        rssiUnit = getString(R.string.rssi_unit);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             BluetoothHelper.checkPermissions(this);
         }
@@ -115,8 +118,6 @@ public class PrimeActivity extends AppCompatActivity implements
         setToolbar();
         setMaterialView();
         setNavInfoView();
-
-
     }
 
 
@@ -124,7 +125,6 @@ public class PrimeActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         registerBluetooth();
-
     }
 
 
@@ -329,7 +329,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private void connectDevice() {
         try {
             gattManager.connect(deviceAddress);
-            gattReadType = GattReadType.READ_TIME;
             swipeRefreshLayout.post(postSwipeRefresh);
         } catch (NullPointerException e) {
             Log.e(TAG, e.getMessage());
@@ -442,7 +441,7 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (disconnectDeviceSnackBar.isShown()) {
+                    if (disconnectDeviceSnackBar.isShownOrQueued()) {
                         finish();
                     } else {
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
@@ -462,7 +461,7 @@ public class PrimeActivity extends AppCompatActivity implements
             gattManager.setNotification(characteristicList.get(1), true);
             bluetoothGattCharacteristicForWrite = characteristicList.get(0);
             bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
-
+            gattReadType = GattReadType.READ_TIME;
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -479,15 +478,11 @@ public class PrimeActivity extends AppCompatActivity implements
 
         public void onReadSuccess(BluetoothGattCharacteristic ch) {
 
-            final byte[] batteryByteValue = ch.getValue();
-            final StringBuilder batteryValue = new StringBuilder(batteryByteValue.length);
-            for (byte byteChar : batteryByteValue) {
-                batteryValue.append(String.format("%02d", byteChar));
-            }
+            final String batteryValue = readBatteryValue(ch);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    setBatteryValue(batteryValue.toString());
+                    setBatteryValue(batteryValue);
                 }
             });
         }
@@ -498,44 +493,38 @@ public class PrimeActivity extends AppCompatActivity implements
         }
 
 
-        public void onDataNotify(final BluetoothGattCharacteristic ch) {
+        public void onDeviceNotify(final BluetoothGattCharacteristic ch) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        switch (gattReadType) {
+                            case READ_TIME:
+                                setUpdateValue(makeCurrentCalendar(ch.getValue()));
 
-            try {
-                switch (gattReadType) {
-                    case READ_TIME:
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setUpdateValue(PrimeHelper.readTime(ch.getValue()));
-                            }
-                        });
+                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
+                                gattReadType = GattReadType.READ_STEP_DATA;
 
+                                break;
 
-                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
-                        gattReadType = GattReadType.READ_STEP_DATA;
+                            case READ_STEP_DATA:
 
-                        break;
-
-                    case READ_STEP_DATA:
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                savePrimeData(PrimeHelper.readValue(ch.getValue(), userAge, userHeight));
+                                savePrimeData(makePrimeItem(ch.getValue()));
                                 primeFragment.setPrimeValue(primeDao.loadPrimeListData());
-                            }
-                        });
 
-                        gattManager.readValue(bluetoothGattCharacteristicForBattery);
-                        break;
-                    default:
+                                gattManager.readValue(bluetoothGattCharacteristicForBattery);
+                                gattReadType = null;
 
-                        break;
+                                break;
+                            default:
+                                break;
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
+                        setFail();
+                    }
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "onDataNotify : " + e.getMessage());
-                setFail();
-            }
-
+            });
         }
 
 
@@ -545,7 +534,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
         public void onRSSIUpdate(final int rssi) {
-            final String rssiValue = rssi + getString(R.string.rssi_unit);
+            final String rssiValue = rssi + rssiUnit;
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -554,6 +543,75 @@ public class PrimeActivity extends AppCompatActivity implements
             });
         }
     };
+
+
+    private String readBatteryValue(BluetoothGattCharacteristic ch) {
+        final byte[] batteryByteValue = ch.getValue();
+        final StringBuilder batteryValue = new StringBuilder(batteryByteValue.length);
+        for (byte byteChar : batteryByteValue) {
+            batteryValue.append(String.format("%02d", byteChar));
+        }
+        return batteryValue.toString();
+    }
+
+
+    private Calendar makeCurrentCalendar(byte[] characteristicValue) {
+
+        Calendar calendar = new GregorianCalendar();
+        calendar.set(Calendar.YEAR, characteristicValue[2]);
+        calendar.set(Calendar.MONTH, characteristicValue[3] - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, characteristicValue[4]);
+        calendar.set(Calendar.HOUR_OF_DAY, characteristicValue[5]);
+        calendar.set(Calendar.MINUTE, characteristicValue[6]);
+        calendar.set(Calendar.SECOND, characteristicValue[7]);
+
+        return calendar;
+    }
+
+
+    private RealmPrimeItem makePrimeItem(byte[] characteristicValue)
+            throws ArrayIndexOutOfBoundsException {
+
+        final int age = Integer.parseInt(userAge);
+        final double height = Integer.parseInt(userHeight);
+
+        final String format = "%02x";
+        final int bitFormat = 0xff;
+
+        StringBuilder hexStep = new StringBuilder();
+        hexStep.append(String.format(format, characteristicValue[2] & bitFormat));
+        hexStep.append(String.format(format, characteristicValue[3] & bitFormat));
+        hexStep.append(String.format(format, characteristicValue[4] & bitFormat));
+
+        StringBuilder hexCal = new StringBuilder();
+        hexCal.append(String.format(format, characteristicValue[5] & bitFormat));
+        hexCal.append(String.format(format, characteristicValue[6] & bitFormat));
+        hexCal.append(String.format(format, characteristicValue[7] & bitFormat));
+
+        final int step, kcal, distance;
+
+        final int radix = 16;
+        step = Integer.parseInt(hexStep.toString(), radix);
+        kcal = Integer.parseInt(hexCal.toString(), radix);
+
+        final double convertValue;
+
+        if (15 < age || age < 45) {
+            convertValue = 0.45;
+        } else if (45 <= age || age < 65) {
+            convertValue = 0.40;
+        } else {
+            convertValue = 0.35;
+        }
+        distance = (int) ((height * convertValue) * step) / 100;
+
+        RealmPrimeItem realmPrimeItem = new RealmPrimeItem();
+        realmPrimeItem.setStep(step);
+        realmPrimeItem.setCalorie(kcal);
+        realmPrimeItem.setDistance(distance);
+
+        return realmPrimeItem;
+    }
 
 
     private void setDeviceDateTime() {

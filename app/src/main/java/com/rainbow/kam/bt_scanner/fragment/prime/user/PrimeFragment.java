@@ -27,13 +27,13 @@ import com.db.chart.view.LineChartView;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.util.Arrays;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
-import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-04.
@@ -47,6 +47,7 @@ public class PrimeFragment extends Fragment
     private View view;
 
     private int index;
+    private int totalStep, totalCalorie, totalDistance;
 
     private List<PrimeCircleFragment> primeCircleFragments;
     private List<String> units;
@@ -61,15 +62,12 @@ public class PrimeFragment extends Fragment
 
     private CardView chartCardView;
     private LineChartView chart;
-    private String[] chartLabels;
-    private float[] chartValues;
     private LineSet dataSet;
-
 
     private RecyclerView historyRecyclerView;
     private HistoryAdapter historyAdapter;
 
-    private int stickyChartCardScroll, stickyTotalCardScroll;
+    private int stickyChartCardScrollValue, stickyTotalCardScrollValue;
 
 
     @Override
@@ -116,9 +114,8 @@ public class PrimeFragment extends Fragment
         chart.getLayoutParams().height = chart.getWidth() / 2;
         historyRecyclerView.getLayoutParams().height = view.getHeight() - chartCardView.getHeight();
 
-
-        stickyTotalCardScroll = viewPager.getHeight();
-        stickyChartCardScroll = totalCardView.getHeight() + stickyTotalCardScroll;
+        stickyTotalCardScrollValue = viewPager.getHeight();
+        stickyChartCardScrollValue = totalCardView.getHeight() + stickyTotalCardScrollValue;
     }
 
 
@@ -135,9 +132,9 @@ public class PrimeFragment extends Fragment
 
     private void setFragments() {
         primeCircleFragments = Arrays.asList(
-                PrimeCircleFragment.newInstance(0),
-                PrimeCircleFragment.newInstance(1),
-                PrimeCircleFragment.newInstance(2)
+                PrimeCircleFragment.newInstance(PrimeHelper.INDEX_STEP),
+                PrimeCircleFragment.newInstance(PrimeHelper.INDEX_CALORIE),
+                PrimeCircleFragment.newInstance(PrimeHelper.INDEX_DISTANCE)
         );
     }
 
@@ -150,9 +147,9 @@ public class PrimeFragment extends Fragment
 
     @Override
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        if (scrollY > stickyTotalCardScroll) {
-            if (scrollY > stickyChartCardScroll) {
-                setChartTransition(scrollY - stickyChartCardScroll);
+        if (scrollY > stickyTotalCardScrollValue) {
+            if (scrollY > stickyChartCardScrollValue) {
+                setChartTransition(scrollY - stickyChartCardScrollValue);
             } else {
                 setChartTransition(totalCardView.getVerticalScrollbarPosition());
             }
@@ -167,8 +164,7 @@ public class PrimeFragment extends Fragment
 
     private void setViewPager() {
         viewPager = (ViewPager) view.findViewById(R.id.prime_viewpager);
-        PrimeAdapter primeAdapter = new PrimeAdapter(getActivity().getSupportFragmentManager());
-        viewPager.setAdapter(primeAdapter);
+        viewPager.setAdapter(new PrimeAdapter(getActivity().getSupportFragmentManager()));
         viewPager.setOffscreenPageLimit(3);
         viewPager.addOnPageChangeListener(this);
 
@@ -180,8 +176,9 @@ public class PrimeFragment extends Fragment
     @Override
     public void onPageSelected(int position) {
         index = position;
+        String total = getTotalValue(index) + units.get(index);
+        totalTextView.setText(total);
         labelTextView.setText(totalLabels.get(index));
-        totalTextView.setText(RealmPrimeItem.getTotalValue(index) + units.get(index));
         cardImageView.setImageDrawable(totalCardImageDrawable.get(index));
         historyAdapter.setCurrentIndex(index);
     }
@@ -206,32 +203,35 @@ public class PrimeFragment extends Fragment
                 .setLabelsColor(ContextCompat.getColor(context, R.color.chart_label))
                 .setXAxis(true)
                 .setYAxis(false);
-
-
     }
 
 
     private void setRecyclerView() {
         historyRecyclerView = (RecyclerView) view.findViewById(R.id.history_recycler);
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-        historyRecyclerView.setLayoutManager(linearLayoutManager);
+        historyRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         historyRecyclerView.setHasFixedSize(true);
         historyAdapter = new HistoryAdapter(context);
         historyRecyclerView.setAdapter(historyAdapter);
         historyRecyclerView.setFocusable(true);
-
     }
 
 
-    public void setRealmPrimeValue(RealmResults<RealmPrimeItem> results) {
+    public void setPrimeValue(List<RealmPrimeItem> results) {
 
+        totalStep = 0;
+        totalCalorie = 0;
+        totalDistance = 0;
 
         int length = results.size();
-        chartLabels = new String[length];
-        chartValues = new float[length];
+        String[] chartLabels = new String[length];
+        float[] chartValues = new float[length];
 
         for (int i = 0; i < length; i++) {
             RealmPrimeItem realmPrimeItem = results.get(i);
+
+            totalStep += realmPrimeItem.getStep();
+            totalCalorie += realmPrimeItem.getCalorie();
+            totalDistance += realmPrimeItem.getDistance();
 
             chartLabels[i] = realmPrimeItem.getCalendar();
             chartValues[i] = (realmPrimeItem.getStep()
@@ -239,30 +239,30 @@ public class PrimeFragment extends Fragment
                     + realmPrimeItem.getDistance()) / 3;
         }
 
-
-        totalTextView.setText(RealmPrimeItem.getTotalValue(index) + units.get(index));
-        setCircleValue(results.last());
-        setChartValues();
-        historyAdapter.add(results);
+        String total = getTotalValue(index) + units.get(index);
+        totalTextView.setText(total);
+        setCircleValue(results.get(length - 1));
+        setChartValues(chartLabels, chartValues);
+        historyAdapter.set(results);
     }
 
 
-    private void setChartValues() {
-        float[] weekValues;
-        String[] weekLabels;
+    private void setChartValues(String[] chartLabels, float[] chartValues) {
+
         if (chartValues.length < 7 && chartLabels.length < 7) {
-            weekValues = Arrays.copyOfRange(chartValues, 0, chartValues.length);
-            weekLabels = Arrays.copyOfRange(chartLabels, 0, chartLabels.length);
+            chartLabels = Arrays.copyOfRange(chartLabels, 0, chartLabels.length);
+            chartValues = Arrays.copyOfRange(chartValues, 0, chartValues.length);
         } else {
-            weekValues = Arrays.copyOfRange(chartValues, chartValues.length - 7, chartValues.length);
-            weekLabels = Arrays.copyOfRange(chartLabels, chartLabels.length - 7, chartLabels.length);
+
+            chartLabels = Arrays.copyOfRange(chartLabels, chartLabels.length - 7, chartLabels.length);
+            chartValues = Arrays.copyOfRange(chartValues, chartValues.length - 7, chartValues.length);
         }
 
         if (dataSet != null) {
-            dataSet.updateValues(weekValues);
+            dataSet.updateValues(chartValues);
             chart.notifyDataUpdate();
         } else {
-            dataSet = new LineSet(weekLabels, weekValues);
+            dataSet = new LineSet(chartLabels, chartValues);
             dataSet.setColor(ContextCompat.getColor(context, R.color.chart_line))
                     .setFill(ContextCompat.getColor(context, R.color.chart_fill))
                     .setDotsColor(ContextCompat.getColor(context, R.color.chart_dots))
@@ -290,7 +290,6 @@ public class PrimeFragment extends Fragment
     }
 
 
-    @DebugLog
     public void setCircleCounterGoalRange() {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
             primeCircleFragment.setCircleCounterGoalRange();
@@ -301,6 +300,20 @@ public class PrimeFragment extends Fragment
     private void setCircleValue(RealmPrimeItem realmPrimeItem) {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
             primeCircleFragment.setCircleValue(realmPrimeItem);
+        }
+    }
+
+
+    public int getTotalValue(int index) {
+        switch (index) {
+            case 0:
+                return totalStep;
+            case 1:
+                return totalCalorie;
+            case 2:
+                return totalDistance;
+            default:
+                return totalStep;
         }
     }
 
@@ -336,5 +349,4 @@ public class PrimeFragment extends Fragment
             return tabTitles.get(position);
         }
     }
-
 }
