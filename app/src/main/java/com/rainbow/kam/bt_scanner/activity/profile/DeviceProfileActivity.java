@@ -262,7 +262,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         }
 
 
-        public void onDataNotify(final BluetoothGattCharacteristic ch) {
+        public void onDeviceNotify(final BluetoothGattCharacteristic ch) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

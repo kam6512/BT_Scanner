@@ -24,7 +24,7 @@ public interface GattCustomCallbacks {
     void onReadFail();
 
 
-    void onDataNotify(
+    void onDeviceNotify(
             final BluetoothGattCharacteristic ch);
 
     void onWriteSuccess();
@@ -74,7 +74,7 @@ public interface GattCustomCallbacks {
 
 
         @Override
-        public void onDataNotify(BluetoothGattCharacteristic ch) {
+        public void onDeviceNotify(BluetoothGattCharacteristic ch) {
 
         }
 

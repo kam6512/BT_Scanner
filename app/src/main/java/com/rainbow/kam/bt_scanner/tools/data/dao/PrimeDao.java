@@ -184,34 +184,34 @@ public class PrimeDao {
         SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         String today = formatter.format(Calendar.getInstance().getTime());
 
-        List<RealmPrimeItem> results = realm.where(RealmPrimeItem.class).findAll();
+        List<RealmPrimeItem> results = loadPrimeListData();
 
         realm.beginTransaction();
 
         if (results.isEmpty()) {
-            RealmPrimeItem newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
-            newRealmPrimeItem.setCalendar(today);
-            newRealmPrimeItem.setStep(step);
-            newRealmPrimeItem.setCalorie(calorie);
-            newRealmPrimeItem.setDistance(distance);
+            RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+            newItem.setCalendar(today);
+            newItem.setStep(step);
+            newItem.setCalorie(calorie);
+            newItem.setDistance(distance);
         } else {
-            RealmPrimeItem lastRealmPrimeItem = results.get(results.size() - 1);
-            if (lastRealmPrimeItem.getCalendar().equals(today)) {
-                if (lastRealmPrimeItem.getStep() > step || lastRealmPrimeItem.getCalorie() > calorie || lastRealmPrimeItem.getDistance() > distance) {
-                    step += lastRealmPrimeItem.getStep();
-                    calorie += lastRealmPrimeItem.getCalorie();
-                    distance += lastRealmPrimeItem.getDistance();
+            RealmPrimeItem lastItem = results.get(results.size() - 1);
+            if (lastItem.getCalendar().equals(today)) {
+                if (lastItem.getStep() > step) {
+                    step += lastItem.getStep();
+                    calorie += lastItem.getCalorie();
+                    distance += lastItem.getDistance();
                 }
-                lastRealmPrimeItem.setCalendar(today);
-                lastRealmPrimeItem.setStep(step);
-                lastRealmPrimeItem.setCalorie(calorie);
-                lastRealmPrimeItem.setDistance(distance);
+                lastItem.setCalendar(today);
+                lastItem.setStep(step);
+                lastItem.setCalorie(calorie);
+                lastItem.setDistance(distance);
             } else {
-                RealmPrimeItem newRealmPrimeItem = realm.createObject(RealmPrimeItem.class);
-                newRealmPrimeItem.setCalendar(today);
-                newRealmPrimeItem.setStep(step);
-                newRealmPrimeItem.setCalorie(calorie);
-                newRealmPrimeItem.setDistance(distance);
+                RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                newItem.setCalendar(today);
+                newItem.setStep(step);
+                newItem.setCalorie(calorie);
+                newItem.setDistance(distance);
             }
         }
 
@@ -220,8 +220,6 @@ public class PrimeDao {
 
 
     private static Realm getRealm() {
-
-
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(context).migration(new Migration()).build();
 
         try {
