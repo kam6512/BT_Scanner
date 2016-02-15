@@ -1,6 +1,6 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -12,19 +12,6 @@ import hugo.weaving.DebugLog;
  * Created by kam6512 on 2015-11-04.
  */
 public class PrimeHelper {
-
-    public static final String KEY = "USER";
-    public static final String KEY_NAME = "USER_NAME";
-    public static final String KEY_AGE = "USER_AGE";
-    public static final String KEY_HEIGHT = "USER_HEIGHT";
-    public static final String KEY_WEIGHT = "USER_WEIGHT";
-    public static final String KEY_GENDER = "USER_GENDER";
-    public static final String KEY_DEVICE_NAME = "DEVICE_NAME";
-    public static final String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-
-    public static final String KEY_GOAL_STEP = "STEP_GOAL";
-    public static final String KEY_GOAL_CALORIE = "CALORIE_GOAL";
-    public static final String KEY_GOAL_DISTANCE = "DISTANCE_GOAL";
 
     public static final String KEY_INDEX = "INDEX";
 
