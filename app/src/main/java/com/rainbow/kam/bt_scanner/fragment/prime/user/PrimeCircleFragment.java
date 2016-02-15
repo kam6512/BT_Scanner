@@ -10,8 +10,9 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.tools.PrimeDao;
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
 
@@ -22,13 +23,11 @@ import java.util.List;
  * Created by kam6512 on 2016-01-27.
  */
 public class PrimeCircleFragment extends Fragment {
-    private final String TAG = getClass().getSimpleName();
+    private Context context;
 
     private int index;
 
-    private Context context;
     private View view;
-
     private CircleCounter circleCounter;
 
     private static List<String> unitList;
@@ -87,22 +86,21 @@ public class PrimeCircleFragment extends Fragment {
 
     public void setCircleCounterGoalRange() {
         String goalRange;
-        PrimeDao.GoalVO goalVO = primeDao.loadGoalData();
+        GoalVo goalVo = primeDao.loadGoalData();
         switch (index) {
             case PrimeHelper.INDEX_STEP:
-                goalRange = goalVO.getStepGoal();
+                goalRange = goalVo.stepGoal;
                 break;
             case PrimeHelper.INDEX_CALORIE:
-                goalRange = goalVO.getCalorieGoal();
+                goalRange = goalVo.calorieGoal;
                 break;
             case PrimeHelper.INDEX_DISTANCE:
-                goalRange = goalVO.getDistanceGoal();
+                goalRange = goalVo.distanceGoal;
                 break;
             default:
-                goalRange = goalVO.getStepGoal();
+                goalRange = goalVo.stepGoal;
                 break;
         }
-
         circleCounter.setRange(goalRange);
     }
 

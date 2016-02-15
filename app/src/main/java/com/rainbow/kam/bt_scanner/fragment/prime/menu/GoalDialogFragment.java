@@ -13,7 +13,8 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.tools.PrimeDao;
+import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.tools.data.vo.GoalVo;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -24,9 +25,9 @@ public class GoalDialogFragment extends DialogFragment {
 
     private TextInputLayout stepTextInput, calorieTextInput, distanceTextInput;
 
-    private String step, calorie, distance;
-
     private PrimeDao primeDao;
+
+    private GoalVo goalVo;
 
     private OnSaveGoalListener onSaveGoalListener;
 
@@ -71,25 +72,22 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void setSavedGoalValue() {
-        PrimeDao.GoalVO goalVO = primeDao.loadGoalData();
-        step = goalVO.getStepGoal();
-        calorie = goalVO.getCalorieGoal();
-        distance = goalVO.getDistanceGoal();
+        goalVo = primeDao.loadGoalData();
     }
 
 
     private void setGoalValueView() {
-        stepTextInput.getEditText().setText(step);
-        calorieTextInput.getEditText().setText(calorie);
-        distanceTextInput.getEditText().setText(distance);
+        stepTextInput.getEditText().setText(goalVo.stepGoal);
+        calorieTextInput.getEditText().setText(goalVo.calorieGoal);
+        distanceTextInput.getEditText().setText(goalVo.distanceGoal);
     }
 
 
     private void onAccept() {
         if (!isValueHasError(view.findViewById(R.id.prime_goal_group))) {
-            step = stepTextInput.getEditText().getText().toString();
-            calorie = calorieTextInput.getEditText().getText().toString();
-            distance = distanceTextInput.getEditText().getText().toString();
+            goalVo.stepGoal = stepTextInput.getEditText().getText().toString();
+            goalVo.calorieGoal = calorieTextInput.getEditText().getText().toString();
+            goalVo.distanceGoal = distanceTextInput.getEditText().getText().toString();
             saveGoal();
         }
     }
@@ -119,7 +117,7 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void saveGoal() {
-        primeDao.saveGoalData(step,calorie,distance);
+        primeDao.saveGoalData(goalVo);
         onSaveGoalListener.onSaveGoal();
     }
 

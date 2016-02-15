@@ -95,7 +95,7 @@
     <string name="add.user.height.hint">Height (Metric)</string>
     <string name="add.user.weight.hint">Weight (Kg)</string>
 
-    <string name="user.name.default">N/A</string>
+    <string name="user.name.default">홍길동</string>
     <string name="user.age.default">20</string>
     <string name="user.height.default">170</string>
     <string name="user.weight.default">60</string>

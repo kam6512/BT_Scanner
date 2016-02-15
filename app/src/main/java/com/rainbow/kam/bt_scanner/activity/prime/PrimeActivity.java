@@ -31,8 +31,10 @@ import com.rainbow.kam.bt_scanner.fragment.prime.menu.GoalDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
-import com.rainbow.kam.bt_scanner.tools.PrimeDao;
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.tools.data.vo.DeviceVo;
+import com.rainbow.kam.bt_scanner.tools.data.vo.UserVo;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
@@ -88,8 +90,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private String userAge, userHeight, deviceAddress;
 
     private PrimeDao primeDao;
-//    private SharedPreferences sharedPreferences;
-//    private Realm realm;
 
 
     private final Handler handler = new Handler();
@@ -116,12 +116,7 @@ public class PrimeActivity extends AppCompatActivity implements
         setMaterialView();
         setNavInfoView();
 
-        disconnectDeviceSnackBar = Snackbar.make(coordinatorLayout, R.string.prime_disconnect_snack, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_ignore, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+
     }
 
 
@@ -220,7 +215,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void initDB() {
-        primeDao =  PrimeDao.getInstance(this);
+        primeDao = PrimeDao.getInstance(this);
     }
 
 
@@ -256,10 +251,20 @@ public class PrimeActivity extends AppCompatActivity implements
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
 
         navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        disconnectDeviceSnackBar = Snackbar.make(coordinatorLayout, R.string.prime_disconnect_snack, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_ignore, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
 
@@ -342,17 +347,20 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void loadUserDeviceData() {
-        PrimeDao.DeviceVO deviceVO = primeDao.loadDeviceData();
-        PrimeDao.UserVO userVO = primeDao.loadUserData();
-        userAge = userVO.getAge();
-        userHeight = userVO.getHeight();
-        deviceAddress = deviceVO.getAddress();
+        DeviceVo deviceVo = primeDao.loadDeviceData();
+        UserVo userVo = primeDao.loadUserData();
+        userAge = userVo.age;
+        userHeight = userVo.height;
+        deviceAddress = deviceVo.address;
     }
 
 
     @DebugLog
     private void saveDeviceData(String name, String address) {
-        primeDao.saveDeviceData(name, address);
+        DeviceVo deviceVo = new DeviceVo();
+        deviceVo.name = name;
+        deviceVo.address = address;
+        primeDao.saveDeviceData(deviceVo);
     }
 
 
@@ -420,8 +428,6 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, "Connected");
-
                     toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
 
                     if (swipeRefreshLayout.isRefreshing()) {
@@ -436,7 +442,6 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, "Disconnected");
                     if (disconnectDeviceSnackBar.isShown()) {
                         finish();
                     } else {
@@ -516,8 +521,7 @@ public class PrimeActivity extends AppCompatActivity implements
                             @Override
                             public void run() {
                                 savePrimeData(PrimeHelper.readValue(ch.getValue(), userAge, userHeight));
-                                primeFragment.setRealmPrimeValue(primeDao.loadPrimeListData());
-//                                primeFragment.setRealmPrimeValue(realm.where(RealmPrimeItem.class).findAll());
+                                primeFragment.setPrimeValue(primeDao.loadPrimeListData());
                             }
                         });
 

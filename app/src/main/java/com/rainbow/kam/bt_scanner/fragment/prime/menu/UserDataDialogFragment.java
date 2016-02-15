@@ -13,7 +13,8 @@ import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.PrimeDao;
+import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.tools.data.vo.UserVo;
 
 import hugo.weaving.DebugLog;
 
@@ -27,10 +28,9 @@ public class UserDataDialogFragment extends DialogFragment {
     private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput;
     private RadioGroup genderGroup;
 
-    private String name, age, height, weight;
-    private boolean gender;
-
     private PrimeDao primeDao;
+
+    private UserVo userVo;
 
 
     @Override
@@ -72,21 +72,16 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void setSavedUserValue() {
-        PrimeDao.UserVO userVO = primeDao.loadUserData();
-        name = userVO.getName();
-        age = userVO.getAge();
-        height = userVO.getHeight();
-        weight = userVO.getWeight();
-        gender = userVO.isGender();
+        userVo = primeDao.loadUserData();
     }
 
 
     private void setUserValueView() {
-        nameTextInput.getEditText().setText(name);
-        ageTextInput.getEditText().setText(age);
-        heightTextInput.getEditText().setText(height);
-        weightTextInput.getEditText().setText(weight);
-        if (gender) {
+        nameTextInput.getEditText().setText(userVo.name);
+        ageTextInput.getEditText().setText(userVo.age);
+        heightTextInput.getEditText().setText(userVo.height);
+        weightTextInput.getEditText().setText(userVo.weight);
+        if (userVo.gender) {
             genderGroup.check(R.id.radio_man);
         } else {
             genderGroup.check(R.id.radio_woman);
@@ -96,22 +91,22 @@ public class UserDataDialogFragment extends DialogFragment {
 
     private void onAccept() {
         if (!isValueHasError(view.findViewById(R.id.prime_init_group))) {
-            name = nameTextInput.getEditText().getText().toString();
-            age = ageTextInput.getEditText().getText().toString();
-            height = heightTextInput.getEditText().getText().toString();
-            weight = weightTextInput.getEditText().getText().toString();
+            userVo.name = nameTextInput.getEditText().getText().toString();
+            userVo.age = ageTextInput.getEditText().getText().toString();
+            userVo.height = heightTextInput.getEditText().getText().toString();
+            userVo.weight = weightTextInput.getEditText().getText().toString();
             switch (genderGroup.getCheckedRadioButtonId()) {
                 case R.id.radio_man:
-                    gender = true;
+                    userVo.gender = true;
                     break;
                 case R.id.radio_woman:
-                    gender = false;
+                    userVo.gender = false;
                     break;
                 default:
-                    gender = true;
+                    userVo.gender = true;
                     break;
             }
-            primeDao.saveUserData(name, age, height, weight, gender);
+            primeDao.saveUserData(userVo);
             getFragmentManager().beginTransaction().remove(this).commit();
         }
     }
