@@ -41,6 +41,7 @@ import hugo.weaving.DebugLog;
 public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener, DialogInterface.OnCancelListener {
 
     private final String TAG = getClass().getSimpleName();
+    private final String PrimeTag = "Prime";
 
     private Context context;
     private View view;
@@ -100,7 +101,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     }
 
 
-    @DebugLog
     @Override
     public void onResume() {
         super.onResume();
@@ -108,7 +108,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     }
 
 
-    @DebugLog
     @Override
     public void onPause() { //꺼짐
         super.onPause();
@@ -141,10 +140,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
 
     private void setRecyclerView() {
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.prime_device_swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-
         RecyclerView selectDeviceRecyclerView = (RecyclerView) view.findViewById(R.id.prime_device_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         selectDeviceRecyclerView.setLayoutManager(layoutManager);
@@ -155,6 +150,10 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
 
     private void setOtherView() {
+
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.prime_device_swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
 
         noDeviceTextView = (TextView) view.findViewById(R.id.prime_no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
@@ -177,7 +176,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             @DebugLog
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    if (result.getDevice().getName() != null && result.getDevice().getName().equals("Prime")) {
+                    if (result.getDevice().getName() != null && result.getDevice().getName().equals(PrimeTag)) {
                         deviceAdapter.addDevice(result.getDevice(), result.getRssi());
                     }
                 }
@@ -189,7 +188,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        if (result.getDevice().getName() != null && result.getDevice().getName().equals("Prime")) {
+                        if (result.getDevice().getName() != null && result.getDevice().getName().equals(PrimeTag)) {
                             deviceAdapter.addDevice(result.getDevice(), result.getRssi());
                         }
 
@@ -211,7 +210,7 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                if (device.getName() != null && device.getName().equals("Prime")) {
+                if (device.getName() != null && device.getName().equals(PrimeTag)) {
                     deviceAdapter.addDevice(device, rssi);
                 }
             }

@@ -35,39 +35,12 @@ class DeviceItem { //카드 뷰 틀
 
 
     public String getExtraBondState() {
-        switch (extraBondState) {
-            case 10:
-                return BluetoothHelper.BOND_NONE;
-
-            case 11:
-                return BluetoothHelper.BOND_BONDING;
-
-            case 12:
-                return BluetoothHelper.BOND_BONDED;
-
-            default:
-                return BluetoothHelper.BOND_NONE;
-        }
+        return BluetoothHelper.BOND_LIST.get(extraBondState, BluetoothHelper.BOND_NONE);
     }
 
 
     public String getExtraType() {
-        switch (extraType) {
-            case 0:
-                return BluetoothHelper.DEVICE_TYPE_UNKNOWN;
-
-            case 1:
-                return BluetoothHelper.DEVICE_TYPE_CLASSIC;
-
-            case 2:
-                return BluetoothHelper.DEVICE_TYPE_LE;
-
-            case 3:
-                return BluetoothHelper.DEVICE_TYPE_DUAL;
-
-            default:
-                return BluetoothHelper.DEVICE_TYPE_UNKNOWN;
-        }
+        return BluetoothHelper.TYPE_LIST.get(extraType, BluetoothHelper.DEVICE_TYPE_UNKNOWN);
     }
 
 

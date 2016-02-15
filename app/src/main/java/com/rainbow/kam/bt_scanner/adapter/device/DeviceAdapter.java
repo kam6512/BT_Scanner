@@ -3,6 +3,7 @@ package com.rainbow.kam.bt_scanner.adapter.device;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -64,7 +65,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         @Override
         public boolean areContentsTheSame(DeviceItem oldDeviceItem, DeviceItem newDeviceItem) {
-            // return whether the items' visual representations are the same or not.
             return oldDeviceItem.getExtraAddress().equals(newDeviceItem.getExtraAddress());
         }
 
@@ -159,8 +159,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             collapseAnimation.setAnimationListener(this);
 
             expendImageView = (ImageView) itemView.findViewById(R.id.item_expend);
+            expendImageView.setColorFilter(ContextCompat.getColor(context, android.R.color.black));
             expendImageView.setOnClickListener(this);
-            expendImageView.setColorFilter(Color.parseColor("#000000"));
         }
 
 
@@ -168,7 +168,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             this.deviceItem = deviceItem;
             String deviceName = this.deviceItem.getExtraName();
             if (deviceName == null) {
-                deviceName = context.getString(R.string.user_name_default);
+                deviceName = context.getString(R.string.devicea_nam_def);
             }
             extraName.setText(deviceName);
             extraAddress.setText(this.deviceItem.getExtraAddress());

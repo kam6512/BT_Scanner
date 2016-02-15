@@ -71,8 +71,7 @@ public class CharacteristicListFragment extends Fragment {
 
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.profile_characteristic_recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setHasFixedSize(true);
         characteristicAdapter = new CharacteristicAdapter(context);
         recyclerView.setAdapter(characteristicAdapter);

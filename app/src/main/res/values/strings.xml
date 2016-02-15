@@ -113,5 +113,6 @@
     <string name="rssi_unit">db</string>
     <string name="prime_save_date_format">MM월 dd일</string>
     <string name="prime_disconnect_snack">기기와의 연결이 끊어질 때 까지 기다려 주십시오</string>
+    <string name="devicea_nam_def">N/A</string>
 
 </resources>

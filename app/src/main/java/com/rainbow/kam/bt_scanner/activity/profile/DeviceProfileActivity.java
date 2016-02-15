@@ -44,7 +44,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-    private  final String RSSI_UNIT = getString(R.string.rssi_unit);
+    private String RSSI_UNIT;
 
     private String deviceName;
     private String deviceAddress;
@@ -91,6 +91,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         Intent intent = getIntent();
         deviceName = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_NAME);
         deviceAddress = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_ADDRESS);
+        RSSI_UNIT = getString(R.string.rssi_unit);
         deviceRSSI = "- - " + RSSI_UNIT;
 
         setToolbar();

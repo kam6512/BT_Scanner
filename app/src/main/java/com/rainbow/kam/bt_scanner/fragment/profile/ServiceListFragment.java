@@ -71,8 +71,7 @@ public class ServiceListFragment extends Fragment {
 
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.profile_service_recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setHasFixedSize(true);
         serviceAdapter = new ServiceAdapter(context);
         recyclerView.setAdapter(serviceAdapter);

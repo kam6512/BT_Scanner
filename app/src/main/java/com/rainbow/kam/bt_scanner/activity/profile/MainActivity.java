@@ -253,12 +253,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        deviceAdapter.addDevice(device, rssi);
-                    }
-                });
+                deviceAdapter.addDevice(device, rssi);
             }
         };
     }
@@ -331,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements
 
         if (deviceAdapter.getItemCount() < 1) {
             noDeviceTextView.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             noDeviceTextView.setVisibility(View.INVISIBLE);
         }
 

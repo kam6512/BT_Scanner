@@ -10,11 +10,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-
-import hugo.weaving.DebugLog;
 
 /**
  * Created by kam6512 on 2015-11-20.
@@ -22,7 +21,7 @@ import hugo.weaving.DebugLog;
 public class BluetoothHelper {
 
     public static final boolean IS_BUILD_VERSION_LM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    public static final long SCAN_PERIOD = 5000;
+    public static final int SCAN_PERIOD = 5000;
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int RESULT_OK = -1;
 
@@ -30,16 +29,19 @@ public class BluetoothHelper {
     public static final String KEY_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
 
     public static final String BOND_NONE = "NOT BONDED";
-    public static final String BOND_BONDING = "BONDING...";
-    public static final String BOND_BONDED = "BONDED";
+    private static final String BOND_BONDING = "BONDING...";
+    private static final String BOND_BONDED = "BONDED";
+
+    public static final SparseArray<String> BOND_LIST = new SparseArray<>();
 
     public static final String DEVICE_TYPE_UNKNOWN = "UNKNOWN";
-    public static final String DEVICE_TYPE_CLASSIC = "CLASSIC BLUETOOTH";
-    public static final String DEVICE_TYPE_LE = "BLUETOOTH LOW ENERGY";
-    public static final String DEVICE_TYPE_DUAL = "DUAL";
+    private static final String DEVICE_TYPE_CLASSIC = "CLASSIC BLUETOOTH";
+    private static final String DEVICE_TYPE_LE = "BLUETOOTH LOW ENERGY";
+    private static final String DEVICE_TYPE_DUAL = "DUAL";
+
+    public static final SparseArray<String> TYPE_LIST = new SparseArray<>();
 
 
-    @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
     public static void checkPermissions(Activity activity) {
         if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -91,5 +93,17 @@ public class BluetoothHelper {
                 }
                 break;
         }
+    }
+
+
+    static {
+        BOND_LIST.put(10, BOND_NONE);
+        BOND_LIST.put(11, BOND_BONDING);
+        BOND_LIST.put(12, BOND_BONDED);
+
+        TYPE_LIST.put(0, DEVICE_TYPE_UNKNOWN);
+        TYPE_LIST.put(1, DEVICE_TYPE_CLASSIC);
+        TYPE_LIST.put(2, DEVICE_TYPE_LE);
+        TYPE_LIST.put(3, DEVICE_TYPE_DUAL);
     }
 }
