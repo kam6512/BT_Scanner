@@ -26,7 +26,7 @@ public class PrimeCircleFragment extends Fragment {
     private Context context;
 
     private int index;
-    public static final String KEY_INDEX = "INDEX";
+    private static final String KEY_INDEX = "INDEX";
 
     private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
     private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;

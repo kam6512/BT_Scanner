@@ -38,8 +38,7 @@ import hugo.weaving.DebugLog;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class PrimeFragment extends Fragment
-        implements ViewTreeObserver.OnGlobalLayoutListener,
+public class PrimeFragment extends Fragment implements
         NestedScrollView.OnScrollChangeListener,
         ViewPager.OnPageChangeListener {
 
@@ -101,21 +100,19 @@ public class PrimeFragment extends Fragment
     }
 
 
-    @DebugLog
     public void onViewCreated(final View view, Bundle saved) {
         super.onViewCreated(view, saved);
-        view.getViewTreeObserver().addOnGlobalLayoutListener(this);
-    }
+        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                totalCardView.getLayoutParams().height = totalCardView.getWidth() / 3;
+                chart.getLayoutParams().height = chart.getWidth() / 2;
+                historyRecyclerView.getLayoutParams().height = view.getHeight() - chartCardView.getHeight();
 
-
-    @Override
-    public void onGlobalLayout() {
-        totalCardView.getLayoutParams().height = totalCardView.getWidth() / 3;
-        chart.getLayoutParams().height = chart.getWidth() / 2;
-        historyRecyclerView.getLayoutParams().height = view.getHeight() - chartCardView.getHeight();
-
-        stickyTotalCardScrollValue = viewPager.getHeight();
-        stickyChartCardScrollValue = totalCardView.getHeight() + stickyTotalCardScrollValue;
+                stickyTotalCardScrollValue = viewPager.getHeight();
+                stickyChartCardScrollValue = totalCardView.getHeight() + stickyTotalCardScrollValue;
+            }
+        });
     }
 
 
@@ -210,9 +207,9 @@ public class PrimeFragment extends Fragment
         historyRecyclerView = (RecyclerView) view.findViewById(R.id.history_recycler);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         historyRecyclerView.setHasFixedSize(true);
+        historyRecyclerView.setFocusable(true);
         historyAdapter = new HistoryAdapter(context);
         historyRecyclerView.setAdapter(historyAdapter);
-        historyRecyclerView.setFocusable(true);
     }
 
 
@@ -241,7 +238,7 @@ public class PrimeFragment extends Fragment
 
         String total = getTotalValue(index) + units.get(index);
         totalTextView.setText(total);
-        setCircleValue(results.get(length - 1));
+        setCircleCounterValue(results.get(length - 1));
         setChartValues(chartLabels, chartValues);
         historyAdapter.set(results);
     }
@@ -297,14 +294,14 @@ public class PrimeFragment extends Fragment
     }
 
 
-    private void setCircleValue(RealmPrimeItem realmPrimeItem) {
+    private void setCircleCounterValue(RealmPrimeItem realmPrimeItem) {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
             primeCircleFragment.setCircleValue(realmPrimeItem);
         }
     }
 
 
-    public int getTotalValue(int index) {
+    private int getTotalValue(int index) {
         switch (index) {
             case 0:
                 return totalStep;

@@ -2,7 +2,6 @@ package com.rainbow.kam.bt_scanner.adapter.device;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.CardView;
@@ -32,7 +31,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private final OnDeviceSelectListener onDeviceSelectListener;
 
-    private final SortedListAdapterCallback sortedListAdapterCallback = new SortedListAdapterCallback<DeviceItem>(this) {
+    private final SortedListAdapterCallback<DeviceItem> sortedListAdapterCallback = new SortedListAdapterCallback<DeviceItem>(this) {
         @Override
         public int compare(DeviceItem deviceItem1, DeviceItem deviceItem2) {
             return deviceItem1.getExtraAddress().compareTo(deviceItem2.getExtraAddress());
@@ -168,7 +167,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             this.deviceItem = deviceItem;
             String deviceName = this.deviceItem.getExtraName();
             if (deviceName == null) {
-                deviceName = context.getString(R.string.devicea_nam_def);
+                deviceName = context.getString(R.string.device_name_def);
             }
             extraName.setText(deviceName);
             extraAddress.setText(this.deviceItem.getExtraAddress());

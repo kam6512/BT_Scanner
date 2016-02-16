@@ -41,7 +41,6 @@ import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -578,15 +577,15 @@ public class PrimeActivity extends AppCompatActivity implements
         final String format = "%02x";
         final int bitFormat = 0xff;
 
-        StringBuilder hexStep = new StringBuilder();
-        hexStep.append(String.format(format, characteristicValue[2] & bitFormat));
-        hexStep.append(String.format(format, characteristicValue[3] & bitFormat));
-        hexStep.append(String.format(format, characteristicValue[4] & bitFormat));
+        StringBuilder hexStep = new StringBuilder()
+                .append(String.format(format, characteristicValue[2] & bitFormat))
+                .append(String.format(format, characteristicValue[3] & bitFormat))
+                .append(String.format(format, characteristicValue[4] & bitFormat));
 
-        StringBuilder hexCal = new StringBuilder();
-        hexCal.append(String.format(format, characteristicValue[5] & bitFormat));
-        hexCal.append(String.format(format, characteristicValue[6] & bitFormat));
-        hexCal.append(String.format(format, characteristicValue[7] & bitFormat));
+        StringBuilder hexCal = new StringBuilder()
+                .append(String.format(format, characteristicValue[5] & bitFormat))
+                .append(String.format(format, characteristicValue[6] & bitFormat))
+                .append(String.format(format, characteristicValue[7] & bitFormat));
 
         final int step, kcal, distance;
 
