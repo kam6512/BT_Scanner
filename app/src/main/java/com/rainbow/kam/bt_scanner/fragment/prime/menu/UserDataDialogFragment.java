@@ -10,13 +10,16 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
 import com.rainbow.kam.bt_scanner.tools.data.vo.UserVo;
 
-import hugo.weaving.DebugLog;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -27,6 +30,8 @@ public class UserDataDialogFragment extends DialogFragment {
 
     private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput;
     private RadioGroup genderGroup;
+
+    private List<TextInputLayout> textInputLayoutList;
 
     private PrimeDao primeDao;
 
@@ -57,6 +62,8 @@ public class UserDataDialogFragment extends DialogFragment {
         heightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_height);
         weightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_weight);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
+
+        textInputLayoutList = Arrays.asList(nameTextInput, ageTextInput, heightTextInput, weightTextInput);
     }
 
 
@@ -65,7 +72,9 @@ public class UserDataDialogFragment extends DialogFragment {
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onAccept();
+                if (!isValueHasError()) {
+                    onAccept();
+                }
             }
         });
     }
@@ -90,46 +99,39 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void onAccept() {
-        if (!isValueHasError(view.findViewById(R.id.prime_init_group))) {
-            userVo.name = nameTextInput.getEditText().getText().toString();
-            userVo.age = ageTextInput.getEditText().getText().toString();
-            userVo.height = heightTextInput.getEditText().getText().toString();
-            userVo.weight = weightTextInput.getEditText().getText().toString();
-            switch (genderGroup.getCheckedRadioButtonId()) {
-                case R.id.radio_man:
-                    userVo.gender = true;
-                    break;
-                case R.id.radio_woman:
-                    userVo.gender = false;
-                    break;
-                default:
-                    userVo.gender = true;
-                    break;
-            }
-            primeDao.saveUserData(userVo);
-            getFragmentManager().beginTransaction().remove(this).commit();
+
+        userVo.name = nameTextInput.getEditText().getText().toString();
+        userVo.age = ageTextInput.getEditText().getText().toString();
+        userVo.height = heightTextInput.getEditText().getText().toString();
+        userVo.weight = weightTextInput.getEditText().getText().toString();
+        switch (genderGroup.getCheckedRadioButtonId()) {
+            case R.id.radio_man:
+                userVo.gender = true;
+                break;
+            case R.id.radio_woman:
+                userVo.gender = false;
+                break;
+            default:
+                userVo.gender = true;
+                break;
         }
+        primeDao.saveUserData(userVo);
+        getFragmentManager().beginTransaction().remove(this).commit();
     }
 
 
-    @DebugLog
-    private boolean isValueHasError(View view) {
+    private boolean isValueHasError() {
         boolean hasError = false;
-        if (view instanceof ViewGroup) {
-            ViewGroup viewGroup = (ViewGroup) view;
-            int length = viewGroup.getChildCount();
-            for (int i = 0; i < length; i++) {
-                View v = viewGroup.getChildAt(i);
-                if (v instanceof TextInputLayout) {
-                    TextInputLayout textInputLayout = (TextInputLayout) v;
-                    if (TextUtils.isEmpty(textInputLayout.getEditText().getText().toString())) {
-                        textInputLayout.setErrorEnabled(true);
-                        textInputLayout.setError("다시 입력하세요");
-                        hasError = true;
-                    } else {
-                        textInputLayout.setErrorEnabled(false);
-                    }
-                }
+        EditText editText;
+        String value;
+        for (TextInputLayout textInputLayout : textInputLayoutList) {
+            editText = textInputLayout.getEditText();
+            value = editText.getText().toString();
+            if (TextUtils.isEmpty(value)) {
+                textInputLayout.setError("다시 입력하세요");
+                hasError = true;
+            } else {
+                textInputLayout.setErrorEnabled(false);
             }
         }
         return hasError;

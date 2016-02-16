@@ -1,15 +1,8 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
-import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
-
-import hugo.weaving.DebugLog;
 
 /**
  * Created by kam6512 on 2015-11-04.
@@ -50,20 +43,26 @@ public class PrimeHelper {
 
 
     public static byte[] getBytes(String hex) {
-        hex = hex.toLowerCase(Locale.getDefault()).replaceAll("[^[0-9][a-f]]", "");
+        hex = makeHexClean(hex);
         return parseHexStringToBytes(hex);
+    }
+
+
+    private static String makeHexClean(String hex) {
+        return hex.toLowerCase(Locale.getDefault()).replaceAll("[^[0-9][a-f]]", "");
     }
 
 
     private static byte[] parseHexStringToBytes(String hex) {
         byte[] bytes = new byte[(hex.length() / 2) + 1];
 
+        int length = bytes.length;
         int checksum = 0;
 
-        for (int i = 0; i < bytes.length - 1; ++i) {
+        for (int i = 0; i < length - 1; ++i) {
             bytes[i] = decodeValue(hex.substring(i * 2, i * 2 + 2));
 
-            if (i > 1 && i <= bytes.length - 2) {
+            if (i > 1 && i <= length - 2) {
                 if (bytes[i] < 0x00) {
                     checksum ^= bytes[i] + 256;
                 } else {
@@ -71,7 +70,7 @@ public class PrimeHelper {
                 }
             }
         }
-        bytes[bytes.length - 1] = decodeValue(String.format("%02x", checksum));
+        bytes[length - 1] = decodeValue(String.format("%02x", checksum));
 
         return bytes;
     }

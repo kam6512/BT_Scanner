@@ -10,11 +10,15 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
 import com.rainbow.kam.bt_scanner.tools.data.vo.GoalVo;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -24,6 +28,8 @@ public class GoalDialogFragment extends DialogFragment {
     private View view;
 
     private TextInputLayout stepTextInput, calorieTextInput, distanceTextInput;
+
+    private List<TextInputLayout> textInputLayoutList;
 
     private PrimeDao primeDao;
 
@@ -57,6 +63,8 @@ public class GoalDialogFragment extends DialogFragment {
         stepTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_step);
         calorieTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_calorie);
         distanceTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_distance);
+
+        textInputLayoutList = Arrays.asList(stepTextInput, calorieTextInput, distanceTextInput);
     }
 
 
@@ -65,7 +73,9 @@ public class GoalDialogFragment extends DialogFragment {
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onAccept();
+                if (!isValueHasError()) {
+                    onAccept();
+                }
             }
         });
     }
@@ -84,32 +94,25 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void onAccept() {
-        if (!isValueHasError(view.findViewById(R.id.prime_goal_group))) {
-            goalVo.stepGoal = stepTextInput.getEditText().getText().toString();
-            goalVo.calorieGoal = calorieTextInput.getEditText().getText().toString();
-            goalVo.distanceGoal = distanceTextInput.getEditText().getText().toString();
-            saveGoal();
-        }
+        goalVo.stepGoal = stepTextInput.getEditText().getText().toString();
+        goalVo.calorieGoal = calorieTextInput.getEditText().getText().toString();
+        goalVo.distanceGoal = distanceTextInput.getEditText().getText().toString();
+        saveGoal();
     }
 
 
-    private boolean isValueHasError(View view) {
+    private boolean isValueHasError() {
         boolean hasError = false;
-        if (view instanceof ViewGroup) {
-            ViewGroup viewGroup = (ViewGroup) view;
-            int length = viewGroup.getChildCount();
-            for (int i = 0; i < length; i++) {
-                View v = viewGroup.getChildAt(i);
-                if (v instanceof TextInputLayout) {
-                    TextInputLayout textInputLayout = (TextInputLayout) v;
-                    String goal = textInputLayout.getEditText().getText().toString();
-                    if (TextUtils.isEmpty(goal) || Integer.valueOf(goal) < 5) {
-                        setGoalValueView();
-                        hasError = true;
-                    } else {
-                        textInputLayout.setErrorEnabled(false);
-                    }
-                }
+        String goal;
+        EditText editText;
+        for (TextInputLayout textInputLayout : textInputLayoutList) {
+            editText = textInputLayout.getEditText();
+            goal = editText.getText().toString();
+            if (TextUtils.isEmpty(goal) || Integer.valueOf(goal) < 5) {
+                setGoalValueView();
+                hasError = true;
+            } else {
+                textInputLayout.setErrorEnabled(false);
             }
         }
         return hasError;
