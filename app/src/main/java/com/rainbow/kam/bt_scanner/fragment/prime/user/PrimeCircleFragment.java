@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.user;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,9 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
 
 import java.util.Arrays;
@@ -28,11 +27,11 @@ public class PrimeCircleFragment extends Fragment {
     private static final String KEY_INDEX = "INDEX";
 
     private enum Index {
-        INDEX_STEP(PrimeHelper.INDEX_STEP),
-        INDEX_CALORIE(PrimeHelper.INDEX_CALORIE),
-        INDEX_DISTANCE(PrimeHelper.INDEX_DISTANCE);
+        INDEX_STEP(PrimeActivity.INDEX_STEP),
+        INDEX_CALORIE(PrimeActivity.INDEX_CALORIE),
+        INDEX_DISTANCE(PrimeActivity.INDEX_DISTANCE);
 
-        private int value;
+        private final int value;
 
 
         Index(int value) {

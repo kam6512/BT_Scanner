@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter.device;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
@@ -13,14 +12,12 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.TableRow;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
 
 import java.util.Objects;
-
-import hugo.weaving.DebugLog;
 
 /**
  * Created by Kam6512 on 2015-10-14.
@@ -91,7 +88,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
-    @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
@@ -105,13 +101,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
-    @DebugLog
-    public void addDevice(final BluetoothDevice bluetoothDevice, final int rssi) {
-        sortedList.add(new DeviceItem(bluetoothDevice, rssi));
+    public void addDevice(final DeviceItem deviceItem) {
+        sortedList.add(deviceItem);
     }
 
 
-    @DebugLog
     public void clear() {
         sortedList.clear();
     }
@@ -130,8 +124,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private final CardView deviceItemCardView;
 
-
-        private final TableRow[] expendRowGroup = new TableRow[3];
+        private final LinearLayout expandGroup;
         private final Animation expandAnimation, collapseAnimation;
 
         private final ImageView expendImageView;
@@ -148,16 +141,14 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             deviceItemCardView = (CardView) itemView.findViewById(R.id.device_item_card);
             deviceItemCardView.setOnClickListener(this);
 
-            expendRowGroup[0] = (TableRow) itemView.findViewById(R.id.row_type);
-            expendRowGroup[1] = (TableRow) itemView.findViewById(R.id.row_bond);
-            expendRowGroup[2] = (TableRow) itemView.findViewById(R.id.row_rssi);
+            expandGroup = (LinearLayout) itemView.findViewById(R.id.row_expand);
 
             expandAnimation = AnimationUtils.loadAnimation(context, R.anim.expand_device_item);
             expandAnimation.setAnimationListener(this);
             collapseAnimation = AnimationUtils.loadAnimation(context, R.anim.collapse_device_item);
             collapseAnimation.setAnimationListener(this);
 
-            expendImageView = (ImageView) itemView.findViewById(R.id.item_expend);
+            expendImageView = (ImageView) itemView.findViewById(R.id.button_expand);
             expendImageView.setColorFilter(ContextCompat.getColor(context, android.R.color.black));
             expendImageView.setOnClickListener(this);
         }
@@ -175,17 +166,16 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             extraType.setText(String.valueOf(this.deviceItem.getExtraType()));
             extraRssi.setText(String.valueOf(this.deviceItem.getExtraRssi()));
 
-            for (TableRow tableRow : expendRowGroup) {
-                tableRow.setVisibility(View.GONE);
-            }
+            expandGroup.setVisibility(View.GONE);
+
             expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
         }
 
 
         @Override
         public void onClick(View v) {
-            if (v.getId() == R.id.item_expend) {
-                if (expendRowGroup[0].isShown()) {
+            if (v.getId() == R.id.button_expand) {
+                if (expandGroup.isShown()) {
                     collapsedView();
                 } else {
                     expandView();
@@ -198,19 +188,15 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         void expandView() {
             expandAnimation.reset();
-            for (TableRow tableRow : expendRowGroup) {
-                tableRow.clearAnimation();
-                tableRow.startAnimation(expandAnimation);
-            }
+            expandGroup.clearAnimation();
+            expandGroup.startAnimation(expandAnimation);
         }
 
 
         void collapsedView() {
             collapseAnimation.reset();
-            for (TableRow tableRow : expendRowGroup) {
-                tableRow.clearAnimation();
-                tableRow.startAnimation(collapseAnimation);
-            }
+            expandGroup.clearAnimation();
+            expandGroup.startAnimation(collapseAnimation);
         }
 
 
@@ -218,9 +204,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onAnimationStart(Animation animation) {
             itemView.requestLayout();
             if (animation == expandAnimation) {
-                for (TableRow tableRow : expendRowGroup) {
-                    tableRow.setVisibility(View.VISIBLE);
-                }
+                expandGroup.setVisibility(View.VISIBLE);
+
                 expendImageView.setImageResource(R.drawable.ic_expand_less_white_36dp);
             }
         }
@@ -230,9 +215,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onAnimationEnd(Animation animation) {
             itemView.requestLayout();
             if (animation == collapseAnimation) {
-                for (TableRow tableRow : expendRowGroup) {
-                    tableRow.setVisibility(View.GONE);
-                }
+                expandGroup.setVisibility(View.GONE);
                 expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
             }
         }

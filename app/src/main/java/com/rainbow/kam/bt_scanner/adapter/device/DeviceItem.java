@@ -1,13 +1,14 @@
 package com.rainbow.kam.bt_scanner.adapter.device;
 
 import android.bluetooth.BluetoothDevice;
+import android.util.SparseArray;
 
-import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 /**
  * Created by kam6512 on 2015-10-14.
  */
-class DeviceItem { //카드 뷰 틀
+public class DeviceItem { //카드 뷰 틀
     private final String extraName;
     private final String extraAddress;
     private final int extraBondState;
@@ -35,12 +36,16 @@ class DeviceItem { //카드 뷰 틀
 
 
     public String getExtraBondState() {
-        return BluetoothHelper.BOND_LIST.get(extraBondState, BluetoothHelper.BOND_NONE);
+        SparseArray<String> bondList = GattAttributes.BOND_LIST;
+        String defBond = bondList.get(bondList.keyAt(0));
+        return bondList.get(extraBondState, defBond);
     }
 
 
     public String getExtraType() {
-        return BluetoothHelper.TYPE_LIST.get(extraType, BluetoothHelper.DEVICE_TYPE_UNKNOWN);
+        SparseArray<String> typeList = GattAttributes.TYPE_LIST;
+        String defType = typeList.get(typeList.keyAt(0));
+        return typeList.get(extraType, defType);
     }
 
 

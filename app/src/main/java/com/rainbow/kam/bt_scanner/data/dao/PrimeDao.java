@@ -2,14 +2,13 @@ package com.rainbow.kam.bt_scanner.data.dao;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.item.Migration;
+import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,25 +29,6 @@ public class PrimeDao {
     private static final String KEY_DEVICE_NAME = "DEVICE_NAME";
     private static final String KEY_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-//    private static final String KEY_NAME = "USER_NAME";
-//    private static final String KEY_AGE = "USER_AGE";
-//    private static final String KEY_HEIGHT = "USER_HEIGHT";
-//    private static final String KEY_WEIGHT = "USER_WEIGHT";
-//    private static final String KEY_GENDER = "USER_GENDER";
-
-//    private static final int DEF_NAME = R.string.user_name_default;
-//    private static final int DEF_AGE = R.string.user_age_default;
-//    private static final int DEF_HEIGHT = R.string.user_height_default;
-//    private static final int DEF_WEIGHT = R.string.user_weight_default;
-
-//    private static final String KEY_GOAL_STEP = "STEP_GOAL";
-//    private static final String KEY_GOAL_CALORIE = "CALORIE_GOAL";
-//    private static final String KEY_GOAL_DISTANCE = "DISTANCE_GOAL";
-
-//    private static final int DEF_GOAL_STEP = R.string.goal_def_step;
-//    private static final int DEF_GOAL_CALORIE = R.string.goal_def_calorie;
-//    private static final int DEF_GOAL_DISTANCE = R.string.goal_def_distance;
-
     private enum USER_KEY {
         KEY_NAME("USER_NAME"),
         KEY_AGE("USER_AGE"),
@@ -56,7 +36,7 @@ public class PrimeDao {
         KEY_WEIGHT("USER_WEIGHT"),
         KEY_GENDER("USER_GENDER");
 
-        private String keyValue;
+        private final String keyValue;
 
 
         USER_KEY(String keyValue) {
@@ -70,7 +50,7 @@ public class PrimeDao {
         DEF_HEIGHT(R.string.user_height_default),
         DEF_WEIGHT(R.string.user_weight_default);
 
-        private int defValue;
+        private final int defValue;
 
 
         USER_DEF(int defValue) {
@@ -84,7 +64,7 @@ public class PrimeDao {
         KEY_GOAL_CALORIE("CALORIE_GOAL"),
         KEY_GOAL_DISTANCE("DISTANCE_GOAL");
 
-        private String keyValue;
+        private final String keyValue;
 
 
         GOAL_KEY(String keyValue) {
@@ -98,7 +78,7 @@ public class PrimeDao {
         DEF_GOAL_CALORIE(R.string.goal_def_calorie),
         DEF_GOAL_DISTANCE(R.string.goal_def_distance);
 
-        private int defValue;
+        private final int defValue;
 
 
         GOAL_DEF(int defValue) {
@@ -114,7 +94,6 @@ public class PrimeDao {
 
 
     private PrimeDao() {
-
     }
 
 
@@ -148,7 +127,7 @@ public class PrimeDao {
         userVo.age = getUserValue(USER_KEY.KEY_AGE, USER_DEF.DEF_AGE);
         userVo.height = getUserValue(USER_KEY.KEY_HEIGHT, USER_DEF.DEF_HEIGHT);
         userVo.weight = getUserValue(USER_KEY.KEY_WEIGHT, USER_DEF.DEF_WEIGHT);
-        userVo.gender = getSharedPreferenceValue(USER_KEY.KEY_GENDER);
+        userVo.gender = sharedPreferences.getBoolean(USER_KEY.KEY_GENDER.keyValue, true);
         return userVo;
     }
 
@@ -174,7 +153,7 @@ public class PrimeDao {
         putUserValue(USER_KEY.KEY_AGE, userVo.age);
         putUserValue(USER_KEY.KEY_HEIGHT, userVo.height);
         putUserValue(USER_KEY.KEY_WEIGHT, userVo.weight);
-        putSharedPreferenceValue(USER_KEY.KEY_GENDER, userVo.gender);
+        editor.putBoolean(USER_KEY.KEY_GENDER.keyValue, userVo.gender);
         editor.apply();
     }
 
@@ -198,46 +177,86 @@ public class PrimeDao {
 
 
     public void savePrimeData(RealmPrimeItem realmPrimeItem) {
-        int step = realmPrimeItem.getStep();
-        int calorie = realmPrimeItem.getCalorie();
-        int distance = realmPrimeItem.getDistance();
+        final int[] step = {realmPrimeItem.getStep()};
+        final int[] calorie = {realmPrimeItem.getCalorie()};
+        final int[] distance = {realmPrimeItem.getDistance()};
 
         String format = context.getString(R.string.prime_save_date_format);
         SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
-        String today = formatter.format(Calendar.getInstance().getTime());
+        final String today = formatter.format(Calendar.getInstance().getTime());
 
-        List<RealmPrimeItem> results = loadPrimeListData();
+        final List<RealmPrimeItem> results = loadPrimeListData();
 
-        realm.beginTransaction();
-
-        if (results.isEmpty()) {
-            RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-            newItem.setCalendar(today);
-            newItem.setStep(step);
-            newItem.setCalorie(calorie);
-            newItem.setDistance(distance);
-        } else {
-            RealmPrimeItem lastItem = results.get(results.size() - 1);
-            if (lastItem.getCalendar().equals(today)) {
-                if (lastItem.getStep() > step) {
-                    step += lastItem.getStep();
-                    calorie += lastItem.getCalorie();
-                    distance += lastItem.getDistance();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                if (results.isEmpty()) {
+                    RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                    newItem.setCalendar(today);
+                    newItem.setStep(step[0]);
+                    newItem.setCalorie(calorie[0]);
+                    newItem.setDistance(distance[0]);
+                } else {
+                    RealmPrimeItem lastItem = results.get(results.size() - 1);
+                    if (lastItem.getCalendar().equals(today)) {
+                        if (lastItem.getStep() > step[0]) {
+                            step[0] += lastItem.getStep();
+                            calorie[0] += lastItem.getCalorie();
+                            distance[0] += lastItem.getDistance();
+                        }
+                        lastItem.setCalendar(today);
+                        lastItem.setStep(step[0]);
+                        lastItem.setCalorie(calorie[0]);
+                        lastItem.setDistance(distance[0]);
+                    } else {
+                        RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                        newItem.setCalendar(today);
+                        newItem.setStep(step[0]);
+                        newItem.setCalorie(calorie[0]);
+                        newItem.setDistance(distance[0]);
+                    }
                 }
-                lastItem.setCalendar(today);
-                lastItem.setStep(step);
-                lastItem.setCalorie(calorie);
-                lastItem.setDistance(distance);
-            } else {
-                RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-                newItem.setCalendar(today);
-                newItem.setStep(step);
-                newItem.setCalorie(calorie);
-                newItem.setDistance(distance);
             }
-        }
+        }, new Realm.Transaction.Callback() {
+            @Override
+            public void onSuccess() {
+            }
 
-        realm.commitTransaction();
+
+            @Override
+            public void onError(Exception e) {
+            }
+        });
+//        realm.beginTransaction();
+
+//        if (results.isEmpty()) {
+//            RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+//            newItem.setCalendar(today);
+//            newItem.setStep(step);
+//            newItem.setCalorie(calorie);
+//            newItem.setDistance(distance);
+//        } else {
+//            RealmPrimeItem lastItem = results.get(results.size() - 1);
+//            if (lastItem.getCalendar().equals(today)) {
+//                if (lastItem.getStep() > step) {
+//                    step += lastItem.getStep();
+//                    calorie += lastItem.getCalorie();
+//                    distance += lastItem.getDistance();
+//                }
+//                lastItem.setCalendar(today);
+//                lastItem.setStep(step);
+//                lastItem.setCalorie(calorie);
+//                lastItem.setDistance(distance);
+//            } else {
+//                RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+//                newItem.setCalendar(today);
+//                newItem.setStep(step);
+//                newItem.setCalorie(calorie);
+//                newItem.setDistance(distance);
+//            }
+//        }
+
+//        realm.commitTransaction();
     }
 
 
@@ -273,11 +292,6 @@ public class PrimeDao {
     }
 
 
-    private boolean getSharedPreferenceValue(USER_KEY userKey) {
-        return sharedPreferences.getBoolean(userKey.keyValue, true);
-    }
-
-
     private void putUserValue(USER_KEY userKey, String userVoValue) {
         putSharedPreferenceValue(userKey.keyValue, userVoValue);
     }
@@ -290,11 +304,6 @@ public class PrimeDao {
 
     private void putSharedPreferenceValue(String key, String value) {
         editor.putString(key, value);
-    }
-
-
-    private void putSharedPreferenceValue(USER_KEY userKey, boolean value) {
-        editor.putBoolean(userKey.keyValue, value);
     }
 
 

@@ -2,7 +2,6 @@ package com.rainbow.kam.bt_scanner.fragment.prime.menu;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
@@ -13,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 
@@ -47,7 +45,7 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,  ViewGroup container,  Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_prime_goal, container, false);
         setGoalInput();
         setBtn();

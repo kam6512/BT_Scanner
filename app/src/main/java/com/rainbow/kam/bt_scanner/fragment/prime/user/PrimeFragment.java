@@ -29,7 +29,6 @@ import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -127,9 +126,9 @@ public class PrimeFragment extends Fragment implements
 
     private void setFragments() {
         primeCircleFragments = Arrays.asList(
-                PrimeCircleFragment.newInstance(PrimeHelper.INDEX_STEP),
-                PrimeCircleFragment.newInstance(PrimeHelper.INDEX_CALORIE),
-                PrimeCircleFragment.newInstance(PrimeHelper.INDEX_DISTANCE)
+                PrimeCircleFragment.newInstance(PrimeActivity.INDEX_STEP),
+                PrimeCircleFragment.newInstance(PrimeActivity.INDEX_CALORIE),
+                PrimeCircleFragment.newInstance(PrimeActivity.INDEX_DISTANCE)
         );
     }
 
@@ -239,7 +238,7 @@ public class PrimeFragment extends Fragment implements
 
         setCircleCounterValue(results.get(length - 1));
         setChartValues(chartLabels, chartValues);
-        historyAdapter.set(results);
+        historyAdapter.setHistoryList(results);
     }
 
 

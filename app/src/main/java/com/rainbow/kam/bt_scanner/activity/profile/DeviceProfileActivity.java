@@ -89,8 +89,8 @@ public class DeviceProfileActivity extends AppCompatActivity
         setContentView(R.layout.a_profile);
 
         Intent intent = getIntent();
-        deviceName = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_NAME);
-        deviceAddress = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_ADDRESS);
+        deviceName = intent.getStringExtra(MainActivity.KEY_DEVICE_NAME);
+        deviceAddress = intent.getStringExtra(MainActivity.KEY_DEVICE_ADDRESS);
         RSSI_UNIT = getString(R.string.rssi_unit);
         deviceRSSI = "- - " + RSSI_UNIT;
 
@@ -159,7 +159,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
+        BluetoothHelper.onRequestEnableResult(requestCode, resultCode, this);
     }
 
 
@@ -176,7 +176,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
-            BluetoothHelper.bluetoothRequest(this);
+            BluetoothHelper.requestBluetoothEnable(this);
         }
     }
 
