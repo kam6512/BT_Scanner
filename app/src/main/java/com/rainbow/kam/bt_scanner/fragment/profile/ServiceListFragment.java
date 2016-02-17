@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.profile;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Bundle;
@@ -37,16 +36,8 @@ public class ServiceListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            try {
-                this.context = context;
-                onServiceReadyListener = (OnServiceReadyListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnServiceReadyListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
+        this.context = context;
+        onServiceReadyListener = (OnServiceReadyListener) context;
     }
 
 
@@ -80,7 +71,7 @@ public class ServiceListFragment extends Fragment {
 
     @DebugLog
     public void setServiceList(List<BluetoothGattService> bluetoothGattServices) {
-        serviceAdapter.setService(bluetoothGattServices);
+        serviceAdapter.setServiceList(bluetoothGattServices);
     }
 
 

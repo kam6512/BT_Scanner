@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.profile;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
@@ -66,16 +65,8 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            try {
-                this.context = context;
-                onControlListener = (OnControlListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnControlListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
+        this.context = context;
+        onControlListener = (OnControlListener) context;
     }
 
 

@@ -68,7 +68,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    public void set(List<RealmPrimeItem> results) {
+    public void setHistoryList(List<RealmPrimeItem> results) {
         historyArrayList.clear();
         addDummyData(results);
         historyArrayList.addAll(results);

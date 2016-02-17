@@ -42,52 +42,59 @@
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/row_bond"
-            style="@style/DeviceItemTableRow">
+        <LinearLayout
+            android:id="@+id/row_expand"
+            android:divider="?android:attr/dividerHorizontal"
+            android:orientation="vertical"
+            android:showDividers="middle">
 
-            <TextView
-                style="@style/DeviceItemLabel"
-                android:text="@string/profile.label.bondState"/>
+            <TableRow
+                android:id="@+id/row_bond"
+                style="@style/DeviceItemTableRow">
 
-            <TextView
-                android:id="@+id/item_bond"
-                style="@style/DeviceItemLabel.DeviceItemText"
-                android:textAppearance="?android:attr/textAppearanceSmall"/>
-        </TableRow>
+                <TextView
+                    style="@style/DeviceItemLabel"
+                    android:text="@string/profile.label.bondState"/>
 
-        <TableRow
-            android:id="@+id/row_type"
-            style="@style/DeviceItemTableRow">
+                <TextView
+                    android:id="@+id/item_bond"
+                    style="@style/DeviceItemLabel.DeviceItemText"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
+            </TableRow>
 
-            <TextView
-                style="@style/DeviceItemLabel"
-                android:text="@string/profile.label.type"/>
+            <TableRow
+                android:id="@+id/row_type"
+                style="@style/DeviceItemTableRow">
 
-            <TextView
-                android:id="@+id/item_type"
-                style="@style/DeviceItemLabel.DeviceItemText"
-                android:textAppearance="?android:attr/textAppearanceSmall"/>
+                <TextView
+                    style="@style/DeviceItemLabel"
+                    android:text="@string/profile.label.type"/>
 
-        </TableRow>
+                <TextView
+                    android:id="@+id/item_type"
+                    style="@style/DeviceItemLabel.DeviceItemText"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
 
-        <TableRow
-            android:id="@+id/row_rssi"
-            style="@style/DeviceItemTableRow">
+            </TableRow>
 
-            <TextView
-                style="@style/DeviceItemLabel"
-                android:text="@string/profile.label.rssi"/>
+            <TableRow
+                android:id="@+id/row_rssi"
+                style="@style/DeviceItemTableRow">
 
-            <TextView
-                android:id="@+id/item_rssi"
-                style="@style/DeviceItemLabel.DeviceItemText"
-                android:textAppearance="?android:attr/textAppearanceSmall"/>
-        </TableRow>
+                <TextView
+                    style="@style/DeviceItemLabel"
+                    android:text="@string/profile.label.rssi"/>
+
+                <TextView
+                    android:id="@+id/item_rssi"
+                    style="@style/DeviceItemLabel.DeviceItemText"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
+            </TableRow>
+        </LinearLayout>
     </TableLayout>
 
     <ImageView
-        android:id="@+id/item_expend"
+        android:id="@+id/button_expand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|top"

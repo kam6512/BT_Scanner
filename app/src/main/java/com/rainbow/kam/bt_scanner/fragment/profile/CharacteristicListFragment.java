@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.profile;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
@@ -37,16 +36,8 @@ public class CharacteristicListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            try {
-                this.context = context;
-                onCharacteristicReadyListener = (OnCharacteristicReadyListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnCharacteristicReadyListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
+        this.context = context;
+        onCharacteristicReadyListener = (OnCharacteristicReadyListener) context;
     }
 
 
@@ -80,7 +71,7 @@ public class CharacteristicListFragment extends Fragment {
 
     @DebugLog
     public void setCharacteristicList(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
-        characteristicAdapter.setCharacteristic(bluetoothGattCharacteristics);
+        characteristicAdapter.setCharacteristicList(bluetoothGattCharacteristics);
     }
 
 

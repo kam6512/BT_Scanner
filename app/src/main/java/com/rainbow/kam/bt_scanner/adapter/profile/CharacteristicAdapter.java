@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter.profile;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -31,17 +30,8 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
 
     public CharacteristicAdapter(Context context) {
-        if (context instanceof Activity) {
-            try {
-                this.context = context;
-                this.onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnCharacteristicItemClickListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
-
+        this.context = context;
+        this.onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) context;
     }
 
 
@@ -68,7 +58,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
 
     @DebugLog
-    public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
+    public void setCharacteristicList(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
         if (!characteristicArrayList.equals(bluetoothGattCharacteristics)) {
             characteristicArrayList.clear();
             characteristicArrayList.addAll(bluetoothGattCharacteristics);

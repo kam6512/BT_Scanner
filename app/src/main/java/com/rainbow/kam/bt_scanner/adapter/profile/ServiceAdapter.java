@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.adapter.profile;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -33,16 +32,8 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     public ServiceAdapter(Context context) {
-        if (context instanceof Activity) {
-            try {
-                this.context = context;
-                this.onServiceItemClickListener = (OnServiceItemClickListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnServiceItemClickListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
+        this.context = context;
+        this.onServiceItemClickListener = (OnServiceItemClickListener) context;
     }
 
 
@@ -69,9 +60,9 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     @DebugLog
-    public void setService(List<BluetoothGattService> bluetoothGattServices) {
+    public void setServiceList(List<BluetoothGattService> bluetoothGattServices) {
         if (getItemCount() == 0) {
-            // 서비스는 한기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
+            // 서비스는 한 기기에서 오직 1개의 리스트만 있고 변경되지 않으므로 한번 가져오고 난 뒤에는 가져올 일이없다
             serviceItemArrayList.addAll(bluetoothGattServices);
             notifyDataSetChanged();
         }
