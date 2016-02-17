@@ -14,8 +14,8 @@ import android.widget.EditText;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
-import com.rainbow.kam.bt_scanner.tools.data.vo.GoalVo;
+import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,10 +41,8 @@ public class GoalDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof PrimeActivity) {
-            primeDao = PrimeDao.getInstance(context);
-            onSaveGoalListener = (OnSaveGoalListener) context;
-        }
+        primeDao = PrimeDao.getInstance(context);
+        onSaveGoalListener = (OnSaveGoalListener) context;
     }
 
 

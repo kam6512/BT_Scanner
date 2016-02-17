@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.data.item;
+package com.rainbow.kam.bt_scanner.data.item;
 
 import io.realm.DynamicRealm;
 import io.realm.RealmMigration;

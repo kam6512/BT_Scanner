@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.tools.data.vo;
+package com.rainbow.kam.bt_scanner.data.vo;
 
 /**
  * Created by kam6512 on 2016-02-12.

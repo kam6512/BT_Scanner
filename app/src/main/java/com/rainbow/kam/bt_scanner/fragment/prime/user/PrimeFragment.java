@@ -27,13 +27,12 @@ import com.db.chart.view.LineChartView;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
-import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 
 import java.util.Arrays;
 import java.util.List;
-
-import hugo.weaving.DebugLog;
 
 /**
  * Created by kam6512 on 2015-11-04.
@@ -72,15 +71,14 @@ public class PrimeFragment extends Fragment implements
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof PrimeActivity) {
-            this.context = context;
-            units = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
-            totalLabels = Arrays.asList(getString(R.string.prime_total_step), getString(R.string.prime_total_calorie), getString(R.string.prime_total_distance));
-            totalCardImageDrawable = Arrays.asList(
-                    ContextCompat.getDrawable(context, R.drawable.step_wallpaper),
-                    ContextCompat.getDrawable(context, R.drawable.calorie_wallpaper),
-                    ContextCompat.getDrawable(context, R.drawable.distance_wallpaper));
-        }
+        this.context = context;
+        units = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
+        totalLabels = Arrays.asList(getString(R.string.prime_total_step), getString(R.string.prime_total_calorie), getString(R.string.prime_total_distance));
+        totalCardImageDrawable = Arrays.asList(
+                ContextCompat.getDrawable(context, R.drawable.step_wallpaper),
+                ContextCompat.getDrawable(context, R.drawable.calorie_wallpaper),
+                ContextCompat.getDrawable(context, R.drawable.distance_wallpaper));
+
     }
 
 
@@ -214,30 +212,31 @@ public class PrimeFragment extends Fragment implements
 
 
     public void setPrimeValue(List<RealmPrimeItem> results) {
+        int length = results.size();
+
+        String[] chartLabels = new String[length];
+        float[] chartValues = new float[length];
 
         totalStep = 0;
         totalCalorie = 0;
         totalDistance = 0;
 
-        int length = results.size();
-        String[] chartLabels = new String[length];
-        float[] chartValues = new float[length];
-
         for (int i = 0; i < length; i++) {
             RealmPrimeItem realmPrimeItem = results.get(i);
-
-            totalStep += realmPrimeItem.getStep();
-            totalCalorie += realmPrimeItem.getCalorie();
-            totalDistance += realmPrimeItem.getDistance();
 
             chartLabels[i] = realmPrimeItem.getCalendar();
             chartValues[i] = (realmPrimeItem.getStep()
                     + realmPrimeItem.getCalorie()
                     + realmPrimeItem.getDistance()) / 3;
+
+            totalStep += realmPrimeItem.getStep();
+            totalCalorie += realmPrimeItem.getCalorie();
+            totalDistance += realmPrimeItem.getDistance();
         }
 
         String total = getTotalValue(index) + units.get(index);
         totalTextView.setText(total);
+
         setCircleCounterValue(results.get(length - 1));
         setChartValues(chartLabels, chartValues);
         historyAdapter.set(results);
@@ -245,14 +244,10 @@ public class PrimeFragment extends Fragment implements
 
 
     private void setChartValues(String[] chartLabels, float[] chartValues) {
-
-        if (chartValues.length < 7 && chartLabels.length < 7) {
-            chartLabels = Arrays.copyOfRange(chartLabels, 0, chartLabels.length);
-            chartValues = Arrays.copyOfRange(chartValues, 0, chartValues.length);
-        } else {
-
-            chartLabels = Arrays.copyOfRange(chartLabels, chartLabels.length - 7, chartLabels.length);
-            chartValues = Arrays.copyOfRange(chartValues, chartValues.length - 7, chartValues.length);
+        int weekCount = 7;
+        if (chartValues.length > weekCount && chartLabels.length > weekCount) {
+            chartLabels = Arrays.copyOfRange(chartLabels, chartLabels.length - weekCount, chartLabels.length);
+            chartValues = Arrays.copyOfRange(chartValues, chartValues.length - weekCount, chartValues.length);
         }
 
         if (dataSet != null) {
@@ -263,7 +258,7 @@ public class PrimeFragment extends Fragment implements
             dataSet.setColor(ContextCompat.getColor(context, R.color.chart_line))
                     .setFill(ContextCompat.getColor(context, R.color.chart_fill))
                     .setDotsColor(ContextCompat.getColor(context, R.color.chart_dots))
-                    .setThickness(4);
+                    .setThickness(5);
             chart.addData(dataSet);
             chart.show();
         }
@@ -287,9 +282,9 @@ public class PrimeFragment extends Fragment implements
     }
 
 
-    public void setCircleCounterGoalRange() {
+    public void setCircleCounterGoalRange(GoalVo goalVo) {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
-            primeCircleFragment.setCircleCounterGoalRange();
+            primeCircleFragment.setCircleCounterGoalRange(goalVo);
         }
     }
 
