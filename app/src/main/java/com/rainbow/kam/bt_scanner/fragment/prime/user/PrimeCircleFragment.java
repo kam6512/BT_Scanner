@@ -10,9 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
-import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
-import com.rainbow.kam.bt_scanner.tools.data.vo.GoalVo;
+import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
 
@@ -23,21 +22,30 @@ import java.util.List;
  * Created by kam6512 on 2016-01-27.
  */
 public class PrimeCircleFragment extends Fragment {
+
     private Context context;
 
-    private int index;
     private static final String KEY_INDEX = "INDEX";
 
-    private static final int INDEX_STEP = PrimeHelper.INDEX_STEP;
-    private static final int INDEX_CALORIE = PrimeHelper.INDEX_CALORIE;
-    private static final int INDEX_DISTANCE = PrimeHelper.INDEX_DISTANCE;
+    private enum Index {
+        INDEX_STEP(PrimeHelper.INDEX_STEP),
+        INDEX_CALORIE(PrimeHelper.INDEX_CALORIE),
+        INDEX_DISTANCE(PrimeHelper.INDEX_DISTANCE);
+
+        private int value;
+
+
+        Index(int value) {
+            this.value = value;
+        }
+    }
+
+    private Index index;
 
     private View view;
     private CircleCounter circleCounter;
 
     private static List<String> unitList;
-
-    private PrimeDao primeDao;
 
 
     public static PrimeCircleFragment newInstance(int index) {
@@ -49,19 +57,17 @@ public class PrimeCircleFragment extends Fragment {
     }
 
 
-    private int getIndex() {
-        return getArguments().getInt(KEY_INDEX);
+    private Index getIndex() {
+        Index[] indexValues = Index.values();
+        return indexValues[getArguments().getInt(KEY_INDEX)];
     }
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            this.context = context;
-            primeDao = PrimeDao.getInstance(context);
-            unitList = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
-        }
+        this.context = context;
+        unitList = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
     }
 
 
@@ -72,7 +78,6 @@ public class PrimeCircleFragment extends Fragment {
 
         index = getIndex();
         setCircleCounterView();
-        setCircleCounterGoalRange();
 
         return view;
     }
@@ -85,13 +90,12 @@ public class PrimeCircleFragment extends Fragment {
         circleCounter.setThirdColor(ContextCompat.getColor(context, R.color.stepAccent));
         circleCounter.setBackgroundColor(ContextCompat.getColor(context, R.color.text_dark));
         circleCounter.setTextColor(ContextCompat.getColor(context, R.color.stepPrimaryDark));
-        circleCounter.setMetricText(unitList.get(index));
+        circleCounter.setMetricText(unitList.get(index.value));
     }
 
 
-    public void setCircleCounterGoalRange() {
+    public void setCircleCounterGoalRange(GoalVo goalVo) {
         String goalRange;
-        GoalVo goalVo = primeDao.loadGoalData();
         switch (index) {
             case INDEX_STEP:
                 goalRange = goalVo.stepGoal;

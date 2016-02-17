@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;

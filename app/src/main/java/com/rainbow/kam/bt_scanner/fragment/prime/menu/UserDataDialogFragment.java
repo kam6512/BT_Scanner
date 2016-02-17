@@ -14,10 +14,9 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.data.dao.PrimeDao;
-import com.rainbow.kam.bt_scanner.tools.data.vo.UserVo;
+import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

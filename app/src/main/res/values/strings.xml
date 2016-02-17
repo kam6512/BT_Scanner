@@ -57,7 +57,7 @@
 
     <string name="profile.characteristics.name">profile.characteristics.name</string>
     <string name="profile.characteristics.UUID">profile.characteristics.UUID</string>
-    <string name="profile.characteristics.value">profile.characteristics.value</string>
+    <string name="profile.characteristics.defValue">profile.characteristics.defValue</string>
 
     <string name="profile.service.name">profile.service.name</string>
     <string name="profile.service.UUID">profile.service.UUID</string>
