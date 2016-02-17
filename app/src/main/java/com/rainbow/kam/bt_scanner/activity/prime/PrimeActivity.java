@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -27,14 +26,14 @@ import android.widget.Toast;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.GoalDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.SelectDeviceDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
 import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
 import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
+import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.menu.GoalDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
@@ -59,6 +58,10 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private final String TAG = getClass().getSimpleName();
 
+    public static final int INDEX_STEP = 0;
+    public static final int INDEX_CALORIE = 1;
+    public static final int INDEX_DISTANCE = 2;
+
     private enum GattReadType {
         READ_TIME, READ_STEP_DATA
     }
@@ -68,7 +71,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private FragmentManager fragmentManager;
 
     private UserDataDialogFragment userDataDialogFragment;
-    private SelectDeviceDialogFragment selectDeviceDialogFragment;
+    private DeviceListFragment deviceListFragment;
     private GoalDialogFragment goalDialogFragment;
 
     private PrimeFragment primeFragment;
@@ -79,7 +82,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private NavigationView navigationView;
 
     private Snackbar disconnectDeviceSnackBar;
 
@@ -93,7 +95,6 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private PrimeDao primeDao;
 
-    private final Handler handler = new Handler();
     private final Runnable postSwipeRefresh = new Runnable() {
         @Override
         public void run() {
@@ -107,7 +108,7 @@ public class PrimeActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_prime);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            BluetoothHelper.checkPermissions(this);
+            BluetoothHelper.requestBluetoothPermission(this);
         }
 
         initDB();
@@ -160,7 +161,7 @@ public class PrimeActivity extends AppCompatActivity implements
                     swipeRefreshLayout.setRefreshing(false);
                 }
                 disconnectDevice();
-                selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
+                deviceListFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
                 return true;
             case R.id.menu_prime_setting_user:
                 userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
@@ -200,7 +201,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
+        BluetoothHelper.onRequestEnableResult(requestCode, resultCode, this);
     }
 
 
@@ -223,7 +224,7 @@ public class PrimeActivity extends AppCompatActivity implements
         fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
 
         userDataDialogFragment = new UserDataDialogFragment();
-        selectDeviceDialogFragment = new SelectDeviceDialogFragment();
+        deviceListFragment = new DeviceListFragment();
         goalDialogFragment = new GoalDialogFragment();
     }
 
@@ -264,7 +265,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void setNavigationView() {
-        navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View nav = navigationView.getHeaderView(0);
         navUpdate = (TextView) nav.findViewById(R.id.prime_update);
@@ -279,7 +280,7 @@ public class PrimeActivity extends AppCompatActivity implements
                 loadUserDeviceData();
                 connectDevice();
             } else {
-                BluetoothHelper.bluetoothRequest(this);
+                BluetoothHelper.requestBluetoothEnable(this);
             }
         }
     }
@@ -301,7 +302,7 @@ public class PrimeActivity extends AppCompatActivity implements
         Snackbar.make(coordinatorLayout, R.string.prime_setting_device, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_setting_device_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectDeviceDialogFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
+                deviceListFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
             }
         }).show();
     }
@@ -474,7 +475,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     public void onDeviceSelect(final String name, final String address) {
-        selectDeviceDialogFragment.dismiss();
+        goalDialogFragment.dismiss();
         saveDeviceData(name, address);
         registerBluetooth();
     }
@@ -531,12 +532,6 @@ public class PrimeActivity extends AppCompatActivity implements
         public void onServicesFound(final List<BluetoothGattService> services) {
             gattReadType = GattReadType.READ_TIME;
             setAvailableGatt(services);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadTime);
-                }
-            }, 100); // Notify 콜백 메서드가 없으므로 강제로 기다린다
         }
 
 
@@ -560,6 +555,12 @@ public class PrimeActivity extends AppCompatActivity implements
         }
 
 
+        @DebugLog
+        public void onDeviceReady() {
+            gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
+        }
+
+
         public void onDeviceNotify(final BluetoothGattCharacteristic ch) {
             try {
                 runOnUiThread(new Runnable() {
@@ -569,7 +570,7 @@ public class PrimeActivity extends AppCompatActivity implements
                             case READ_TIME:
                                 setUpdateValue(readUpdateTimeValue(ch));
 
-                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.getBytesForReadExerciseData);
+                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
                                 gattReadType = GattReadType.READ_STEP_DATA;
 
                                 break;

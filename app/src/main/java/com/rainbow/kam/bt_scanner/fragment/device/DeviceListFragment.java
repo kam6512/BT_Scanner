@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.menu;
+package com.rainbow.kam.bt_scanner.fragment.device;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -9,7 +9,6 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,20 +27,21 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
+import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.adapter.device.DeviceItem;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.List;
 
-import hugo.weaving.DebugLog;
-
 /**
- * Created by kam6512 on 2015-11-04.
+ * Created by kam6512 on 2016-02-17.
  */
-public class SelectDeviceDialogFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener, DialogInterface.OnCancelListener {
-
+public class DeviceListFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
     private final String TAG = getClass().getSimpleName();
-    private final String PrimeTag = "Prime";
+
+    private static final String PRIME_NAME = "Prime";
+    private static final int SCAN_PERIOD = 5000;
 
     private Context context;
     private View view;
@@ -82,15 +82,18 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     }
 
 
-    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.df_prime_add_device, container, false);
+        view = inflater.inflate(R.layout.df_device_list, container, false);
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
-            BluetoothHelper.checkPermissions((PrimeActivity) context);
+            if (context instanceof MainActivity) {
+                BluetoothHelper.requestBluetoothPermission((MainActivity) context);
+            } else if (context instanceof PrimeActivity) {
+                BluetoothHelper.requestBluetoothPermission((PrimeActivity) context);
+                setWindowSetting();
+            }
         }
 
-        setWindowSetting();
         setRecyclerView();
         setOtherView();
         setScannerCallback();
@@ -112,13 +115,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     public void onPause() { //꺼짐
         super.onPause();
         stopScan();
-    }
-
-
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        deviceAdapter.cancel();
-        super.onCancel(dialog);
     }
 
 
@@ -150,7 +146,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
 
     private void setOtherView() {
-
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.prime_device_swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
@@ -173,25 +168,18 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     private void setScannerL() {
         scanCallback = new ScanCallback() {
             @Override
-            @DebugLog
             public void onScanResult(int callbackType, ScanResult result) {
                 if (result != null) {
-                    if (result.getDevice().getName() != null && result.getDevice().getName().equals(PrimeTag)) {
-                        deviceAdapter.addDevice(result.getDevice(), result.getRssi());
-                    }
+                    addDevice(result.getDevice(), result.getRssi());
                 }
             }
 
 
             @Override
-            @DebugLog
             public void onBatchScanResults(List<ScanResult> results) {
                 for (ScanResult result : results) {
                     if (result != null) {
-                        if (result.getDevice().getName() != null && result.getDevice().getName().equals(PrimeTag)) {
-                            deviceAdapter.addDevice(result.getDevice(), result.getRssi());
-                        }
-
+                        addDevice(result.getDevice(), result.getRssi());
                     }
                 }
             }
@@ -210,15 +198,26 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi,
                                  final byte[] scanRecord) {
-                if (device.getName() != null && device.getName().equals(PrimeTag)) {
-                    deviceAdapter.addDevice(device, rssi);
-                }
+                addDevice(device, rssi);
             }
         };
     }
 
 
-    @DebugLog
+    private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
+        DeviceItem addDeviceItem = new DeviceItem(bluetoothDevice, rssi);
+        if (context instanceof MainActivity) {
+            deviceAdapter.addDevice(addDeviceItem);
+
+        } else if (context instanceof PrimeActivity) {
+            String deviceName = bluetoothDevice.getName();
+            if (deviceName != null && deviceName.equals(PRIME_NAME)) {
+                deviceAdapter.addDevice(addDeviceItem);
+            }
+        }
+    }
+
+
     @SuppressLint("NewApi")
     private void registerBluetooth() {
         try {
@@ -232,7 +231,11 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
 
                 startScan();
             } else {
-                BluetoothHelper.bluetoothRequest((PrimeActivity) context);
+                if (context instanceof MainActivity) {
+                    BluetoothHelper.requestBluetoothEnable((MainActivity) context);
+                } else if (context instanceof PrimeActivity) {
+                    BluetoothHelper.requestBluetoothEnable((PrimeActivity) context);
+                }
             }
         } catch (Exception e) {
             Toast.makeText(context, R.string.bt_fail, Toast.LENGTH_LONG).show();
@@ -241,10 +244,9 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     }
 
 
-    @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void startScan() {
-        handler.postDelayed(stop, BluetoothHelper.SCAN_PERIOD); //5초 뒤에 OFF
+        handler.postDelayed(stop, SCAN_PERIOD); //5초 뒤에 OFF
 
         isScanning = true;
         deviceAdapter.clear();
@@ -265,7 +267,6 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
     }
 
 
-    @DebugLog
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         handler.removeCallbacks(stop);
@@ -289,5 +290,10 @@ public class SelectDeviceDialogFragment extends DialogFragment implements SwipeR
             //noinspection deprecation
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
+    }
+
+
+    public void onCancel() {
+        deviceAdapter.cancel();
     }
 }
