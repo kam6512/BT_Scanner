@@ -12,8 +12,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
 
-import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +22,8 @@ import hugo.weaving.DebugLog;
  */
 public class GattManager {
 
-    private final String TAG = getClass().getSimpleName();
-    private static final long RSSI_UPDATE_TIME_INTERVAL = BluetoothHelper.SCAN_PERIOD;
+    private static final long RSSI_UPDATE_TIME_INTERVAL = 3000;
+    private static final UUID uuid = UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
 
     private final GattCustomCallbacks gattCustomCallbacks;
 
@@ -35,8 +33,11 @@ public class GattManager {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
     private BluetoothGatt bluetoothGatt;
+    private BluetoothGattDescriptor notificationDescriptor;
 
-    private final Handler timerHandler = new Handler();
+    private boolean timerEnabled = false;
+
+    private final Handler handler = new Handler();
     private final Runnable readRssiThread = new Runnable() {
         @Override
         public void run() {
@@ -46,7 +47,6 @@ public class GattManager {
             }
         }
     };
-    private boolean timerEnabled = false;
 
 
     public GattManager(Context context, GattCustomCallbacks gattCustomCallbacks) {
@@ -85,13 +85,11 @@ public class GattManager {
     }
 
 
-    @DebugLog
     public boolean isBluetoothAvailable() {
         return bluetoothAdapter.isEnabled();
     }
 
 
-    @DebugLog
     public boolean isConnected() {
         List<BluetoothDevice> bluetoothDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
         for (BluetoothDevice bluetoothDeviceItem : bluetoothDevices) {
@@ -107,27 +105,24 @@ public class GattManager {
         timerEnabled = repeat;
         if (!isConnected()) {
             timerEnabled = false;
-            timerHandler.removeCallbacks(readRssiThread);
+            handler.removeCallbacks(readRssiThread);
             return;
         }
-        timerHandler.postDelayed(readRssiThread, RSSI_UPDATE_TIME_INTERVAL);
+        handler.postDelayed(readRssiThread, RSSI_UPDATE_TIME_INTERVAL);
         bluetoothGatt.readRemoteRssi();
     }
 
 
-    @DebugLog
     private void startMonitoringRssiValue() {
         readRssiValue(true);
     }
 
 
-    @DebugLog
     private void stopMonitoringRssiValue() {
         readRssiValue(false);
     }
 
 
-    @DebugLog
     private void startServiceDiscovery() {
         boolean status = bluetoothGatt.discoverServices();
         if (!status) {
@@ -136,20 +131,19 @@ public class GattManager {
     }
 
 
-    @DebugLog
     public void setNotification(BluetoothGattCharacteristic notificationForCharacteristic, boolean enabled) {
         bluetoothGatt.setCharacteristicNotification(notificationForCharacteristic, enabled);
 
-        BluetoothGattDescriptor bluetoothGattDescriptor = notificationForCharacteristic.getDescriptor(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-        if (bluetoothGattDescriptor != null) {
+        notificationDescriptor = notificationForCharacteristic.getDescriptor(uuid);
+        if (notificationDescriptor != null) {
             byte[] value = enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-            bluetoothGattDescriptor.setValue(value);
-            bluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+            notificationDescriptor.setValue(value);
+            bluetoothGatt.writeDescriptor(notificationDescriptor);
         }
+
     }
 
 
-    @DebugLog
     public void readValue(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
         boolean status = bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
         if (!status) {
@@ -158,7 +152,6 @@ public class GattManager {
     }
 
 
-    @DebugLog
     public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
         if (dataToWrite.length != 0) {
             bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
@@ -221,6 +214,7 @@ public class GattManager {
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onWriteSuccess();
+
             } else {
                 gattCustomCallbacks.onWriteFail();
             }
@@ -233,6 +227,14 @@ public class GattManager {
                 gattCustomCallbacks.onRSSIUpdate(rssi);
             } else {
                 gattCustomCallbacks.onRSSIMiss();
+            }
+        }
+
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            if (descriptor.equals(notificationDescriptor)) {
+                gattCustomCallbacks.onDeviceReady();
             }
         }
     };

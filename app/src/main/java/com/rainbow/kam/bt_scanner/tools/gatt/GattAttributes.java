@@ -32,9 +32,12 @@ public class GattAttributes {
     private final static Map<String, String> CHARACTERISTICS = new HashMap<>();
     private final static SparseArray<String> VALUE_FORMATS = new SparseArray<>();
 
-    private final static String UNKNOWN = "Unknown";
+    private final static String UNKNOWN = "UNKNOWN";
 
     private final static List<Integer> FORMAT_LIST;
+
+    public static final SparseArray<String> BOND_LIST = new SparseArray<>();
+    public static final SparseArray<String> TYPE_LIST = new SparseArray<>();
 
 
     public static String resolveServiceName(final String uuid) {
@@ -198,5 +201,14 @@ public class GattAttributes {
                 BluetoothGattCharacteristic.FORMAT_UINT32,
                 BluetoothGattCharacteristic.FORMAT_UINT8
         );
+
+        BOND_LIST.put(10, "NOT BONDED");
+        BOND_LIST.put(11, "BONDING...");
+        BOND_LIST.put(12, "BONDED");
+
+        TYPE_LIST.put(0, UNKNOWN);
+        TYPE_LIST.put(1, "CLASSIC BLUETOOTH");
+        TYPE_LIST.put(2, "BLUETOOTH LOW ENERGY");
+        TYPE_LIST.put(3, "DUAL");
     }
 }

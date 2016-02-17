@@ -9,15 +9,11 @@ import java.util.Locale;
  */
 public class PrimeHelper {
 
-    public static final int INDEX_STEP = 0;
-    public static final int INDEX_CALORIE = 1;
-    public static final int INDEX_DISTANCE = 2;
-
-    public static final byte[] getBytesForReadTime = getBytes("8900");
-    public static byte[] getBytesForReset = getBytes("8700");
-    public static byte[] getBytesForClear = getBytes("8800");
-    public static final byte[] getBytesForReadExerciseData = getBytes("C60108");
-    public static byte[] getBytesForCall = getBytes("f30101");
+    public static final byte[] READ_TIME = getBytes("8900");
+    public static final byte[] RESET = getBytes("8700");
+    public static final byte[] CLEAR = getBytes("8800");
+    public static final byte[] READ_PRIME = getBytes("C60108");
+    public static final byte[] ALERT_DEVICE = getBytes("F30101");
 
 
     public static byte[] getBytesForDateTime() {

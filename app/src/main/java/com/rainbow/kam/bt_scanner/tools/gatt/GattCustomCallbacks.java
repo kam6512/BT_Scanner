@@ -23,6 +23,7 @@ public interface GattCustomCallbacks {
 
     void onReadFail();
 
+    void onDeviceReady();
 
     void onDeviceNotify(
             final BluetoothGattCharacteristic ch);
@@ -69,6 +70,12 @@ public interface GattCustomCallbacks {
 
         @Override
         public void onReadFail() {
+
+        }
+
+
+        @Override
+        public void onDeviceReady() {
 
         }
 

@@ -9,8 +9,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
@@ -21,29 +19,12 @@ import com.rainbow.kam.bt_scanner.R;
 public class BluetoothHelper {
 
     public static final boolean IS_BUILD_VERSION_LM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    public static final int SCAN_PERIOD = 5000;
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int RESULT_OK = -1;
 
-    public static final String KEY_DEVICE_NAME = "BLE_DEVICE_NAME";
-    public static final String KEY_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
-
-    public static final String BOND_NONE = "NOT BONDED";
-    private static final String BOND_BONDING = "BONDING...";
-    private static final String BOND_BONDED = "BONDED";
-
-    public static final SparseArray<String> BOND_LIST = new SparseArray<>();
-
-    public static final String DEVICE_TYPE_UNKNOWN = "UNKNOWN";
-    private static final String DEVICE_TYPE_CLASSIC = "CLASSIC BLUETOOTH";
-    private static final String DEVICE_TYPE_LE = "BLUETOOTH LOW ENERGY";
-    private static final String DEVICE_TYPE_DUAL = "DUAL";
-
-    public static final SparseArray<String> TYPE_LIST = new SparseArray<>();
-
 
     @TargetApi(Build.VERSION_CODES.M)
-    public static void checkPermissions(Activity activity) {
+    public static void requestBluetoothPermission(Activity activity) {
         if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             activity.requestPermissions(new String[]{
@@ -53,8 +34,14 @@ public class BluetoothHelper {
     }
 
 
+    public static void requestBluetoothEnable(Activity activity) {//블루투스 가동여부
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
+    }
+
+
     public static void onRequestPermissionsResult(int requestCode,
-                                                  @NonNull int[] grantResults, Activity activity) {
+                                                  int[] grantResults, Activity activity) {
         if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults.length != 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -76,13 +63,7 @@ public class BluetoothHelper {
     }
 
 
-    public static void bluetoothRequest(Activity activity) {//블루투스 가동여부
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
-    }
-
-
-    public static void onActivityResult(int requestCode, int resultCode, Activity activity) {
+    public static void onRequestEnableResult(int requestCode, int resultCode, Activity activity) {
         switch (requestCode) {
             case BluetoothHelper.REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_OK) {
@@ -93,17 +74,5 @@ public class BluetoothHelper {
                 }
                 break;
         }
-    }
-
-
-    static {
-        BOND_LIST.put(10, BOND_NONE);
-        BOND_LIST.put(11, BOND_BONDING);
-        BOND_LIST.put(12, BOND_BONDED);
-
-        TYPE_LIST.put(0, DEVICE_TYPE_UNKNOWN);
-        TYPE_LIST.put(1, DEVICE_TYPE_CLASSIC);
-        TYPE_LIST.put(2, DEVICE_TYPE_LE);
-        TYPE_LIST.put(3, DEVICE_TYPE_DUAL);
     }
 }
