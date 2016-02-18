@@ -475,7 +475,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     public void onDeviceSelect(final String name, final String address) {
-        goalDialogFragment.dismiss();
+        deviceListFragment.dismiss();
         saveDeviceData(name, address);
         registerBluetooth();
     }
