@@ -70,6 +70,20 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private GattReadType gattReadType;
 
+    private enum connectionStateType {
+        NONE,
+        NEED_DEVICE_NOT_CONNECT,
+        NEED_USER_CONNECT,
+        CONNECTED,
+        DISCONNECT_QUEUE,
+        DISCONNECTED,
+        GATT_RUNNING,
+        GATT_END,
+        REFRESH
+    }
+
+    private connectionStateType state;
+
     private FragmentManager fragmentManager;
 
     private UserDataDialogFragment userDataDialogFragment;
@@ -86,7 +100,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private Snackbar disconnectDeviceSnackBar;
 
     private GattManager gattManager;
 
@@ -109,6 +122,9 @@ public class PrimeActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        state = connectionStateType.NONE;
+
         setContentView(R.layout.a_prime);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             BluetoothHelper.requestBluetoothPermission(this);
@@ -138,6 +154,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     public void onRefresh() {
+        state = connectionStateType.REFRESH;
         if (gattManager != null && gattManager.isConnected()) {
             disconnectDevice();
         } else {
@@ -163,14 +180,26 @@ public class PrimeActivity extends AppCompatActivity implements
                 if (swipeRefreshLayout.isRefreshing()) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
-                disconnectDevice();
+                if (!(state == connectionStateType.NEED_DEVICE_NOT_CONNECT)) {
+                    disconnectDevice();
+                }
+
                 deviceListFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
                 return true;
             case R.id.menu_prime_setting_user:
-                userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
+                if (state == connectionStateType.NEED_DEVICE_NOT_CONNECT) {
+                    showDeviceSettingSnackBar();
+                } else {
+                    userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
+                }
                 return true;
             case R.id.menu_prime_setting_goal:
-                goalDialogFragment.show(fragmentManager, getString(R.string.prime_setting_goal_tag));
+                if (state == connectionStateType.NEED_DEVICE_NOT_CONNECT) {
+                    showDeviceSettingSnackBar();
+                } else {
+                    goalDialogFragment.show(fragmentManager, getString(R.string.prime_setting_goal_tag));
+                }
+
                 return true;
             case R.id.menu_prime_about_dev:
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
@@ -192,7 +221,7 @@ public class PrimeActivity extends AppCompatActivity implements
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            if (disconnectDeviceSnackBar.isShown() || !gattManager.isConnected()) {
+            if (state == connectionStateType.NEED_DEVICE_NOT_CONNECT || (state == connectionStateType.DISCONNECT_QUEUE || !gattManager.isConnected())) {
                 super.onBackPressed();
             } else {
                 showDisconnectDeviceSnackBar();
@@ -258,13 +287,6 @@ public class PrimeActivity extends AppCompatActivity implements
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-
-        disconnectDeviceSnackBar = Snackbar.make(coordinatorLayout, R.string.prime_disconnect_snack, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_ignore, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 
 
@@ -303,6 +325,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void showDeviceSettingSnackBar() {
+        state = connectionStateType.NEED_DEVICE_NOT_CONNECT;
         Snackbar.make(coordinatorLayout, R.string.prime_setting_device, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_setting_device_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -313,6 +336,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void showUserSettingSnackBar() {
+        state = connectionStateType.NEED_USER_CONNECT;
         Snackbar.make(coordinatorLayout, R.string.prime_setting_user, Snackbar.LENGTH_LONG).setAction(R.string.prime_setting_user_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -323,7 +347,14 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void showDisconnectDeviceSnackBar() {
-        disconnectDeviceSnackBar.show();
+        state = connectionStateType.DISCONNECT_QUEUE;
+        Snackbar.make(coordinatorLayout, R.string.prime_disconnect_snack, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_ignore, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                state = connectionStateType.DISCONNECTED;
+                finish();
+            }
+        }).show();
     }
 
 
@@ -339,7 +370,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void disconnectDevice() {
-        if (gattManager != null && gattManager.isBluetoothAvailable()) {
+        if (gattManager != null) {
             gattManager.disconnect();
         }
     }
@@ -367,7 +398,6 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    @DebugLog
     private void removeAllData() {
         primeDao.clearSharedPreferenceData();
     }
@@ -507,11 +537,11 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    state = connectionStateType.CONNECTED;
                     toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
 
-                    if (swipeRefreshLayout.isRefreshing()) {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
+                    swipeRefreshLayout.setRefreshing(false);
+
                 }
             });
         }
@@ -521,13 +551,13 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (disconnectDeviceSnackBar.isShownOrQueued()) {
+                    if (state == connectionStateType.DISCONNECT_QUEUE) {
                         finish();
                     } else {
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
                         toolbarRssi.setText("--");
 
-                        if (swipeRefreshLayout.isRefreshing()) {
+                        if (swipeRefreshLayout.isRefreshing() || state == connectionStateType.REFRESH) {
                             registerBluetooth();
                         }
                     }
@@ -537,6 +567,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
         public void onServicesFound(final List<BluetoothGattService> services) {
+            state = connectionStateType.GATT_RUNNING;
             gattReadType = GattReadType.READ_TIME;
             setAvailableGatt(services);
         }
@@ -552,8 +583,8 @@ public class PrimeActivity extends AppCompatActivity implements
                 @Override
                 public void run() {
                     int batteryValue = ch.getValue()[0];
-
                     setBatteryValue(batteryValue);
+                    state = connectionStateType.GATT_END;
                 }
             });
         }

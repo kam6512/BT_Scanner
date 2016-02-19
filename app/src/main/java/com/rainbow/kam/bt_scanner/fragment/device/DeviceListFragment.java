@@ -115,6 +115,7 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
     public void onPause() { //꺼짐
         super.onPause();
         stopScan();
+        deviceAdapter.cancel();
     }
 
 
