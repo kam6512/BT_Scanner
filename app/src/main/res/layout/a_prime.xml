@@ -58,7 +58,7 @@
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:contentDescription="@string/bt.rssi"
-                    android:src="@drawable/ic_bluetooth_white_24dp"/>
+                    android:src="@drawable/ic_bluetooth_disabled_white_24dp"/>
             </LinearLayout>
         </android.support.design.widget.AppBarLayout>
 

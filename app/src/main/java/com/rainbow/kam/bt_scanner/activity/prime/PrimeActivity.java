@@ -239,6 +239,7 @@ public class PrimeActivity extends AppCompatActivity implements
         }
 
         toolbarRssi = (TextView) findViewById(R.id.prime_toolbar_rssi);
+        toolbarRssi.setText("--");
         rssiUnit = getString(R.string.rssi_unit);
         toolbarBluetoothFlag = (ImageView) findViewById(R.id.prime_toolbar_bluetoothFlag);
     }
