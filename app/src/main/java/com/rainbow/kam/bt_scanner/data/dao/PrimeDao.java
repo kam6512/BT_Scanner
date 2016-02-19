@@ -2,13 +2,14 @@ package com.rainbow.kam.bt_scanner.data.dao;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.item.Migration;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
+import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -176,10 +177,11 @@ public class PrimeDao {
     }
 
 
-    public void savePrimeData(RealmPrimeItem realmPrimeItem) {
-        final int[] step = {realmPrimeItem.getStep()};
-        final int[] calorie = {realmPrimeItem.getCalorie()};
-        final int[] distance = {realmPrimeItem.getDistance()};
+    public void savePrimeData(final RealmPrimeItem realmPrimeItem) {
+
+        int step = realmPrimeItem.getStep();
+        int calorie = realmPrimeItem.getCalorie();
+        int distance = realmPrimeItem.getDistance();
 
         String format = context.getString(R.string.prime_save_date_format);
         SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
@@ -187,76 +189,36 @@ public class PrimeDao {
 
         final List<RealmPrimeItem> results = loadPrimeListData();
 
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                if (results.isEmpty()) {
-                    RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-                    newItem.setCalendar(today);
-                    newItem.setStep(step[0]);
-                    newItem.setCalorie(calorie[0]);
-                    newItem.setDistance(distance[0]);
-                } else {
-                    RealmPrimeItem lastItem = results.get(results.size() - 1);
-                    if (lastItem.getCalendar().equals(today)) {
-                        if (lastItem.getStep() > step[0]) {
-                            step[0] += lastItem.getStep();
-                            calorie[0] += lastItem.getCalorie();
-                            distance[0] += lastItem.getDistance();
-                        }
-                        lastItem.setCalendar(today);
-                        lastItem.setStep(step[0]);
-                        lastItem.setCalorie(calorie[0]);
-                        lastItem.setDistance(distance[0]);
-                    } else {
-                        RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-                        newItem.setCalendar(today);
-                        newItem.setStep(step[0]);
-                        newItem.setCalorie(calorie[0]);
-                        newItem.setDistance(distance[0]);
-                    }
+        realm.beginTransaction();
+
+        if (results.isEmpty()) {
+            RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+            newItem.setCalendar(today);
+            newItem.setStep(step);
+            newItem.setCalorie(calorie);
+            newItem.setDistance(distance);
+        } else {
+            RealmPrimeItem lastItem = results.get(results.size() - 1);
+            if (lastItem.getCalendar().equals(today)) {
+                if (lastItem.getStep() > step) {
+                    step += lastItem.getStep();
+                    calorie += lastItem.getCalorie();
+                    distance += lastItem.getDistance();
                 }
+                lastItem.setCalendar(today);
+                lastItem.setStep(step);
+                lastItem.setCalorie(calorie);
+                lastItem.setDistance(distance);
+            } else {
+                RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                newItem.setCalendar(today);
+                newItem.setStep(step);
+                newItem.setCalorie(calorie);
+                newItem.setDistance(distance);
             }
-        }, new Realm.Transaction.Callback() {
-            @Override
-            public void onSuccess() {
-            }
+        }
 
-
-            @Override
-            public void onError(Exception e) {
-            }
-        });
-//        realm.beginTransaction();
-
-//        if (results.isEmpty()) {
-//            RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-//            newItem.setCalendar(today);
-//            newItem.setStep(step);
-//            newItem.setCalorie(calorie);
-//            newItem.setDistance(distance);
-//        } else {
-//            RealmPrimeItem lastItem = results.get(results.size() - 1);
-//            if (lastItem.getCalendar().equals(today)) {
-//                if (lastItem.getStep() > step) {
-//                    step += lastItem.getStep();
-//                    calorie += lastItem.getCalorie();
-//                    distance += lastItem.getDistance();
-//                }
-//                lastItem.setCalendar(today);
-//                lastItem.setStep(step);
-//                lastItem.setCalorie(calorie);
-//                lastItem.setDistance(distance);
-//            } else {
-//                RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-//                newItem.setCalendar(today);
-//                newItem.setStep(step);
-//                newItem.setCalorie(calorie);
-//                newItem.setDistance(distance);
-//            }
-//        }
-
-//        realm.commitTransaction();
+        realm.commitTransaction();
     }
 
 

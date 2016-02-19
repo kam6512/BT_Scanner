@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -145,8 +146,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             expandAnimation = AnimationUtils.loadAnimation(context, R.anim.expand_device_item);
             expandAnimation.setAnimationListener(this);
+            expandAnimation.setInterpolator(context, android.R.anim.anticipate_overshoot_interpolator);
             collapseAnimation = AnimationUtils.loadAnimation(context, R.anim.collapse_device_item);
             collapseAnimation.setAnimationListener(this);
+            collapseAnimation.setInterpolator(context, android.R.anim.anticipate_overshoot_interpolator);
 
             expendImageView = (ImageView) itemView.findViewById(R.id.button_expand);
             expendImageView.setColorFilter(ContextCompat.getColor(context, android.R.color.black));

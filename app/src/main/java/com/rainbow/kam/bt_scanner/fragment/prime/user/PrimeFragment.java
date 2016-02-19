@@ -341,3 +341,4 @@ public class PrimeFragment extends Fragment implements
         }
     }
 }
+

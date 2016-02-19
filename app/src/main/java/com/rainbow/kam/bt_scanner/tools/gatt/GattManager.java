@@ -13,9 +13,11 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import java.util.List;
+import java.util.Observable;
 import java.util.UUID;
 
 import hugo.weaving.DebugLog;
+import rx.Subscriber;
 
 /**
  * Created by kam6512 on 2015-10-29.
@@ -25,9 +27,11 @@ public class GattManager {
     private static final long RSSI_UPDATE_TIME_INTERVAL = 3000;
     private static final UUID uuid = UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
 
+    private final Context context;
+
     private final GattCustomCallbacks gattCustomCallbacks;
 
-    private final Context context;
+//    private rx.Observable<String> observable;
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
@@ -58,6 +62,25 @@ public class GattManager {
             bluetoothAdapter = bluetoothManager.getAdapter();
         }
     }
+
+
+//    public GattManager(Context context, GattCustomCallbacks gattCustomCallbacks, Subscriber<String> subscriber) {
+//        this.context = context;
+//        this.gattCustomCallbacks = gattCustomCallbacks;
+//
+//        if (bluetoothManager == null || bluetoothAdapter == null) {
+//            bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+//            bluetoothAdapter = bluetoothManager.getAdapter();
+//        }
+//        observable = rx.Observable.create(new rx.Observable.OnSubscribe<String>() {
+//            @Override
+//            public void call(Subscriber<? super String> subscriber) {
+//                subscriber.on
+//            }
+//        });
+//        observable.subscribe(subscriber);
+//
+//    }
 
 
     @DebugLog
@@ -179,7 +202,8 @@ public class GattManager {
                 stopMonitoringRssiValue();
 
                 gattCustomCallbacks.onDeviceDisconnected();
-                bluetoothGatt.close();
+//                bluetoothGatt.close();
+                gatt.close();
             }
         }
 
