@@ -25,12 +25,11 @@
               tools:ignore="Overdraw">
 
 
-    <TextView
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="0%"
         android:id="@+id/prime_battery"
+        android:src="@drawable/ic_battery_unknown_white_36dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"/>
 

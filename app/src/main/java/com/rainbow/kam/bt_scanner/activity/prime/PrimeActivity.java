@@ -3,6 +3,7 @@ package com.rainbow.kam.bt_scanner.activity.prime;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -76,7 +78,8 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private PrimeFragment primeFragment;
 
-    private TextView navUpdate, navBattery;
+    private ImageView navBattery;
+    private TextView navUpdate;
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
     private CoordinatorLayout coordinatorLayout;
@@ -270,7 +273,7 @@ public class PrimeActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         View nav = navigationView.getHeaderView(0);
         navUpdate = (TextView) nav.findViewById(R.id.prime_update);
-        navBattery = (TextView) nav.findViewById(R.id.prime_battery);
+        navBattery = (ImageView) nav.findViewById(R.id.prime_battery);
     }
 
 
@@ -370,8 +373,22 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void setBatteryValue(String batteryValue) {
-        navBattery.setText(batteryValue);
+    private void setBatteryValue(int batteryValue) {
+        Drawable drawable;
+        switch (batteryValue) {
+            case 0:
+            case 25:
+                drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_alert_white_36dp);
+                break;
+            case 50:
+            case 75:
+            case 100:
+                drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_std_white_36dp);
+                break;
+            default:
+                drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_unknown_white_36dp);
+        }
+        navBattery.setImageDrawable(drawable);
     }
 
 
@@ -385,17 +402,6 @@ public class PrimeActivity extends AppCompatActivity implements
         gattManager.setNotification(characteristicList.get(1), true);
         bluetoothGattCharacteristicForWrite = characteristicList.get(0);
         bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
-    }
-
-
-    private String readBatteryValue(BluetoothGattCharacteristic ch) {
-        final byte[] batteryByteValue = ch.getValue();
-        final StringBuilder batteryValue = new StringBuilder(batteryByteValue.length);
-        for (byte byteChar : batteryByteValue) {
-            batteryValue.append(String.format("%02d", byteChar));
-        }
-        batteryValue.append(getString(R.string.prime_battery_unit));
-        return batteryValue.toString();
     }
 
 
@@ -545,7 +551,9 @@ public class PrimeActivity extends AppCompatActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    setBatteryValue(readBatteryValue(ch));
+                    int batteryValue = ch.getValue()[0];
+
+                    setBatteryValue(batteryValue);
                 }
             });
         }
