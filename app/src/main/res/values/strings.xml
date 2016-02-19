@@ -108,7 +108,7 @@
     <string name="goal.def.distance">10000</string>
     <string name="prime_chart_update_wait">대기중…</string>
     <string name="prime_ignore">강제종료</string>
-    <string name="prime_update_format">최근 업데이트 : dd일  HH : mm</string>
+    <string name="prime_update_format">최근 업데이트 시간 [ HH : mm ]</string>
     <string name="prime_battery_unit">%</string>
     <string name="rssi_unit">db</string>
     <string name="prime_save_date_format">MM월 dd일</string>
