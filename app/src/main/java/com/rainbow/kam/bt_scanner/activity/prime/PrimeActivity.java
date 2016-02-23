@@ -25,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
@@ -40,12 +42,15 @@ import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import hugo.weaving.DebugLog;
 
@@ -59,6 +64,13 @@ public class PrimeActivity extends AppCompatActivity implements
         GoalDialogFragment.OnSaveGoalListener {
 
     private final String TAG = getClass().getSimpleName();
+
+
+    private enum DeviceType {
+        DEVICE_PRIME, DEVICE_VIDONN;
+    }
+
+    private DeviceType deviceType;
 
     public static final int INDEX_STEP = 0;
     public static final int INDEX_CALORIE = 1;
@@ -100,6 +112,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private MaterialDialog removeDialog;
 
     private GattManager gattManager;
 
@@ -135,6 +148,7 @@ public class PrimeActivity extends AppCompatActivity implements
         setToolbar();
         setMaterialView();
         setNavigationView();
+        setMaterialDialog();
     }
 
 
@@ -205,10 +219,11 @@ public class PrimeActivity extends AppCompatActivity implements
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
                 return true;
             case R.id.menu_prime_about_setting:
-                removeAllData();
-                registerBluetooth();
+                removeDialog.show();
+
                 return true;
             case R.id.menu_prime_about_about:
+                Snackbar.make(coordinatorLayout, "준비중입니다..", Snackbar.LENGTH_SHORT).show();
                 return true;
             default:
                 return true;
@@ -299,6 +314,46 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
+    private void setMaterialDialog() {
+
+        final int REMOVE_USER = 0, REMOVE_HISTORY = 1, REMOVE_ALL = 2;
+        List<String> removeChoiceList = new ArrayList<String>();
+        removeChoiceList.add("유저정보(기기, 신체 정보)");
+        removeChoiceList.add("운동정보(도보량, 소모열량, 활동거리 저장 DB)");
+        removeChoiceList.add("전체 삭제");
+        removeDialog = new MaterialDialog.Builder(this).title("어떤 데이터를 삭제하시겠습니까?").items(removeChoiceList).itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
+            @Override
+            public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                return false;
+            }
+        }).negativeText("취소").onNegative(new MaterialDialog.SingleButtonCallback() {
+            @Override
+            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                dialog.dismiss();
+            }
+        }).positiveText("삭제").onPositive(new MaterialDialog.SingleButtonCallback() {
+            @Override
+            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                dialog.dismiss();
+                switch (dialog.getSelectedIndex()) {
+                    case REMOVE_USER:
+                        removeUserDeviceData();
+                        break;
+                    case REMOVE_HISTORY:
+                        removePrimeData();
+                        break;
+                    case REMOVE_ALL:
+                        removeUserDeviceData();
+                        removePrimeData();
+                        break;
+                }
+
+                registerBluetooth();
+            }
+        }).build();
+    }
+
+
     private void registerBluetooth() {
         if (isDeviceDataAvailable()) {
             gattManager = new GattManager(this, gattCallbacks);
@@ -382,6 +437,11 @@ public class PrimeActivity extends AppCompatActivity implements
         userAge = userVo.age;
         userHeight = userVo.height;
         deviceAddress = deviceVo.address;
+        if (Objects.equals(deviceVo.name, "Prime")) {
+            deviceType = DeviceType.DEVICE_PRIME;
+        } else {
+            deviceType = DeviceType.DEVICE_VIDONN;
+        }
     }
 
 
@@ -398,8 +458,13 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void removeAllData() {
+    private void removeUserDeviceData() {
         primeDao.clearSharedPreferenceData();
+    }
+
+
+    private void removePrimeData() {
+        primeDao.removePrimeData();
     }
 
 
@@ -428,10 +493,18 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void setAvailableGatt(List<BluetoothGattService> services) {
-        List<BluetoothGattCharacteristic> characteristicList = services.get(4).getCharacteristics();
-        gattManager.setNotification(characteristicList.get(1), true);
-        bluetoothGattCharacteristicForWrite = characteristicList.get(0);
-        bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
+        List<BluetoothGattCharacteristic> characteristicList;
+        if (deviceType == DeviceType.DEVICE_PRIME) {
+
+            characteristicList = services.get(4).getCharacteristics();
+            gattManager.setNotification(characteristicList.get(1), true);
+            bluetoothGattCharacteristicForWrite = characteristicList.get(0);
+            bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
+        } else {
+            gattManager.setNotification(services.get(6).getCharacteristics().get(0), true);
+            bluetoothGattCharacteristicForWrite = services.get(5).getCharacteristics().get(0);
+            bluetoothGattCharacteristicForBattery = services.get(4).getCharacteristics().get(0);
+        }
     }
 
 
@@ -587,6 +660,7 @@ public class PrimeActivity extends AppCompatActivity implements
                     state = connectionStateType.GATT_END;
                 }
             });
+
         }
 
 
@@ -597,7 +671,12 @@ public class PrimeActivity extends AppCompatActivity implements
 
         @DebugLog
         public void onDeviceReady() {
-            gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
+            if (deviceType == DeviceType.DEVICE_PRIME) {
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
+            } else {
+                VidonnHelper.setBluetoothGatt(gattManager.getGatt(), bluetoothGattCharacteristicForWrite);
+                VidonnHelper.writeDate_Time();
+            }
         }
 
 
@@ -606,27 +685,31 @@ public class PrimeActivity extends AppCompatActivity implements
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        switch (gattReadType) {
-                            case READ_TIME:
-                                setUpdateValue(readUpdateTimeValue(ch));
+                        if (deviceType == DeviceType.DEVICE_PRIME) {
+                            switch (gattReadType) {
+                                case READ_TIME:
+                                    setUpdateValue(readUpdateTimeValue(ch));
 
-                                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
-                                gattReadType = GattReadType.READ_STEP_DATA;
+                                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
+                                    gattReadType = GattReadType.READ_STEP_DATA;
 
-                                break;
+                                    break;
 
-                            case READ_STEP_DATA:
+                                case READ_STEP_DATA:
 
-                                savePrimeData(makePrimeItem(ch));
-                                primeFragment.setPrimeValue(primeDao.loadPrimeListData());
-                                primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+                                    savePrimeData(makePrimeItem(ch));
+                                    primeFragment.setPrimeValue(primeDao.loadPrimeListData());
+                                    primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
 
-                                gattManager.readValue(bluetoothGattCharacteristicForBattery);
-                                gattReadType = null;
+                                    gattManager.readValue(bluetoothGattCharacteristicForBattery);
+                                    gattReadType = null;
 
-                                break;
-                            default:
-                                break;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else {
+
                         }
                     }
                 });

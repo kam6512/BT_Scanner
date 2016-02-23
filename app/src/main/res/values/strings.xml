@@ -8,9 +8,9 @@
     <string name="menu.main.link">link</string>
 
     <string name="menu.setting">유저정보</string>
-    <string name="menu.setting.device">기기</string>
-    <string name="menu.setting.user">신체정보</string>
-    <string name="menu.setting.goal">목표</string>
+    <string name="menu.setting.device">기기 변경하기</string>
+    <string name="menu.setting.user">신체 정보수정</string>
+    <string name="menu.setting.goal">목표 지정</string>
 
     <string name="menu.about">ABOUT</string>
     <string name="menu.about.dev">개발자 모드</string>
