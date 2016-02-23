@@ -234,8 +234,13 @@ public class PrimeDao {
     }
 
 
-    public boolean isUserDataEmpty() {
-        return !sharedPreferences.contains(USER_KEY.KEY_NAME.keyValue);
+    public boolean isUserDataAvailable() {
+        return sharedPreferences.contains(USER_KEY.KEY_NAME.keyValue);
+    }
+
+
+    public boolean isPrimeDataAvailable() {
+        return realm.where(RealmPrimeItem.class).findAll().size() != 0;
     }
 
 

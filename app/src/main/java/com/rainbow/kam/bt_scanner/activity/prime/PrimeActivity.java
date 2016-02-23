@@ -2,7 +2,6 @@ package com.rainbow.kam.bt_scanner.activity.prime;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -114,7 +113,9 @@ public class PrimeActivity extends AppCompatActivity implements
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private MaterialDialog removeDialog;
+    private MaterialDialog removeDialog, reconnectDialog;
+
+    private Snackbar deviceSettingSnackBar;
 
     private GattManager gattManager;
 
@@ -184,6 +185,7 @@ public class PrimeActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             drawerLayout.openDrawer(GravityCompat.START);
+            deviceSettingSnackBar.dismiss();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -338,11 +340,6 @@ public class PrimeActivity extends AppCompatActivity implements
             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                 return false;
             }
-        }).negativeText("취소").onNegative(new MaterialDialog.SingleButtonCallback() {
-            @Override
-            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                dialog.dismiss();
-            }
         }).positiveText("삭제").onPositive(new MaterialDialog.SingleButtonCallback() {
             @Override
             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -360,12 +357,31 @@ public class PrimeActivity extends AppCompatActivity implements
                         break;
                 }
             }
+        }).negativeText("취소").onNegative(new MaterialDialog.SingleButtonCallback() {
+            @Override
+            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                dialog.dismiss();
+            }
         }).onAny(new MaterialDialog.SingleButtonCallback() {
             @Override
             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                 registerBluetooth();
             }
         }).canceledOnTouchOutside(false).build();
+
+        reconnectDialog = new MaterialDialog.Builder(this).title("이전 데이터와 연동하시겠습니까?").content("이전 기기에서 사용한 운동량 데이터가 남아있습니다. 이전 데이터를 삭제하거나 이어서 저장 할 수 있습니다.")
+                .positiveText("이어하기").negativeText("처음부터").onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        primeDao.removePrimeData();
+                    }
+                }).onAny(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        deviceListFragment.dismiss();
+                        registerBluetooth();
+                    }
+                }).build();
     }
 
 
@@ -391,7 +407,7 @@ public class PrimeActivity extends AppCompatActivity implements
             showDeviceSettingSnackBar();
             primeFragment.setNoneValue();
             return false;
-        } else if (primeDao.isUserDataEmpty()) {
+        } else if (primeDao.isUserDataAvailable()) {
             showUserSettingSnackBar();
         }
         return true;
@@ -400,13 +416,14 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void showDeviceSettingSnackBar() {
         state = connectionStateType.NEED_DEVICE_NOT_CONNECT;
-        Snackbar.make(coordinatorLayout, R.string.prime_setting_device, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_setting_device_action, new View.OnClickListener() {
+        deviceSettingSnackBar = Snackbar.make(coordinatorLayout, R.string.prime_setting_device, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_setting_device_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deviceListFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
 //            fragmentManager.beginTransaction().add(R.id.prime_fragment_frame,deviceListFragment).commit();
             }
-        }).show();
+        });
+        deviceSettingSnackBar.show();
     }
 
 
@@ -609,9 +626,13 @@ public class PrimeActivity extends AppCompatActivity implements
 
     @Override
     public void onDeviceSelect(final String name, final String address) {
-        deviceListFragment.dismiss();
         saveDeviceData(name, address);
-        registerBluetooth();
+        if (primeDao.isPrimeDataAvailable()) {
+            reconnectDialog.show();
+        } else {
+            deviceListFragment.dismiss();
+            registerBluetooth();
+        }
     }
 
 
@@ -651,8 +672,13 @@ public class PrimeActivity extends AppCompatActivity implements
                     if (state == connectionStateType.DISCONNECT_QUEUE) {
                         finish();
                     } else {
+                        String none = "--";
+                        navDeviceName.setText(none);
+                        navDeviceAddress.setText(none);
+                        setBatteryValue(-1);
+                        toolbarRssi.setText(none);
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
-                        toolbarRssi.setText("--");
+
 
                         if (swipeRefreshLayout.isRefreshing() || state == connectionStateType.REFRESH) {
                             registerBluetooth();
