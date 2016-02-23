@@ -11,6 +11,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.List;
 import java.util.Observable;
@@ -81,6 +82,11 @@ public class GattManager {
 //        observable.subscribe(subscriber);
 //
 //    }
+
+
+    public BluetoothGatt getGatt() {
+        return bluetoothGatt;
+    }
 
 
     @DebugLog
@@ -231,16 +237,20 @@ public class GattManager {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             gattCustomCallbacks.onDeviceNotify(characteristic);
+
+            Log.e("GATT", "onChanged" + characteristic.getUuid().toString());
         }
 
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onWriteSuccess();
-
+                Log.e("GATT", "onCharacteristicWrite ok" + characteristic.getUuid().toString());
             } else {
                 gattCustomCallbacks.onWriteFail();
+                Log.e("GATT", "onCharacteristicWrite FAIL" + characteristic.getUuid().toString());
             }
         }
 
@@ -259,6 +269,7 @@ public class GattManager {
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             if (descriptor.equals(notificationDescriptor)) {
                 gattCustomCallbacks.onDeviceReady();
+                Log.e("GATT", "onDescriptorWrite ok" + descriptor.getUuid().toString());
             }
         }
     };
