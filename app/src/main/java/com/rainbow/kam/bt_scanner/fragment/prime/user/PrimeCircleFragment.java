@@ -129,6 +129,15 @@ public class PrimeCircleFragment extends Fragment {
                 value = realmPrimeItem.getStep();
                 break;
         }
-        circleCounter.setValues(value);
+        if (circleCounter != null) {
+            circleCounter.setValues(value);
+        }
+    }
+
+
+    public void setNoneValue() {
+        if (circleCounter != null) {
+            circleCounter.setValues(0);
+        }
     }
 }

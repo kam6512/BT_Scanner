@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.fragment.device;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -9,6 +10,7 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,7 +39,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2016-02-17.
  */
-public class DeviceListFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class DeviceListFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener, DialogInterface.OnCancelListener {
     private final String TAG = getClass().getSimpleName();
 
     private static final String PRIME_NAME = "Prime";
@@ -90,7 +92,7 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
                 BluetoothHelper.requestBluetoothPermission((MainActivity) context);
             } else if (context instanceof PrimeActivity) {
                 BluetoothHelper.requestBluetoothPermission((PrimeActivity) context);
-                setWindowSetting();
+                setDialogSetting();
             }
         }
 
@@ -115,7 +117,7 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
     public void onPause() { //꺼짐
         super.onPause();
         stopScan();
-        deviceAdapter.cancel();
+
     }
 
 
@@ -129,10 +131,21 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
     }
 
 
-    private void setWindowSetting() {
-        Window window = getDialog().getWindow();
+    private void setDialogSetting() {
+        Dialog deviceListDialog = getDialog();
+        Window window = deviceListDialog.getWindow();
         window.requestFeature(Window.FEATURE_NO_TITLE);
         window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        deviceListDialog.setCanceledOnTouchOutside(false);
+        deviceListDialog.setCancelable(true);
+        deviceListDialog.setOnCancelListener(this);
+    }
+
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        deviceAdapter.cancel();
     }
 
 
@@ -212,9 +225,9 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
 
         } else if (context instanceof PrimeActivity) {
             String deviceName = bluetoothDevice.getName();
-//            if (deviceName != null && deviceName.equals(PRIME_NAME)) {
+            if (deviceName != null && deviceName.equals(PRIME_NAME)) {
                 deviceAdapter.addDevice(addDeviceItem);
-//            }
+            }
         }
     }
 
@@ -291,10 +304,5 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
             //noinspection deprecation
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
-    }
-
-
-    public void onCancel() {
-        deviceAdapter.cancel();
     }
 }

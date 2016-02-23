@@ -210,15 +210,26 @@ public class PrimeFragment extends Fragment implements
     }
 
 
+    public void setNoneValue() {
+        totalStep = 0;
+        totalCalorie = 0;
+        totalDistance = 0;
+        totalTextView.setText("0");
+        labelTextView.setText("정보 없음");
+        setCircleCounterNone();
+        historyAdapter.setEmptyList();
+    }
+
+
     public void setPrimeValue(List<RealmPrimeItem> results) {
+
+        setNoneValue();
+
         int length = results.size();
 
         String[] chartLabels = new String[length];
         float[] chartValues = new float[length];
 
-        totalStep = 0;
-        totalCalorie = 0;
-        totalDistance = 0;
 
         for (int i = 0; i < length; i++) {
             RealmPrimeItem realmPrimeItem = results.get(i);
@@ -235,8 +246,10 @@ public class PrimeFragment extends Fragment implements
 
         String total = getTotalValue(index) + units.get(index);
         totalTextView.setText(total);
+        labelTextView.setText(totalLabels.get(index));
 
-        setCircleCounterValue(results.get(length - 1));
+
+        setCircleCounterNone(results.get(length - 1));
         setChartValues(chartLabels, chartValues);
         historyAdapter.setHistoryList(results);
     }
@@ -288,7 +301,14 @@ public class PrimeFragment extends Fragment implements
     }
 
 
-    private void setCircleCounterValue(RealmPrimeItem realmPrimeItem) {
+    private void setCircleCounterNone() {
+        for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
+            primeCircleFragment.setNoneValue();
+        }
+    }
+
+
+    private void setCircleCounterNone(RealmPrimeItem realmPrimeItem) {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
             primeCircleFragment.setCircleValue(realmPrimeItem);
         }

@@ -68,12 +68,22 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
+    public void setEmptyList() {
+        historyArrayList.clear();
+        for (int i = 0; i < 10; i++) {
+            historyArrayList.add(new RealmPrimeItem());
+        }
+        notifyDataSetChanged();
+    }
+
+
     public void setHistoryList(List<RealmPrimeItem> results) {
         historyArrayList.clear();
         historyArrayList.addAll(results);
         Collections.reverse(historyArrayList);
         notifyDataSetChanged();
     }
+
 
     private class HistoryViewHolder extends RecyclerView.ViewHolder {
 

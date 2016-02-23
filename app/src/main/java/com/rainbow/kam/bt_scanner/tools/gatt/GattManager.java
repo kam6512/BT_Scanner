@@ -30,7 +30,7 @@ public class GattManager {
 
     private final Context context;
 
-    private final GattCustomCallbacks gattCustomCallbacks;
+    private  GattCustomCallbacks gattCustomCallbacks;
 
 //    private rx.Observable<String> observable;
 
@@ -101,7 +101,7 @@ public class GattManager {
             if (bluetoothDevice == null) {
                 throw new NullPointerException("RemoteDevice is not available");
             }
-            bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback);
         }
     }
 
@@ -111,6 +111,7 @@ public class GattManager {
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
         }
+
     }
 
 
@@ -208,8 +209,9 @@ public class GattManager {
                 stopMonitoringRssiValue();
 
                 gattCustomCallbacks.onDeviceDisconnected();
-//                bluetoothGatt.close();
-                gatt.close();
+                bluetoothGatt.close();
+                gattCustomCallbacks = null;
+//                gatt.close();
             }
         }
 

@@ -2,6 +2,7 @@ package com.rainbow.kam.bt_scanner.activity.prime;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -139,6 +140,7 @@ public class PrimeActivity extends AppCompatActivity implements
         state = connectionStateType.NONE;
 
         setContentView(R.layout.a_prime);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             BluetoothHelper.requestBluetoothPermission(this);
         }
@@ -219,8 +221,15 @@ public class PrimeActivity extends AppCompatActivity implements
                 startActivity(new Intent(PrimeActivity.this, MainActivity.class));
                 return true;
             case R.id.menu_prime_about_setting:
-                removeDialog.show();
 
+                if (swipeRefreshLayout.isRefreshing()) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+
+                if (!(state == connectionStateType.NEED_DEVICE_NOT_CONNECT)) {
+                    disconnectDevice();
+                }
+                removeDialog.show();
                 return true;
             case R.id.menu_prime_about_about:
                 Snackbar.make(coordinatorLayout, "준비중입니다..", Snackbar.LENGTH_SHORT).show();
@@ -244,7 +253,6 @@ public class PrimeActivity extends AppCompatActivity implements
             }
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -270,8 +278,8 @@ public class PrimeActivity extends AppCompatActivity implements
         primeFragment = new PrimeFragment();
         fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
 
-        userDataDialogFragment = new UserDataDialogFragment();
         deviceListFragment = new DeviceListFragment();
+        userDataDialogFragment = new UserDataDialogFragment();
         goalDialogFragment = new GoalDialogFragment();
     }
 
@@ -347,15 +355,21 @@ public class PrimeActivity extends AppCompatActivity implements
                         removePrimeData();
                         break;
                 }
-
+            }
+        }).onAny(new MaterialDialog.SingleButtonCallback() {
+            @Override
+            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                 registerBluetooth();
             }
-        }).build();
+        }).canceledOnTouchOutside(false).build();
     }
 
 
     private void registerBluetooth() {
         if (isDeviceDataAvailable()) {
+            if (gattManager != null) {
+                gattManager = null;
+            }
             gattManager = new GattManager(this, gattCallbacks);
             if (gattManager.isBluetoothAvailable()) {
                 loadUserDeviceData();
@@ -371,6 +385,7 @@ public class PrimeActivity extends AppCompatActivity implements
         if (primeDao.isAllDataEmpty()) {
             swipeRefreshLayout.setRefreshing(false);
             showDeviceSettingSnackBar();
+            primeFragment.setNoneValue();
             return false;
         } else if (primeDao.isUserDataEmpty()) {
             showUserSettingSnackBar();
