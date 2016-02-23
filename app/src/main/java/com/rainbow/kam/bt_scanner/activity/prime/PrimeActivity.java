@@ -385,6 +385,7 @@ public class PrimeActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 deviceListFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
+//            fragmentManager.beginTransaction().add(R.id.prime_fragment_frame,deviceListFragment).commit();
             }
         }).show();
     }
@@ -470,19 +471,14 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void setBatteryValue(int batteryValue) {
         Drawable drawable;
-        switch (batteryValue) {
-            case 0:
-            case 25:
-                drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_alert_white_36dp);
-                break;
-            case 50:
-            case 75:
-            case 100:
-                drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_std_white_36dp);
-                break;
-            default:
-                drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_unknown_white_36dp);
+        if (0 <= batteryValue && batteryValue <= 25)
+            drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_alert_white_36dp);
+        else if (25 < batteryValue && batteryValue <= 100) {
+            drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_std_white_36dp);
+        } else {
+            drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_unknown_white_36dp);
         }
+
         navBattery.setImageDrawable(drawable);
     }
 
