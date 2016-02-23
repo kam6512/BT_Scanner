@@ -25,10 +25,11 @@
     <TextView
         android:id="@+id/prime_no_device_textView"
         style="@style/NoDeviceLabel"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_gravity="center"
         android:text="@string/device.list.nothing"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        android:textColor="@color/text_light"/>
 
 
 </RelativeLayout>

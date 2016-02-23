@@ -106,7 +106,8 @@ public class PrimeActivity extends AppCompatActivity implements
     private PrimeFragment primeFragment;
 
     private ImageView navBattery;
-    private TextView navUpdate;
+    private TextView navDeviceName, navDeviceAddress, navUpdate;
+
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
     private CoordinatorLayout coordinatorLayout;
@@ -254,6 +255,7 @@ public class PrimeActivity extends AppCompatActivity implements
         }
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         BluetoothHelper.onRequestEnableResult(requestCode, resultCode, this);
@@ -317,6 +319,8 @@ public class PrimeActivity extends AppCompatActivity implements
         NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View nav = navigationView.getHeaderView(0);
+        navDeviceName = (TextView) nav.findViewById(R.id.prime_device_name);
+        navDeviceAddress = (TextView) nav.findViewById(R.id.prime_device_address);
         navUpdate = (TextView) nav.findViewById(R.id.prime_update);
         navBattery = (ImageView) nav.findViewById(R.id.prime_battery);
     }
@@ -453,6 +457,9 @@ public class PrimeActivity extends AppCompatActivity implements
         userAge = userVo.age;
         userHeight = userVo.height;
         deviceAddress = deviceVo.address;
+
+        setDeviceValue(deviceVo.name, deviceAddress);
+
         if (Objects.equals(deviceVo.name, "Prime")) {
             deviceType = DeviceType.DEVICE_PRIME;
         } else {
@@ -481,6 +488,12 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void removePrimeData() {
         primeDao.removePrimeData();
+    }
+
+
+    private void setDeviceValue(String deviceName, String deviceAddress) {
+        navDeviceName.setText(deviceName);
+        navDeviceAddress.setText("[" + deviceAddress + "]");
     }
 
 
