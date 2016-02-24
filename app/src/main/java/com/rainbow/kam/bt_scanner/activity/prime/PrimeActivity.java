@@ -61,6 +61,7 @@ public class PrimeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener,
         NavigationView.OnNavigationItemSelectedListener,
         DeviceAdapter.OnDeviceSelectListener,
+        UserDataDialogFragment.OnSaveUserDataListener,
         GoalDialogFragment.OnSaveGoalListener {
 
     private final String TAG = getClass().getSimpleName();
@@ -643,6 +644,13 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @Override
+    public void onSaveUserData() {
+        userDataDialogFragment.dismiss();
+        gattCallbacks.onDeviceReady();
+    }
+
+
+    @Override
     public void onSaveGoal() {
         goalDialogFragment.dismiss();
         primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
@@ -691,7 +699,6 @@ public class PrimeActivity extends AppCompatActivity implements
 
         public void onServicesFound(final List<BluetoothGattService> services) {
             state = connectionStateType.GATT_RUNNING;
-            gattReadType = GattReadType.READ_TIME;
             setAvailableGatt(services);
         }
 
@@ -721,6 +728,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
         @DebugLog
         public void onDeviceReady() {
+            gattReadType = GattReadType.READ_TIME;
             if (deviceType == DeviceType.DEVICE_PRIME) {
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
             } else {

@@ -35,16 +35,19 @@ public class UserDataDialogFragment extends DialogFragment {
 
     private UserVo userVo;
 
+    private OnSaveUserDataListener onSaveUserDataListener;
+
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         primeDao = PrimeDao.getInstance(context);
+        onSaveUserDataListener = (OnSaveUserDataListener) context;
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater,  ViewGroup container,  Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_prime_user, container, false);
         setUserInput();
         setBtn();
@@ -113,8 +116,7 @@ public class UserDataDialogFragment extends DialogFragment {
                 userVo.gender = true;
                 break;
         }
-        primeDao.saveUserData(userVo);
-        getFragmentManager().beginTransaction().remove(this).commit();
+        saveUserData();
     }
 
 
@@ -133,5 +135,16 @@ public class UserDataDialogFragment extends DialogFragment {
             }
         }
         return hasError;
+    }
+
+
+    private void saveUserData() {
+        primeDao.saveUserData(userVo);
+        onSaveUserDataListener.onSaveUserData();
+    }
+
+
+    public interface OnSaveUserDataListener {
+        void onSaveUserData();
     }
 }

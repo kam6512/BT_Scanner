@@ -2,6 +2,8 @@ package com.rainbow.kam.bt_scanner.tools.helper;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.support.v4.media.TransportMediator;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
@@ -63,38 +65,27 @@ public class VidonnHelper {
 //        System.out.println("CRC16 = " + Integer.toHexString(crc));
 //
 //    }
-    private static short CRC_16(byte[] paramArrayOfByte) {
-        short i = 0;
-//        short k = 0;
-//        while (true) {
-//            short m = 128;
-//            try {
-//                if (k >= paramArrayOfByte.length) {
-//                    short n = paramArrayOfByte[k];
-//                    short j = i;
-//                    if ((n & m) == 0)
-//                        continue;
-//                    j = (short) (i ^ 0x1021);
-//                    m >>= 1;
-//                    i = j;
-//                    break label64;
-//                    i = (short) (i << 1);
-//                    continue;
-//                }
-//            } catch (Exception e) {
-//                return -1;
-//            }
-//
-//            label64:
-//            if (m == 0) {
-//                k += 1;
-//                continue;
-//            }
-//            if ((0x8000 & i) == 0)
-//                continue;
-//            i = (short) ((short) (i << 1) ^ 0x1021);
-//        }
-        return i;
+    private static short CRC_16(byte[] data) {
+        short crc_result = (short) 0;
+        int i = 0;
+        while (i < data.length) {
+            try {
+                for (int j = TransportMediator.FLAG_KEY_MEDIA_NEXT; j != 0; j >>= 1) {
+                    if ((AccessibilityNodeInfoCompat.ACTION_PASTE & crc_result) != 0) {
+                        crc_result = (short) (((short) (crc_result << 1)) ^ 4129);
+                    } else {
+                        crc_result = (short) (crc_result << 1);
+                    }
+                    if ((data[i] & j) != 0) {
+                        crc_result = (short) (crc_result ^ 4129);
+                    }
+                }
+                i++;
+            } catch (Exception e) {
+                return (short) -1;
+            }
+        }
+        return crc_result;
     }
 
 
