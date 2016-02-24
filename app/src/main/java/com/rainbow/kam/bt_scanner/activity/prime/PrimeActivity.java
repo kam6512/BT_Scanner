@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -186,7 +187,6 @@ public class PrimeActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             drawerLayout.openDrawer(GravityCompat.START);
-            deviceSettingSnackBar.dismiss();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -199,6 +199,9 @@ public class PrimeActivity extends AppCompatActivity implements
             case R.id.menu_prime_setting_device:
                 if (swipeRefreshLayout.isRefreshing()) {
                     swipeRefreshLayout.setRefreshing(false);
+                }
+                if (deviceSettingSnackBar != null) {
+                    deviceSettingSnackBar.dismiss();
                 }
                 if (!(state == connectionStateType.NEED_DEVICE_NOT_CONNECT)) {
                     disconnectDevice();
@@ -543,7 +546,8 @@ public class PrimeActivity extends AppCompatActivity implements
             bluetoothGattCharacteristicForWrite = characteristicList.get(0);
             bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
         } else {
-            gattManager.setNotification(services.get(6).getCharacteristics().get(0), true);
+//            gattManager.setNotification(services.get(6).getCharacteristics().get(0), true);
+            gattManager.setNotification(services.get(5).getCharacteristics().get(1), true);
             bluetoothGattCharacteristicForWrite = services.get(5).getCharacteristics().get(0);
             bluetoothGattCharacteristicForBattery = services.get(4).getCharacteristics().get(0);
         }
@@ -732,8 +736,9 @@ public class PrimeActivity extends AppCompatActivity implements
             if (deviceType == DeviceType.DEVICE_PRIME) {
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
             } else {
-                VidonnHelper.setBluetoothGatt(gattManager.getGatt(), bluetoothGattCharacteristicForWrite);
-                VidonnHelper.writeDate_Time();
+//                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.writeDate_Time());
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.readHistoryRecodeDatail((byte) 1, (byte) 12));
+
             }
         }
 
@@ -767,7 +772,11 @@ public class PrimeActivity extends AppCompatActivity implements
                                     break;
                             }
                         } else {
-
+                            byte[] rawValue = ch.getValue();
+                            int length = rawValue.length;
+                            for (int i = 0; i < length; i++) {
+                                Log.e(TAG, "data " + formatHexData(rawValue, i));
+                            }
                         }
                     }
                 });

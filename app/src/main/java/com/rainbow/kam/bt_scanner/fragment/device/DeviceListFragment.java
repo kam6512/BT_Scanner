@@ -225,9 +225,9 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
 
         } else if (context instanceof PrimeActivity) {
             String deviceName = bluetoothDevice.getName();
-            if (deviceName != null && deviceName.equals(PRIME_NAME)) {
+//            if (deviceName != null && deviceName.equals(PRIME_NAME)) {
                 deviceAdapter.addDevice(addDeviceItem);
-            }
+//            }
         }
     }
 

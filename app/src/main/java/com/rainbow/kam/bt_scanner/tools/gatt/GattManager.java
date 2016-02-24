@@ -30,7 +30,7 @@ public class GattManager {
 
     private final Context context;
 
-    private  GattCustomCallbacks gattCustomCallbacks;
+    private GattCustomCallbacks gattCustomCallbacks;
 
 //    private rx.Observable<String> observable;
 
@@ -182,6 +182,7 @@ public class GattManager {
     }
 
 
+    @DebugLog
     public void writeValue(final BluetoothGattCharacteristic bluetoothGattCharacteristic, final byte[] dataToWrite) {
         if (dataToWrite.length != 0) {
             bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
@@ -226,6 +227,7 @@ public class GattManager {
         }
 
 
+        @DebugLog
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -236,6 +238,7 @@ public class GattManager {
         }
 
 
+        @DebugLog
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             gattCustomCallbacks.onDeviceNotify(characteristic);
@@ -244,15 +247,16 @@ public class GattManager {
         }
 
 
+        @DebugLog
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onWriteSuccess();
-                Log.e("GATT", "onCharacteristicWrite ok" + characteristic.getUuid().toString());
+                Log.e("GATT", "onCharacteristicWrite ok " + characteristic.getUuid().toString());
             } else {
                 gattCustomCallbacks.onWriteFail();
-                Log.e("GATT", "onCharacteristicWrite FAIL" + characteristic.getUuid().toString());
+                Log.e("GATT", "onCharacteristicWrite FAIL " + characteristic.getUuid().toString());
             }
         }
 
@@ -271,7 +275,7 @@ public class GattManager {
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             if (descriptor.equals(notificationDescriptor)) {
                 gattCustomCallbacks.onDeviceReady();
-                Log.e("GATT", "onDescriptorWrite ok" + descriptor.getUuid().toString());
+                Log.e("GATT", "onDescriptorWrite ok " + descriptor.getCharacteristic().getUuid().toString() + " \n " + descriptor.getUuid().toString());
             }
         }
     };
