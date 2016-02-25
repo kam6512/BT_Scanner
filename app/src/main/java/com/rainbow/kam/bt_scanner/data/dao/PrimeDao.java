@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import hugo.weaving.DebugLog;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.exceptions.RealmMigrationNeededException;
@@ -172,6 +173,7 @@ public class PrimeDao {
     }
 
 
+    @DebugLog
     public List<RealmPrimeItem> loadPrimeListData() {
         return realm.where(RealmPrimeItem.class).findAll();
     }

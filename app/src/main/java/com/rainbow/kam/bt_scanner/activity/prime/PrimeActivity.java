@@ -44,12 +44,10 @@ import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -125,7 +123,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
-    private String userAge, userHeight, deviceAddress;
+    private String userAge, userHeight, userWeight, deviceAddress;
     private String rssiUnit;
     private final String none = "--";
 
@@ -481,6 +479,7 @@ public class PrimeActivity extends AppCompatActivity implements
         DeviceVo deviceVo = primeDao.loadDeviceData();
         userAge = userVo.age;
         userHeight = userVo.height;
+        userWeight = userVo.weight;
         deviceAddress = deviceVo.address;
 
         setDeviceValue(deviceVo.name, deviceAddress);
@@ -563,12 +562,22 @@ public class PrimeActivity extends AppCompatActivity implements
         final String format = getString(R.string.prime_update_format);
         final SimpleDateFormat update = new SimpleDateFormat(format, Locale.getDefault());
         Calendar calendar = new GregorianCalendar();
-        calendar.set(Calendar.YEAR, characteristicValue[2]);
-        calendar.set(Calendar.MONTH, characteristicValue[3] - 1);
-        calendar.set(Calendar.DAY_OF_MONTH, characteristicValue[4]);
-        calendar.set(Calendar.HOUR_OF_DAY, characteristicValue[5]);
-        calendar.set(Calendar.MINUTE, characteristicValue[6]);
-        calendar.set(Calendar.SECOND, characteristicValue[7]);
+        if (deviceType == DeviceType.DEVICE_PRIME) {
+            calendar.set(Calendar.YEAR, characteristicValue[2]);
+            calendar.set(Calendar.MONTH, characteristicValue[3] - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, characteristicValue[4]);
+            calendar.set(Calendar.HOUR_OF_DAY, characteristicValue[5]);
+            calendar.set(Calendar.MINUTE, characteristicValue[6]);
+            calendar.set(Calendar.SECOND, characteristicValue[7]);
+        } else {
+            calendar.set(Calendar.YEAR, (characteristicValue[3] + characteristicValue[4]));
+            calendar.set(Calendar.MONTH, characteristicValue[5] - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, characteristicValue[6]);
+            calendar.set(Calendar.HOUR_OF_DAY, characteristicValue[7]);
+            calendar.set(Calendar.MINUTE, characteristicValue[8]);
+            calendar.set(Calendar.SECOND, characteristicValue[9]);
+        }
+
 
         return update.format(calendar.getTime());
     }
@@ -579,27 +588,42 @@ public class PrimeActivity extends AppCompatActivity implements
 
         final byte[] characteristicValue = ch.getValue();
 
-        StringBuilder hexStep = new StringBuilder()
-                .append(formatHexData(characteristicValue, 2))
-                .append(formatHexData(characteristicValue, 3))
-                .append(formatHexData(characteristicValue, 4));
+        StringBuilder hexStep = new StringBuilder();
+        StringBuilder hexCalorie = new StringBuilder();
 
-        StringBuilder hexCal = new StringBuilder()
-                .append(formatHexData(characteristicValue, 5))
-                .append(formatHexData(characteristicValue, 6))
-                .append(formatHexData(characteristicValue, 7));
+        if (deviceType == DeviceType.DEVICE_PRIME) {
+            hexStep.append(formatHexData(characteristicValue, 2))
+                    .append(formatHexData(characteristicValue, 3))
+                    .append(formatHexData(characteristicValue, 4));
+
+            hexCalorie
+                    .append(formatHexData(characteristicValue, 5))
+                    .append(formatHexData(characteristicValue, 6))
+                    .append(formatHexData(characteristicValue, 7));
+        } else {
+            hexStep.append(formatHexData(characteristicValue, 7))
+                    .append(formatHexData(characteristicValue, 6))
+                    .append(formatHexData(characteristicValue, 5))
+                    .append(formatHexData(characteristicValue, 4));
+
+            hexCalorie
+                    .append(formatHexData(characteristicValue, 11))
+                    .append(formatHexData(characteristicValue, 10))
+                    .append(formatHexData(characteristicValue, 9))
+                    .append(formatHexData(characteristicValue, 8));
+        }
+
 
         final int step, kcal, distance;
 
         final int radix = 16;
         step = Integer.parseInt(hexStep.toString(), radix);
-        kcal = Integer.parseInt(hexCal.toString(), radix);
+        kcal = Integer.parseInt(hexCalorie.toString(), radix);
 
         final int age = Integer.parseInt(userAge);
         final double height = Integer.parseInt(userHeight);
 
         final double convertValue;
-
         if (15 < age && age < 45) {
             convertValue = 0.45;
         } else if (45 <= age && age < 65) {
@@ -608,6 +632,7 @@ public class PrimeActivity extends AppCompatActivity implements
             convertValue = 0.35;
         }
         distance = (int) ((height * convertValue) * step) / 100;
+
 
         RealmPrimeItem realmPrimeItem = new RealmPrimeItem();
         realmPrimeItem.setStep(step);
@@ -740,9 +765,7 @@ public class PrimeActivity extends AppCompatActivity implements
             if (deviceType == DeviceType.DEVICE_PRIME) {
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
             } else {
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite,
-                        VidonnHelper.readHistoryRecodeDatail((byte) 4, (byte) 23));
-
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.readDate_Time());
             }
         }
 
@@ -753,41 +776,40 @@ public class PrimeActivity extends AppCompatActivity implements
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (deviceType == DeviceType.DEVICE_PRIME) {
-                            switch (gattReadType) {
-                                case READ_TIME:
-                                    setUpdateValue(readUpdateTimeValue(ch));
-
+                        switch (gattReadType) {
+                            case READ_TIME:
+                                setUpdateValue(readUpdateTimeValue(ch));
+                                if (deviceType == DeviceType.DEVICE_PRIME) {
                                     gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
-                                    gattReadType = GattReadType.READ_STEP_DATA;
-
-                                    break;
-
-                                case READ_STEP_DATA:
-
-                                    savePrimeData(makePrimeItem(ch));
-                                    primeFragment.setPrimeValue(primeDao.loadPrimeListData());
-                                    primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
-
-                                    gattManager.readValue(bluetoothGattCharacteristicForBattery);
-                                    gattReadType = null;
-
-                                    break;
-
-                                default:
-                                    break;
-                            }
-                        } else {
-                            byte[] rawValue = ch.getValue();
-                            int length = rawValue.length;
-                            for (int i = 0; i < length; i++) {
-                                if (i % 5 == 0) {
-                                    Log.e(TAG, "---------------------- " + i);
+                                } else {
+//                                    byte[] rawValue = ch.getValue();
+//                                    int length = rawValue.length;
+//                                    for (int i = 0; i < length; i++) {
+//                                        if (i % 5 == 0) {
+//                                            Log.e(TAG, "---------------------- " + i);
+//                                        }
+//                                        Log.e(TAG, "hex : " + formatHexData(rawValue, i)
+//                                                + " | dec : " + Integer.parseInt(formatHexData(rawValue, i), 16));
+//                                    }
+                                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.readCurrentValue());
                                 }
-                                Log.e(TAG, "hex : " + formatHexData(rawValue, i)
-                                        + " | dec : " + Integer.parseInt(formatHexData(rawValue, i), 16));
+                                gattReadType = GattReadType.READ_STEP_DATA;
 
-                            }
+                                break;
+
+                            case READ_STEP_DATA:
+
+                                savePrimeData(makePrimeItem(ch));
+                                primeFragment.setPrimeValue(primeDao.loadPrimeListData());
+                                primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+
+                                gattManager.readValue(bluetoothGattCharacteristicForBattery);
+                                gattReadType = GattReadType.READ_TIME;
+
+                                break;
+
+                            default:
+                                break;
                         }
                     }
                 });
