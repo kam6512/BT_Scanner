@@ -44,6 +44,7 @@ import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,7 +70,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private enum DeviceType {
-        DEVICE_PRIME, DEVICE_VIDONN;
+        DEVICE_PRIME, DEVICE_VIDONN
     }
 
     private DeviceType deviceType;
@@ -126,6 +127,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private String userAge, userHeight, deviceAddress;
     private String rssiUnit;
+    private final String none = "--";
 
     private PrimeDao primeDao;
 
@@ -302,7 +304,7 @@ public class PrimeActivity extends AppCompatActivity implements
         }
 
         toolbarRssi = (TextView) findViewById(R.id.prime_toolbar_rssi);
-        toolbarRssi.setText("--");
+        toolbarRssi.setText(none);
         rssiUnit = getString(R.string.rssi_unit);
         toolbarBluetoothFlag = (ImageView) findViewById(R.id.prime_toolbar_bluetoothFlag);
     }
@@ -326,7 +328,9 @@ public class PrimeActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         View nav = navigationView.getHeaderView(0);
         navDeviceName = (TextView) nav.findViewById(R.id.prime_device_name);
+        navDeviceName.setText(none);
         navDeviceAddress = (TextView) nav.findViewById(R.id.prime_device_address);
+        navDeviceAddress.setText(none);
         navUpdate = (TextView) nav.findViewById(R.id.prime_update);
         navBattery = (ImageView) nav.findViewById(R.id.prime_battery);
     }
@@ -684,7 +688,7 @@ public class PrimeActivity extends AppCompatActivity implements
                     if (state == connectionStateType.DISCONNECT_QUEUE) {
                         finish();
                     } else {
-                        String none = "--";
+
                         navDeviceName.setText(none);
                         navDeviceAddress.setText(none);
                         setBatteryValue(-1);
@@ -736,13 +740,14 @@ public class PrimeActivity extends AppCompatActivity implements
             if (deviceType == DeviceType.DEVICE_PRIME) {
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
             } else {
-//                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.writeDate_Time());
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.readHistoryRecodeDatail((byte) 1, (byte) 12));
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite,
+                        VidonnHelper.readHistoryRecodeDatail((byte) 4, (byte) 23));
 
             }
         }
 
 
+        @DebugLog
         public void onDeviceNotify(final BluetoothGattCharacteristic ch) {
             try {
                 runOnUiThread(new Runnable() {
@@ -768,6 +773,7 @@ public class PrimeActivity extends AppCompatActivity implements
                                     gattReadType = null;
 
                                     break;
+
                                 default:
                                     break;
                             }
@@ -775,7 +781,12 @@ public class PrimeActivity extends AppCompatActivity implements
                             byte[] rawValue = ch.getValue();
                             int length = rawValue.length;
                             for (int i = 0; i < length; i++) {
-                                Log.e(TAG, "data " + formatHexData(rawValue, i));
+                                if (i % 5 == 0) {
+                                    Log.e(TAG, "---------------------- " + i);
+                                }
+                                Log.e(TAG, "hex : " + formatHexData(rawValue, i)
+                                        + " | dec : " + Integer.parseInt(formatHexData(rawValue, i), 16));
+
                             }
                         }
                     }
