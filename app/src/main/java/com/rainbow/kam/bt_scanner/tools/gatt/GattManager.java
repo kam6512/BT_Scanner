@@ -188,10 +188,16 @@ public class GattManager {
             bluetoothGattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             bluetoothGattCharacteristic.setValue(dataToWrite);
 
-            boolean status = bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
-            if (!status) {
-                gattCustomCallbacks.onWriteFail();
-            }
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    boolean status = bluetoothGatt.writeCharacteristic(bluetoothGattCharacteristic);
+                    if (!status && gattCustomCallbacks != null) {
+                        gattCustomCallbacks.onWriteFail();
+                    }
+                }
+            }, 20);
+
         } else {
             gattCustomCallbacks.onWriteFail();
         }
@@ -212,7 +218,6 @@ public class GattManager {
                 gattCustomCallbacks.onDeviceDisconnected();
                 bluetoothGatt.close();
                 gattCustomCallbacks = null;
-//                gatt.close();
             }
         }
 
@@ -238,12 +243,10 @@ public class GattManager {
         }
 
 
-        @DebugLog
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             gattCustomCallbacks.onDeviceNotify(characteristic);
-
-            Log.e("GATT", "onChanged" + characteristic.getUuid().toString());
+            Log.i("GATT", "onCharacteristicChanged");
         }
 
 
@@ -253,10 +256,10 @@ public class GattManager {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gattCustomCallbacks.onWriteSuccess();
-                Log.e("GATT", "onCharacteristicWrite ok " + characteristic.getUuid().toString());
+                Log.i("GATT", "onCharacteristicWrite ok " + characteristic.getUuid().toString());
             } else {
                 gattCustomCallbacks.onWriteFail();
-                Log.e("GATT", "onCharacteristicWrite FAIL " + characteristic.getUuid().toString());
+                Log.i("GATT", "onCharacteristicWrite FAIL " + characteristic.getUuid().toString());
             }
         }
 
@@ -275,7 +278,7 @@ public class GattManager {
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             if (descriptor.equals(notificationDescriptor)) {
                 gattCustomCallbacks.onDeviceReady();
-                Log.e("GATT", "onDescriptorWrite ok " + descriptor.getCharacteristic().getUuid().toString() + " \n " + descriptor.getUuid().toString());
+                Log.i("GATT", "onDescriptorWrite ok " + descriptor.getCharacteristic().getUuid().toString() + " \n " + descriptor.getUuid().toString());
             }
         }
     };

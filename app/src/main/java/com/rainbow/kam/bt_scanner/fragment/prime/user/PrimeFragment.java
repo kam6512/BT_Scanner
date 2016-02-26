@@ -249,7 +249,7 @@ public class PrimeFragment extends Fragment implements
         labelTextView.setText(totalLabels.get(index));
 
 
-        setCircleCounterNone(results.get(length - 1));
+        setCircleCounterValue(results.get(length - 1));
         setChartValues(chartLabels, chartValues);
         historyAdapter.setHistoryList(results);
     }
@@ -308,7 +308,7 @@ public class PrimeFragment extends Fragment implements
     }
 
 
-    private void setCircleCounterNone(RealmPrimeItem realmPrimeItem) {
+    private void setCircleCounterValue(RealmPrimeItem realmPrimeItem) {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
             primeCircleFragment.setCircleValue(realmPrimeItem);
         }

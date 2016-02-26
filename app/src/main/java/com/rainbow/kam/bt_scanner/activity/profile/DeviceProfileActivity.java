@@ -91,7 +91,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         Intent intent = getIntent();
         deviceName = intent.getStringExtra(MainActivity.KEY_DEVICE_NAME);
         deviceAddress = intent.getStringExtra(MainActivity.KEY_DEVICE_ADDRESS);
-        RSSI_UNIT = getString(R.string.rssi_unit);
+        RSSI_UNIT = getString(R.string.bt_rssi_unit);
         deviceRSSI = "- - " + RSSI_UNIT;
 
         setToolbar();

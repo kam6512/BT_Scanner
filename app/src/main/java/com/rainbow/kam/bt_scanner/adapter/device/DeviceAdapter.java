@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 
 import java.util.Objects;
 
@@ -184,7 +185,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     expandView();
                 }
             } else {
-                onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
+                DeviceVo deviceVo = new DeviceVo();
+                deviceVo.name = deviceItem.getExtraName();
+                deviceVo.address = deviceItem.getExtraAddress();
+                onDeviceSelectListener.onDeviceSelect(deviceVo);
             }
         }
 
@@ -230,7 +234,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public interface OnDeviceSelectListener {
-        void onDeviceSelect(String name, String address);
+        void onDeviceSelect(DeviceVo deviceVo);
 
         void onDeviceUnSelected();
     }

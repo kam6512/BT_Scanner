@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
+import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
@@ -116,10 +117,10 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onDeviceSelect(String name, String address) {
+    public void onDeviceSelect(DeviceVo deviceVo) {
         Intent intent = new Intent(this, DeviceProfileActivity.class);
-        intent.putExtra(KEY_DEVICE_NAME, name);
-        intent.putExtra(KEY_DEVICE_ADDRESS, address);
+        intent.putExtra(KEY_DEVICE_NAME, deviceVo.name);
+        intent.putExtra(KEY_DEVICE_ADDRESS, deviceVo.address);
         startActivity(intent);
     }
 

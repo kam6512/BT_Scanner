@@ -236,6 +236,7 @@ public class PrimeDao {
     }
 
 
+    @DebugLog
     public boolean isUserDataAvailable() {
         return sharedPreferences.contains(USER_KEY.KEY_NAME.keyValue);
     }

@@ -46,11 +46,12 @@ import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.logging.LogRecord;
 
 import hugo.weaving.DebugLog;
 
@@ -66,23 +67,6 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private final String TAG = getClass().getSimpleName();
 
-
-    private enum DeviceType {
-        DEVICE_PRIME, DEVICE_VIDONN
-    }
-
-    private DeviceType deviceType;
-
-    public static final int INDEX_STEP = 0;
-    public static final int INDEX_CALORIE = 1;
-    public static final int INDEX_DISTANCE = 2;
-
-    private enum GattReadType {
-        READ_TIME, READ_STEP_DATA
-    }
-
-    private GattReadType gattReadType;
-
     private enum connectionStateType {
         NONE,
         NEED_DEVICE_NOT_CONNECT,
@@ -95,7 +79,22 @@ public class PrimeActivity extends AppCompatActivity implements
         REFRESH
     }
 
+    private enum GattReadType {
+        READ_TIME, READ_EXERCISE_DATA, READ_BATTERY, END, VIDONN_HISTORY_BLOCK, VIDONN_HISTORY_DETAIL
+    }
+
+    private enum DeviceType {
+        DEVICE_PRIME, DEVICE_VIDONN
+    }
+
     private connectionStateType state;
+    private GattReadType gattReadType;
+    private DeviceType deviceType;
+
+    public static final int INDEX_STEP = 0;
+    public static final int INDEX_CALORIE = 1;
+    public static final int INDEX_DISTANCE = 2;
+
 
     private FragmentManager fragmentManager;
 
@@ -123,7 +122,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
-    private String userAge, userHeight, userWeight, deviceAddress;
+    private String userAge, userHeight, userWeight, deviceName, deviceAddress;
     private String rssiUnit;
     private final String none = "--";
 
@@ -135,6 +134,21 @@ public class PrimeActivity extends AppCompatActivity implements
             swipeRefreshLayout.setRefreshing(true);
         }
     };
+
+    private int[][] historyDate_Map;
+
+    private int historyDetail_Data_Block_Week_ID = 1;// 1~7
+    private int historyDetail_Data_Block_Hour_ID = 0;// 0~23
+
+    private int dateBlockIndex = 0;
+    private int innerHourBlockIndex = 0;
+    private final int innerHourBlockCount = 20;
+
+    private byte[] historyDetail_Data = new byte[67];
+
+    int dayStepTotal = 0;
+
+    List<Integer> stepList = new ArrayList<>();
 
 
     @Override
@@ -283,18 +297,19 @@ public class PrimeActivity extends AppCompatActivity implements
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
-        primeFragment = new PrimeFragment();
-        fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
-
         deviceListFragment = new DeviceListFragment();
         userDataDialogFragment = new UserDataDialogFragment();
         goalDialogFragment = new GoalDialogFragment();
+
+        primeFragment = new PrimeFragment();
+        fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
     }
 
 
     private void setToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.prime_toolbar);
         setSupportActionBar(toolbar);
+
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
@@ -303,7 +318,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
         toolbarRssi = (TextView) findViewById(R.id.prime_toolbar_rssi);
         toolbarRssi.setText(none);
-        rssiUnit = getString(R.string.rssi_unit);
+        rssiUnit = getString(R.string.bt_rssi_unit);
         toolbarBluetoothFlag = (ImageView) findViewById(R.id.prime_toolbar_bluetoothFlag);
     }
 
@@ -324,46 +339,53 @@ public class PrimeActivity extends AppCompatActivity implements
     private void setNavigationView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.prime_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        View nav = navigationView.getHeaderView(0);
-        navDeviceName = (TextView) nav.findViewById(R.id.prime_device_name);
+
+        View navHeader = navigationView.getHeaderView(0);
+
+        navDeviceName = (TextView) navHeader.findViewById(R.id.prime_device_name);
         navDeviceName.setText(none);
-        navDeviceAddress = (TextView) nav.findViewById(R.id.prime_device_address);
+
+        navDeviceAddress = (TextView) navHeader.findViewById(R.id.prime_device_address);
         navDeviceAddress.setText(none);
-        navUpdate = (TextView) nav.findViewById(R.id.prime_update);
-        navBattery = (ImageView) nav.findViewById(R.id.prime_battery);
+
+        navUpdate = (TextView) navHeader.findViewById(R.id.prime_update);
+        navUpdate.setText(none);
+
+        navBattery = (ImageView) navHeader.findViewById(R.id.prime_battery);
     }
 
 
     private void setMaterialDialog() {
 
         final int REMOVE_USER = 0, REMOVE_HISTORY = 1, REMOVE_ALL = 2;
-        List<String> removeChoiceList = new ArrayList<String>();
-        removeChoiceList.add("유저정보(기기, 신체 정보)");
-        removeChoiceList.add("운동정보(도보량, 소모열량, 활동거리 저장 DB)");
-        removeChoiceList.add("전체 삭제");
-        removeDialog = new MaterialDialog.Builder(this).title("어떤 데이터를 삭제하시겠습니까?").items(removeChoiceList).itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
+        final List<String> removeChoiceList = new ArrayList<>();
+        removeChoiceList.add(getString(R.string.prime_remove_item_user_device));
+        removeChoiceList.add(getString(R.string.prime_remove_item_exercise));
+        removeChoiceList.add(getString(R.string.prime_remove_item_all));
+        removeDialog = new MaterialDialog.Builder(this).title(R.string.prime_remove_title).items(removeChoiceList).itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
             @Override
             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                 return false;
             }
-        }).positiveText("삭제").onPositive(new MaterialDialog.SingleButtonCallback() {
+        }).positiveText(R.string.prime_remove_accept).onPositive(new MaterialDialog.SingleButtonCallback() {
             @Override
             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                dialog.dismiss();
+
                 switch (dialog.getSelectedIndex()) {
                     case REMOVE_USER:
-                        removeUserDeviceData();
+                        primeDao.clearSharedPreferenceData();
                         break;
                     case REMOVE_HISTORY:
-                        removePrimeData();
+                        primeDao.removePrimeData();
                         break;
                     case REMOVE_ALL:
-                        removeUserDeviceData();
-                        removePrimeData();
+                        primeDao.clearSharedPreferenceData();
+                        primeDao.removePrimeData();
                         break;
                 }
+                dialog.dismiss();
             }
-        }).negativeText("취소").onNegative(new MaterialDialog.SingleButtonCallback() {
+        }).negativeText(R.string.prime_remove_denied).onNegative(new MaterialDialog.SingleButtonCallback() {
             @Override
             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                 dialog.dismiss();
@@ -375,8 +397,9 @@ public class PrimeActivity extends AppCompatActivity implements
             }
         }).canceledOnTouchOutside(false).build();
 
-        reconnectDialog = new MaterialDialog.Builder(this).title("이전 데이터와 연동하시겠습니까?").content("이전 기기에서 사용한 운동량 데이터가 남아있습니다. 이전 데이터를 삭제하거나 이어서 저장 할 수 있습니다.")
-                .positiveText("이어하기").negativeText("처음부터").onNegative(new MaterialDialog.SingleButtonCallback() {
+
+        reconnectDialog = new MaterialDialog.Builder(this).title(R.string.prime_reconnect_title).content(R.string.prime_reconnect_content)
+                .positiveText(R.string.prime_reconnect_accept).negativeText(R.string.prime_reconnect_denied).onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         primeDao.removePrimeData();
@@ -410,8 +433,8 @@ public class PrimeActivity extends AppCompatActivity implements
     private boolean isDeviceDataAvailable() {
         if (primeDao.isAllDataEmpty()) {
             swipeRefreshLayout.setRefreshing(false);
-            showDeviceSettingSnackBar();
             primeFragment.setNoneValue();
+            showDeviceSettingSnackBar();
             return false;
         } else if (primeDao.isUserDataAvailable()) {
             showUserSettingSnackBar();
@@ -426,7 +449,6 @@ public class PrimeActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 deviceListFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
-//            fragmentManager.beginTransaction().add(R.id.prime_fragment_frame,deviceListFragment).commit();
             }
         });
         deviceSettingSnackBar.show();
@@ -480,48 +502,30 @@ public class PrimeActivity extends AppCompatActivity implements
         userAge = userVo.age;
         userHeight = userVo.height;
         userWeight = userVo.weight;
+        deviceName = deviceVo.name;
         deviceAddress = deviceVo.address;
 
-        setDeviceValue(deviceVo.name, deviceAddress);
+        setNavHeaderDeviceValue();
+        checkDeviceType();
+    }
 
-        if (Objects.equals(deviceVo.name, "Prime")) {
+
+    private void checkDeviceType() {
+        if (deviceName.contains(getString(R.string.device_name_prime))) {
             deviceType = DeviceType.DEVICE_PRIME;
-        } else {
+        } else if (deviceName.contains(getString(R.string.device_name_Vidonn))) {
             deviceType = DeviceType.DEVICE_VIDONN;
         }
     }
 
 
-    private void saveDeviceData(String name, String address) {
-        DeviceVo deviceVo = new DeviceVo();
-        deviceVo.name = name;
-        deviceVo.address = address;
-        primeDao.saveDeviceData(deviceVo);
-    }
-
-
-    private void savePrimeData(RealmPrimeItem realmPrimeItem) {
-        primeDao.savePrimeData(realmPrimeItem);
-    }
-
-
-    private void removeUserDeviceData() {
-        primeDao.clearSharedPreferenceData();
-    }
-
-
-    private void removePrimeData() {
-        primeDao.removePrimeData();
-    }
-
-
-    private void setDeviceValue(String deviceName, String deviceAddress) {
+    private void setNavHeaderDeviceValue() {
         navDeviceName.setText(deviceName);
         navDeviceAddress.setText("[" + deviceAddress + "]");
     }
 
 
-    private void setBatteryValue(int batteryValue) {
+    private void setNavHeaderBatteryValue(int batteryValue) {
         Drawable drawable;
         if (0 <= batteryValue && batteryValue <= 25)
             drawable = ContextCompat.getDrawable(this, R.drawable.ic_battery_alert_white_36dp);
@@ -535,30 +539,92 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void setUpdateValue(String updateValue) {
+    private void setNavHeaderUpdateValue(String updateValue) {
         navUpdate.setText(updateValue);
     }
 
 
-    private void setAvailableGatt(List<BluetoothGattService> services) {
-        List<BluetoothGattCharacteristic> characteristicList;
-        if (deviceType == DeviceType.DEVICE_PRIME) {
+    private void fail() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                primeFragment.setTextFail();
+            }
+        });
+    }
 
-            characteristicList = services.get(4).getCharacteristics();
-            gattManager.setNotification(characteristicList.get(1), true);
-            bluetoothGattCharacteristicForWrite = characteristicList.get(0);
-            bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
+
+    @Override
+    public void onDeviceSelect(DeviceVo deviceVo) {
+
+        primeDao.saveDeviceData(deviceVo);
+
+        if (primeDao.isPrimeDataAvailable()) {
+            reconnectDialog.show();
         } else {
-//            gattManager.setNotification(services.get(6).getCharacteristics().get(0), true);
-            gattManager.setNotification(services.get(5).getCharacteristics().get(1), true);
-            bluetoothGattCharacteristicForWrite = services.get(5).getCharacteristics().get(0);
-            bluetoothGattCharacteristicForBattery = services.get(4).getCharacteristics().get(0);
+            deviceListFragment.dismiss();
+            registerBluetooth();
         }
     }
 
 
-    private String readUpdateTimeValue(BluetoothGattCharacteristic ch) {
-        final byte[] characteristicValue = ch.getValue();
+    @Override
+    public void onDeviceUnSelected() {
+        registerBluetooth();
+    }
+
+
+    @Override
+    public void onSaveUserData() {
+        userDataDialogFragment.dismiss();
+//        state = connectionStateType.REFRESH;
+//        disconnectDevice();
+    }
+
+
+    @Override
+    public void onSaveGoal() {
+        goalDialogFragment.dismiss();
+        primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+    }
+
+
+    private void setAvailableGatt(List<BluetoothGattService> services) {
+        switch (deviceType) {
+            case DEVICE_PRIME:
+                gattManager.setNotification(services.get(4).getCharacteristics().get(1), true);
+                bluetoothGattCharacteristicForWrite = services.get(4).getCharacteristics().get(0);
+                bluetoothGattCharacteristicForBattery = services.get(2).getCharacteristics().get(0);
+                break;
+            case DEVICE_VIDONN:
+                gattManager.setNotification(services.get(5).getCharacteristics().get(1), true);
+                bluetoothGattCharacteristicForWrite = services.get(5).getCharacteristics().get(0);
+                bluetoothGattCharacteristicForBattery = services.get(4).getCharacteristics().get(0);
+                break;
+        }
+    }
+
+
+    private void onReadTime(final BluetoothGattCharacteristic ch) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setNavHeaderUpdateValue(readUpdateTimeValue(ch));
+            }
+        });
+        switch (deviceType) {
+            case DEVICE_PRIME:
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
+                break;
+            case DEVICE_VIDONN:
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readCurrentValue());
+                break;
+        }
+    }
+
+
+    private String readUpdateTimeValue(final BluetoothGattCharacteristic characteristic) {
+        final byte[] characteristicValue = characteristic.getValue();
         final String format = getString(R.string.prime_update_format);
         final SimpleDateFormat update = new SimpleDateFormat(format, Locale.getDefault());
         Calendar calendar = new GregorianCalendar();
@@ -583,34 +649,53 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private RealmPrimeItem makePrimeItem(BluetoothGattCharacteristic ch)
+    private void onReadExerciseData(final BluetoothGattCharacteristic characteristic) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                primeDao.savePrimeData(makePrimeItem(characteristic));
+                primeFragment.setPrimeValue(primeDao.loadPrimeListData());
+                primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+            }
+        });
+
+        gattManager.readValue(bluetoothGattCharacteristicForBattery);
+    }
+
+
+    private RealmPrimeItem makePrimeItem(final BluetoothGattCharacteristic characteristic)
             throws ArrayIndexOutOfBoundsException {
 
-        final byte[] characteristicValue = ch.getValue();
+        final int age = Integer.parseInt(userAge);
+        final double height = Integer.parseInt(userHeight);
+
+        final byte[] characteristicValue = characteristic.getValue();
 
         StringBuilder hexStep = new StringBuilder();
         StringBuilder hexCalorie = new StringBuilder();
+        switch (deviceType) {
+            case DEVICE_PRIME:
+                hexStep.append(formatHexData(characteristicValue, 2))
+                        .append(formatHexData(characteristicValue, 3))
+                        .append(formatHexData(characteristicValue, 4));
 
-        if (deviceType == DeviceType.DEVICE_PRIME) {
-            hexStep.append(formatHexData(characteristicValue, 2))
-                    .append(formatHexData(characteristicValue, 3))
-                    .append(formatHexData(characteristicValue, 4));
+                hexCalorie
+                        .append(formatHexData(characteristicValue, 5))
+                        .append(formatHexData(characteristicValue, 6))
+                        .append(formatHexData(characteristicValue, 7));
+                break;
+            case DEVICE_VIDONN:
+                hexStep.append(formatHexData(characteristicValue, 7))
+                        .append(formatHexData(characteristicValue, 6))
+                        .append(formatHexData(characteristicValue, 5))
+                        .append(formatHexData(characteristicValue, 4));
 
-            hexCalorie
-                    .append(formatHexData(characteristicValue, 5))
-                    .append(formatHexData(characteristicValue, 6))
-                    .append(formatHexData(characteristicValue, 7));
-        } else {
-            hexStep.append(formatHexData(characteristicValue, 7))
-                    .append(formatHexData(characteristicValue, 6))
-                    .append(formatHexData(characteristicValue, 5))
-                    .append(formatHexData(characteristicValue, 4));
-
-            hexCalorie
-                    .append(formatHexData(characteristicValue, 11))
-                    .append(formatHexData(characteristicValue, 10))
-                    .append(formatHexData(characteristicValue, 9))
-                    .append(formatHexData(characteristicValue, 8));
+                hexCalorie
+                        .append(formatHexData(characteristicValue, 11))
+                        .append(formatHexData(characteristicValue, 10))
+                        .append(formatHexData(characteristicValue, 9))
+                        .append(formatHexData(characteristicValue, 8));
+                break;
         }
 
 
@@ -619,9 +704,6 @@ public class PrimeActivity extends AppCompatActivity implements
         final int radix = 16;
         step = Integer.parseInt(hexStep.toString(), radix);
         kcal = Integer.parseInt(hexCalorie.toString(), radix);
-
-        final int age = Integer.parseInt(userAge);
-        final double height = Integer.parseInt(userHeight);
 
         final double convertValue;
         if (15 < age && age < 45) {
@@ -648,46 +730,145 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private void fail() {
+    private void onReadBattery(final BluetoothGattCharacteristic characteristic) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                primeFragment.setTextFail();
+                int batteryValue = characteristic.getValue()[0];
+                setNavHeaderBatteryValue(batteryValue);
             }
         });
-    }
-
-
-    @Override
-    public void onDeviceSelect(final String name, final String address) {
-        saveDeviceData(name, address);
-        if (primeDao.isPrimeDataAvailable()) {
-            reconnectDialog.show();
-        } else {
-            deviceListFragment.dismiss();
-            registerBluetooth();
+        switch (deviceType) {
+            case DEVICE_PRIME:
+                gattReadType = GattReadType.END;
+                state = connectionStateType.GATT_END;
+                break;
+            case DEVICE_VIDONN:
+                gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDate());
+                break;
         }
     }
 
 
-    @Override
-    public void onDeviceUnSelected() {
-        registerBluetooth();
+
+    private void onReadHistoryBlock(final BluetoothGattCharacteristic characteristic) {
+        byte[] blockData = characteristic.getValue();
+        byte[] historyDate_Data = new byte[40];
+
+        if (dateBlockIndex == 0) {
+            if (blockData.length < 20) {
+                dateBlockIndex = 0;
+
+                historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(blockData, blockData.length);
+                for (int j = 0; j < historyDate_Map.length; j++) {
+                    Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
+                            historyDate_Map[j][0] + "Block  Date=" + historyDate_Map[j][1] + "/"
+                            + historyDate_Map[j][2] + "/" + historyDate_Map[j][3]);
+                }
+            } else {
+                dateBlockIndex = 1;
+                for (int i = 0; i < blockData.length; i++) {
+                    historyDate_Data[i] = blockData[i];
+                }
+            }
+        } else if (dateBlockIndex == 1) {
+            dateBlockIndex = 0;
+            int dataLength = 20 + blockData.length;
+
+            for (int i = 20; i < dataLength; i++) {
+                historyDate_Data[i] = blockData[i - 20];
+            }
+
+            historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(historyDate_Data, dataLength);
+
+
+            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID, (byte) historyDetail_Data_Block_Hour_ID));
+            gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
+        }
     }
 
 
-    @Override
-    public void onSaveUserData() {
-        userDataDialogFragment.dismiss();
-        gattCallbacks.onDeviceReady();
+    private boolean updateBlockIndex() {
+        historyDetail_Data_Block_Hour_ID++;
+        if (historyDetail_Data_Block_Hour_ID == 24) {
+            historyDetail_Data_Block_Hour_ID = 0;
+
+            stepList.add(dayStepTotal);
+            dayStepTotal = 0;
+
+            historyDetail_Data_Block_Week_ID++;
+        }
+        if ((historyDetail_Data_Block_Week_ID > 7)) {
+            Log.e(TAG, "Over");
+
+            for (int step : stepList) {
+                Log.e(TAG, "Step : " + step);
+            }
+
+            gattReadType = GattReadType.END;
+            historyDetail_Data_Block_Week_ID = 1;
+            historyDetail_Data_Block_Hour_ID = 0;
+            return false;
+        }
+        return true;
     }
 
 
-    @Override
-    public void onSaveGoal() {
-        goalDialogFragment.dismiss();
-        primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+    private void addHistoryDetail(byte[] detailData, int dataLength) {
+        int indexStart = innerHourBlockIndex * innerHourBlockCount;
+        for (int i = indexStart; i < indexStart + dataLength; i++) {
+            historyDetail_Data[i] = detailData[i - indexStart];
+        }
+        if (innerHourBlockIndex != 3) {
+            innerHourBlockIndex++;
+        } else {
+            innerHourBlockIndex = 0;
+        }
     }
+
+
+    private void onReadDetailBlock(final BluetoothGattCharacteristic characteristic) {
+        byte[] detailData = characteristic.getValue();
+        int dataLength = detailData.length;
+
+        switch (innerHourBlockIndex) {
+            case 0:
+                Log.e(TAG, historyDetail_Data_Block_Week_ID + "Block  "
+                        + historyDetail_Data_Block_Hour_ID + " Hour / " + detailData.length + " data.length");
+
+                if (dataLength < 15) {
+                    if (updateBlockIndex()) {
+
+                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID,
+                                (byte) historyDetail_Data_Block_Hour_ID));
+                    }
+                } else {
+                    addHistoryDetail(detailData, dataLength);
+                }
+                break;
+            case 1:
+            case 2:
+                addHistoryDetail(detailData, dataLength);
+                break;
+            case 3:
+                addHistoryDetail(detailData, dataLength);
+
+
+                int[][] steps = VidonnHelper.DeCodeX6.decode_HistoryRecodeDetail(historyDetail_Data);
+
+                for (int i = 1; i < steps.length; i++) {
+                    dayStepTotal += steps[i][1];
+                }
+
+                if (updateBlockIndex()) {
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID,
+                            (byte) historyDetail_Data_Block_Hour_ID));
+                }
+                break;
+        }
+    }
+
 
 
     private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
@@ -716,7 +897,8 @@ public class PrimeActivity extends AppCompatActivity implements
 
                         navDeviceName.setText(none);
                         navDeviceAddress.setText(none);
-                        setBatteryValue(-1);
+                        navUpdate.setText(none);
+                        setNavHeaderBatteryValue(-1);
                         toolbarRssi.setText(none);
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
 
@@ -741,16 +923,8 @@ public class PrimeActivity extends AppCompatActivity implements
         }
 
 
-        public void onReadSuccess(final BluetoothGattCharacteristic ch) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    int batteryValue = ch.getValue()[0];
-                    setBatteryValue(batteryValue);
-                    state = connectionStateType.GATT_END;
-                }
-            });
-
+        public void onReadSuccess(final BluetoothGattCharacteristic characteristic) {
+            onReadBattery(characteristic);
         }
 
 
@@ -761,63 +935,52 @@ public class PrimeActivity extends AppCompatActivity implements
 
         @DebugLog
         public void onDeviceReady() {
-            gattReadType = GattReadType.READ_TIME;
-            if (deviceType == DeviceType.DEVICE_PRIME) {
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
-            } else {
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.readDate_Time());
+            switch (deviceType) {
+                case DEVICE_PRIME:
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
+                    break;
+                case DEVICE_VIDONN:
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readDate_Time());
+                    break;
             }
+            gattReadType = GattReadType.READ_TIME;
         }
 
 
         @DebugLog
-        public void onDeviceNotify(final BluetoothGattCharacteristic ch) {
+        public synchronized void onDeviceNotify(final BluetoothGattCharacteristic characteristic) {
             try {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        switch (gattReadType) {
-                            case READ_TIME:
-                                setUpdateValue(readUpdateTimeValue(ch));
-                                if (deviceType == DeviceType.DEVICE_PRIME) {
-                                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
-                                } else {
-//                                    byte[] rawValue = ch.getValue();
-//                                    int length = rawValue.length;
-//                                    for (int i = 0; i < length; i++) {
-//                                        if (i % 5 == 0) {
-//                                            Log.e(TAG, "---------------------- " + i);
-//                                        }
-//                                        Log.e(TAG, "hex : " + formatHexData(rawValue, i)
-//                                                + " | dec : " + Integer.parseInt(formatHexData(rawValue, i), 16));
-//                                    }
-                                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.readCurrentValue());
-                                }
-                                gattReadType = GattReadType.READ_STEP_DATA;
+                switch (gattReadType) {
+                    case READ_TIME:
+                        onReadTime(characteristic);
+                        gattReadType = GattReadType.READ_EXERCISE_DATA;
 
-                                break;
+                        break;
 
-                            case READ_STEP_DATA:
+                    case READ_EXERCISE_DATA:
+                        onReadExerciseData(characteristic);
+                        gattReadType = GattReadType.READ_BATTERY;
 
-                                savePrimeData(makePrimeItem(ch));
-                                primeFragment.setPrimeValue(primeDao.loadPrimeListData());
-                                primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+                        break;
 
-                                gattManager.readValue(bluetoothGattCharacteristicForBattery);
-                                gattReadType = GattReadType.READ_TIME;
+                    case VIDONN_HISTORY_BLOCK:
+                        onReadHistoryBlock(characteristic);
 
-                                break;
+                        break;
 
-                            default:
-                                break;
-                        }
-                    }
-                });
+                    case VIDONN_HISTORY_DETAIL:
+                        onReadDetailBlock(characteristic);
+
+                        break;
+
+                    default:
+                        break;
+                }
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, "Exception " + e.getMessage());
+
                 fail();
             }
-
         }
 
 
