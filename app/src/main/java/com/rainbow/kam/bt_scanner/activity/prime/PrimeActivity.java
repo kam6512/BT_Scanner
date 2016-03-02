@@ -1,29 +1,20 @@
 package com.rainbow.kam.bt_scanner.activity.prime;
 
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
+import android.bluetooth.*;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Bundle;
+import android.os.*;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.*;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.widget.*;
+import android.support.v7.app.*;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -32,26 +23,15 @@ import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
 import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
-import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
-import com.rainbow.kam.bt_scanner.data.vo.UserVo;
+import com.rainbow.kam.bt_scanner.data.vo.*;
 import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.GoalDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.prime.menu.*;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
-import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
-import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
-import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
+import com.rainbow.kam.bt_scanner.tools.gatt.*;
+import com.rainbow.kam.bt_scanner.tools.helper.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.LogRecord;
+import java.util.*;
 
 import hugo.weaving.DebugLog;
 
@@ -80,11 +60,17 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
     private enum GattReadType {
-        READ_TIME, READ_EXERCISE_DATA, READ_BATTERY, END, VIDONN_HISTORY_BLOCK, VIDONN_HISTORY_DETAIL
+        READ_TIME,
+        READ_EXERCISE_DATA,
+        READ_BATTERY,
+        END,
+        VIDONN_HISTORY_BLOCK,
+        VIDONN_HISTORY_DETAIL;
     }
 
     private enum DeviceType {
-        DEVICE_PRIME, DEVICE_VIDONN
+        DEVICE_PRIME,
+        DEVICE_VIDONN;
     }
 
     private connectionStateType state;
@@ -95,23 +81,27 @@ public class PrimeActivity extends AppCompatActivity implements
     public static final int INDEX_CALORIE = 1;
     public static final int INDEX_DISTANCE = 2;
 
+    private String userAge, userHeight, userWeight, deviceName, deviceAddress;
+    private String rssiUnit;
+    private final String none = "--";
+
+    private PrimeDao primeDao;
 
     private FragmentManager fragmentManager;
 
+    private PrimeFragment primeFragment;
     private UserDataDialogFragment userDataDialogFragment;
     private DeviceListFragment deviceListFragment;
     private GoalDialogFragment goalDialogFragment;
-
-    private PrimeFragment primeFragment;
-
-    private ImageView navBattery;
-    private TextView navDeviceName, navDeviceAddress, navUpdate;
 
     private TextView toolbarRssi;
     private ImageView toolbarBluetoothFlag;
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
+
+    private ImageView navBattery;
+    private TextView navDeviceName, navDeviceAddress, navUpdate;
 
     private MaterialDialog removeDialog, reconnectDialog;
 
@@ -122,11 +112,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
-    private String userAge, userHeight, userWeight, deviceName, deviceAddress;
-    private String rssiUnit;
-    private final String none = "--";
-
-    private PrimeDao primeDao;
 
     private final Runnable postSwipeRefresh = new Runnable() {
         @Override
@@ -135,14 +120,11 @@ public class PrimeActivity extends AppCompatActivity implements
         }
     };
 
-    private int[][] historyDate_Map;
-
     private int historyDetail_Data_Block_Week_ID = 1;// 1~7
     private int historyDetail_Data_Block_Hour_ID = 0;// 0~23
 
     private int dateBlockIndex = 0;
     private int innerHourBlockIndex = 0;
-    private final int innerHourBlockCount = 20;
 
     private byte[] historyDetail_Data = new byte[67];
 
@@ -211,26 +193,33 @@ public class PrimeActivity extends AppCompatActivity implements
         drawerLayout.closeDrawer(GravityCompat.START);
         switch (item.getItemId()) {
             case R.id.menu_prime_setting_device:
-                if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
+
                 if (deviceSettingSnackBar != null) {
                     deviceSettingSnackBar.dismiss();
                 }
+
+                dismissSwipeRefresh();
+
                 if (!(state == connectionStateType.NEED_DEVICE_NOT_CONNECT)) {
                     disconnectDevice();
                 }
 
                 deviceListFragment.show(fragmentManager, getString(R.string.prime_setting_device_tag));
+
                 return true;
+
             case R.id.menu_prime_setting_user:
+
                 if (state == connectionStateType.NEED_DEVICE_NOT_CONNECT) {
                     showDeviceSettingSnackBar();
                 } else {
                     userDataDialogFragment.show(fragmentManager, getString(R.string.prime_setting_user_tag));
                 }
+
                 return true;
+
             case R.id.menu_prime_setting_goal:
+
                 if (state == connectionStateType.NEED_DEVICE_NOT_CONNECT) {
                     showDeviceSettingSnackBar();
                 } else {
@@ -238,22 +227,29 @@ public class PrimeActivity extends AppCompatActivity implements
                 }
 
                 return true;
-            case R.id.menu_prime_about_dev:
-                startActivity(new Intent(PrimeActivity.this, MainActivity.class));
-                return true;
-            case R.id.menu_prime_about_setting:
 
-                if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
+            case R.id.menu_prime_about_dev:
+
+                startActivity(new Intent(PrimeActivity.this, MainActivity.class));
+
+                return true;
+
+            case R.id.menu_prime_about_setting:
 
                 if (!(state == connectionStateType.NEED_DEVICE_NOT_CONNECT)) {
                     disconnectDevice();
                 }
+
+                dismissSwipeRefresh();
+
                 removeDialog.show();
+
                 return true;
+
             case R.id.menu_prime_about_about:
+
                 Snackbar.make(coordinatorLayout, "준비중입니다..", Snackbar.LENGTH_SHORT).show();
+
                 return true;
             default:
                 return true;
@@ -269,6 +265,7 @@ public class PrimeActivity extends AppCompatActivity implements
             if (state == connectionStateType.NEED_DEVICE_NOT_CONNECT || (state == connectionStateType.DISCONNECT_QUEUE || !gattManager.isConnected())) {
                 super.onBackPressed();
             } else {
+                state = connectionStateType.DISCONNECT_QUEUE;
                 showDisconnectDeviceSnackBar();
                 disconnectDevice();
             }
@@ -297,12 +294,12 @@ public class PrimeActivity extends AppCompatActivity implements
     private void setFragments() {
         fragmentManager = getSupportFragmentManager();
 
+        primeFragment = new PrimeFragment();
+        fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
+
         deviceListFragment = new DeviceListFragment();
         userDataDialogFragment = new UserDataDialogFragment();
         goalDialogFragment = new GoalDialogFragment();
-
-        primeFragment = new PrimeFragment();
-        fragmentManager.beginTransaction().replace(R.id.prime_fragment_frame, primeFragment).commit();
     }
 
 
@@ -362,49 +359,61 @@ public class PrimeActivity extends AppCompatActivity implements
         removeChoiceList.add(getString(R.string.prime_remove_item_user_device));
         removeChoiceList.add(getString(R.string.prime_remove_item_exercise));
         removeChoiceList.add(getString(R.string.prime_remove_item_all));
-        removeDialog = new MaterialDialog.Builder(this).title(R.string.prime_remove_title).items(removeChoiceList).itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
-            @Override
-            public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-                return false;
-            }
-        }).positiveText(R.string.prime_remove_accept).onPositive(new MaterialDialog.SingleButtonCallback() {
-            @Override
-            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+        removeDialog = new MaterialDialog.Builder(this)
+                .title(R.string.prime_remove_title)
+                .items(removeChoiceList)
+                .itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                        return false;
+                    }
+                })
+                .positiveText(R.string.prime_remove_accept).onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
 
-                switch (dialog.getSelectedIndex()) {
-                    case REMOVE_USER:
-                        primeDao.clearSharedPreferenceData();
-                        break;
-                    case REMOVE_HISTORY:
-                        primeDao.removePrimeData();
-                        break;
-                    case REMOVE_ALL:
-                        primeDao.clearSharedPreferenceData();
-                        primeDao.removePrimeData();
-                        break;
-                }
-                dialog.dismiss();
-            }
-        }).negativeText(R.string.prime_remove_denied).onNegative(new MaterialDialog.SingleButtonCallback() {
-            @Override
-            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                dialog.dismiss();
-            }
-        }).onAny(new MaterialDialog.SingleButtonCallback() {
-            @Override
-            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                registerBluetooth();
-            }
-        }).canceledOnTouchOutside(false).build();
+                        switch (dialog.getSelectedIndex()) {
+                            case REMOVE_USER:
+                                primeDao.clearSharedPreferenceData();
+                                break;
+                            case REMOVE_HISTORY:
+                                primeDao.removePrimeData();
+                                break;
+                            case REMOVE_ALL:
+                                primeDao.clearSharedPreferenceData();
+                                primeDao.removePrimeData();
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .negativeText(R.string.prime_remove_denied).onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                })
+                .onAny(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        registerBluetooth();
+                    }
+                })
+                .canceledOnTouchOutside(false).build();
 
 
-        reconnectDialog = new MaterialDialog.Builder(this).title(R.string.prime_reconnect_title).content(R.string.prime_reconnect_content)
-                .positiveText(R.string.prime_reconnect_accept).negativeText(R.string.prime_reconnect_denied).onNegative(new MaterialDialog.SingleButtonCallback() {
+        reconnectDialog = new MaterialDialog.Builder(this)
+                .title(R.string.prime_reconnect_title)
+                .content(R.string.prime_reconnect_content)
+                .positiveText(R.string.prime_reconnect_accept)
+                .negativeText(R.string.prime_reconnect_denied)
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         primeDao.removePrimeData();
                     }
-                }).onAny(new MaterialDialog.SingleButtonCallback() {
+                })
+                .onAny(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         deviceListFragment.dismiss();
@@ -432,11 +441,13 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private boolean isDeviceDataAvailable() {
         if (primeDao.isAllDataEmpty()) {
-            swipeRefreshLayout.setRefreshing(false);
-            primeFragment.setNoneValue();
+            state = connectionStateType.NEED_DEVICE_NOT_CONNECT;
             showDeviceSettingSnackBar();
+            dismissSwipeRefresh();
+            primeFragment.setValueEmpty();
             return false;
         } else if (primeDao.isUserDataAvailable()) {
+            state = connectionStateType.NEED_USER_CONNECT;
             showUserSettingSnackBar();
         }
         return true;
@@ -444,7 +455,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void showDeviceSettingSnackBar() {
-        state = connectionStateType.NEED_DEVICE_NOT_CONNECT;
+
         deviceSettingSnackBar = Snackbar.make(coordinatorLayout, R.string.prime_setting_device, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_setting_device_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -456,7 +467,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void showUserSettingSnackBar() {
-        state = connectionStateType.NEED_USER_CONNECT;
+
         Snackbar.make(coordinatorLayout, R.string.prime_setting_user, Snackbar.LENGTH_LONG).setAction(R.string.prime_setting_user_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -467,7 +478,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void showDisconnectDeviceSnackBar() {
-        state = connectionStateType.DISCONNECT_QUEUE;
+
         Snackbar.make(coordinatorLayout, R.string.prime_disconnect_snack, Snackbar.LENGTH_INDEFINITE).setAction(R.string.prime_ignore, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -475,6 +486,13 @@ public class PrimeActivity extends AppCompatActivity implements
                 finish();
             }
         }).show();
+    }
+
+
+    private void dismissSwipeRefresh() {
+        if (swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
 
@@ -505,8 +523,8 @@ public class PrimeActivity extends AppCompatActivity implements
         deviceName = deviceVo.name;
         deviceAddress = deviceVo.address;
 
-        setNavHeaderDeviceValue();
         checkDeviceType();
+        setNavHeaderDeviceValue();
     }
 
 
@@ -521,7 +539,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private void setNavHeaderDeviceValue() {
         navDeviceName.setText(deviceName);
-        navDeviceAddress.setText("[" + deviceAddress + "]");
+        navDeviceAddress.setText(deviceAddress);
     }
 
 
@@ -751,11 +769,11 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-
     private void onReadHistoryBlock(final BluetoothGattCharacteristic characteristic) {
         byte[] blockData = characteristic.getValue();
         byte[] historyDate_Data = new byte[40];
 
+        int[][] historyDate_Map;
         if (dateBlockIndex == 0) {
             if (blockData.length < 20) {
                 dateBlockIndex = 0;
@@ -816,6 +834,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void addHistoryDetail(byte[] detailData, int dataLength) {
+        int innerHourBlockCount = 20;
         int indexStart = innerHourBlockIndex * innerHourBlockCount;
         for (int i = indexStart; i < indexStart + dataLength; i++) {
             historyDetail_Data[i] = detailData[i - indexStart];
@@ -870,7 +889,6 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-
     private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
 
         public void onDeviceConnected() {
@@ -880,7 +898,7 @@ public class PrimeActivity extends AppCompatActivity implements
                     state = connectionStateType.CONNECTED;
                     toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_connected_white_24dp);
 
-                    swipeRefreshLayout.setRefreshing(false);
+                    dismissSwipeRefresh();
 
                 }
             });
