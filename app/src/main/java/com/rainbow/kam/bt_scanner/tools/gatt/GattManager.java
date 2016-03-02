@@ -10,8 +10,11 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.MainThread;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 
 import java.util.List;
 import java.util.Observable;

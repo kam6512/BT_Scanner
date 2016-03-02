@@ -210,7 +210,7 @@ public class PrimeFragment extends Fragment implements
     }
 
 
-    public void setNoneValue() {
+    public void setValueEmpty() {
         totalStep = 0;
         totalCalorie = 0;
         totalDistance = 0;
@@ -223,7 +223,7 @@ public class PrimeFragment extends Fragment implements
 
     public void setPrimeValue(List<RealmPrimeItem> results) {
 
-        setNoneValue();
+        setValueEmpty();
 
         int length = results.size();
 
