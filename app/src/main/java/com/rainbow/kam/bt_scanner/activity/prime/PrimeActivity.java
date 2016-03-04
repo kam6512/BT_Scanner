@@ -82,7 +82,7 @@ public class PrimeActivity extends AppCompatActivity implements
     public static final int INDEX_CALORIE = 1;
     public static final int INDEX_DISTANCE = 2;
 
-    private String userAge, userHeight, userWeight, deviceName, deviceAddress;
+    private String userAge, userHeight, deviceName, deviceAddress;
     private String rssiUnit;
     private final String none = "--";
 
@@ -527,7 +527,6 @@ public class PrimeActivity extends AppCompatActivity implements
         DeviceVo deviceVo = primeDao.loadDeviceData();
         userAge = userVo.age;
         userHeight = userVo.height;
-        userWeight = userVo.weight;
         deviceName = deviceVo.name;
         deviceAddress = deviceVo.address;
     }
@@ -611,9 +610,9 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onSaveGoal() {
+    public void onSaveGoal(GoalVo goalVo) {
         goalDialogFragment.dismiss();
-        primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+        primeFragment.setCircleCounterGoalRange(goalVo);
     }
 
 

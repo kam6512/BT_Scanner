@@ -117,11 +117,11 @@ public class GoalDialogFragment extends DialogFragment {
 
     private void saveGoal() {
         primeDao.saveGoalData(goalVo);
-        onSaveGoalListener.onSaveGoal();
+        onSaveGoalListener.onSaveGoal(goalVo);
     }
 
 
     public interface OnSaveGoalListener {
-        void onSaveGoal();
+        void onSaveGoal(GoalVo goalVo);
     }
 }

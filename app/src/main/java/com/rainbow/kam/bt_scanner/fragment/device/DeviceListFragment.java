@@ -32,6 +32,7 @@ import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceItem;
+import com.rainbow.kam.bt_scanner.mvp.NursingActivity;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.List;
@@ -92,6 +93,9 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
                 BluetoothHelper.requestBluetoothPermission((MainActivity) context);
             } else if (context instanceof PrimeActivity) {
                 BluetoothHelper.requestBluetoothPermission((PrimeActivity) context);
+                setDialogSetting();
+            } else if (context instanceof NursingActivity) {
+                BluetoothHelper.requestBluetoothPermission((NursingActivity) context);
                 setDialogSetting();
             }
         }
@@ -223,10 +227,10 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
         if (context instanceof MainActivity) {
             deviceAdapter.addDevice(addDeviceItem);
 
-        } else if (context instanceof PrimeActivity) {
+        } else if (context instanceof PrimeActivity || context instanceof NursingActivity) {
             String deviceName = bluetoothDevice.getName();
 //            if (deviceName != null && deviceName.equals(PRIME_NAME)) {
-                deviceAdapter.addDevice(addDeviceItem);
+            deviceAdapter.addDevice(addDeviceItem);
 //            }
         }
     }
@@ -249,6 +253,8 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
                     BluetoothHelper.requestBluetoothEnable((MainActivity) context);
                 } else if (context instanceof PrimeActivity) {
                     BluetoothHelper.requestBluetoothEnable((PrimeActivity) context);
+                } else if (context instanceof NursingActivity) {
+                    BluetoothHelper.requestBluetoothEnable((NursingActivity) context);
                 }
             }
         } catch (Exception e) {
