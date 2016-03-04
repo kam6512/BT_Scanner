@@ -9,12 +9,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-
-import hugo.weaving.DebugLog;
 
 /**
  * Created by kam6512 on 2015-11-20.
@@ -22,31 +19,14 @@ import hugo.weaving.DebugLog;
 public class BluetoothHelper {
 
     public static final boolean IS_BUILD_VERSION_LM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    public static final long SCAN_PERIOD = 5000;
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int RESULT_OK = -1;
 
-    public static final String KEY_DEVICE_NAME = "BLE_DEVICE_NAME";
-    public static final String KEY_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
 
-    public static final String BOND_NONE = "NOT BONDED";
-    public static final String BOND_BONDING = "BONDING...";
-    public static final String BOND_BONDED = "BONDED";
-
-    public static final String DEVICE_TYPE_UNKNOWN = "UNKNOWN";
-    public static final String DEVICE_TYPE_CLASSIC = "CLASSIC BLUETOOTH";
-    public static final String DEVICE_TYPE_LE = "BLUETOOTH LOW ENERGY";
-    public static final String DEVICE_TYPE_DUAL = "DUAL";
-
-
-    @DebugLog
     @TargetApi(Build.VERSION_CODES.M)
-    public static void checkPermissions(Activity activity) {
+    public static void requestBluetoothPermission(Activity activity) {
         if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            if (activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-//                Toast.makeText(activity, "ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
-//            }
             activity.requestPermissions(new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
             }, REQUEST_ENABLE_BT);
@@ -54,9 +34,14 @@ public class BluetoothHelper {
     }
 
 
-    public static void onRequestPermissionsResult(int requestCode,
-                                                  @NonNull int[] grantResults, Activity activity) {
+    public static void requestBluetoothEnable(Activity activity) {//블루투스 가동여부
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
+    }
 
+
+    public static void onRequestPermissionsResult(int requestCode,
+                                                  int[] grantResults, Activity activity) {
         if (requestCode == BluetoothHelper.REQUEST_ENABLE_BT) {
             if (grantResults.length != 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -78,27 +63,16 @@ public class BluetoothHelper {
     }
 
 
-    public static void bluetoothRequest(Activity activity) {//블루투스 가동여부
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
-    }
-
-
-    public static void onActivityResult(int requestCode, int resultCode, Activity activity) {
-
+    public static void onRequestEnableResult(int requestCode, int resultCode, Activity activity) {
         switch (requestCode) {
             case BluetoothHelper.REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_OK) {
-                    //블루투스 켜짐
                     Toast.makeText(activity, R.string.bt_on, Toast.LENGTH_SHORT).show();
                 } else {
-                    //블루투스 에러
                     Toast.makeText(activity, R.string.bt_not_init, Toast.LENGTH_SHORT).show();
                     activity.finish();
                 }
                 break;
         }
     }
-
-
 }

@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.profile;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
@@ -32,6 +31,7 @@ import java.util.Objects;
 public class ControlFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private Context context;
+    private View view;
 
     private TextView deviceName;
     private TextView deviceAddress;
@@ -65,47 +65,17 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            try {
-                this.context = context;
-                onControlListener = (OnControlListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnControlListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
+        this.context = context;
+        onControlListener = (OnControlListener) context;
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.f_profile_control, container, false);
-
-        deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
-        deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
-
-        serviceName = (TextView) view.findViewById(R.id.characteristic_service_name);
-        serviceUuid = (TextView) view.findViewById(R.id.characteristic_service_uuid);
-
-        charName = (TextView) view.findViewById(R.id.control_name);
-        charUuid = (TextView) view.findViewById(R.id.control_uuid);
-
-        charDataType = (TextView) view.findViewById(R.id.control_type);
-        charProperties = (TextView) view.findViewById(R.id.control_properties);
-
-        charHexValue = (EditText) view.findViewById(R.id.control_hex_value);
-        charStrValue = (TextView) view.findViewById(R.id.control_ascii_value);
-        charDateValue = (TextView) view.findViewById(R.id.control_timestamp);
-
-        readBtn = (Button) view.findViewById(R.id.control_read_btn);
-        writeBtn = (Button) view.findViewById(R.id.control_write_btn);
-        notificationBtn = (ToggleButton) view.findViewById(R.id.control_notification_switcher);
-
-        readBtn.setOnClickListener(this);
-        writeBtn.setOnClickListener(this);
-        notificationBtn.setOnCheckedChangeListener(this);
-
+        view = inflater.inflate(R.layout.f_profile_control, container, false);
+        setControlInfoView();
+        setValueView();
+        setBtn();
         return view;
     }
 
@@ -125,6 +95,39 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     }
 
 
+    private void setControlInfoView() {
+        deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
+        deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
+
+        serviceName = (TextView) view.findViewById(R.id.characteristic_service_name);
+        serviceUuid = (TextView) view.findViewById(R.id.characteristic_service_uuid);
+
+        charName = (TextView) view.findViewById(R.id.control_name);
+        charUuid = (TextView) view.findViewById(R.id.control_uuid);
+
+        charDataType = (TextView) view.findViewById(R.id.control_type);
+        charProperties = (TextView) view.findViewById(R.id.control_properties);
+    }
+
+
+    private void setValueView() {
+        charHexValue = (EditText) view.findViewById(R.id.control_hex_value);
+        charStrValue = (TextView) view.findViewById(R.id.control_ascii_value);
+        charDateValue = (TextView) view.findViewById(R.id.control_timestamp);
+    }
+
+
+    private void setBtn() {
+        readBtn = (Button) view.findViewById(R.id.control_read_btn);
+        writeBtn = (Button) view.findViewById(R.id.control_write_btn);
+        notificationBtn = (ToggleButton) view.findViewById(R.id.control_notification_switcher);
+
+        readBtn.setOnClickListener(this);
+        writeBtn.setOnClickListener(this);
+        notificationBtn.setOnCheckedChangeListener(this);
+    }
+
+
     public void init(String name, String address, BluetoothGattCharacteristic characteristic) {
         this.name = name;
         this.address = address;
@@ -136,12 +139,12 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
             notificationEnabled = false;
             uuid = bluetoothGattCharacteristic.getUuid().toString();
         }
-        initView();
+        initViewValue();
         bindView();
     }
 
 
-    private void initView() {
+    private void initViewValue() {
         if (isVisible()) {
             deviceName.setText(name);
             deviceAddress.setText(address);
@@ -230,21 +233,20 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     }
 
 
-    public void setFail() {
-        hexValue = context.getString(R.string.profile_fail);
-        strValue = context.getString(R.string.profile_fail);
-        lastUpdateTime = context.getString(R.string.profile_fail);
-
-        bindView();
-    }
-
-
     private void bindView() {
         if (isVisible()) {
             charHexValue.setText(hexValue);
             charStrValue.setText(strValue);
             charDateValue.setText(lastUpdateTime);
         }
+    }
+
+
+    public void setFail() {
+        hexValue = context.getString(R.string.profile_fail);
+        strValue = context.getString(R.string.profile_fail);
+        lastUpdateTime = context.getString(R.string.profile_fail);
+        bindView();
     }
 
 

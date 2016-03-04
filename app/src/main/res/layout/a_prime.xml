@@ -57,28 +57,10 @@
                     android:layout_gravity="center_vertical"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
-                    android:contentDescription="@string/bt.rssi"/>
-
-
+                    android:contentDescription="@string/bt.rssi"
+                    android:src="@drawable/ic_bluetooth_disabled_white_24dp"/>
             </LinearLayout>
-
-            <android.support.design.widget.TabLayout
-                android:id="@+id/prime_tabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                app:tabGravity="center"
-                app:tabMode="fixed"/>
-
-
         </android.support.design.widget.AppBarLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:background="@drawable/toolbar_drop_shadow"
-            app:layout_anchor="@id/prime_tabs"
-            app:layout_anchorGravity="bottom|center"/>
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/prime_swipeRefreshLayout"
@@ -87,101 +69,13 @@
             android:background="@null"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <android.support.v4.widget.NestedScrollView
-                android:id="@+id/prime_nested"
+
+            <FrameLayout
+                android:id="@+id/prime_fragment_frame"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@null"
-                android:fillViewport="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <com.rainbow.kam.bt_scanner.tools.design.CustomViewPager
-                        android:id="@+id/prime_viewpager"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/history_recycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@null"
-                        />
-
-                    <android.support.v7.widget.CardView
-                        android:id="@+id/prime_card_datetime"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:layout_margin="10dp"
-                        android:background="@null"
-                        android:clickable="true"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        app:cardCornerRadius="2dp"
-                        app:cardElevation="8dp"
-                        app:cardPreventCornerOverlap="false"
-                        app:contentPadding="0dp">
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_centerInParent="true"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/distance_wallpaper"
-                                android:tint="#88101010"
-                                />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentBottom="true"
-                                android:layout_alignParentStart="true"
-                                android:background="@null"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:padding="15dp"
-                                android:text="@string/dashboard.update"
-                                android:textColor="@android:color/white"
-                                android:textSize="24sp"/>
-
-                            <TextView
-                                android:id="@+id/prime_date"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_margin="25dp"
-                                android:background="@null"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:textColor="@android:color/white"
-                                android:textSize="20sp"/>
-
-                            <TextView
-                                android:id="@+id/prime_time"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
-                                android:layout_marginEnd="25dp"
-                                android:background="@null"
-                                android:focusable="true"
-                                android:gravity="center"
-                                android:textColor="@android:color/white"
-                                android:textSize="15sp"/>
-                        </RelativeLayout>
-
-                    </android.support.v7.widget.CardView>
-                </LinearLayout>
-            </android.support.v4.widget.NestedScrollView>
+                android:layout_height="wrap_content"/>
         </android.support.v4.widget.SwipeRefreshLayout>
+
     </android.support.design.widget.CoordinatorLayout>
 
 
@@ -191,6 +85,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/v_nav_header"
+        app:headerLayout="@layout/v_nav_header_prime"
         app:menu="@menu/menu_prime"/>
 </android.support.v4.widget.DrawerLayout>

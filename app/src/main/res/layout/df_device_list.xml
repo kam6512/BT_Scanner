@@ -19,11 +19,17 @@
             android:foreground="?android:windowContentOverlay">
 
         </android.support.v7.widget.RecyclerView>
-    </android.support.v4.widget.SwipeRefreshLayout>
 
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/prime_no_device_textView"
         style="@style/NoDeviceLabel"
-        android:text="@string/device.list.nothing"/>
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center"
+        android:text="@string/device.list.nothing"
+        android:textColor="@color/text_light"/>
+
+
 </RelativeLayout>

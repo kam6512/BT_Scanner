@@ -15,6 +15,11 @@
     <color name="rippleColor">#00d7ff</color>
     <color name="circle_text">#ffffff</color>
 
+    <color name="chart_label">#6a84c3</color>
+    <color name="chart_line">#b3b5bb</color>
+    <color name="chart_dots">#ffc755</color>
+    <color name="chart_fill">#2d374c</color>
+
     <color name="stepColor">#00d7ff</color>
     <color name="stepAccent">#2af</color>
     <color name="stepPrimary">#32f1ff</color>

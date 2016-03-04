@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AddUserEditText">
+    <style name="TextInputEditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="AddUserEditText.AddUserInput">
-        <item name="android:layout_margin">@dimen/add_user_input_margin</item>
+    <style name="TextInputEditText.Input">
+        <item name="android:layout_margin">@dimen/text_input_margin</item>
     </style>
 
     <style name="Fab">

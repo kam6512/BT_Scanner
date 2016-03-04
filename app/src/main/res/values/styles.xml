@@ -33,15 +33,5 @@
         <item name="android:indeterminate">true</item>
     </style>
 
-    <style name="CircleCounter">
-        <item name="android:layout_width">@dimen/circle_counter_size</item>
-        <item name="android:layout_height">@dimen/circle_counter_size</item>
-        <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:layout_margin">@dimen/circle_counter_margin</item>
-        <item name="metricSize">20sp</item>
-        <item name="range">60</item>
-        <item name="textColor">@null</item>
-        <item name="textSize">60sp</item>
-    </style>
 
 </resources>

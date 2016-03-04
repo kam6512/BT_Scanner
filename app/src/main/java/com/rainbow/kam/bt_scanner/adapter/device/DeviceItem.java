@@ -1,8 +1,9 @@
 package com.rainbow.kam.bt_scanner.adapter.device;
 
 import android.bluetooth.BluetoothDevice;
+import android.util.SparseArray;
 
-import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
+import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
 /**
  * Created by kam6512 on 2015-10-14.
@@ -35,39 +36,16 @@ public class DeviceItem { //카드 뷰 틀
 
 
     public String getExtraBondState() {
-        switch (extraBondState) {
-            case 10:
-                return BluetoothHelper.BOND_NONE;
-
-            case 11:
-                return BluetoothHelper.BOND_BONDING;
-
-            case 12:
-                return BluetoothHelper.BOND_BONDED;
-
-            default:
-                return BluetoothHelper.BOND_NONE;
-        }
+        SparseArray<String> bondList = GattAttributes.BOND_LIST;
+        String defBond = bondList.get(bondList.keyAt(0));
+        return bondList.get(extraBondState, defBond);
     }
 
 
     public String getExtraType() {
-        switch (extraType) {
-            case 0:
-                return BluetoothHelper.DEVICE_TYPE_UNKNOWN;
-
-            case 1:
-                return BluetoothHelper.DEVICE_TYPE_CLASSIC;
-
-            case 2:
-                return BluetoothHelper.DEVICE_TYPE_LE;
-
-            case 3:
-                return BluetoothHelper.DEVICE_TYPE_DUAL;
-
-            default:
-                return BluetoothHelper.DEVICE_TYPE_UNKNOWN;
-        }
+        SparseArray<String> typeList = GattAttributes.TYPE_LIST;
+        String defType = typeList.get(typeList.keyAt(0));
+        return typeList.get(extraType, defType);
     }
 
 

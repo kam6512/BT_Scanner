@@ -1,9 +1,7 @@
 package com.rainbow.kam.bt_scanner.fragment.prime.menu;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
@@ -11,48 +9,50 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
+import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 
-import hugo.weaving.DebugLog;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by kam6512 on 2015-11-02.
  */
 public class UserDataDialogFragment extends DialogFragment {
 
-    private final String TAG = getClass().getSimpleName();
-
     private View view;
 
-    private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput, stepTextInput;
+    private TextInputLayout nameTextInput, ageTextInput, heightTextInput, weightTextInput;
     private RadioGroup genderGroup;
 
-    private SharedPreferences sharedPreferences;
+    private List<TextInputLayout> textInputLayoutList;
 
-    private String name;
-    private String age;
-    private String height;
-    private String weight;
-    private String step;
-    private String gender;
+    private PrimeDao primeDao;
+
+    private UserVo userVo;
+
+    private OnSaveUserDataListener onSaveUserDataListener;
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        sharedPreferences = context.getSharedPreferences(PrimeHelper.KEY, Context.MODE_PRIVATE);
+        primeDao = PrimeDao.getInstance(context);
+        onSaveUserDataListener = (OnSaveUserDataListener) context;
     }
 
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.df_prime_user, container, false);
         setUserInput();
         setBtn();
+        setSavedUserValue();
+        setUserValueView();
         return view;
     }
 
@@ -62,8 +62,9 @@ public class UserDataDialogFragment extends DialogFragment {
         ageTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_age);
         heightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_height);
         weightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_weight);
-        stepTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_step);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
+
+        textInputLayoutList = Arrays.asList(nameTextInput, ageTextInput, heightTextInput, weightTextInput);
     }
 
 
@@ -72,70 +73,78 @@ public class UserDataDialogFragment extends DialogFragment {
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onAccept();
+                if (!isValueHasError()) {
+                    onAccept();
+                }
             }
         });
     }
 
 
-    @DebugLog
-    private void onAccept() {
-        name = nameTextInput.getEditText().getText().toString();
-        age = ageTextInput.getEditText().getText().toString();
-        height = heightTextInput.getEditText().getText().toString();
-        weight = weightTextInput.getEditText().getText().toString();
-        step = stepTextInput.getEditText().getText().toString();
-        switch (genderGroup.getCheckedRadioButtonId()) {
-            case R.id.radio_man:
-                gender = getString(R.string.gender_man);
-                break;
-            case R.id.radio_woman:
-                gender = getString(R.string.gender_woman);
-                break;
-            default:
-                gender = getString(R.string.gender_man);
-                break;
-        }
+    private void setSavedUserValue() {
+        userVo = primeDao.loadUserData();
+    }
 
-        if (!checkInputLayoutText(view.findViewById(R.id.prime_init_group))) {
-            saveUserInfo();
-            getFragmentManager().beginTransaction().remove(this).commit();
+
+    private void setUserValueView() {
+        nameTextInput.getEditText().setText(userVo.name);
+        ageTextInput.getEditText().setText(userVo.age);
+        heightTextInput.getEditText().setText(userVo.height);
+        weightTextInput.getEditText().setText(userVo.weight);
+        if (userVo.gender) {
+            genderGroup.check(R.id.radio_man);
+        } else {
+            genderGroup.check(R.id.radio_woman);
         }
     }
 
 
-    @DebugLog
-    private boolean checkInputLayoutText(View view) {
+    private void onAccept() {
+
+        userVo.name = nameTextInput.getEditText().getText().toString();
+        userVo.age = ageTextInput.getEditText().getText().toString();
+        userVo.height = heightTextInput.getEditText().getText().toString();
+        userVo.weight = weightTextInput.getEditText().getText().toString();
+        switch (genderGroup.getCheckedRadioButtonId()) {
+            case R.id.radio_man:
+                userVo.gender = true;
+                break;
+            case R.id.radio_woman:
+                userVo.gender = false;
+                break;
+            default:
+                userVo.gender = true;
+                break;
+        }
+        saveUserData();
+    }
+
+
+    private boolean isValueHasError() {
         boolean hasError = false;
-        if (view instanceof ViewGroup) {
-            ViewGroup viewGroup = (ViewGroup) view;
-            int length = viewGroup.getChildCount();
-            for (int i = 0; i < length; i++) {
-                View v = viewGroup.getChildAt(i);
-                if (v instanceof TextInputLayout) {
-                    TextInputLayout textInputLayout = (TextInputLayout) v;
-                    if (TextUtils.isEmpty(textInputLayout.getEditText().getText().toString())) {
-                        textInputLayout.setErrorEnabled(true);
-                        textInputLayout.setError("다시 입력하세요");
-                        hasError = true;
-                    } else {
-                        textInputLayout.setErrorEnabled(false);
-                    }
-                }
+        EditText editText;
+        String value;
+        for (TextInputLayout textInputLayout : textInputLayoutList) {
+            editText = textInputLayout.getEditText();
+            value = editText.getText().toString();
+            if (TextUtils.isEmpty(value)) {
+                textInputLayout.setError("다시 입력하세요");
+                hasError = true;
+            } else {
+                textInputLayout.setErrorEnabled(false);
             }
         }
         return hasError;
     }
 
 
-    private void saveUserInfo() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PrimeHelper.KEY_NAME, name);
-        editor.putString(PrimeHelper.KEY_AGE, age);
-        editor.putString(PrimeHelper.KEY_HEIGHT, height);
-        editor.putString(PrimeHelper.KEY_WEIGHT, weight);
-        editor.putString(PrimeHelper.KEY_STEP_STRIDE, step);
-        editor.putString(PrimeHelper.KEY_GENDER, gender);
-        editor.apply();
+    private void saveUserData() {
+        primeDao.saveUserData(userVo);
+        onSaveUserDataListener.onSaveUserData();
+    }
+
+
+    public interface OnSaveUserDataListener {
+        void onSaveUserData();
     }
 }

@@ -1,31 +1,44 @@
 package com.rainbow.kam.bt_scanner.adapter.prime;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.RealmPrimeItem;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
+import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-
-import hugo.weaving.DebugLog;
-import io.realm.RealmResults;
+import java.util.List;
 
 /**
  * Created by Kam6512 on 2015-10-14.
  */
 public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = getClass().getSimpleName();
-
     private int index;
 
     private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
+
+    private final List<Drawable> iconDrawable;
+    private final List<String> unit;
+
+
+    public HistoryAdapter(Context context) {
+        iconDrawable = Arrays.asList(ContextCompat.getDrawable(context, R.drawable.ic_directions_walk_white_36dp),
+                ContextCompat.getDrawable(context, R.drawable.ic_whatshot_white_36dp),
+                ContextCompat.getDrawable(context, R.drawable.ic_beenhere_white_36dp));
+        unit = Arrays.asList(context.getString(R.string.prime_step), context.getString(R.string.prime_calorie), context.getString(R.string.prime_distance));
+    }
 
 
     @Override
@@ -36,11 +49,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        HistoryViewHolder serviceViewHolder = (HistoryViewHolder) holder;
-        serviceViewHolder.bindViews(historyArrayList.get(position));
+        HistoryViewHolder historyViewHolder = (HistoryViewHolder) holder;
+        historyViewHolder.bindViews(historyArrayList.get(position));
     }
 
 
@@ -56,8 +68,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    @DebugLog
-    public void add(RealmResults<RealmPrimeItem> results) {
+    public void setEmptyList() {
+        historyArrayList.clear();
+        for (int i = 0; i < 10; i++) {
+            historyArrayList.add(new RealmPrimeItem());
+        }
+        notifyDataSetChanged();
+    }
+
+
+    public void setHistoryList(List<RealmPrimeItem> results) {
         historyArrayList.clear();
         historyArrayList.addAll(results);
         Collections.reverse(historyArrayList);
@@ -65,43 +85,42 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    class HistoryViewHolder extends RecyclerView.ViewHolder {
+    private class HistoryViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView history_text, history_date;
-        String step;
-        String calorie;
-        String distance;
-        String calendar;
+        private final TextView historyText, historyDate;
+        private final ImageView historyImageView;
+        private List<Integer> values;
+        private String calendar;
 
 
         public HistoryViewHolder(View itemView) {
             super(itemView);
-            history_text = (TextView) itemView.findViewById(R.id.history_text);
-            history_date = (TextView) itemView.findViewById(R.id.history_date);
+            historyText = (TextView) itemView.findViewById(R.id.history_text);
+            historyDate = (TextView) itemView.findViewById(R.id.history_date);
+            historyImageView = (ImageView) itemView.findViewById(R.id.history_icon);
+            historyImageView.setColorFilter(Color.parseColor("#0078ff"));
         }
 
 
         private void bindViews(RealmPrimeItem realmPrimeItem) {
-            step = String.valueOf(realmPrimeItem.getStep());
-            calorie = String.valueOf(realmPrimeItem.getCalorie());
-            distance = String.valueOf(realmPrimeItem.getDistance());
+            values = Arrays.asList(
+                    realmPrimeItem.getStep(),
+                    realmPrimeItem.getCalorie(),
+                    realmPrimeItem.getDistance());
+
             calendar = realmPrimeItem.getCalendar();
-
-            history_date.setText(calendar);
-
-            switch (index) {
-                case PrimeHelper.INDEX_STEP:
-                    history_text.setText(step);
-                    break;
-                case PrimeHelper.INDEX_CALORIE:
-                    history_text.setText(calorie);
-                    break;
-                case PrimeHelper.INDEX_DISTANCE:
-                    history_text.setText(distance);
-                    break;
-                default:
-                    break;
+            if (TextUtils.isEmpty(calendar)) {
+                calendar = "--";
             }
+            String history = values.get(index) + unit.get(index);
+            historyText.setText(history);
+            historyDate.setText(calendar);
+            historyImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    historyImageView.setImageDrawable(iconDrawable.get(index));
+                }
+            });
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.rainbow.kam.bt_scanner.fragment.profile;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Bundle;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.profile.DeviceProfileActivity;
 import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
 
 import java.util.List;
@@ -38,16 +36,8 @@ public class CharacteristicListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            try {
-                this.context = context;
-                onCharacteristicReadyListener = (OnCharacteristicReadyListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement OnCharacteristicReadyListener");
-            }
-        } else {
-            throw new ClassCastException(context.toString() + " OnAttach Context not cast by Activity");
-        }
+        this.context = context;
+        onCharacteristicReadyListener = (OnCharacteristicReadyListener) context;
     }
 
 
@@ -72,17 +62,16 @@ public class CharacteristicListFragment extends Fragment {
 
     private void setRecyclerView() {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.profile_characteristic_recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setHasFixedSize(true);
-        characteristicAdapter = new CharacteristicAdapter((DeviceProfileActivity) context);
+        characteristicAdapter = new CharacteristicAdapter(context);
         recyclerView.setAdapter(characteristicAdapter);
     }
 
 
     @DebugLog
     public void setCharacteristicList(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
-        characteristicAdapter.setCharacteristic(bluetoothGattCharacteristics);
+        characteristicAdapter.setCharacteristicList(bluetoothGattCharacteristics);
     }
 
 
