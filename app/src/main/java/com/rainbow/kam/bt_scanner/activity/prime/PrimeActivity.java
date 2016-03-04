@@ -605,8 +605,6 @@ public class PrimeActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 primeFragment.setPrimeValue(primeDao.loadPrimeListData());
-//             state = connectionStateType.REFRESH;
-//             disconnectDevice();
             }
         });
     }
