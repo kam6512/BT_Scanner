@@ -19,6 +19,7 @@ import java.util.Locale;
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import io.realm.exceptions.RealmMigrationNeededException;
 
 /**
@@ -179,6 +180,11 @@ public class PrimeDao {
     }
 
 
+    public RealmResults<RealmPrimeItem> loadPrimeResultData() {
+        return realm.where(RealmPrimeItem.class).findAll();
+    }
+
+
     public void savePrimeData(final RealmPrimeItem realmPrimeItem) {
 
         int step = realmPrimeItem.getStep();
@@ -189,7 +195,8 @@ public class PrimeDao {
         SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         final String today = formatter.format(Calendar.getInstance().getTime());
 
-        final List<RealmPrimeItem> results = loadPrimeListData();
+//        final List<RealmPrimeItem> results = loadPrimeListData();
+        final RealmResults<RealmPrimeItem> results = loadPrimeResultData();
 
         realm.beginTransaction();
 
@@ -200,7 +207,7 @@ public class PrimeDao {
             newItem.setCalorie(calorie);
             newItem.setDistance(distance);
         } else {
-            RealmPrimeItem lastItem = results.get(results.size() - 1);
+            RealmPrimeItem lastItem = results.last();
             if (lastItem.getCalendar().equals(today)) {
                 if (lastItem.getStep() > step) {
                     step += lastItem.getStep();
@@ -218,6 +225,27 @@ public class PrimeDao {
                 newItem.setCalorie(calorie);
                 newItem.setDistance(distance);
             }
+        }
+
+        realm.commitTransaction();
+    }
+
+
+    public void overWritePrimeData(RealmPrimeItem realmPrimeItem, boolean isOverWriteAllData) {
+
+        RealmResults<RealmPrimeItem> results = loadPrimeResultData();
+
+        realm.beginTransaction();
+
+        if (isOverWriteAllData) {
+            for (RealmPrimeItem item : results) {
+                int distance = realmPrimeItem.getDistance();
+                item.setDistance(distance);
+            }
+        } else {
+            RealmPrimeItem lastItem = results.last();
+            int distance = realmPrimeItem.getDistance();
+            lastItem.setDistance(distance);
         }
 
         realm.commitTransaction();

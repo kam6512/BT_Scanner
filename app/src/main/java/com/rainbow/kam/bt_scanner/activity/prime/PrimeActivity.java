@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import hugo.weaving.DebugLog;
+import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -86,6 +87,8 @@ public class PrimeActivity extends AppCompatActivity implements
     private final String none = "--";
 
     private PrimeDao primeDao;
+
+    private RealmPrimeItem currentRealmPrimeItem;
 
     private FragmentManager fragmentManager;
 
@@ -431,7 +434,11 @@ public class PrimeActivity extends AppCompatActivity implements
             }
             gattManager = new GattManager(this, gattCallbacks);
             if (gattManager.isBluetoothAvailable()) {
+
                 loadUserDeviceData();
+                checkDeviceType();
+                setNavHeaderDeviceValue();
+
                 connectDevice();
             } else {
                 BluetoothHelper.requestBluetoothEnable(this);
@@ -523,9 +530,6 @@ public class PrimeActivity extends AppCompatActivity implements
         userWeight = userVo.weight;
         deviceName = deviceVo.name;
         deviceAddress = deviceVo.address;
-
-        checkDeviceType();
-        setNavHeaderDeviceValue();
     }
 
 
@@ -596,8 +600,15 @@ public class PrimeActivity extends AppCompatActivity implements
     @Override
     public void onSaveUserData() {
         userDataDialogFragment.dismiss();
-//        state = connectionStateType.REFRESH;
-//        disconnectDevice();
+        overWriteHistory(false);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                primeFragment.setPrimeValue(primeDao.loadPrimeListData());
+//             state = connectionStateType.REFRESH;
+//             disconnectDevice();
+            }
+        });
     }
 
 
@@ -605,6 +616,15 @@ public class PrimeActivity extends AppCompatActivity implements
     public void onSaveGoal() {
         goalDialogFragment.dismiss();
         primeFragment.setCircleCounterGoalRange(primeDao.loadGoalData());
+    }
+
+
+    private void overWriteHistory(boolean isOverWriteAllData) {
+        loadUserDeviceData();
+
+        int distance = calculateDistance(currentRealmPrimeItem.getStep());
+        currentRealmPrimeItem.setDistance(distance);
+        primeDao.overWritePrimeData(currentRealmPrimeItem, isOverWriteAllData);
     }
 
 
@@ -685,9 +705,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private RealmPrimeItem makePrimeItem(final BluetoothGattCharacteristic characteristic)
             throws ArrayIndexOutOfBoundsException {
 
-        final int age = Integer.parseInt(userAge);
-        final double height = Integer.parseInt(userHeight);
-
         final byte[] characteristicValue = characteristic.getValue();
 
         StringBuilder hexStep = new StringBuilder();
@@ -723,8 +740,29 @@ public class PrimeActivity extends AppCompatActivity implements
         final int radix = 16;
         step = Integer.parseInt(hexStep.toString(), radix);
         kcal = Integer.parseInt(hexCalorie.toString(), radix);
+        distance = calculateDistance(step);
+
+
+        currentRealmPrimeItem = new RealmPrimeItem();
+        currentRealmPrimeItem.setStep(step);
+        currentRealmPrimeItem.setCalorie(kcal);
+        currentRealmPrimeItem.setDistance(distance);
+
+        return currentRealmPrimeItem;
+    }
+
+
+    private String formatHexData(byte[] characteristicValue, int index) {
+        return String.format("%02x", characteristicValue[index] & 0xff);
+    }
+
+
+    private int calculateDistance(int step) {
+        final int age = Integer.parseInt(userAge);
+        final double height = Integer.parseInt(userHeight);
 
         final double convertValue;
+
         if (15 < age && age < 45) {
             convertValue = 0.45;
         } else if (45 <= age && age < 65) {
@@ -732,20 +770,7 @@ public class PrimeActivity extends AppCompatActivity implements
         } else {
             convertValue = 0.35;
         }
-        distance = (int) ((height * convertValue) * step) / 100;
-
-
-        RealmPrimeItem realmPrimeItem = new RealmPrimeItem();
-        realmPrimeItem.setStep(step);
-        realmPrimeItem.setCalorie(kcal);
-        realmPrimeItem.setDistance(distance);
-
-        return realmPrimeItem;
-    }
-
-
-    private String formatHexData(byte[] characteristicValue, int index) {
-        return String.format("%02x", characteristicValue[index] & 0xff);
+        return (int) ((height * convertValue) * step) / 100;
     }
 
 
