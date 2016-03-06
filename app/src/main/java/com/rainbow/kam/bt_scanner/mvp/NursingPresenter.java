@@ -24,17 +24,24 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Handler;
 
 import hugo.weaving.DebugLog;
 import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action;
+import rx.functions.Action1;
+import rx.functions.Func0;
 
 /**
  * Created by kam6512 on 2016-03-03.
  */
 public class NursingPresenter implements BaseNursingPresenter {
 
-    private Context context;
-    private AppCompatActivity activity;
+    final private Context context;
+    final private AppCompatActivity activity;
 
     public enum connectionStateType {
         NONE,
@@ -94,40 +101,22 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
+//    private Observable presenterObservable;
 
 
-    public NursingPresenter(Context context) {
+    public NursingPresenter(final Context context) {
         this.context = context;
         this.activity = (AppCompatActivity) context;
         this.control = (NursingViewControl) context;
-
+//        presenterObservable = Observable.empty().observeOn(AndroidSchedulers.mainThread()).subscribeOn(AndroidSchedulers.mainThread()).compose(control.ActivityLifecycleProvider().bindToLifecycle());
         state = NursingPresenter.connectionStateType.NONE;
     }
 
 
-//    @Override
-//    public void initializeViews() {mMainView.initButton();
+//    private void subscribe(Action1 action) {
+//        presenterObservable.subscribe(action);
 //    }
-//
-//
-//    @Override
-//    public void OnClickSampleBtn() {
-//        TestHello().observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(s -> {
-//                            Log.d(TAG, s);
-//                            mMainView.TextChange(s);
-//                        },
-//                        throwable -> throwable.printStackTrace(),
-//                        () -> Log.d(TAG, "onComplete")
-//                );
-//    }
-//
-//
-//    Observable<String> TestHello() {
-//        return Observable.interval(1, TimeUnit.SECONDS)
-//                .map(aLong -> "Hello" + aLong)
-//                .compose(mMainView.ActivityLifecycleProvider().bindToLifecycle());
-//    }
+
 
     @Override
     public void initDB() {
@@ -175,13 +164,18 @@ public class NursingPresenter implements BaseNursingPresenter {
     private boolean isDeviceDataAvailable() {
         if (primeDao.isAllDataEmpty()) {
             state = connectionStateType.NEED_DEVICE_NOT_CONNECT;
+
             control.showDeviceSettingSnackBar();
             control.dismissSwipeRefresh();
             control.setPrimeEmptyValue();
+
+
             return false;
         } else if (primeDao.isUserDataAvailable()) {
             state = connectionStateType.NEED_USER_CONNECT;
+
             control.showUserSettingSnackBar();
+
         }
         return true;
     }
@@ -195,7 +189,9 @@ public class NursingPresenter implements BaseNursingPresenter {
             applicationExit();
         } else {
             state = NursingPresenter.connectionStateType.DISCONNECT_QUEUE;
+
             control.showDisconnectDeviceSnackBar();
+
             disconnectDevice();
         }
     }
@@ -203,6 +199,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     @Override
     public void userSettingPressed() {
+
         if (state == NursingPresenter.connectionStateType.NEED_DEVICE_NOT_CONNECT) {
             control.showDeviceSettingSnackBar();
         } else {
@@ -213,18 +210,23 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     @Override
     public void goalSettingPressed() {
+
         if (state == NursingPresenter.connectionStateType.NEED_DEVICE_NOT_CONNECT) {
             control.showDeviceSettingSnackBar();
         } else {
             control.showGoalSettingFragment();
         }
+
     }
 
 
     private void connectDevice() {
         try {
             gattManager.connect(deviceAddress);
+
             control.showSwipeRefresh();
+
+
         } catch (NullPointerException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(context, context.getString(R.string.bt_fail), Toast.LENGTH_SHORT).show();
@@ -247,14 +249,17 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     private void loadUserDeviceData() {
         UserVo userVo = primeDao.loadUserData();
-        DeviceVo deviceVo = primeDao.loadDeviceData();
+        final DeviceVo deviceVo = primeDao.loadDeviceData();
         userAge = userVo.age;
         userHeight = userVo.height;
         deviceName = deviceVo.name;
         deviceAddress = deviceVo.address;
 
         checkDeviceType();
+
         control.setDeviceValue(deviceVo);
+
+
     }
 
 
@@ -284,7 +289,10 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void onReadTime(final BluetoothGattCharacteristic ch) {
+
         control.setUpdateTimeValue(readUpdateTimeValue(ch));
+
+
         switch (deviceType) {
             case DEVICE_PRIME:
                 gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
@@ -327,6 +335,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
         control.setPrimeValue(primeDao.loadPrimeListData());
         control.setPrimeGoalRange(primeDao.loadGoalData());
+
 
         gattManager.readValue(bluetoothGattCharacteristicForBattery);
     }
@@ -412,12 +421,16 @@ public class NursingPresenter implements BaseNursingPresenter {
         primeDao.overWritePrimeData(currentRealmPrimeItem, isOverWriteAllData);
 
         control.setPrimeValue(primeDao.loadPrimeListData());
+
+
     }
 
 
     private void onReadBattery(final BluetoothGattCharacteristic characteristic) {
-        int batteryValue = characteristic.getValue()[0];
+        final int batteryValue = characteristic.getValue()[0];
+
         control.setBatteryValue(batteryValue);
+
 
         switch (deviceType) {
             case DEVICE_PRIME:
@@ -554,7 +567,10 @@ public class NursingPresenter implements BaseNursingPresenter {
 
         public void onDeviceConnected() {
             state = connectionStateType.CONNECTED;
+
             control.onDeviceConnected();
+
+
         }
 
 
@@ -562,7 +578,10 @@ public class NursingPresenter implements BaseNursingPresenter {
             if (state == NursingPresenter.connectionStateType.DISCONNECT_QUEUE) {
                 applicationExit();
             } else {
+
                 control.onDeviceDisconnected();
+
+
                 if (state == NursingPresenter.connectionStateType.REFRESH) {
                     registerBluetooth();
                 }
@@ -577,7 +596,10 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
         public void onServicesNotFound() {
+
             control.fail();
+
+
         }
 
 
@@ -587,7 +609,10 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
         public void onReadFail() {
+
             control.fail();
+
+
         }
 
 
@@ -638,12 +663,17 @@ public class NursingPresenter implements BaseNursingPresenter {
                 Log.e(TAG, "Exception " + e.getMessage());
 
                 control.fail();
+
+
             }
         }
 
 
         public void onWriteFail() {
+
             control.fail();
+
+
         }
 
 

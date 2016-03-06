@@ -801,27 +801,27 @@ public class PrimeActivity extends AppCompatActivity implements
                 dateBlockIndex = 0;
 
                 historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(blockData, blockData.length);
-                for (int j = 0; j < historyDate_Map.length; j++) {
+                for (int[] aHistoryDate_Map : historyDate_Map) {
                     Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
-                            historyDate_Map[j][0] + "Block  Date=" + historyDate_Map[j][1] + "/"
-                            + historyDate_Map[j][2] + "/" + historyDate_Map[j][3]);
+                            aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
+                            + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
                 }
             } else {
                 dateBlockIndex = 1;
-                for (int i = 0; i < blockData.length; i++) {
-                    historyDate_Data[i] = blockData[i];
-                }
+                System.arraycopy(blockData, 0, historyDate_Data, 0, blockData.length);
             }
         } else if (dateBlockIndex == 1) {
             dateBlockIndex = 0;
             int dataLength = 20 + blockData.length;
 
-            for (int i = 20; i < dataLength; i++) {
-                historyDate_Data[i] = blockData[i - 20];
-            }
+            System.arraycopy(blockData, 0, historyDate_Data, 20, dataLength - 20);
 
             historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(historyDate_Data, dataLength);
-
+            for (int[] aHistoryDate_Map : historyDate_Map) {
+                Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
+                        aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
+                        + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
+            }
 
             gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID, (byte) historyDetail_Data_Block_Hour_ID));
             gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;

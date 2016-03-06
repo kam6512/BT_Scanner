@@ -48,6 +48,8 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Subscriber;
+
 /**
  * Created by kam6512 on 2016-03-03.
  */
@@ -511,7 +513,7 @@ public class NursingActivity extends BaseNursingActivity implements NursingViewC
 
 
     @Override
-    
+
     public void fail() {
         runOnUiThread(new Runnable() {
             @Override
@@ -523,7 +525,7 @@ public class NursingActivity extends BaseNursingActivity implements NursingViewC
 
 
     @Override
-    
+
     public void onDeviceSelect(DeviceVo deviceVo) {
         presenter.saveUserData(deviceVo);
 
