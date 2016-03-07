@@ -1,6 +1,7 @@
 package com.rainbow.kam.bt_scanner.data.dao;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -21,6 +22,10 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 import io.realm.exceptions.RealmMigrationNeededException;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by kam6512 on 2016-02-11.
@@ -174,88 +179,142 @@ public class PrimeDao {
     }
 
 
-    @DebugLog
-    public List<RealmPrimeItem> loadPrimeListData() {
-        return realm.where(RealmPrimeItem.class).findAll();
-    }
-
-
     public RealmResults<RealmPrimeItem> loadPrimeResultData() {
         return realm.where(RealmPrimeItem.class).findAll();
     }
 
 
+    public List<RealmPrimeItem> loadPrimeListData() {
+        return loadPrimeResultData();
+    }
+
+
     public void savePrimeData(final RealmPrimeItem realmPrimeItem) {
 
-        int step = realmPrimeItem.getStep();
-        int calorie = realmPrimeItem.getCalorie();
-        int distance = realmPrimeItem.getDistance();
+        final int step = realmPrimeItem.getStep();
+        final int calorie = realmPrimeItem.getCalorie();
+        final int distance = realmPrimeItem.getDistance();
 
-        String format = context.getString(R.string.prime_save_date_format);
-        SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
+        final String format = context.getString(R.string.prime_save_date_format);
+        final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         final String today = formatter.format(Calendar.getInstance().getTime());
 
-//        final List<RealmPrimeItem> results = loadPrimeListData();
-        final RealmResults<RealmPrimeItem> results = loadPrimeResultData();
 
-        realm.beginTransaction();
+        final Observable<RealmPrimeItem> observable = Observable.just(realmPrimeItem);
+        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
+        observable.subscribe(new Subscriber<RealmPrimeItem>() {
+            @Override
+            public void onCompleted() {
 
-        if (results.isEmpty()) {
-            RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-            newItem.setCalendar(today);
-            newItem.setStep(step);
-            newItem.setCalorie(calorie);
-            newItem.setDistance(distance);
-        } else {
-            RealmPrimeItem lastItem = results.last();
-            if (lastItem.getCalendar().equals(today)) {
-                if (lastItem.getStep() > step) {
-                    step += lastItem.getStep();
-                    calorie += lastItem.getCalorie();
-                    distance += lastItem.getDistance();
-                }
-                lastItem.setCalendar(today);
-                lastItem.setStep(step);
-                lastItem.setCalorie(calorie);
-                lastItem.setDistance(distance);
-            } else {
-                RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
-                newItem.setCalendar(today);
-                newItem.setStep(step);
-                newItem.setCalorie(calorie);
-                newItem.setDistance(distance);
             }
-        }
 
-        realm.commitTransaction();
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+
+            @Override
+            public void onNext(RealmPrimeItem realmPrimeItem) {
+                realm.beginTransaction();
+                final RealmResults<RealmPrimeItem> results = loadPrimeResultData();
+
+                if (results.isEmpty()) {
+                    RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                    newItem.setCalendar(today);
+                    newItem.setStep(step);
+                    newItem.setCalorie(calorie);
+                    newItem.setDistance(distance);
+                } else {
+                    RealmPrimeItem lastItem = results.last();
+                    if (lastItem.getCalendar().equals(today)) {
+                        int lastStep = 0;
+                        int lastCalorie = 0;
+                        int lastDistance = 0;
+                        if (lastItem.getStep() > step) {
+                            lastStep = lastItem.getStep();
+                            lastCalorie = lastItem.getCalorie();
+                            lastDistance = lastItem.getDistance();
+                        }
+                        lastItem.setCalendar(today);
+                        lastItem.setStep(step + lastStep);
+                        lastItem.setCalorie(calorie + lastCalorie);
+                        lastItem.setDistance(distance + lastDistance);
+                    } else {
+                        RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                        newItem.setCalendar(today);
+                        newItem.setStep(step);
+                        newItem.setCalorie(calorie);
+                        newItem.setDistance(distance);
+                    }
+                }
+                realm.commitTransaction();
+            }
+        });
     }
 
 
     public void overWritePrimeData(RealmPrimeItem realmPrimeItem, boolean isOverWriteAllData) {
 
-        RealmResults<RealmPrimeItem> results = loadPrimeResultData();
+        final Observable<RealmPrimeItem> observable = Observable.just(realmPrimeItem);
+        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
+        observable.subscribe(new Subscriber<RealmPrimeItem>() {
 
-        realm.beginTransaction();
-
-        if (isOverWriteAllData) {
-            for (RealmPrimeItem item : results) {
-                int distance = realmPrimeItem.getDistance();
-                item.setDistance(distance);
+            @Override
+            public void onCompleted() {
             }
-        } else {
-            RealmPrimeItem lastItem = results.last();
-            int distance = realmPrimeItem.getDistance();
-            lastItem.setDistance(distance);
-        }
 
-        realm.commitTransaction();
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+
+            @Override
+            public void onNext(RealmPrimeItem realmPrimeItem) {
+                RealmResults<RealmPrimeItem> results = loadPrimeResultData();
+                realm.beginTransaction();
+                if (isOverWriteAllData) {
+                    for (RealmPrimeItem item : results) {
+                        int distance = realmPrimeItem.getDistance();
+                        item.setDistance(distance);
+                    }
+                } else {
+                    RealmPrimeItem lastItem = results.last();
+                    int distance = realmPrimeItem.getDistance();
+                    lastItem.setDistance(distance);
+                }
+                realm.commitTransaction();
+            }
+        });
     }
 
 
     public void removePrimeData() {
-        realm.beginTransaction();
-        realm.clear(RealmPrimeItem.class);
-        realm.commitTransaction();
+        final Observable<Class> observable = Observable.just(RealmPrimeItem.class);
+        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
+        observable.subscribe(new Subscriber<Class>() {
+
+            @Override
+            public void onCompleted() {
+
+            }
+
+
+            @Override
+            public void onError(Throwable e) {
+            }
+
+
+            @Override
+            public void onNext(Class aClass) {
+                realm.beginTransaction();
+                realm.clear(RealmPrimeItem.class);
+                realm.commitTransaction();
+            }
+        });
     }
 
 

@@ -39,6 +39,7 @@ import java.util.List;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -93,7 +94,6 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
             stopScan();
             noDeviceTextView.setVisibility(View.VISIBLE);
         }
-
 
         @Override
         public void onNext(DeviceItem deviceItem) {

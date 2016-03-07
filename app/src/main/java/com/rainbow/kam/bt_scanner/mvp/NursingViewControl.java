@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2016-03-03.
  */
-public interface NursingViewControl extends BaseNursingViewControl {
+public interface NursingViewControl {
 
     void setFragments();
 
@@ -58,9 +58,5 @@ public interface NursingViewControl extends BaseNursingViewControl {
     void setPrimeEmptyValue();
 
     void fail();
-
 }
 
-interface BaseNursingViewControl {
-    Context getContext();
-}

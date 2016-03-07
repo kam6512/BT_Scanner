@@ -24,16 +24,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Handler;
 
 import hugo.weaving.DebugLog;
 import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action;
-import rx.functions.Action1;
-import rx.functions.Func0;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by kam6512 on 2016-03-03.
@@ -61,12 +56,12 @@ public class NursingPresenter implements BaseNursingPresenter {
         READ_BATTERY,
         END,
         VIDONN_HISTORY_BLOCK,
-        VIDONN_HISTORY_DETAIL;
+        VIDONN_HISTORY_DETAIL
     }
 
     public enum DeviceType {
         DEVICE_PRIME,
-        DEVICE_VIDONN;
+        DEVICE_VIDONN
     }
 
     private connectionStateType state;
@@ -86,7 +81,6 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     private List<Integer> stepList = new ArrayList<>();
 
-
     public static final String TAG = NursingPresenter.class.getSimpleName();
 
     private String userAge, userHeight, deviceName, deviceAddress;
@@ -101,21 +95,14 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
-//    private Observable presenterObservable;
 
 
     public NursingPresenter(final Context context) {
         this.context = context;
         this.activity = (AppCompatActivity) context;
         this.control = (NursingViewControl) context;
-//        presenterObservable = Observable.empty().observeOn(AndroidSchedulers.mainThread()).subscribeOn(AndroidSchedulers.mainThread()).compose(control.ActivityLifecycleProvider().bindToLifecycle());
         state = NursingPresenter.connectionStateType.NONE;
     }
-
-
-//    private void subscribe(Action1 action) {
-//        presenterObservable.subscribe(action);
-//    }
 
 
     @Override
@@ -126,11 +113,13 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     @Override
     public void initializeViews() {
-        control.setFragments();
-        control.setToolbar();
-        control.setMaterialView();
-        control.setNavigationView();
-        control.setMaterialDialog();
+        activity.runOnUiThread(() -> {
+            control.setFragments();
+            control.setToolbar();
+            control.setMaterialView();
+            control.setNavigationView();
+            control.setMaterialDialog();
+        });
     }
 
 
@@ -164,11 +153,11 @@ public class NursingPresenter implements BaseNursingPresenter {
     private boolean isDeviceDataAvailable() {
         if (primeDao.isAllDataEmpty()) {
             state = connectionStateType.NEED_DEVICE_NOT_CONNECT;
-
-            control.showDeviceSettingSnackBar();
-            control.dismissSwipeRefresh();
-            control.setPrimeEmptyValue();
-
+            activity.runOnUiThread(() -> {
+                control.showDeviceSettingSnackBar();
+                control.dismissSwipeRefresh();
+                control.setPrimeEmptyValue();
+            });
 
             return false;
         } else if (primeDao.isUserDataAvailable()) {
@@ -190,7 +179,8 @@ public class NursingPresenter implements BaseNursingPresenter {
         } else {
             state = NursingPresenter.connectionStateType.DISCONNECT_QUEUE;
 
-            control.showDisconnectDeviceSnackBar();
+            activity.runOnUiThread(control::showDisconnectDeviceSnackBar);
+
 
             disconnectDevice();
         }
@@ -210,21 +200,20 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     @Override
     public void goalSettingPressed() {
-
-        if (state == NursingPresenter.connectionStateType.NEED_DEVICE_NOT_CONNECT) {
-            control.showDeviceSettingSnackBar();
-        } else {
-            control.showGoalSettingFragment();
-        }
-
+        activity.runOnUiThread(() -> {
+            if (state == NursingPresenter.connectionStateType.NEED_DEVICE_NOT_CONNECT) {
+                control.showDeviceSettingSnackBar();
+            } else {
+                control.showGoalSettingFragment();
+            }
+        });
     }
 
 
     private void connectDevice() {
         try {
             gattManager.connect(deviceAddress);
-
-            control.showSwipeRefresh();
+            activity.runOnUiThread(control::showSwipeRefresh);
 
 
         } catch (NullPointerException e) {
@@ -236,7 +225,6 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     @Override
     public void disconnectDevice() {
-
         if ((state == NursingPresenter.connectionStateType.NEED_DEVICE_NOT_CONNECT)) {
             return;
         }
@@ -256,10 +244,7 @@ public class NursingPresenter implements BaseNursingPresenter {
         deviceAddress = deviceVo.address;
 
         checkDeviceType();
-
-        control.setDeviceValue(deviceVo);
-
-
+        activity.runOnUiThread(() -> control.setDeviceValue(deviceVo));
     }
 
 
@@ -289,9 +274,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void onReadTime(final BluetoothGattCharacteristic ch) {
-
-        control.setUpdateTimeValue(readUpdateTimeValue(ch));
-
+        activity.runOnUiThread(() -> control.setUpdateTimeValue(readUpdateTimeValue(ch)));
 
         switch (deviceType) {
             case DEVICE_PRIME:
@@ -333,9 +316,11 @@ public class NursingPresenter implements BaseNursingPresenter {
     private void onReadExerciseData(final BluetoothGattCharacteristic characteristic) {
         primeDao.savePrimeData(makePrimeItem(characteristic));
 
-        control.setPrimeValue(primeDao.loadPrimeListData());
-        control.setPrimeGoalRange(primeDao.loadGoalData());
+        activity.runOnUiThread(() -> {
+            control.setPrimeValue(primeDao.loadPrimeListData());
+            control.setPrimeGoalRange(primeDao.loadGoalData());
 
+        });
 
         gattManager.readValue(bluetoothGattCharacteristicForBattery);
     }
@@ -415,33 +400,15 @@ public class NursingPresenter implements BaseNursingPresenter {
     @Override
     public void overWriteHistory(boolean isOverWriteAllData) {
         loadUserDeviceData();
-
-        int distance = calculateDistance(currentRealmPrimeItem.getStep());
-        currentRealmPrimeItem.setDistance(distance);
-        primeDao.overWritePrimeData(currentRealmPrimeItem, isOverWriteAllData);
-
-        control.setPrimeValue(primeDao.loadPrimeListData());
+        activity.runOnUiThread(() -> {
+            int distance = calculateDistance(currentRealmPrimeItem.getStep());
+            currentRealmPrimeItem.setDistance(distance);
+            primeDao.overWritePrimeData(currentRealmPrimeItem, isOverWriteAllData);
 
 
-    }
+            control.setPrimeValue(primeDao.loadPrimeListData());
+        });
 
-
-    private void onReadBattery(final BluetoothGattCharacteristic characteristic) {
-        final int batteryValue = characteristic.getValue()[0];
-
-        control.setBatteryValue(batteryValue);
-
-
-        switch (deviceType) {
-            case DEVICE_PRIME:
-                gattReadType = GattReadType.END;
-                state = connectionStateType.GATT_END;
-                break;
-            case DEVICE_VIDONN:
-                gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDate());
-                break;
-        }
     }
 
 
@@ -567,10 +534,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
         public void onDeviceConnected() {
             state = connectionStateType.CONNECTED;
-
-            control.onDeviceConnected();
-
-
+            activity.runOnUiThread(control::onDeviceConnected);
         }
 
 
@@ -578,9 +542,7 @@ public class NursingPresenter implements BaseNursingPresenter {
             if (state == NursingPresenter.connectionStateType.DISCONNECT_QUEUE) {
                 applicationExit();
             } else {
-
-                control.onDeviceDisconnected();
-
+                activity.runOnUiThread(control::onDeviceDisconnected);
 
                 if (state == NursingPresenter.connectionStateType.REFRESH) {
                     registerBluetooth();
@@ -596,23 +558,36 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
         public void onServicesNotFound() {
-
             control.fail();
-
-
         }
 
 
         public void onReadSuccess(final BluetoothGattCharacteristic characteristic) {
-            onReadBattery(characteristic);
+            Observable<BluetoothGattCharacteristic> observable = Observable.just(characteristic);
+            observable.onBackpressureBuffer().subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
+            observable.map(characteristic1 -> characteristic1.getValue()[0])
+                    .subscribe(
+                            control::setBatteryValue,
+                            throwable -> {
+                            },
+                            () -> {
+                                switch (deviceType) {
+                                    case DEVICE_PRIME:
+                                        gattReadType = GattReadType.END;
+                                        state = connectionStateType.GATT_END;
+                                        break;
+                                    case DEVICE_VIDONN:
+                                        gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
+                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDate());
+                                        break;
+                                }
+                            }
+                    );
         }
 
 
         public void onReadFail() {
-
             control.fail();
-
-
         }
 
 
@@ -632,40 +607,40 @@ public class NursingPresenter implements BaseNursingPresenter {
 
         @DebugLog
         public synchronized void onDeviceNotify(final BluetoothGattCharacteristic characteristic) {
-            try {
-                switch (gattReadType) {
-                    case READ_TIME:
-                        onReadTime(characteristic);
-                        gattReadType = GattReadType.READ_EXERCISE_DATA;
+//            try {
+            switch (gattReadType) {
+                case READ_TIME:
+                    onReadTime(characteristic);
+                    gattReadType = GattReadType.READ_EXERCISE_DATA;
 
-                        break;
+                    break;
 
-                    case READ_EXERCISE_DATA:
-                        onReadExerciseData(characteristic);
-                        gattReadType = GattReadType.READ_BATTERY;
+                case READ_EXERCISE_DATA:
+                    onReadExerciseData(characteristic);
+                    gattReadType = GattReadType.READ_BATTERY;
 
-                        break;
+                    break;
 
-                    case VIDONN_HISTORY_BLOCK:
-                        onReadHistoryBlock(characteristic);
+                case VIDONN_HISTORY_BLOCK:
+                    onReadHistoryBlock(characteristic);
 
-                        break;
+                    break;
 
-                    case VIDONN_HISTORY_DETAIL:
-                        onReadDetailBlock(characteristic);
+                case VIDONN_HISTORY_DETAIL:
+                    onReadDetailBlock(characteristic);
 
-                        break;
+                    break;
 
-                    default:
-                        break;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Exception " + e.getMessage());
-
-                control.fail();
-
-
+                default:
+                    break;
             }
+//            } catch (Exception e) {
+//                Log.e(TAG, "Exception " + e.getMessage());
+//
+//                control.fail();
+//
+//
+//            }
         }
 
 
@@ -678,7 +653,8 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
         public void onRSSIUpdate(final int rssiValue) {
-            control.updateRssiValue(rssiValue);
+            activity.runOnUiThread(() -> control.updateRssiValue(rssiValue));
+
         }
     };
 

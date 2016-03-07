@@ -91,7 +91,6 @@ public class PrimeFragment extends Fragment implements
                 ContextCompat.getDrawable(context, R.drawable.calorie_wallpaper),
                 ContextCompat.getDrawable(context, R.drawable.distance_wallpaper));
         onRefreshListener = (OnRefreshListener) context;
-
     }
 
 
