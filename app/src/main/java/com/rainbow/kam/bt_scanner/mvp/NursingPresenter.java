@@ -174,7 +174,7 @@ public class NursingPresenter implements BaseNursingPresenter {
         } else if (primeDao.isUserDataAvailable()) {
             state = connectionStateType.NEED_USER_CONNECT;
 
-            control.showUserSettingSnackBar();
+//            control.showUserSettingSnackBar();
 
         }
         return true;

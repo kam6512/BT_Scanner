@@ -38,6 +38,9 @@ import java.util.List;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by kam6512 on 2016-02-17.
@@ -133,9 +136,17 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
 
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
 
-        getDeviceObservable().subscribe(deviceItemObserver);
-
         return view;
+    }
+
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getDeviceObservable()
+                .onBackpressureBuffer()
+                .subscribeOn(Schedulers.computation())
+                .subscribe(deviceItemObserver);
     }
 
 
