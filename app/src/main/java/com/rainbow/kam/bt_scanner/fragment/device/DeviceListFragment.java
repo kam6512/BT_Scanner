@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -37,13 +36,16 @@ import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+
 /**
  * Created by kam6512 on 2016-02-17.
  */
 public class DeviceListFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener, DialogInterface.OnCancelListener {
     private final String TAG = getClass().getSimpleName();
 
-    private static final String PRIME_NAME = "Prime";
+    private static final String[] AVAILABLE_DEVICE = {"X6S", "Prime"};
     private static final int SCAN_PERIOD = 5000;
 
     private Context context;
@@ -77,6 +79,32 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
         }
     };
 
+    private Observer<DeviceItem> deviceItemObserver = new Observer<DeviceItem>() {
+        @Override
+        public void onCompleted() {
+        }
+
+
+        @Override
+        public void onError(Throwable e) {
+            stopScan();
+            noDeviceTextView.setVisibility(View.VISIBLE);
+        }
+
+
+        @Override
+        public void onNext(DeviceItem deviceItem) {
+            if (context instanceof MainActivity) {
+                deviceAdapter.addDevice(deviceItem);
+            } else if (context instanceof PrimeActivity || context instanceof NursingActivity) {
+                String deviceName = deviceItem.getExtraName();
+                if (deviceName != null && (deviceName.contains(AVAILABLE_DEVICE[0]) || deviceName.contains(AVAILABLE_DEVICE[1]))) {
+                    deviceAdapter.addDevice(deviceItem);
+                }
+            }
+        }
+    };
+
 
     @Override
     public void onAttach(Context context) {
@@ -102,9 +130,10 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
 
         setRecyclerView();
         setOtherView();
-        setScannerCallback();
 
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+
+        getDeviceObservable().subscribe(deviceItemObserver);
 
         return view;
     }
@@ -170,69 +199,6 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
 
         noDeviceTextView = (TextView) view.findViewById(R.id.prime_no_device_textView);
         noDeviceTextView.setVisibility(View.INVISIBLE);
-    }
-
-
-    private void setScannerCallback() {
-        if (BluetoothHelper.IS_BUILD_VERSION_LM) {
-            setScannerL();
-        } else {
-            setScanner();
-        }
-    }
-
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void setScannerL() {
-        scanCallback = new ScanCallback() {
-            @Override
-            public void onScanResult(int callbackType, ScanResult result) {
-                if (result != null) {
-                    addDevice(result.getDevice(), result.getRssi());
-                }
-            }
-
-
-            @Override
-            public void onBatchScanResults(List<ScanResult> results) {
-                for (ScanResult result : results) {
-                    if (result != null) {
-                        addDevice(result.getDevice(), result.getRssi());
-                    }
-                }
-            }
-
-
-            @Override
-            public void onScanFailed(int errorCode) {
-                stopScan();
-            }
-        };
-    }
-
-
-    private void setScanner() {
-        leScanCallback = new BluetoothAdapter.LeScanCallback() {
-            @Override
-            public void onLeScan(final BluetoothDevice device, final int rssi,
-                                 final byte[] scanRecord) {
-                addDevice(device, rssi);
-            }
-        };
-    }
-
-
-    private void addDevice(BluetoothDevice bluetoothDevice, int rssi) {
-        DeviceItem addDeviceItem = new DeviceItem(bluetoothDevice, rssi);
-        if (context instanceof MainActivity) {
-            deviceAdapter.addDevice(addDeviceItem);
-
-        } else if (context instanceof PrimeActivity || context instanceof NursingActivity) {
-            String deviceName = bluetoothDevice.getName();
-//            if (deviceName != null && deviceName.equals(PRIME_NAME)) {
-            deviceAdapter.addDevice(addDeviceItem);
-//            }
-        }
     }
 
 
@@ -310,5 +276,46 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
             //noinspection deprecation
             bluetoothAdapter.stopLeScan(leScanCallback);
         }
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private Observable<DeviceItem> getDeviceObservable() {
+        return Observable.create(subscriber -> {
+            if (BluetoothHelper.IS_BUILD_VERSION_LM) {
+                scanCallback = new ScanCallback() {
+                    @Override
+                    public void onScanResult(int callbackType, ScanResult result) {
+                        if (result != null && !subscriber.isUnsubscribed()) {
+                            subscriber.onNext(new DeviceItem(result.getDevice(), result.getRssi()));
+                        }
+                    }
+
+
+                    @Override
+                    public void onBatchScanResults(List<ScanResult> results) {
+                        for (ScanResult result : results) {
+                            if (result != null && !subscriber.isUnsubscribed()) {
+                                subscriber.onNext(new DeviceItem(result.getDevice(), result.getRssi()));
+                            }
+                        }
+                    }
+
+
+                    @Override
+                    public void onScanFailed(int errorCode) {
+                        if (subscriber.isUnsubscribed()) {
+                            return;
+                        }
+                        stopScan();
+                    }
+                };
+            } else {
+                if (subscriber.isUnsubscribed()) {
+                    return;
+                }
+                leScanCallback = (device, rssi, scanRecord) -> subscriber.onNext(new DeviceItem(device, rssi));
+            }
+        });
     }
 }
