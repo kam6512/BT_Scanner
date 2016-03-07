@@ -440,9 +440,9 @@ public class PrimeActivity extends AppCompatActivity implements
             dismissSwipeRefresh();
             primeFragment.setValueEmpty();
             return false;
-        } else if (primeDao.isUserDataAvailable()) {
+        } else if (!primeDao.isUserDataAvailable()) {
             state = connectionStateType.NEED_USER_CONNECT;
-            showUserSettingSnackBar();
+//            showUserSettingSnackBar();
         }
         return true;
     }

@@ -71,7 +71,6 @@ public class NursingActivity extends AppCompatActivity implements NursingViewCon
     private ImageView toolbarBluetoothFlag;
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
-    private SwipeRefreshLayout swipeRefreshLayout;
 
     private ImageView navBattery;
     private TextView navDeviceName, navDeviceAddress, navUpdate;
@@ -80,12 +79,6 @@ public class NursingActivity extends AppCompatActivity implements NursingViewCon
 
     private Snackbar deviceSettingSnackBar;
 
-    private final Runnable postSwipeRefresh = new Runnable() {
-        @Override
-        public void run() {
-            swipeRefreshLayout.setRefreshing(true);
-        }
-    };
 
 
     @Override
@@ -257,11 +250,6 @@ public class NursingActivity extends AppCompatActivity implements NursingViewCon
     public void setMaterialView() {
         drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.prime_coordinatorLayout);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent,
-                R.color.colorPrimaryDark);
     }
 
 
@@ -431,14 +419,14 @@ public class NursingActivity extends AppCompatActivity implements NursingViewCon
 
     @Override
     public void showSwipeRefresh() {
-        swipeRefreshLayout.post(postSwipeRefresh);
+        primeFragment.setRefreshing(true);
     }
 
 
     @Override
     public void dismissSwipeRefresh() {
-        if (swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
+        if (primeFragment.isRefreshing()) {
+            primeFragment.setRefreshing(false);
         }
     }
 
