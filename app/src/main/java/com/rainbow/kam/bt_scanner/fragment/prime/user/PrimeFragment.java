@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,6 +38,7 @@ import java.util.List;
  * Created by kam6512 on 2015-11-04.
  */
 public class PrimeFragment extends Fragment implements
+        SwipeRefreshLayout.OnRefreshListener,
         NestedScrollView.OnScrollChangeListener,
         ViewPager.OnPageChangeListener {
 
@@ -50,6 +52,8 @@ public class PrimeFragment extends Fragment implements
     private List<String> units;
     private List<String> totalLabels;
     private List<Drawable> totalCardImageDrawable;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private CardView totalCardView;
     private TextView labelTextView, totalTextView;
@@ -66,6 +70,15 @@ public class PrimeFragment extends Fragment implements
 
     private int stickyChartCardScrollValue, stickyTotalCardScrollValue;
 
+    private final Runnable postSwipeRefresh = new Runnable() {
+        @Override
+        public void run() {
+            swipeRefreshLayout.setRefreshing(true);
+        }
+    };
+
+    private OnRefreshListener onRefreshListener;
+
 
     @Override
     public void onAttach(Context context) {
@@ -77,6 +90,7 @@ public class PrimeFragment extends Fragment implements
                 ContextCompat.getDrawable(context, R.drawable.step_wallpaper),
                 ContextCompat.getDrawable(context, R.drawable.calorie_wallpaper),
                 ContextCompat.getDrawable(context, R.drawable.distance_wallpaper));
+        onRefreshListener = (OnRefreshListener) context;
 
     }
 
@@ -88,7 +102,7 @@ public class PrimeFragment extends Fragment implements
 
         setTotalCardView();
         setFragments();
-        setNestedScrollView();
+        setMaterialViews();
         setViewPager();
         setChartView();
         setRecyclerView();
@@ -133,7 +147,14 @@ public class PrimeFragment extends Fragment implements
     }
 
 
-    private void setNestedScrollView() {
+    private void setMaterialViews() {
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.prime_swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
         NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.prime_nested);
         nestedScrollView.setOnScrollChangeListener(this);
     }
@@ -207,6 +228,26 @@ public class PrimeFragment extends Fragment implements
         historyRecyclerView.setFocusable(true);
         historyAdapter = new HistoryAdapter(context);
         historyRecyclerView.setAdapter(historyAdapter);
+    }
+
+
+    public boolean isRefreshing() {
+        return swipeRefreshLayout.isRefreshing();
+    }
+
+
+    public void setRefreshing(boolean refresh) {
+        if (refresh) {
+            swipeRefreshLayout.post(postSwipeRefresh);
+        } else {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+
+    @Override
+    public void onRefresh() {
+        onRefreshListener.onRefresh();
     }
 
 
@@ -360,5 +401,11 @@ public class PrimeFragment extends Fragment implements
             return tabTitles.get(position);
         }
     }
+
+    public interface OnRefreshListener {
+        void onRefresh();
+    }
 }
+
+
 

@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -15,8 +14,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,25 +35,15 @@ import com.rainbow.kam.bt_scanner.fragment.prime.menu.GoalDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-import com.trello.navi.component.support.NaviAppCompatActivity;
-import com.trello.rxlifecycle.ActivityLifecycleProvider;
-import com.trello.rxlifecycle.navi.NaviLifecycle;
 
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
-
-import rx.Subscriber;
 
 /**
  * Created by kam6512 on 2016-03-03.
  */
 
-public class NursingActivity extends BaseNursingActivity implements NursingViewControl,
+public class NursingActivity extends AppCompatActivity implements NursingViewControl,
         SwipeRefreshLayout.OnRefreshListener,
         NavigationView.OnNavigationItemSelectedListener,
         DeviceAdapter.OnDeviceSelectListener,
@@ -104,11 +93,6 @@ public class NursingActivity extends BaseNursingActivity implements NursingViewC
         return this;
     }
 
-
-    @Override
-    public ActivityLifecycleProvider ActivityLifecycleProvider() {
-        return getActivityLifecycleProvider();
-    }
 
 
     @Override
@@ -555,15 +539,5 @@ public class NursingActivity extends BaseNursingActivity implements NursingViewC
     public void onSaveGoal(GoalVo goalVo) {
         goalDialogFragment.dismiss();
         primeFragment.setCircleCounterGoalRange(goalVo);
-    }
-}
-
-class BaseNursingActivity extends NaviAppCompatActivity {
-    public final String TAG = BaseNursingActivity.class.getSimpleName();
-    private final ActivityLifecycleProvider activityLifecycleProvider = NaviLifecycle.createActivityLifecycleProvider(this);
-
-
-    public ActivityLifecycleProvider getActivityLifecycleProvider() {
-        return activityLifecycleProvider;
     }
 }

@@ -62,19 +62,13 @@
             </LinearLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/prime_swipeRefreshLayout"
+
+        <FrameLayout
+            android:id="@+id/prime_fragment_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@null"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-
-            <FrameLayout
-                android:id="@+id/prime_fragment_frame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </android.support.v4.widget.SwipeRefreshLayout>
 
     </android.support.design.widget.CoordinatorLayout>
 

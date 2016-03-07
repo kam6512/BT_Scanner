@@ -40,11 +40,11 @@ import io.realm.RealmResults;
  * Created by kam6512 on 2015-11-02.
  */
 public class PrimeActivity extends AppCompatActivity implements
-        SwipeRefreshLayout.OnRefreshListener,
         NavigationView.OnNavigationItemSelectedListener,
         DeviceAdapter.OnDeviceSelectListener,
         UserDataDialogFragment.OnSaveUserDataListener,
-        GoalDialogFragment.OnSaveGoalListener {
+        GoalDialogFragment.OnSaveGoalListener,
+        PrimeFragment.OnRefreshListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -101,7 +101,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private ImageView toolbarBluetoothFlag;
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
-    private SwipeRefreshLayout swipeRefreshLayout;
+
 
     private ImageView navBattery;
     private TextView navDeviceName, navDeviceAddress, navUpdate;
@@ -115,13 +115,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
-
-    private final Runnable postSwipeRefresh = new Runnable() {
-        @Override
-        public void run() {
-            swipeRefreshLayout.setRefreshing(true);
-        }
-    };
 
     private int historyDetail_Data_Block_Week_ID = 1;// 1~7
     private int historyDetail_Data_Block_Hour_ID = 0;// 0~23
@@ -327,13 +320,6 @@ public class PrimeActivity extends AppCompatActivity implements
     private void setMaterialView() {
         drawerLayout = (DrawerLayout) findViewById(R.id.prime_drawer_layout);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.prime_coordinatorLayout);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.prime_swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
     }
 
 
@@ -498,8 +484,8 @@ public class PrimeActivity extends AppCompatActivity implements
 
 
     private void dismissSwipeRefresh() {
-        if (swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
+        if (primeFragment.isRefreshing()) {
+            primeFragment.setRefreshing(false);
         }
     }
 
@@ -507,7 +493,7 @@ public class PrimeActivity extends AppCompatActivity implements
     private void connectDevice() {
         try {
             gattManager.connect(deviceAddress);
-            swipeRefreshLayout.post(postSwipeRefresh);
+            primeFragment.setRefreshing(true);
         } catch (NullPointerException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(this, getString(R.string.bt_fail), Toast.LENGTH_SHORT).show();
@@ -785,8 +771,10 @@ public class PrimeActivity extends AppCompatActivity implements
                 state = connectionStateType.GATT_END;
                 break;
             case DEVICE_VIDONN:
-                gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDate());
+                gattReadType = GattReadType.END;
+                state = connectionStateType.GATT_END;
+//                gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
+//                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDate());
                 break;
         }
     }
@@ -943,7 +931,7 @@ public class PrimeActivity extends AppCompatActivity implements
                         toolbarBluetoothFlag.setImageResource(R.drawable.ic_bluetooth_disabled_white_24dp);
 
 
-                        if (swipeRefreshLayout.isRefreshing() || state == connectionStateType.REFRESH) {
+                        if (primeFragment.isRefreshing() || state == connectionStateType.REFRESH) {
                             registerBluetooth();
                         }
                     }

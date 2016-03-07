@@ -19,12 +19,14 @@ import android.widget.TextView;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Created by Kam6512 on 2015-10-14.
  */
 public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
 
     private final Context context;
 
@@ -106,6 +108,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void addDevice(final DeviceItem deviceItem) {
         sortedList.add(deviceItem);
     }
+
 
 
     public void clear() {

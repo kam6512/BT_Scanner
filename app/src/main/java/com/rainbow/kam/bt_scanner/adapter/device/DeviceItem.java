@@ -5,10 +5,12 @@ import android.util.SparseArray;
 
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
+import java.util.Objects;
+
 /**
  * Created by kam6512 on 2015-10-14.
  */
-public class DeviceItem { //카드 뷰 틀
+public class DeviceItem implements Comparable<DeviceItem> { //카드 뷰 틀
     private final String extraName;
     private final String extraAddress;
     private final int extraBondState;
@@ -51,5 +53,11 @@ public class DeviceItem { //카드 뷰 틀
 
     public int getExtraRssi() {
         return this.extraRssi;
+    }
+
+
+    @Override
+    public int compareTo(DeviceItem anotherDeviceItem) {
+        return 0;
     }
 }

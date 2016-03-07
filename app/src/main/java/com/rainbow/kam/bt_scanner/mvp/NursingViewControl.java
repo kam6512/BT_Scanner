@@ -5,7 +5,6 @@ import android.content.Context;
 import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
-import com.trello.rxlifecycle.ActivityLifecycleProvider;
 
 import java.util.List;
 
@@ -64,6 +63,4 @@ public interface NursingViewControl extends BaseNursingViewControl {
 
 interface BaseNursingViewControl {
     Context getContext();
-
-    ActivityLifecycleProvider ActivityLifecycleProvider();
 }

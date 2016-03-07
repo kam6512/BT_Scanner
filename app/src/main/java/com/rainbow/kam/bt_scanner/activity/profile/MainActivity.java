@@ -19,6 +19,8 @@ import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
+import java.util.Observable;
+
 /**
  * Created by kam6512 on 2015-10-22.
  */
@@ -129,5 +131,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onDeviceUnSelected() {
         finish();
     }
+
 }
 
