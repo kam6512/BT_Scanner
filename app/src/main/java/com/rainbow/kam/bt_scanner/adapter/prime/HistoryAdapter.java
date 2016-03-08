@@ -13,12 +13,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Kam6512 on 2015-10-14.
@@ -27,11 +31,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private int index;
 
-    private final ArrayList<RealmPrimeItem> historyArrayList = new ArrayList<>();
+    private final ArrayList<RealmUserActivityItem> historyArrayList = new ArrayList<>();
 
     private final List<Drawable> iconDrawable;
     private final List<String> unit;
-
 
     public HistoryAdapter(Context context) {
         iconDrawable = Arrays.asList(ContextCompat.getDrawable(context, R.drawable.ic_directions_walk_white_36dp),
@@ -71,13 +74,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void setEmptyList() {
         historyArrayList.clear();
         for (int i = 0; i < 10; i++) {
-            historyArrayList.add(new RealmPrimeItem());
+            historyArrayList.add(new RealmUserActivityItem());
         }
         notifyDataSetChanged();
     }
 
 
-    public void setHistoryList(List<RealmPrimeItem> results) {
+    public void setHistoryList(List<RealmUserActivityItem> results) {
         historyArrayList.clear();
         historyArrayList.addAll(results);
         Collections.reverse(historyArrayList);
@@ -90,7 +93,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private final TextView historyText, historyDate;
         private final ImageView historyImageView;
         private List<Integer> values;
-        private String calendar;
+        private String calendarString;
 
 
         public HistoryViewHolder(View itemView) {
@@ -102,25 +105,21 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
 
-        private void bindViews(RealmPrimeItem realmPrimeItem) {
+        private void bindViews(RealmUserActivityItem realmUserActivityItem) {
             values = Arrays.asList(
-                    realmPrimeItem.getStep(),
-                    realmPrimeItem.getCalorie(),
-                    realmPrimeItem.getDistance());
+                    realmUserActivityItem.getStep(),
+                    realmUserActivityItem.getCalorie(),
+                    realmUserActivityItem.getDistance());
 
-            calendar = realmPrimeItem.getCalendar();
-            if (TextUtils.isEmpty(calendar)) {
-                calendar = "--";
+            calendarString = realmUserActivityItem.getCalendar();
+
+            if (TextUtils.isEmpty(calendarString)) {
+                calendarString = "--";
             }
             String history = values.get(index) + unit.get(index);
             historyText.setText(history);
-            historyDate.setText(calendar);
-            historyImageView.post(new Runnable() {
-                @Override
-                public void run() {
-                    historyImageView.setImageDrawable(iconDrawable.get(index));
-                }
-            });
+            historyDate.setText(calendarString);
+            historyImageView.post(() -> historyImageView.setImageDrawable(iconDrawable.get(index)));
         }
     }
 }

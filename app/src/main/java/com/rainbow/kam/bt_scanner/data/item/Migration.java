@@ -15,7 +15,7 @@ public class Migration implements RealmMigration {
 
         RealmSchema schema = realm.getSchema();
         if (oldVersion == 0) {
-            schema.create("RealmPrimeItem")
+            schema.create("RealmUserActivityItem")
                     .addField("calendar", String.class)
                     .addField("step", int.class)
                     .addField("calorie", int.class)
@@ -23,7 +23,7 @@ public class Migration implements RealmMigration {
             oldVersion++;
         }
         if (oldVersion == 1) {
-            schema.get("RealmPrimeItem");
+            schema.get("RealmUserActivityItem");
             oldVersion++;
         }
     }

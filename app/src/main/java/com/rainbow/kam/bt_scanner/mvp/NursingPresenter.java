@@ -9,7 +9,8 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
@@ -77,9 +78,7 @@ public class NursingPresenter implements BaseNursingPresenter {
     private byte[] historyDate_Data = new byte[40];
     private byte[] historyDetail_Data = new byte[67];
 
-    private int dayStepTotal = 0;
-
-    private List<Integer> stepList = new ArrayList<>();
+    List<ActivityHistoryItem> historyItemList = new ArrayList<>(7);
 
     public static final String TAG = NursingPresenter.class.getSimpleName();
 
@@ -87,7 +86,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     private NursingViewControl control;
 
-    private RealmPrimeItem currentRealmPrimeItem;
+    private RealmUserActivityItem currentRealmUserActivityItem;
 
     private PrimeDao primeDao;
 
@@ -314,7 +313,11 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void onReadExerciseData(final BluetoothGattCharacteristic characteristic) {
-        primeDao.savePrimeData(makePrimeItem(characteristic));
+        activity.runOnUiThread(() -> {
+            primeDao.savePrimeData(makePrimeItem(characteristic));
+
+        });
+
 
         activity.runOnUiThread(() -> {
             control.setPrimeValue(primeDao.loadPrimeListData());
@@ -326,7 +329,7 @@ public class NursingPresenter implements BaseNursingPresenter {
     }
 
 
-    private RealmPrimeItem makePrimeItem(final BluetoothGattCharacteristic characteristic)
+    private RealmUserActivityItem makePrimeItem(final BluetoothGattCharacteristic characteristic)
             throws ArrayIndexOutOfBoundsException {
 
         final byte[] characteristicValue = characteristic.getValue();
@@ -366,12 +369,12 @@ public class NursingPresenter implements BaseNursingPresenter {
         kcal = Integer.parseInt(hexCalorie.toString(), radix);
         distance = calculateDistance(step);
 
-        currentRealmPrimeItem = new RealmPrimeItem();
-        currentRealmPrimeItem.setStep(step);
-        currentRealmPrimeItem.setCalorie(kcal);
-        currentRealmPrimeItem.setDistance(distance);
+        currentRealmUserActivityItem = new RealmUserActivityItem();
+        currentRealmUserActivityItem.setStep(step);
+        currentRealmUserActivityItem.setCalorie(kcal);
+        currentRealmUserActivityItem.setDistance(distance);
 
-        return currentRealmPrimeItem;
+        return currentRealmUserActivityItem;
     }
 
 
@@ -401,9 +404,9 @@ public class NursingPresenter implements BaseNursingPresenter {
     public void overWriteHistory(boolean isOverWriteAllData) {
         loadUserDeviceData();
         activity.runOnUiThread(() -> {
-            int distance = calculateDistance(currentRealmPrimeItem.getStep());
-            currentRealmPrimeItem.setDistance(distance);
-            primeDao.overWritePrimeData(currentRealmPrimeItem, isOverWriteAllData);
+            int distance = calculateDistance(currentRealmUserActivityItem.getStep());
+            currentRealmUserActivityItem.setDistance(distance);
+            primeDao.overWritePrimeData(currentRealmUserActivityItem, isOverWriteAllData);
 
 
             control.setPrimeValue(primeDao.loadPrimeListData());
@@ -413,18 +416,24 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void onReadHistoryBlock(final BluetoothGattCharacteristic characteristic) {
-        byte[] blockData = characteristic.getValue();
 
+        byte[] blockData = characteristic.getValue();
         int[][] historyDate_Map;
         if (dateBlockIndex == 0) {
+            historyItemList.clear();
             if (blockData.length < 20) {
                 dateBlockIndex = 0;
-
                 historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(blockData, blockData.length);
-                for (int[] aHistoryDate_Map : historyDate_Map) {
-                    Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
-                            aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
-                            + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
+                for (int i = 0; i < historyDate_Map.length; i++) {
+                    int[] historyBlock = historyDate_Map[i];
+//                    Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
+//                            aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
+//                            + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
+
+                    historyItemList.add(new ActivityHistoryItem());
+                    historyItemList.get(i).historyBlockNumber = historyBlock[0];
+                    historyItemList.get(i).historyBlockCalendar = historyBlock[1] + "/"
+                            + historyBlock[2] + "/" + historyBlock[3];
                 }
             } else {
                 dateBlockIndex = 1;
@@ -432,16 +441,24 @@ public class NursingPresenter implements BaseNursingPresenter {
             }
         } else if (dateBlockIndex == 1) {
             dateBlockIndex = 0;
+
+            historyItemList.clear();
+
             int dataLength = 20 + blockData.length;
 
             System.arraycopy(blockData, 0, historyDate_Data, 20, dataLength - 20);
 
             historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(historyDate_Data, dataLength);
 
-            for (int[] aHistoryDate_Map : historyDate_Map) {
-                Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
-                        aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
-                        + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
+            for (int i = 0; i < historyDate_Map.length; i++) {
+                int[] historyBlock = historyDate_Map[i];
+//                    Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
+//                            aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
+//                            + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
+                historyItemList.add(new ActivityHistoryItem());
+                historyItemList.get(i).historyBlockNumber = historyBlock[0];
+                historyItemList.get(i).historyBlockCalendar = historyBlock[1] + "/"
+                        + historyBlock[2] + "/" + historyBlock[3];
             }
 
             gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID, (byte) historyDetail_Data_Block_Hour_ID));
@@ -455,16 +472,21 @@ public class NursingPresenter implements BaseNursingPresenter {
         if (historyDetail_Data_Block_Hour_ID == 24) {
             historyDetail_Data_Block_Hour_ID = 0;
 
-            stepList.add(dayStepTotal);
-            dayStepTotal = 0;
 
             historyDetail_Data_Block_Week_ID++;
         }
-        if ((historyDetail_Data_Block_Week_ID > 7)) {
+        if ((historyDetail_Data_Block_Week_ID > 3)) {
             Log.e(TAG, "Over");
 
-            for (int step : stepList) {
-                Log.e(TAG, "Step : " + step);
+//            for (int step : stepList) {
+//                Log.e(TAG, "Step : " + step);
+//            }
+            for (ActivityHistoryItem activityHistoryItem : historyItemList) {
+                Log.e(TAG,
+                        "activityHistoryItem.historyBlockNumber : " + activityHistoryItem.historyBlockNumber +
+                                "\nactivityHistoryItem.historyBlockCalendar : " + activityHistoryItem.historyBlockCalendar +
+                                "\nactivityHistoryItem.totalStep : " + activityHistoryItem.totalStep
+                );
             }
 
             gattReadType = GattReadType.END;
@@ -518,7 +540,13 @@ public class NursingPresenter implements BaseNursingPresenter {
                 int[][] steps = VidonnHelper.DeCodeX6.decode_HistoryRecodeDetail(historyDetail_Data);
 
                 for (int i = 1; i < steps.length; i++) {
-                    dayStepTotal += steps[i][1];
+                    Log.e(TAG, (i * 2 - 1) + "~" + (i * 2) + "min data=" + steps[i][1] + "  type=" + steps[i][0]);
+                    Log.e(TAG, "=======================================================");
+                    Log.e(TAG, "before totalStep : " + historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep);
+                    historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep += steps[i][1];
+                    Log.e(TAG, "add totalStep : " + steps[i][1]);
+                    Log.e(TAG, "after totalStep : " + historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep);
+
                 }
 
                 if (updateBlockIndex()) {
@@ -606,41 +634,41 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
         @DebugLog
-        public synchronized void onDeviceNotify(final BluetoothGattCharacteristic characteristic) {
-//            try {
-            switch (gattReadType) {
-                case READ_TIME:
-                    onReadTime(characteristic);
-                    gattReadType = GattReadType.READ_EXERCISE_DATA;
+        public void onDeviceNotify(final BluetoothGattCharacteristic characteristic) {
+            try {
+                switch (gattReadType) {
+                    case READ_TIME:
+                        onReadTime(characteristic);
+                        gattReadType = GattReadType.READ_EXERCISE_DATA;
 
-                    break;
+                        break;
 
-                case READ_EXERCISE_DATA:
-                    onReadExerciseData(characteristic);
-                    gattReadType = GattReadType.READ_BATTERY;
+                    case READ_EXERCISE_DATA:
+                        onReadExerciseData(characteristic);
+                        gattReadType = GattReadType.READ_BATTERY;
 
-                    break;
+                        break;
 
-                case VIDONN_HISTORY_BLOCK:
-                    onReadHistoryBlock(characteristic);
+                    case VIDONN_HISTORY_BLOCK:
+                        onReadHistoryBlock(characteristic);
 
-                    break;
+                        break;
 
-                case VIDONN_HISTORY_DETAIL:
-                    onReadDetailBlock(characteristic);
+                    case VIDONN_HISTORY_DETAIL:
+                        onReadDetailBlock(characteristic);
 
-                    break;
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception " + e.getMessage());
+
+                control.fail();
+
+
             }
-//            } catch (Exception e) {
-//                Log.e(TAG, "Exception " + e.getMessage());
-//
-//                control.fail();
-//
-//
-//            }
         }
 
 

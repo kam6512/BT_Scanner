@@ -28,7 +28,7 @@ import com.db.chart.view.LineChartView;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 
 import java.util.Arrays;
@@ -261,7 +261,7 @@ public class PrimeFragment extends Fragment implements
     }
 
 
-    public void setPrimeValue(List<RealmPrimeItem> results) {
+    public void setPrimeValue(List<RealmUserActivityItem> results) {
 
         setValueEmpty();
 
@@ -272,16 +272,16 @@ public class PrimeFragment extends Fragment implements
 
 
         for (int i = 0; i < length; i++) {
-            RealmPrimeItem realmPrimeItem = results.get(i);
+            RealmUserActivityItem realmUserActivityItem = results.get(i);
 
-            chartLabels[i] = realmPrimeItem.getCalendar();
-            chartValues[i] = (realmPrimeItem.getStep()
-                    + realmPrimeItem.getCalorie()
-                    + realmPrimeItem.getDistance()) / 3;
+            chartLabels[i] = realmUserActivityItem.getCalendar();
+            chartValues[i] = (realmUserActivityItem.getStep()
+                    + realmUserActivityItem.getCalorie()
+                    + realmUserActivityItem.getDistance()) / 3;
 
-            totalStep += realmPrimeItem.getStep();
-            totalCalorie += realmPrimeItem.getCalorie();
-            totalDistance += realmPrimeItem.getDistance();
+            totalStep += realmUserActivityItem.getStep();
+            totalCalorie += realmUserActivityItem.getCalorie();
+            totalDistance += realmUserActivityItem.getDistance();
         }
 
         String total = getTotalValue(index) + units.get(index);
@@ -348,9 +348,9 @@ public class PrimeFragment extends Fragment implements
     }
 
 
-    private void setCircleCounterValue(RealmPrimeItem realmPrimeItem) {
+    private void setCircleCounterValue(RealmUserActivityItem realmUserActivityItem) {
         for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
-            primeCircleFragment.setCircleValue(realmPrimeItem);
+            primeCircleFragment.setCircleValue(realmUserActivityItem);
         }
     }
 

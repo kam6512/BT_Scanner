@@ -1,16 +1,11 @@
 package com.rainbow.kam.bt_scanner.mvp.Rx;
 
-import android.content.Context;
-
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
-import com.rainbow.kam.bt_scanner.mvp.NursingViewControl;
 
 import java.util.List;
-import java.util.Observable;
 
-import rx.Observer;
 import rx.Subscriber;
 
 /**
@@ -55,7 +50,7 @@ public abstract class NursingSubscriber extends Subscriber {
 
     public abstract void updateRssiValue(int rssiValue);
 
-    public abstract void setPrimeValue(List<RealmPrimeItem> primeValue);
+    public abstract void setPrimeValue(List<RealmUserActivityItem> primeValue);
 
     public abstract void setPrimeGoalRange(GoalVo goalVo);
 

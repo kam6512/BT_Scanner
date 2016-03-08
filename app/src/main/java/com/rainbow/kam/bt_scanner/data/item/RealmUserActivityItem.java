@@ -5,7 +5,7 @@ import io.realm.RealmObject;
 /**
  * Created by kam6512 on 2015-11-20.
  */
-public class RealmPrimeItem extends RealmObject {
+public class RealmUserActivityItem extends RealmObject {
 
     private String calendar;
 

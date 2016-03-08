@@ -1,8 +1,6 @@
 package com.rainbow.kam.bt_scanner.mvp;
 
-import android.content.Context;
-
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 
@@ -51,7 +49,7 @@ public interface NursingViewControl {
 
     void updateRssiValue(int rssiValue);
 
-    void setPrimeValue(List<RealmPrimeItem> primeValue);
+    void setPrimeValue(List<RealmUserActivityItem> primeValue);
 
     void setPrimeGoalRange(GoalVo goalVo);
 

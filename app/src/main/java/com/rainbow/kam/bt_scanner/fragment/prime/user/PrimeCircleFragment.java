@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
 
@@ -113,20 +113,20 @@ public class PrimeCircleFragment extends Fragment {
     }
 
 
-    public void setCircleValue(RealmPrimeItem realmPrimeItem) {
+    public void setCircleValue(RealmUserActivityItem realmUserActivityItem) {
         int value;
         switch (index) {
             case INDEX_STEP:
-                value = realmPrimeItem.getStep();
+                value = realmUserActivityItem.getStep();
                 break;
             case INDEX_CALORIE:
-                value = realmPrimeItem.getCalorie();
+                value = realmUserActivityItem.getCalorie();
                 break;
             case INDEX_DISTANCE:
-                value = realmPrimeItem.getDistance();
+                value = realmUserActivityItem.getDistance();
                 break;
             default:
-                value = realmPrimeItem.getStep();
+                value = realmUserActivityItem.getStep();
                 break;
         }
         if (circleCounter != null) {

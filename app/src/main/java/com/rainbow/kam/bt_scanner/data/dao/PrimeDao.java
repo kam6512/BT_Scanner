@@ -1,16 +1,14 @@
 package com.rainbow.kam.bt_scanner.data.dao;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.item.Migration;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -102,6 +100,7 @@ public class PrimeDao {
 
 
     private PrimeDao() {
+        //SingleTone Yeah~
     }
 
 
@@ -179,55 +178,54 @@ public class PrimeDao {
     }
 
 
-    public RealmResults<RealmPrimeItem> loadPrimeResultData() {
-        return realm.where(RealmPrimeItem.class).findAll();
+    public RealmResults<RealmUserActivityItem> loadPrimeResultData() {
+        return realm.where(RealmUserActivityItem.class).findAll();
     }
 
 
-    public List<RealmPrimeItem> loadPrimeListData() {
+    public List<RealmUserActivityItem> loadPrimeListData() {
         return loadPrimeResultData();
     }
 
 
-    public void savePrimeData(final RealmPrimeItem realmPrimeItem) {
+    public void savePrimeData(final RealmUserActivityItem realmUserActivityItem) {
 
-        final int step = realmPrimeItem.getStep();
-        final int calorie = realmPrimeItem.getCalorie();
-        final int distance = realmPrimeItem.getDistance();
+        final int step = realmUserActivityItem.getStep();
+        final int calorie = realmUserActivityItem.getCalorie();
+        final int distance = realmUserActivityItem.getDistance();
 
-        final String format = context.getString(R.string.prime_save_date_format);
+        final String format = context.getString(R.string.prime_save_date_format_full);
         final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         final String today = formatter.format(Calendar.getInstance().getTime());
 
-
-        final Observable<RealmPrimeItem> observable = Observable.just(realmPrimeItem);
-        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
-        observable.subscribe(new Subscriber<RealmPrimeItem>() {
+        final Observable<RealmUserActivityItem> observable = Observable.just(realmUserActivityItem);
+        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread());
+        observable.subscribe(new Subscriber<RealmUserActivityItem>() {
             @Override
             public void onCompleted() {
-
+                realm.commitTransaction();
             }
 
 
             @Override
             public void onError(Throwable e) {
-
+                realm.commitTransaction();
             }
 
 
             @Override
-            public void onNext(RealmPrimeItem realmPrimeItem) {
+            public void onNext(RealmUserActivityItem realmUserActivityItem) {
                 realm.beginTransaction();
-                final RealmResults<RealmPrimeItem> results = loadPrimeResultData();
+                final RealmResults<RealmUserActivityItem> results = loadPrimeResultData();
 
                 if (results.isEmpty()) {
-                    RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                    RealmUserActivityItem newItem = realm.createObject(RealmUserActivityItem.class);
                     newItem.setCalendar(today);
                     newItem.setStep(step);
                     newItem.setCalorie(calorie);
                     newItem.setDistance(distance);
                 } else {
-                    RealmPrimeItem lastItem = results.last();
+                    RealmUserActivityItem lastItem = results.last();
                     if (lastItem.getCalendar().equals(today)) {
                         int lastStep = 0;
                         int lastCalorie = 0;
@@ -242,7 +240,7 @@ public class PrimeDao {
                         lastItem.setCalorie(calorie + lastCalorie);
                         lastItem.setDistance(distance + lastDistance);
                     } else {
-                        RealmPrimeItem newItem = realm.createObject(RealmPrimeItem.class);
+                        RealmUserActivityItem newItem = realm.createObject(RealmUserActivityItem.class);
                         newItem.setCalendar(today);
                         newItem.setStep(step);
                         newItem.setCalorie(calorie);
@@ -255,35 +253,35 @@ public class PrimeDao {
     }
 
 
-    public void overWritePrimeData(RealmPrimeItem realmPrimeItem, boolean isOverWriteAllData) {
-
-        final Observable<RealmPrimeItem> observable = Observable.just(realmPrimeItem);
+    public void overWritePrimeData(RealmUserActivityItem realmUserActivityItem, boolean isOverWriteAllData) {
+        final Observable<RealmUserActivityItem> observable = Observable.just(realmUserActivityItem);
         observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
-        observable.subscribe(new Subscriber<RealmPrimeItem>() {
+        observable.subscribe(new Subscriber<RealmUserActivityItem>() {
 
             @Override
             public void onCompleted() {
+                realm.commitTransaction();
             }
 
 
             @Override
             public void onError(Throwable e) {
-
+                realm.commitTransaction();
             }
 
 
             @Override
-            public void onNext(RealmPrimeItem realmPrimeItem) {
-                RealmResults<RealmPrimeItem> results = loadPrimeResultData();
+            public void onNext(RealmUserActivityItem realmUserActivityItem) {
+                RealmResults<RealmUserActivityItem> results = loadPrimeResultData();
                 realm.beginTransaction();
                 if (isOverWriteAllData) {
-                    for (RealmPrimeItem item : results) {
-                        int distance = realmPrimeItem.getDistance();
+                    for (RealmUserActivityItem item : results) {
+                        int distance = realmUserActivityItem.getDistance();
                         item.setDistance(distance);
                     }
                 } else {
-                    RealmPrimeItem lastItem = results.last();
-                    int distance = realmPrimeItem.getDistance();
+                    RealmUserActivityItem lastItem = results.last();
+                    int distance = realmUserActivityItem.getDistance();
                     lastItem.setDistance(distance);
                 }
                 realm.commitTransaction();
@@ -293,25 +291,27 @@ public class PrimeDao {
 
 
     public void removePrimeData() {
-        final Observable<Class> observable = Observable.just(RealmPrimeItem.class);
+        final Observable<Class> observable = Observable.just(RealmUserActivityItem.class);
         observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
         observable.subscribe(new Subscriber<Class>() {
 
             @Override
             public void onCompleted() {
+                realm.commitTransaction();
 
             }
 
 
             @Override
             public void onError(Throwable e) {
+                realm.commitTransaction();
             }
 
 
             @Override
             public void onNext(Class aClass) {
                 realm.beginTransaction();
-                realm.clear(RealmPrimeItem.class);
+                realm.clear(RealmUserActivityItem.class);
                 realm.commitTransaction();
             }
         });
@@ -330,7 +330,7 @@ public class PrimeDao {
 
 
     public boolean isPrimeDataAvailable() {
-        return realm.where(RealmPrimeItem.class).findAll().size() != 0;
+        return realm.where(RealmUserActivityItem.class).findAll().size() != 0;
     }
 
 
@@ -366,18 +366,11 @@ public class PrimeDao {
 
     private static Realm getRealm() {
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(context).migration(new Migration()).build();
-
         try {
             return Realm.getInstance(realmConfiguration);
         } catch (RealmMigrationNeededException e) {
-            try {
-                Realm.deleteRealm(realmConfiguration);
-                //Realm file has been deleted.
-                return Realm.getInstance(realmConfiguration);
-            } catch (Exception ex) {
-                throw ex;
-                //No Realm file to remove.
-            }
+            Realm.deleteRealm(realmConfiguration);
+            return Realm.getInstance(realmConfiguration);
         }
     }
 }

@@ -22,7 +22,7 @@ import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.*;
 import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.*;
@@ -34,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import hugo.weaving.DebugLog;
-import io.realm.RealmResults;
 
 /**
  * Created by kam6512 on 2015-11-02.
@@ -88,7 +87,7 @@ public class PrimeActivity extends AppCompatActivity implements
 
     private PrimeDao primeDao;
 
-    private RealmPrimeItem currentRealmPrimeItem;
+    private RealmUserActivityItem currentRealmUserActivityItem;
 
     private FragmentManager fragmentManager;
 
@@ -605,9 +604,9 @@ public class PrimeActivity extends AppCompatActivity implements
     private void overWriteHistory(boolean isOverWriteAllData) {
         loadUserDeviceData();
 
-        int distance = calculateDistance(currentRealmPrimeItem.getStep());
-        currentRealmPrimeItem.setDistance(distance);
-        primeDao.overWritePrimeData(currentRealmPrimeItem, isOverWriteAllData);
+        int distance = calculateDistance(currentRealmUserActivityItem.getStep());
+        currentRealmUserActivityItem.setDistance(distance);
+        primeDao.overWritePrimeData(currentRealmUserActivityItem, isOverWriteAllData);
     }
 
 
@@ -685,7 +684,7 @@ public class PrimeActivity extends AppCompatActivity implements
     }
 
 
-    private RealmPrimeItem makePrimeItem(final BluetoothGattCharacteristic characteristic)
+    private RealmUserActivityItem makePrimeItem(final BluetoothGattCharacteristic characteristic)
             throws ArrayIndexOutOfBoundsException {
 
         final byte[] characteristicValue = characteristic.getValue();
@@ -726,12 +725,12 @@ public class PrimeActivity extends AppCompatActivity implements
         distance = calculateDistance(step);
 
 
-        currentRealmPrimeItem = new RealmPrimeItem();
-        currentRealmPrimeItem.setStep(step);
-        currentRealmPrimeItem.setCalorie(kcal);
-        currentRealmPrimeItem.setDistance(distance);
+        currentRealmUserActivityItem = new RealmUserActivityItem();
+        currentRealmUserActivityItem.setStep(step);
+        currentRealmUserActivityItem.setCalorie(kcal);
+        currentRealmUserActivityItem.setDistance(distance);
 
-        return currentRealmPrimeItem;
+        return currentRealmUserActivityItem;
     }
 
 

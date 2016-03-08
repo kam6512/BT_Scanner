@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"
-        tools:context=".activity.realmPrimeItem.BandContentActivity">
+        tools:context=".activity.realmUserActivityItem.BandContentActivity">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/prime_appbar"

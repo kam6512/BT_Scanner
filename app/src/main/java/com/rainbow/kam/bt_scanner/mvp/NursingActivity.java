@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,14 +25,13 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
-import com.rainbow.kam.bt_scanner.data.item.RealmPrimeItem;
+import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.GoalDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
 import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
-import com.rainbow.kam.bt_scanner.mvp.Rx.NursingSubscriber;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.ArrayList;
@@ -352,7 +350,7 @@ public class NursingActivity extends AppCompatActivity implements
 //
 //
 //        @Override
-//        public void setPrimeValue(List<RealmPrimeItem> primeValue) {
+//        public void setPrimeValue(List<RealmUserActivityItem> primeValue) {
 //            primeFragment.setPrimeValue(primeValue);
 //        }
 //
@@ -760,7 +758,7 @@ public class NursingActivity extends AppCompatActivity implements
 
 
     @Override
-    public void setPrimeValue(List<RealmPrimeItem> primeValue) {
+    public void setPrimeValue(List<RealmUserActivityItem> primeValue) {
         primeFragment.setPrimeValue(primeValue);
     }
 
