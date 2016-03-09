@@ -15,8 +15,8 @@ import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattCustomCallbacks;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattManager;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
-import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.NursingGattHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.NursingGattHelper.OnHistoryListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,12 +32,12 @@ import rx.schedulers.Schedulers;
 /**
  * Created by kam6512 on 2016-03-03.
  */
-public class NursingPresenter implements BaseNursingPresenter {
+public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener {
 
     final private Context context;
     final private AppCompatActivity activity;
 
-    public enum connectionStateType {
+    private enum connectionStateType {
         NONE,
         NEED_DEVICE_NOT_CONNECT,
         NEED_USER_CONNECT,
@@ -49,7 +49,7 @@ public class NursingPresenter implements BaseNursingPresenter {
         REFRESH
     }
 
-    public enum GattReadType {
+    private enum GattReadType {
         READ_TIME,
         READ_EXERCISE_DATA,
         READ_BATTERY,
@@ -58,7 +58,7 @@ public class NursingPresenter implements BaseNursingPresenter {
         VIDONN_HISTORY_DETAIL
     }
 
-    public enum DeviceType {
+    private enum DeviceType {
         DEVICE_PRIME,
         DEVICE_VIDONN
     }
@@ -68,7 +68,7 @@ public class NursingPresenter implements BaseNursingPresenter {
     private DeviceType deviceType;
 
 
-    public static final String TAG = NursingPresenter.class.getSimpleName();
+    private static final String TAG = NursingPresenter.class.getSimpleName();
 
     private String userAge, userHeight, deviceName, deviceAddress;
 
@@ -83,11 +83,21 @@ public class NursingPresenter implements BaseNursingPresenter {
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
+    private NursingGattHelper.OperationX6 operationX6;
+    private NursingGattHelper.HistoryX6 historyX6;
+    private NursingGattHelper.OperationPrime operationPrime;
+
 
     public NursingPresenter(final Context context) {
         this.context = context;
         this.activity = (AppCompatActivity) context;
         this.control = (NursingViewControl) context;
+
+        NursingGattHelper nursingGattHelper = new NursingGattHelper(this);
+        operationX6 = nursingGattHelper.getOperationX6();
+        historyX6 = nursingGattHelper.getHistoryX6();
+        operationPrime = nursingGattHelper.getPrimeHelper();
+
         state = NursingPresenter.connectionStateType.NONE;
     }
 
@@ -149,9 +159,7 @@ public class NursingPresenter implements BaseNursingPresenter {
             return false;
         } else if (nursingDao.isUserDataAvailable()) {
             state = connectionStateType.NEED_USER_CONNECT;
-
 //            control.showUserSettingSnackBar();
-
         }
         return true;
     }
@@ -165,18 +173,14 @@ public class NursingPresenter implements BaseNursingPresenter {
             applicationExit();
         } else {
             state = NursingPresenter.connectionStateType.DISCONNECT_QUEUE;
-
-            activity.runOnUiThread(control::showDisconnectDeviceSnackBar);
-
-
             disconnectDevice();
+            activity.runOnUiThread(control::showDisconnectDeviceSnackBar);
         }
     }
 
 
     @Override
     public void userSettingPressed() {
-
         if (state == NursingPresenter.connectionStateType.NEED_DEVICE_NOT_CONNECT) {
             control.showDeviceSettingSnackBar();
         } else {
@@ -201,8 +205,6 @@ public class NursingPresenter implements BaseNursingPresenter {
         try {
             gattManager.connect(deviceAddress);
             activity.runOnUiThread(control::showSwipeRefresh);
-
-
         } catch (NullPointerException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(context, context.getString(R.string.bt_fail), Toast.LENGTH_SHORT).show();
@@ -222,6 +224,31 @@ public class NursingPresenter implements BaseNursingPresenter {
     }
 
 
+    @Override
+    public void overWriteTodayHistory() {
+        loadUserDeviceData();
+        activity.runOnUiThread(() -> {
+            int distance = calculateDistance(currentRealmUserActivityItem.getStep());
+            currentRealmUserActivityItem.setDistance(distance);
+            nursingDao.overWritePrimeData(currentRealmUserActivityItem);
+
+            control.setPrimeValue(nursingDao.loadPrimeListData());
+        });
+    }
+
+
+    @Override
+    public void onReadHourBlockEnd(byte[] bytes) {
+        gattManager.writeValue(bluetoothGattCharacteristicForWrite, bytes);
+    }
+
+
+    @Override
+    public void onReadAllBlockEnd() {
+        gattReadType = GattReadType.END;
+    }
+
+
     private void loadUserDeviceData() {
         UserVo userVo = nursingDao.loadUserData();
         final DeviceVo deviceVo = nursingDao.loadDeviceData();
@@ -230,17 +257,14 @@ public class NursingPresenter implements BaseNursingPresenter {
         deviceName = deviceVo.name;
         deviceAddress = deviceVo.address;
 
-        checkDeviceType();
         activity.runOnUiThread(() -> control.setDeviceValue(deviceVo));
-    }
 
-
-    private void checkDeviceType() {
         if (deviceName.contains(context.getString(R.string.device_name_prime))) {
             deviceType = DeviceType.DEVICE_PRIME;
         } else if (deviceName.contains(context.getString(R.string.device_name_Vidonn))) {
             deviceType = DeviceType.DEVICE_VIDONN;
         }
+
     }
 
 
@@ -261,19 +285,13 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void onReadTime(final BluetoothGattCharacteristic ch) {
-        byte[] val = ch.getValue();
-        for (int i = 0; i < val.length; i++) {
-            byte data = val[i];
-            Log.e(TAG, "val [" + i + "] = " + Integer.toHexString(data));
-        }
         activity.runOnUiThread(() -> control.setUpdateTimeValue(readUpdateTimeValue(ch)));
-
         switch (deviceType) {
             case DEVICE_PRIME:
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_PRIME);
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationPrime.readCurrentValue);
                 break;
             case DEVICE_VIDONN:
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readCurrentValue());
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readCurrentValue());
                 break;
         }
     }
@@ -300,7 +318,6 @@ public class NursingPresenter implements BaseNursingPresenter {
             calendar.set(Calendar.SECOND, characteristicValue[9]);
         }
 
-
         return update.format(calendar.getTime());
     }
 
@@ -310,13 +327,8 @@ public class NursingPresenter implements BaseNursingPresenter {
         activity.runOnUiThread(() -> {
             nursingDao.savePrimeData(makePrimeItem(characteristic));
 
-        });
-
-
-        activity.runOnUiThread(() -> {
             control.setPrimeValue(nursingDao.loadPrimeListData());
             control.setPrimeGoalRange(nursingDao.loadGoalData());
-
         });
 
         gattManager.readValue(bluetoothGattCharacteristicForBattery);
@@ -394,18 +406,29 @@ public class NursingPresenter implements BaseNursingPresenter {
     }
 
 
-    @Override
-    public void overWriteHistory(boolean isOverWriteAllData) {
-        loadUserDeviceData();
-        activity.runOnUiThread(() -> {
-            int distance = calculateDistance(currentRealmUserActivityItem.getStep());
-            currentRealmUserActivityItem.setDistance(distance);
-            nursingDao.overWritePrimeData(currentRealmUserActivityItem, isOverWriteAllData);
+    public void saveUserData(DeviceVo deviceVo) {
+        nursingDao.saveDeviceData(deviceVo);
+    }
 
 
-            control.setPrimeValue(nursingDao.loadPrimeListData());
-        });
+    public void removeDeviceUserData() {
+        nursingDao.clearSharedPreferenceData();
+    }
 
+
+    public void removeHistoryData() {
+        nursingDao.removePrimeData();
+    }
+
+
+    public boolean isHistoryDataAvailable() {
+        return nursingDao.isPrimeDataAvailable();
+    }
+
+
+    public void applicationExit() {
+        state = NursingPresenter.connectionStateType.DISCONNECTED;
+        activity.finish();
     }
 
 
@@ -460,7 +483,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 //                                        state = connectionStateType.GATT_END;
 
                                         gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
-                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDate());
+                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDate());
                                         break;
                                 }
                             }
@@ -477,10 +500,10 @@ public class NursingPresenter implements BaseNursingPresenter {
         public void onDeviceReady() {
             switch (deviceType) {
                 case DEVICE_PRIME:
-                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, PrimeHelper.READ_TIME);
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationPrime.readTime);
                     break;
                 case DEVICE_VIDONN:
-                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readDate_Time());
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readDateTime());
                     break;
             }
             gattReadType = GattReadType.READ_TIME;
@@ -504,24 +527,16 @@ public class NursingPresenter implements BaseNursingPresenter {
                         break;
 
                     case VIDONN_HISTORY_BLOCK:
-                        boolean readDateBlockStatus = VidonnHelper.HistoryHelper.readDateBlock(characteristic);
+                        boolean readDateBlockStatus = historyX6.readDateBlock(characteristic);
                         if (readDateBlockStatus) {
-                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) 1, (byte) 0));
+                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDetail(1));
                             gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
                         }
 
                         break;
 
                     case VIDONN_HISTORY_DETAIL:
-//                        byte[] readHourBlockStatus =VidonnHelper.HistoryHelper.readHourBlock(characteristic);
-//                        );
-
-//                        if (readDateBlockStatus) {
-//                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail(readHourBlockStatus[0], readHourBlockStatus[1]));
-//                        }
-                        gattReadType = GattReadType.END;
-
-//                        onReadDetailBlock(characteristic);
+                        historyX6.readHourBlock(characteristic);
 
                         break;
                     case END:
@@ -536,53 +551,20 @@ public class NursingPresenter implements BaseNursingPresenter {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Exception " + e.getMessage());
-
                 control.fail();
-
-
             }
         }
 
 
         public void onWriteFail() {
-
             control.fail();
-
-
         }
 
 
         public void onRSSIUpdate(final int rssiValue) {
             activity.runOnUiThread(() -> control.updateRssiValue(rssiValue));
-
         }
     };
-
-
-    public void removeDeviceUserData() {
-        nursingDao.clearSharedPreferenceData();
-    }
-
-
-    public void removeHistoryData() {
-        nursingDao.removePrimeData();
-    }
-
-
-    public void saveUserData(DeviceVo deviceVo) {
-        nursingDao.saveDeviceData(deviceVo);
-    }
-
-
-    public boolean isHistoryDataAvailable() {
-        return nursingDao.isPrimeDataAvailable();
-    }
-
-
-    public void applicationExit() {
-        state = NursingPresenter.connectionStateType.DISCONNECTED;
-        activity.finish();
-    }
 }
 
 interface BaseNursingPresenter {
@@ -590,7 +572,7 @@ interface BaseNursingPresenter {
 
     void initializeViews();
 
-    void overWriteHistory(boolean isOverWriteAllData);
+    void overWriteTodayHistory();
 
     void registerBluetooth();
 

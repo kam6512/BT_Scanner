@@ -806,7 +806,7 @@ public class NursingActivity extends AppCompatActivity implements
     @Override
     public void onSaveUserData() {
         userDataDialogFragment.dismiss();
-        presenter.overWriteHistory(false);
+        presenter.overWriteTodayHistory();
     }
 
 

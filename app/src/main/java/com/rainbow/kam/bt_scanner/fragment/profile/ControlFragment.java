@@ -17,7 +17,7 @@ import android.widget.ToggleButton;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
-import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
+import com.rainbow.kam.bt_scanner.tools.helper.NursingGattHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,6 +29,8 @@ import java.util.Objects;
  * Created by kam6512 on 2015-11-02.
  */
 public class ControlFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+
+    private NursingGattHelper.OperationPrime operationPrime;
 
     private Context context;
     private View view;
@@ -60,6 +62,11 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     private boolean notificationEnabled;
 
     private OnControlListener onControlListener;
+
+
+    public ControlFragment() {
+        operationPrime = new NursingGattHelper().getPrimeHelper();
+    }
 
 
     @Override
@@ -260,7 +267,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
                 String newValue = charHexValue.getText().toString().toLowerCase(Locale.getDefault());
                 if (!TextUtils.isEmpty(newValue) || newValue.length() > 1) {
                     try {
-                        byte[] dataToWrite = PrimeHelper.getBytes(newValue);
+                        byte[] dataToWrite = operationPrime.getBytes(newValue);
                         onControlListener.setWriteValue(dataToWrite);
                     } catch (StringIndexOutOfBoundsException e) {
                         onControlListener.setWriteValue(null);

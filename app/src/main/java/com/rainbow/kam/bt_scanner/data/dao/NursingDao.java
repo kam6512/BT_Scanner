@@ -204,12 +204,14 @@ public class NursingDao {
             @Override
             public void onCompleted() {
                 realm.commitTransaction();
+                unsubscribe();
             }
 
 
             @Override
             public void onError(Throwable e) {
                 realm.commitTransaction();
+                unsubscribe();
             }
 
 
@@ -248,12 +250,13 @@ public class NursingDao {
                     }
                 }
                 realm.commitTransaction();
+                unsubscribe();
             }
         });
     }
 
 
-    public void overWritePrimeData(RealmUserActivityItem realmUserActivityItem, boolean isOverWriteAllData) {
+    public void overWritePrimeData(RealmUserActivityItem realmUserActivityItem) {
         final Observable<RealmUserActivityItem> observable = Observable.just(realmUserActivityItem);
         observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
         observable.subscribe(new Subscriber<RealmUserActivityItem>() {
@@ -261,12 +264,14 @@ public class NursingDao {
             @Override
             public void onCompleted() {
                 realm.commitTransaction();
+                unsubscribe();
             }
 
 
             @Override
             public void onError(Throwable e) {
                 realm.commitTransaction();
+                unsubscribe();
             }
 
 
@@ -274,17 +279,10 @@ public class NursingDao {
             public void onNext(RealmUserActivityItem realmUserActivityItem) {
                 RealmResults<RealmUserActivityItem> results = loadPrimeResultData();
                 realm.beginTransaction();
-                if (isOverWriteAllData) {
-                    for (RealmUserActivityItem item : results) {
-                        int distance = realmUserActivityItem.getDistance();
-                        item.setDistance(distance);
-                    }
-                } else {
-                    RealmUserActivityItem lastItem = results.last();
-                    int distance = realmUserActivityItem.getDistance();
-                    lastItem.setDistance(distance);
-                }
+                int distance = realmUserActivityItem.getDistance();
+                results.last().setDistance(distance);
                 realm.commitTransaction();
+                unsubscribe();
             }
         });
     }
@@ -298,13 +296,14 @@ public class NursingDao {
             @Override
             public void onCompleted() {
                 realm.commitTransaction();
-
+                unsubscribe();
             }
 
 
             @Override
             public void onError(Throwable e) {
                 realm.commitTransaction();
+                unsubscribe();
             }
 
 
@@ -313,6 +312,7 @@ public class NursingDao {
                 realm.beginTransaction();
                 realm.clear(RealmUserActivityItem.class);
                 realm.commitTransaction();
+                unsubscribe();
             }
         });
     }
