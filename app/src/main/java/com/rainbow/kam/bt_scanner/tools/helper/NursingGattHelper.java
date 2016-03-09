@@ -154,6 +154,21 @@ public class NursingGattHelper {
         }
 
 
+        public byte[] resetSystem() {
+            return writeCode(new byte[]{64, 1}, true);
+        }
+
+
+        public byte[] resetDefault() {
+            return writeCode(new byte[]{64, 2}, true);
+        }
+
+
+        public byte[] resetHistory() {
+            return writeCode(new byte[]{64, 3}, true);
+        }
+
+
         public byte[] writeDateTime() {
             Log.e(TAG, "WRITE_DATE_TIME");
             Calendar calendar = Calendar.getInstance();
@@ -275,26 +290,21 @@ public class NursingGattHelper {
         private List<ActivityHistoryItem> historyItemList = new ArrayList<>(7);
 
 
-        public boolean readDateBlock(final BluetoothGattCharacteristic characteristic) {
+        public void readDateBlock(final BluetoothGattCharacteristic characteristic) {
             byte[] blockData = characteristic.getValue();
             int[][] historyDate_Map;
             if (dateBlockIndex == 0) {
                 historyItemList.clear();
                 if (blockData.length < 20) {
                     dateBlockIndex = 0;
+
                     historyDate_Map = deCodeX6.decode_HistoryRecodeDate(blockData, blockData.length);
-                    for (int[] historyBlock : historyDate_Map) {
-                        ActivityHistoryItem activityHistoryItem = new ActivityHistoryItem();
-                        activityHistoryItem.historyBlockNumber = historyBlock[0];
-                        activityHistoryItem.historyBlockCalendar = historyBlock[1] + "/"
-                                + historyBlock[2] + "/" + historyBlock[3];
-                        historyItemList.add(activityHistoryItem);
-                    }
+
+                    addDayBlock(historyDate_Map);
                 } else {
                     dateBlockIndex = 1;
                     System.arraycopy(blockData, 0, historyDate_Data, 0, blockData.length);
                 }
-                return false;
             } else if (dateBlockIndex == 1) {
                 dateBlockIndex = 0;
 
@@ -306,17 +316,23 @@ public class NursingGattHelper {
 
                 historyDate_Map = deCodeX6.decode_HistoryRecodeDate(historyDate_Data, dataLength);
 
-                for (int[] historyBlock : historyDate_Map) {
-                    ActivityHistoryItem activityHistoryItem = new ActivityHistoryItem();
-                    activityHistoryItem.historyBlockNumber = historyBlock[0];
-                    activityHistoryItem.historyBlockCalendar = historyBlock[1] + "/"
-                            + historyBlock[2] + "/" + historyBlock[3];
-                    historyItemList.add(activityHistoryItem);
-                }
-
-                return true;
+                addDayBlock(historyDate_Map);
             }
-            return false;
+        }
+
+
+        private void addDayBlock(int[][] historyDate_Map) {
+            for (int[] historyBlock : historyDate_Map) {
+                Calendar calendar = GregorianCalendar.getInstance();
+                calendar.set(historyBlock[1], historyBlock[2] - 1, historyBlock[3]);
+
+                ActivityHistoryItem activityHistoryItem = new ActivityHistoryItem();
+                activityHistoryItem.historyBlockNumber = historyBlock[0];
+                activityHistoryItem.historyBlockCalendar = calendar;
+                historyItemList.add(activityHistoryItem);
+            }
+
+            onHistoryListener.onReadDayBlockEnd(historyItemList);
         }
 
 
@@ -350,6 +366,8 @@ public class NursingGattHelper {
 //                        Log.e(TAG, "=======================================================");
 //                        Log.e(TAG, (i * 2 - 1) + "~" + (i * 2) + "min data=" + steps[i][1] + "  type=" + steps[i][0]);
                         historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep += steps[i][1];
+                        Log.e(TAG, historyDetail_Data_Block_Week_ID + " Block  : "
+                                + historyDetail_Data_Block_Hour_ID + " Hour = " + steps[i][1]);
 
                     }
                     updateBlockIndex();
@@ -366,7 +384,7 @@ public class NursingGattHelper {
 
                 historyDetail_Data_Block_Week_ID++;
             }
-            if ((historyDetail_Data_Block_Week_ID > 3)) {
+            if ((historyDetail_Data_Block_Week_ID > 7)) {
                 Log.e(TAG, "Over");
 
                 for (ActivityHistoryItem activityHistoryItem : historyItemList) {
@@ -545,6 +563,9 @@ public class NursingGattHelper {
     }
 
     public interface OnHistoryListener {
+
+        void onReadDayBlockEnd(List<ActivityHistoryItem> historyItemList);
+
         void onReadHourBlockEnd(byte[] bytes);
 
         void onReadAllBlockEnd();

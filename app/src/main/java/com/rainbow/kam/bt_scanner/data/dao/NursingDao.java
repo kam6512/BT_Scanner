@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
 import com.rainbow.kam.bt_scanner.data.item.Migration;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.Locale;
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.exceptions.RealmMigrationNeededException;
 import rx.Observable;
@@ -97,6 +100,8 @@ public class NursingDao {
     private static SharedPreferences sharedPreferences = null;
     private static SharedPreferences.Editor editor = null;
     private static Realm realm = null;
+
+    private RealmResults<RealmUserActivityItem> results;
 
 
     private NursingDao() {
@@ -178,8 +183,26 @@ public class NursingDao {
     }
 
 
+    public Calendar matchingRealmItem(List<Calendar> calendars) throws ParseException {
+        Calendar resCalendar = Calendar.getInstance();
+        for (Calendar calendar : calendars) {
+            for (int i = 0; i < results.size(); i++) {
+                SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.KOREA);
+                resCalendar.setTime(sdf.parse(results.get(i).getCalendar()));
+                if (calendar.compareTo(resCalendar) == 0){
+                    return resCalendar;
+                }
+            }
+        }
+        return null;
+    }
+
+
     public RealmResults<RealmUserActivityItem> loadPrimeResultData() {
-        return realm.where(RealmUserActivityItem.class).findAll();
+        if (results == null) {
+            results = realm.where(RealmUserActivityItem.class).findAll();
+        }
+        return results;
     }
 
 
@@ -195,7 +218,7 @@ public class NursingDao {
         final int distance = realmUserActivityItem.getDistance();
 
         final String format = context.getString(R.string.nursing_save_date_format_full);
-        final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
+        final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.KOREA);
         final String today = formatter.format(Calendar.getInstance().getTime());
 
         final Observable<RealmUserActivityItem> observable = Observable.just(realmUserActivityItem);
@@ -330,7 +353,7 @@ public class NursingDao {
 
 
     public boolean isPrimeDataAvailable() {
-        return realm.where(RealmUserActivityItem.class).findAll().size() != 0;
+        return results.size() != 0;
     }
 
 

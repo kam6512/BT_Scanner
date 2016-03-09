@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.dao.NursingDao;
+import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
@@ -18,13 +19,16 @@ import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.NursingGattHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.NursingGattHelper.OnHistoryListener;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
 import hugo.weaving.DebugLog;
+import io.realm.RealmResults;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -238,6 +242,29 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
 
 
     @Override
+    public void onReadDayBlockEnd(List<ActivityHistoryItem> historyItemList) {
+
+//        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDetail(1));
+//        gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
+
+        List<Calendar> calendars = new ArrayList<>();
+        for (ActivityHistoryItem activityHistoryItem : historyItemList) {
+            calendars.add(activityHistoryItem.historyBlockCalendar);
+//            final String format = "yy년 MM월 dd일";
+//            final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.KOREA);
+//            final String today = formatter.format(activityHistoryItem.historyBlockCalendar.getTime());
+//            Log.e(TAG, today);
+        }
+        try {
+            nursingDao.matchingRealmItem(calendars);
+        } catch (ParseException e) {
+
+        }
+
+    }
+
+
+    @Override
     public void onReadHourBlockEnd(byte[] bytes) {
         gattManager.writeValue(bluetoothGattCharacteristicForWrite, bytes);
     }
@@ -246,6 +273,7 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
     @Override
     public void onReadAllBlockEnd() {
         gattReadType = GattReadType.END;
+        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.resetHistory());
     }
 
 
@@ -325,7 +353,7 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
     private void onReadExerciseData(final BluetoothGattCharacteristic characteristic) {
 
         activity.runOnUiThread(() -> {
-            nursingDao.savePrimeData(makePrimeItem(characteristic));
+//            nursingDao.savePrimeData(makePrimeItem(characteristic));
 
             control.setValue(nursingDao.loadPrimeListData());
             control.setGoalRange(nursingDao.loadGoalData());
@@ -432,6 +460,15 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
     }
 
 
+    private void history() {
+
+        RealmResults<RealmUserActivityItem> historyItems = nursingDao.loadPrimeResultData();
+        Calendar calendar = Calendar.getInstance();
+//        calendar
+//        CahistoryItems.last().getCalendar();
+    }
+
+
     private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
 
         public void onDeviceConnected() {
@@ -479,8 +516,6 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
                                         state = connectionStateType.GATT_END;
                                         break;
                                     case DEVICE_VIDONN:
-//                                        gattReadType = GattReadType.END;
-//                                        state = connectionStateType.GATT_END;
 
                                         gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
                                         gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDate());
@@ -512,47 +547,43 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
 
         @DebugLog
         public void onDeviceNotify(final BluetoothGattCharacteristic characteristic) {
-            try {
-                switch (gattReadType) {
-                    case READ_TIME:
-                        onReadTime(characteristic);
-                        gattReadType = GattReadType.READ_EXERCISE_DATA;
+//            try {
+            switch (gattReadType) {
+                case READ_TIME:
+                    onReadTime(characteristic);
+                    gattReadType = GattReadType.READ_EXERCISE_DATA;
 
-                        break;
+                    break;
 
-                    case READ_EXERCISE_DATA:
-                        onReadExerciseData(characteristic);
-                        gattReadType = GattReadType.READ_BATTERY;
+                case READ_EXERCISE_DATA:
+                    onReadExerciseData(characteristic);
+                    gattReadType = GattReadType.READ_BATTERY;
 
-                        break;
+                    break;
 
-                    case VIDONN_HISTORY_BLOCK:
-                        boolean readDateBlockStatus = historyX6.readDateBlock(characteristic);
-                        if (readDateBlockStatus) {
-                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDetail(1));
-                            gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
-                        }
+                case VIDONN_HISTORY_BLOCK:
+                    historyX6.readDateBlock(characteristic);
 
-                        break;
+                    break;
 
-                    case VIDONN_HISTORY_DETAIL:
-                        historyX6.readHourBlock(characteristic);
+                case VIDONN_HISTORY_DETAIL:
+                    historyX6.readHourBlock(characteristic);
 
-                        break;
-                    case END:
-                        byte[] val = characteristic.getValue();
-                        for (int i = 0; i < val.length; i++) {
-                            byte data = val[i];
-                            Log.e(TAG, "val [" + i + "] = " + Integer.toHexString(data));
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Exception " + e.getMessage());
-                control.fail();
+                    break;
+                case END:
+                    byte[] val = characteristic.getValue();
+                    for (int i = 0; i < val.length; i++) {
+                        byte data = val[i];
+                        Log.e(TAG, "val [" + i + "] = " + Integer.toHexString(data));
+                    }
+                    break;
+                default:
+                    break;
             }
+//            } catch (Exception e) {
+//                Log.e(TAG, "Exception " + e.getMessage());
+//                control.fail();
+//            }
         }
 
 
