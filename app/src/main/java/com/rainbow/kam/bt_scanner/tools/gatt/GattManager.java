@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.MainThread;
 import android.text.TextUtils;
 import android.util.Log;
@@ -45,7 +46,7 @@ public class GattManager {
 
     private boolean timerEnabled = false;
 
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable readRssiThread = new Runnable() {
         @Override
         public void run() {

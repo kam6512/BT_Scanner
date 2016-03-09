@@ -3,13 +3,13 @@ package com.rainbow.kam.bt_scanner.mvp;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
-import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
@@ -20,7 +20,7 @@ import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -69,16 +69,6 @@ public class NursingPresenter implements BaseNursingPresenter {
     private GattReadType gattReadType;
     private DeviceType deviceType;
 
-    private int historyDetail_Data_Block_Week_ID = 1;// 1~7
-    private int historyDetail_Data_Block_Hour_ID = 0;// 0~23
-
-    private int dateBlockIndex = 0;
-    private int innerHourBlockIndex = 0;
-
-    private byte[] historyDate_Data = new byte[40];
-    private byte[] historyDetail_Data = new byte[67];
-
-    List<ActivityHistoryItem> historyItemList = new ArrayList<>(7);
 
     public static final String TAG = NursingPresenter.class.getSimpleName();
 
@@ -273,6 +263,11 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void onReadTime(final BluetoothGattCharacteristic ch) {
+        byte[] val = ch.getValue();
+        for (int i = 0; i < val.length; i++) {
+            byte data = val[i];
+            Log.e(TAG, "val [" + i + "] = " + Integer.toHexString(data));
+        }
         activity.runOnUiThread(() -> control.setUpdateTimeValue(readUpdateTimeValue(ch)));
 
         switch (deviceType) {
@@ -313,6 +308,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void onReadExerciseData(final BluetoothGattCharacteristic characteristic) {
+
         activity.runOnUiThread(() -> {
             primeDao.savePrimeData(makePrimeItem(characteristic));
 
@@ -415,149 +411,6 @@ public class NursingPresenter implements BaseNursingPresenter {
     }
 
 
-    private void onReadHistoryBlock(final BluetoothGattCharacteristic characteristic) {
-
-        byte[] blockData = characteristic.getValue();
-        int[][] historyDate_Map;
-        if (dateBlockIndex == 0) {
-            historyItemList.clear();
-            if (blockData.length < 20) {
-                dateBlockIndex = 0;
-                historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(blockData, blockData.length);
-                for (int i = 0; i < historyDate_Map.length; i++) {
-                    int[] historyBlock = historyDate_Map[i];
-//                    Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
-//                            aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
-//                            + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
-
-                    historyItemList.add(new ActivityHistoryItem());
-                    historyItemList.get(i).historyBlockNumber = historyBlock[0];
-                    historyItemList.get(i).historyBlockCalendar = historyBlock[1] + "/"
-                            + historyBlock[2] + "/" + historyBlock[3];
-                }
-            } else {
-                dateBlockIndex = 1;
-                System.arraycopy(blockData, 0, historyDate_Data, 0, blockData.length);
-            }
-        } else if (dateBlockIndex == 1) {
-            dateBlockIndex = 0;
-
-            historyItemList.clear();
-
-            int dataLength = 20 + blockData.length;
-
-            System.arraycopy(blockData, 0, historyDate_Data, 20, dataLength - 20);
-
-            historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(historyDate_Data, dataLength);
-
-            for (int i = 0; i < historyDate_Map.length; i++) {
-                int[] historyBlock = historyDate_Map[i];
-//                    Log.e(TAG, "dateBlockIndex : " + dateBlockIndex + " / " +
-//                            aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/"
-//                            + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
-                historyItemList.add(new ActivityHistoryItem());
-                historyItemList.get(i).historyBlockNumber = historyBlock[0];
-                historyItemList.get(i).historyBlockCalendar = historyBlock[1] + "/"
-                        + historyBlock[2] + "/" + historyBlock[3];
-            }
-
-            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID, (byte) historyDetail_Data_Block_Hour_ID));
-            gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
-        }
-    }
-
-
-    private boolean updateBlockIndex() {
-        historyDetail_Data_Block_Hour_ID++;
-        if (historyDetail_Data_Block_Hour_ID == 24) {
-            historyDetail_Data_Block_Hour_ID = 0;
-
-
-            historyDetail_Data_Block_Week_ID++;
-        }
-        if ((historyDetail_Data_Block_Week_ID > 3)) {
-            Log.e(TAG, "Over");
-
-//            for (int step : stepList) {
-//                Log.e(TAG, "Step : " + step);
-//            }
-            for (ActivityHistoryItem activityHistoryItem : historyItemList) {
-                Log.e(TAG,
-                        "activityHistoryItem.historyBlockNumber : " + activityHistoryItem.historyBlockNumber +
-                                "\nactivityHistoryItem.historyBlockCalendar : " + activityHistoryItem.historyBlockCalendar +
-                                "\nactivityHistoryItem.totalStep : " + activityHistoryItem.totalStep
-                );
-            }
-
-            gattReadType = GattReadType.END;
-            historyDetail_Data_Block_Week_ID = 1;
-            historyDetail_Data_Block_Hour_ID = 0;
-            return false;
-        }
-        return true;
-    }
-
-
-    private void addHistoryDetail(byte[] detailData, int dataLength) {
-        int innerHourBlockCount = 20;
-        int indexStart = innerHourBlockIndex * innerHourBlockCount;
-        System.arraycopy(detailData, 0, historyDetail_Data, indexStart, dataLength);
-        if (innerHourBlockIndex != 3) {
-            innerHourBlockIndex++;
-        } else {
-            innerHourBlockIndex = 0;
-        }
-    }
-
-
-    private void onReadDetailBlock(final BluetoothGattCharacteristic characteristic) {
-        byte[] detailData = characteristic.getValue();
-        int dataLength = detailData.length;
-
-        switch (innerHourBlockIndex) {
-            case 0:
-                Log.e(TAG, historyDetail_Data_Block_Week_ID + "Block  "
-                        + historyDetail_Data_Block_Hour_ID + " Hour / " + detailData.length + " data.length");
-
-                if (dataLength < 15) {
-                    if (updateBlockIndex()) {
-
-                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID,
-                                (byte) historyDetail_Data_Block_Hour_ID));
-                    }
-                } else {
-                    addHistoryDetail(detailData, dataLength);
-                }
-                break;
-            case 1:
-            case 2:
-                addHistoryDetail(detailData, dataLength);
-                break;
-            case 3:
-                addHistoryDetail(detailData, dataLength);
-
-
-                int[][] steps = VidonnHelper.DeCodeX6.decode_HistoryRecodeDetail(historyDetail_Data);
-
-                for (int i = 1; i < steps.length; i++) {
-                    Log.e(TAG, (i * 2 - 1) + "~" + (i * 2) + "min data=" + steps[i][1] + "  type=" + steps[i][0]);
-                    Log.e(TAG, "=======================================================");
-                    Log.e(TAG, "before totalStep : " + historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep);
-                    historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep += steps[i][1];
-                    Log.e(TAG, "add totalStep : " + steps[i][1]);
-                    Log.e(TAG, "after totalStep : " + historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep);
-
-                }
-
-                if (updateBlockIndex()) {
-                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) historyDetail_Data_Block_Week_ID,
-                            (byte) historyDetail_Data_Block_Hour_ID));
-                }
-                break;
-        }
-    }
-
-
     private final GattCustomCallbacks.GattCallbacks gattCallbacks = new GattCustomCallbacks.GattCallbacks() {
 
         public void onDeviceConnected() {
@@ -605,6 +458,9 @@ public class NursingPresenter implements BaseNursingPresenter {
                                         state = connectionStateType.GATT_END;
                                         break;
                                     case DEVICE_VIDONN:
+//                                        gattReadType = GattReadType.END;
+//                                        state = connectionStateType.GATT_END;
+
                                         gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
                                         gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDate());
                                         break;
@@ -650,15 +506,33 @@ public class NursingPresenter implements BaseNursingPresenter {
                         break;
 
                     case VIDONN_HISTORY_BLOCK:
-                        onReadHistoryBlock(characteristic);
+                        boolean readDateBlockStatus = VidonnHelper.HistoryHelper.readDateBlock(characteristic);
+                        if (readDateBlockStatus) {
+                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail((byte) 1, (byte) 0));
+                            gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
+                        }
 
                         break;
 
                     case VIDONN_HISTORY_DETAIL:
-                        onReadDetailBlock(characteristic);
+                        byte[] readHourBlockStatus =VidonnHelper.HistoryHelper.readHourBlock(characteristic);
+                        );
+
+                        if (readDateBlockStatus) {
+                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail(readHourBlockStatus[0], readHourBlockStatus[1]));
+                        }
+                        gattReadType = GattReadType.END;
+
+//                        onReadDetailBlock(characteristic);
 
                         break;
-
+                    case END:
+                        byte[] val = characteristic.getValue();
+                        for (int i = 0; i < val.length; i++) {
+                            byte data = val[i];
+                            Log.e(TAG, "val [" + i + "] = " + Integer.toHexString(data));
+                        }
+                        break;
                     default:
                         break;
                 }

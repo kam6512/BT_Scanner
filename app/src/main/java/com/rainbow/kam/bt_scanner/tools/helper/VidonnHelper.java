@@ -1,11 +1,20 @@
 package com.rainbow.kam.bt_scanner.tools.helper;
 
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.util.Log;
+
+import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by kam6512 on 2016-02-22.
  */
 public class VidonnHelper {
+    private static final String TAG = VidonnHelper.class.getSimpleName();
+
     public static class DeCodeX6 {
 
 
@@ -153,36 +162,35 @@ public class VidonnHelper {
 
     public static class OperationX6 {
 
+        public static byte[] readDate_Time() {
+            Log.e(TAG, "READ_DATE_TIME");
+            return writeCode(new byte[]{(byte) 33}, true);
+        }
+
 
         public static byte[] readCurrentValue() {
+            Log.e(TAG, "READ_CURRENT_VALUE");
             return writeCode(new byte[]{3, 1}, true);
         }
 
 
         public static byte[] readHistoryRecodeDate() {
+            Log.e(TAG, "READ_HISTORY_RECODE_DATE");
             return writeCode(new byte[]{4}, true);
         }
 
 
         public static byte[] readHistoryRecodeDetail(byte blockID, byte hour) {
+            Log.e(TAG, "READ_HISTORY_RECODE_DETAIL");
             return writeCode(new byte[]{5, blockID, hour}, true);
         }
 
 
-        public static byte[] readHistoryRecodeStatistics() {
-            return writeCode(new byte[]{6}, true);
-        }
-
-
-        public static byte[] readDate_Time() {
-            return writeCode(new byte[]{(byte) 33}, true);
-        }
-
-
         public static byte[] writeDate_Time() {
+            Log.e(TAG, "WRITE_DATE_TIME");
             Calendar calendar = Calendar.getInstance();
             int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
+            int month = calendar.get(Calendar.MONTH) + 1;
             int day = calendar.get(Calendar.DAY_OF_MONTH);
             int hour = calendar.get(Calendar.HOUR);
             int minute = calendar.get(Calendar.MINUTE);
@@ -198,6 +206,11 @@ public class VidonnHelper {
                 hour += 12;
             }
             byte[] year01 = int2Bytes_2Bytes(year);
+            for (int i = 0; i < year01.length; i++) {
+                byte data = year01[i];
+                Log.e(TAG, "WRITE_DATE_TIME : year01" +
+                        " [" + i + "] = " + Integer.toHexString(data));
+            }
             return writeCode(new byte[]{(byte) 33, year01[1], year01[0], (byte) month, (byte) day, (byte) hour, (byte) minute, (byte) second, (byte) dayOfWeek}, false);
 
         }
@@ -205,7 +218,11 @@ public class VidonnHelper {
 
         public static byte[] writeCode(byte[] opCode_Data, boolean isRead) {
             byte[] code_data = opCode_Data;
-            byte[] crc = short2bytes(CRC_16(code_data));
+            for (int i = 0; i < code_data.length; i++) {
+                byte data = code_data[i];
+                Log.e(TAG, "WRITE_CODE : OPCODE_DATA [" + i + "] = " + Integer.toHexString(data));
+            }
+            byte[] crc = CRC_16(code_data);
 
             byte[] data_Send = new byte[code_data.length + 4];
 
@@ -220,21 +237,19 @@ public class VidonnHelper {
             data_Send[(data_Send.length - 2)] = crc[1];
             data_Send[(data_Send.length - 1)] = crc[0];
 
+            for (int i = 0; i < data_Send.length; i++) {
+                byte data = data_Send[i];
+                Log.e(TAG, "data_Send [" + i + "] = " + Integer.toHexString(data));
+            }
+
             for (int i = 2; i < 2 + code_data.length; i++) {
                 data_Send[i] = code_data[(i - 2)];
             }
-
-            return data_Send;
-        }
-
-
-        public static byte[] short2bytes(short s) {
-            byte[] bytes = new byte[2];
-            for (int i = 1; i >= 0; i--) {
-                bytes[i] = (byte) (s % 256);
-                s = (short) (s >> 8);
+            for (int i = 0; i < data_Send.length; i++) {
+                byte data = data_Send[i];
+                Log.e(TAG, "apply code_data in data_Send [" + i + "] = " + Integer.toHexString(data));
             }
-            return bytes;
+            return data_Send;
         }
 
 
@@ -246,28 +261,200 @@ public class VidonnHelper {
         }
 
 
-        private static short CRC_16(byte[] data) {
-            try {
-                short crc_result = 0;
-                int Poly = 4129;
-                for (int i = 0; i < data.length; i++) {
-                    for (int j = 128; j != 0; j >>= 1) {
-                        if ((crc_result & 0x8000) != 0) {
-                            crc_result = (short) (crc_result << 1);
-                            crc_result = (short) (crc_result ^ Poly);
-                        } else {
-                            crc_result = (short) (crc_result << 1);
-                        }
-                        if ((data[i] & j) != 0) {
-                            crc_result = (short) (crc_result ^ Poly);
-                        }
+        private static byte[] CRC_16(byte[] data) {
+            for (int i = 0; i < data.length; i++) {
+                byte temp = data[i];
+                Log.e(TAG, "CRC_16 [" + i + "] = " + temp);
+            }
+            short crc_result = 0;
+            byte[] bytes = new byte[2];
+            int Poly = 4129;
+            for (byte aData : data) {
+                for (int j = 128; j != 0; j >>= 1) {
+                    if ((crc_result & 0x8000) != 0) {
+                        crc_result = (short) (crc_result << 1);
+                        crc_result = (short) (crc_result ^ Poly);
+                    } else {
+                        crc_result = (short) (crc_result << 1);
+                    }
+                    if ((aData & j) != 0) {
+                        crc_result = (short) (crc_result ^ Poly);
                     }
                 }
-
-                return crc_result;
-            } catch (Exception localException) {
             }
-            return -1;
+
+            for (int i = 1; i >= 0; i--) {
+                bytes[i] = (byte) (crc_result % 256);
+                crc_result = (short) (crc_result >> 8);
+            }
+            return bytes;
         }
+    }
+
+    public static class HistoryHelper {
+        private static int historyDetail_Data_Block_Week_ID = 1;// 1~7
+        private static int historyDetail_Data_Block_Hour_ID = 0;// 0~23
+
+        private static int dateBlockIndex = 0;
+        private static int innerHourBlockIndex = 0;
+
+        private static byte[] historyDate_Data = new byte[40];
+        private static byte[] historyDetail_Data = new byte[67];
+
+        private static List<ActivityHistoryItem> historyItemList = new ArrayList<>(7);
+
+
+        public static boolean readDateBlock(final BluetoothGattCharacteristic characteristic) {
+            byte[] blockData = characteristic.getValue();
+            int[][] historyDate_Map;
+            if (dateBlockIndex == 0) {
+                historyItemList.clear();
+                if (blockData.length < 20) {
+                    dateBlockIndex = 0;
+                    historyDate_Map = DeCodeX6.decode_HistoryRecodeDate(blockData, blockData.length);
+                    for (int[] historyBlock : historyDate_Map) {
+                        ActivityHistoryItem activityHistoryItem = new ActivityHistoryItem();
+                        activityHistoryItem.historyBlockNumber = historyBlock[0];
+                        activityHistoryItem.historyBlockCalendar = historyBlock[1] + "/"
+                                + historyBlock[2] + "/" + historyBlock[3];
+                        historyItemList.add(activityHistoryItem);
+                        Log.e(TAG,
+                                "historyBlockNumber = " + activityHistoryItem.historyBlockNumber +
+                                        "\nhistoryBlockCalendar = " + activityHistoryItem.historyBlockCalendar);
+                    }
+                } else {
+                    dateBlockIndex = 1;
+                    System.arraycopy(blockData, 0, historyDate_Data, 0, blockData.length);
+                }
+                return false;
+            } else if (dateBlockIndex == 1) {
+                dateBlockIndex = 0;
+
+                historyItemList.clear();
+
+                int dataLength = 20 + blockData.length;
+
+                System.arraycopy(blockData, 0, historyDate_Data, 20, dataLength - 20);
+
+                historyDate_Map = VidonnHelper.DeCodeX6.decode_HistoryRecodeDate(historyDate_Data, dataLength);
+
+                for (int[] historyBlock : historyDate_Map) {
+                    ActivityHistoryItem activityHistoryItem = new ActivityHistoryItem();
+                    activityHistoryItem.historyBlockNumber = historyBlock[0];
+                    activityHistoryItem.historyBlockCalendar = historyBlock[1] + "/"
+                            + historyBlock[2] + "/" + historyBlock[3];
+                    historyItemList.add(activityHistoryItem);
+                    historyItemList.add(activityHistoryItem);
+                    Log.e(TAG,
+                            "historyBlockNumber = " + activityHistoryItem.historyBlockNumber +
+                                    "\nhistoryBlockCalendar = " + activityHistoryItem.historyBlockCalendar);
+
+                }
+
+                return true;
+            }
+            return false;
+        }
+
+
+        public static byte[] readHourBlock(final BluetoothGattCharacteristic characteristic) {
+            byte[] val = characteristic.getValue();
+            for (int i = 0; i < val.length; i++) {
+                byte data = val[i];
+                Log.e(TAG, "val [" + i + "] = " + Integer.toHexString(data));
+            }
+
+            byte[] detailData = characteristic.getValue();
+            int dataLength = detailData.length;
+
+            switch (innerHourBlockIndex) {
+                case 0:
+                    Log.e(TAG, historyDetail_Data_Block_Week_ID + "Block  "
+                            + historyDetail_Data_Block_Hour_ID + " Hour / " + detailData.length + " data.length");
+
+                    if (dataLength < 15) {
+                        if (updateBlockIndex()) {
+                            return new byte[]{(byte) historyDetail_Data_Block_Week_ID,
+                                    (byte) historyDetail_Data_Block_Hour_ID};
+                        }
+                    } else {
+                        addHistoryDetail(detailData, dataLength);
+                    }
+                    return  new byte[]{};
+                case 1:
+                case 2:
+                    addHistoryDetail(detailData, dataLength);
+                    return new byte[]{};
+                case 3:
+                    addHistoryDetail(detailData, dataLength);
+                    byte[] code_data = historyDetail_Data;
+                    for (int i = 0; i < code_data.length; i++) {
+                        byte data = code_data[i];
+                        Log.e(TAG, "historyDetail_Data [" + i + "] = " + Integer.toHexString(data));
+                    }
+
+                    int[][] steps = VidonnHelper.DeCodeX6.decode_HistoryRecodeDetail(historyDetail_Data);
+
+                    for (int i = 0; i < steps.length; i++) {
+                        Log.e(TAG, "=======================================================");
+                        Log.e(TAG, (i * 2 - 1) + "~" + (i * 2) + "min data=" + steps[i][1] + "  type=" + steps[i][0]);
+//                    Log.e(TAG, "before totalStep : " + historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep);
+                        historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep += steps[i][1];
+//                    Log.e(TAG, "add totalStep : " + steps[i][1]);
+//                    Log.e(TAG, "after totalStep : " + historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep);
+
+                    }
+
+                    if (updateBlockIndex()) {
+                        return new byte[]{(byte) historyDetail_Data_Block_Week_ID,
+                                (byte) historyDetail_Data_Block_Hour_ID};
+                    }
+                    return new byte[]{};
+            }
+            return new byte[]{};
+        }
+
+
+        private static boolean updateBlockIndex() {
+            historyDetail_Data_Block_Hour_ID++;
+            if (historyDetail_Data_Block_Hour_ID == 24) {
+                historyDetail_Data_Block_Hour_ID = 0;
+
+
+                historyDetail_Data_Block_Week_ID++;
+            }
+            if ((historyDetail_Data_Block_Week_ID > 3)) {
+                Log.e(TAG, "Over");
+
+//            for (int step : stepList) {
+//                Log.e(TAG, "Step : " + step);
+//            }
+                for (ActivityHistoryItem activityHistoryItem : historyItemList) {
+                    Log.e(TAG,
+                            "activityHistoryItem.historyBlockNumber : " + activityHistoryItem.historyBlockNumber +
+                                    "\nactivityHistoryItem.historyBlockCalendar : " + activityHistoryItem.historyBlockCalendar +
+                                    "\nactivityHistoryItem.totalStep : " + activityHistoryItem.totalStep
+                    );
+                }
+
+                historyDetail_Data_Block_Week_ID = 1;
+                historyDetail_Data_Block_Hour_ID = 0;
+                return false;
+            }
+            return true;
+        }
+
+
+        private static void addHistoryDetail(byte[] detailData, int dataLength) {
+            int innerHourBlockCount = 20;
+            int indexStart = innerHourBlockIndex * innerHourBlockCount;
+            System.arraycopy(detailData, 0, historyDetail_Data, indexStart, dataLength);
+            if (innerHourBlockIndex != 3) {
+                innerHourBlockIndex++;
+            } else {
+                innerHourBlockIndex = 0;
+            }
+        }
+
     }
 }
