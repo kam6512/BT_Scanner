@@ -11,18 +11,13 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.MainThread;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-
 import java.util.List;
-import java.util.Observable;
 import java.util.UUID;
 
 import hugo.weaving.DebugLog;
-import rx.Subscriber;
 
 /**
  * Created by kam6512 on 2015-10-29.

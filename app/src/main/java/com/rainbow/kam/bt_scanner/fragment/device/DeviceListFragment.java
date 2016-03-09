@@ -27,20 +27,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
 import com.rainbow.kam.bt_scanner.activity.profile.MainActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceItem;
-import com.rainbow.kam.bt_scanner.mvp.NursingActivity;
+import com.rainbow.kam.bt_scanner.activity.nursing.NursingActivity;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.List;
 
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -99,7 +95,7 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
         public void onNext(DeviceItem deviceItem) {
             if (context instanceof MainActivity) {
                 deviceAdapter.addDevice(deviceItem);
-            } else if (context instanceof PrimeActivity || context instanceof NursingActivity) {
+            } else if (context instanceof NursingActivity) {
                 String deviceName = deviceItem.getExtraName();
                 if (deviceName != null && (deviceName.contains(AVAILABLE_DEVICE[0]) || deviceName.contains(AVAILABLE_DEVICE[1]))) {
                     deviceAdapter.addDevice(deviceItem);
@@ -122,9 +118,6 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
         if (BluetoothHelper.IS_BUILD_VERSION_LM) {
             if (context instanceof MainActivity) {
                 BluetoothHelper.requestBluetoothPermission((MainActivity) context);
-            } else if (context instanceof PrimeActivity) {
-                BluetoothHelper.requestBluetoothPermission((PrimeActivity) context);
-                setDialogSetting();
             } else if (context instanceof NursingActivity) {
                 BluetoothHelper.requestBluetoothPermission((NursingActivity) context);
                 setDialogSetting();
@@ -228,8 +221,6 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
             } else {
                 if (context instanceof MainActivity) {
                     BluetoothHelper.requestBluetoothEnable((MainActivity) context);
-                } else if (context instanceof PrimeActivity) {
-                    BluetoothHelper.requestBluetoothEnable((PrimeActivity) context);
                 } else if (context instanceof NursingActivity) {
                     BluetoothHelper.requestBluetoothEnable((NursingActivity) context);
                 }

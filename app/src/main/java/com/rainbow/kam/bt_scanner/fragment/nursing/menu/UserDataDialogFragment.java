@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.menu;
+package com.rainbow.kam.bt_scanner.fragment.nursing.menu;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.data.dao.NursingDao;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 
 import java.util.Arrays;
@@ -31,7 +31,7 @@ public class UserDataDialogFragment extends DialogFragment {
 
     private List<TextInputLayout> textInputLayoutList;
 
-    private PrimeDao primeDao;
+    private NursingDao nursingDao;
 
     private UserVo userVo;
 
@@ -41,7 +41,7 @@ public class UserDataDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        primeDao = PrimeDao.getInstance(context);
+        nursingDao = NursingDao.getInstance(context);
         onSaveUserDataListener = (OnSaveUserDataListener) context;
     }
 
@@ -82,7 +82,7 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void setSavedUserValue() {
-        userVo = primeDao.loadUserData();
+        userVo = nursingDao.loadUserData();
     }
 
 
@@ -139,7 +139,7 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void saveUserData() {
-        primeDao.saveUserData(userVo);
+        nursingDao.saveUserData(userVo);
         onSaveUserDataListener.onSaveUserData();
     }
 

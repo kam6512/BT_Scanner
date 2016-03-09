@@ -20,20 +20,8 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".mvp.NursingActivity"
+            android:name=".activity.nursing.NursingActivity"
             android:label="Nursing"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".activity.prime.PrimeActivity"
-            android:label="PRIME"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

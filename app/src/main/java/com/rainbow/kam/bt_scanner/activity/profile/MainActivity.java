@@ -13,13 +13,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
+import com.rainbow.kam.bt_scanner.activity.nursing.NursingActivity;
 import com.rainbow.kam.bt_scanner.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
-
-import java.util.Observable;
 
 /**
  * Created by kam6512 on 2015-10-22.
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         menuItem.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
-        startActivity(new Intent(this, PrimeActivity.class));
+        startActivity(new Intent(this, NursingActivity.class));
         return true;
     }
 

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.mvp;
+package com.rainbow.kam.bt_scanner.activity.nursing;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -29,9 +29,9 @@ import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.fragment.device.DeviceListFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.GoalDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.menu.UserDataDialogFragment;
-import com.rainbow.kam.bt_scanner.fragment.prime.user.PrimeFragment;
+import com.rainbow.kam.bt_scanner.fragment.nursing.menu.GoalDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.nursing.menu.UserDataDialogFragment;
+import com.rainbow.kam.bt_scanner.fragment.nursing.user.NursingFragment;
 import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class NursingActivity extends AppCompatActivity implements
         DeviceAdapter.OnDeviceSelectListener,
         UserDataDialogFragment.OnSaveUserDataListener,
         GoalDialogFragment.OnSaveGoalListener,
-        PrimeFragment.OnRefreshListener {
+        NursingFragment.OnRefreshListener {
 
 
     private NursingPresenter presenter;
@@ -61,7 +61,7 @@ public class NursingActivity extends AppCompatActivity implements
 
     private FragmentManager fragmentManager;
 
-    private PrimeFragment primeFragment;
+    private NursingFragment nursingFragment;
     private UserDataDialogFragment userDataDialogFragment;
     private DeviceListFragment deviceListFragment;
     private GoalDialogFragment goalDialogFragment;
@@ -108,8 +108,8 @@ public class NursingActivity extends AppCompatActivity implements
 //            userDataDialogFragment = new UserDataDialogFragment();
 //            goalDialogFragment = new GoalDialogFragment();
 //
-//            primeFragment = new PrimeFragment();
-//            fragmentManager.beginTransaction().replace(fragmentLayoutId, primeFragment).commit();
+//            nursingFragment = new NursingFragment();
+//            fragmentManager.beginTransaction().replace(fragmentLayoutId, nursingFragment).commit();
 //        }
 //
 //
@@ -303,14 +303,14 @@ public class NursingActivity extends AppCompatActivity implements
 //
 //        @Override
 //        public void showSwipeRefresh() {
-//            primeFragment.setRefreshing(true);
+//            nursingFragment.setRefreshing(true);
 //        }
 //
 //
 //        @Override
 //        public void dismissSwipeRefresh() {
-//            if (primeFragment.isRefreshing()) {
-//                primeFragment.setRefreshing(false);
+//            if (nursingFragment.isRefreshing()) {
+//                nursingFragment.setRefreshing(false);
 //            }
 //        }
 //
@@ -351,19 +351,19 @@ public class NursingActivity extends AppCompatActivity implements
 //
 //        @Override
 //        public void setPrimeValue(List<RealmUserActivityItem> primeValue) {
-//            primeFragment.setPrimeValue(primeValue);
+//            nursingFragment.setPrimeValue(primeValue);
 //        }
 //
 //
 //        @Override
 //        public void setPrimeGoalRange(GoalVo goalVo) {
-//            primeFragment.setCircleCounterGoalRange(goalVo);
+//            nursingFragment.setCircleCounterGoalRange(goalVo);
 //        }
 //
 //
 //        @Override
 //        public void setPrimeEmptyValue() {
-//            primeFragment.setValueEmpty();
+//            nursingFragment.setValueEmpty();
 //        }
 //
 //
@@ -372,7 +372,7 @@ public class NursingActivity extends AppCompatActivity implements
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-//                    primeFragment.setTextFail();
+//                    nursingFragment.setTextFail();
 //                }
 //            });
 //        }
@@ -515,8 +515,8 @@ public class NursingActivity extends AppCompatActivity implements
         userDataDialogFragment = new UserDataDialogFragment();
         goalDialogFragment = new GoalDialogFragment();
 
-        primeFragment = new PrimeFragment();
-        fragmentManager.beginTransaction().replace(fragmentLayoutId, primeFragment).commit();
+        nursingFragment = new NursingFragment();
+        fragmentManager.beginTransaction().replace(fragmentLayoutId, nursingFragment).commit();
     }
 
 
@@ -711,14 +711,14 @@ public class NursingActivity extends AppCompatActivity implements
 
     @Override
     public void showSwipeRefresh() {
-        primeFragment.setRefreshing(true);
+        nursingFragment.setRefreshing(true);
     }
 
 
     @Override
     public void dismissSwipeRefresh() {
-        if (primeFragment.isRefreshing()) {
-            primeFragment.setRefreshing(false);
+        if (nursingFragment.isRefreshing()) {
+            nursingFragment.setRefreshing(false);
         }
     }
 
@@ -759,27 +759,27 @@ public class NursingActivity extends AppCompatActivity implements
 
     @Override
     public void setPrimeValue(List<RealmUserActivityItem> primeValue) {
-        primeFragment.setPrimeValue(primeValue);
+        nursingFragment.setPrimeValue(primeValue);
     }
 
 
     @Override
     public void setPrimeGoalRange(GoalVo goalVo) {
-        primeFragment.setCircleCounterGoalRange(goalVo);
+        nursingFragment.setCircleCounterGoalRange(goalVo);
     }
 
 
     @Override
 
     public void setPrimeEmptyValue() {
-        primeFragment.setValueEmpty();
+        nursingFragment.setValueEmpty();
     }
 
 
     @Override
 
     public void fail() {
-        runOnUiThread(primeFragment::setTextFail);
+        runOnUiThread(nursingFragment::setTextFail);
     }
 
 
@@ -813,6 +813,6 @@ public class NursingActivity extends AppCompatActivity implements
     @Override
     public void onSaveGoal(GoalVo goalVo) {
         goalDialogFragment.dismiss();
-        primeFragment.setCircleCounterGoalRange(goalVo);
+        nursingFragment.setCircleCounterGoalRange(goalVo);
     }
 }

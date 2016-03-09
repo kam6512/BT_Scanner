@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.mvp.Rx;
+package com.rainbow.kam.bt_scanner.activity.nursing.Rx;
 
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;

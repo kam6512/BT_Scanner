@@ -28,7 +28,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by kam6512 on 2016-02-11.
  */
-public class PrimeDao {
+public class NursingDao {
 
     private static final String KEY = "USER";
 
@@ -99,17 +99,17 @@ public class PrimeDao {
     private static Realm realm = null;
 
 
-    private PrimeDao() {
+    private NursingDao() {
         //SingleTone Yeah~
     }
 
 
     private static class PrimeDaoLoader {
-        private static final PrimeDao INSTANCE = new PrimeDao();
+        private static final NursingDao INSTANCE = new NursingDao();
     }
 
 
-    public static PrimeDao getInstance(Context instanceContext) {
+    public static NursingDao getInstance(Context instanceContext) {
         if (context == null) {
             context = instanceContext;
             sharedPreferences = context.getSharedPreferences(KEY, Context.MODE_PRIVATE);

@@ -1,15 +1,14 @@
-package com.rainbow.kam.bt_scanner.mvp;
+package com.rainbow.kam.bt_scanner.activity.nursing;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.data.dao.NursingDao;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
@@ -20,7 +19,6 @@ import com.rainbow.kam.bt_scanner.tools.helper.PrimeHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.VidonnHelper;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -78,7 +76,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     private RealmUserActivityItem currentRealmUserActivityItem;
 
-    private PrimeDao primeDao;
+    private NursingDao nursingDao;
 
     private GattManager gattManager;
 
@@ -96,7 +94,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
     @Override
     public void initDB() {
-        primeDao = PrimeDao.getInstance(context);
+        nursingDao = NursingDao.getInstance(context);
     }
 
 
@@ -140,7 +138,7 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private boolean isDeviceDataAvailable() {
-        if (primeDao.isAllDataEmpty()) {
+        if (nursingDao.isAllDataEmpty()) {
             state = connectionStateType.NEED_DEVICE_NOT_CONNECT;
             activity.runOnUiThread(() -> {
                 control.showDeviceSettingSnackBar();
@@ -149,7 +147,7 @@ public class NursingPresenter implements BaseNursingPresenter {
             });
 
             return false;
-        } else if (primeDao.isUserDataAvailable()) {
+        } else if (nursingDao.isUserDataAvailable()) {
             state = connectionStateType.NEED_USER_CONNECT;
 
 //            control.showUserSettingSnackBar();
@@ -225,8 +223,8 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     private void loadUserDeviceData() {
-        UserVo userVo = primeDao.loadUserData();
-        final DeviceVo deviceVo = primeDao.loadDeviceData();
+        UserVo userVo = nursingDao.loadUserData();
+        final DeviceVo deviceVo = nursingDao.loadDeviceData();
         userAge = userVo.age;
         userHeight = userVo.height;
         deviceName = deviceVo.name;
@@ -310,14 +308,14 @@ public class NursingPresenter implements BaseNursingPresenter {
     private void onReadExerciseData(final BluetoothGattCharacteristic characteristic) {
 
         activity.runOnUiThread(() -> {
-            primeDao.savePrimeData(makePrimeItem(characteristic));
+            nursingDao.savePrimeData(makePrimeItem(characteristic));
 
         });
 
 
         activity.runOnUiThread(() -> {
-            control.setPrimeValue(primeDao.loadPrimeListData());
-            control.setPrimeGoalRange(primeDao.loadGoalData());
+            control.setPrimeValue(nursingDao.loadPrimeListData());
+            control.setPrimeGoalRange(nursingDao.loadGoalData());
 
         });
 
@@ -402,10 +400,10 @@ public class NursingPresenter implements BaseNursingPresenter {
         activity.runOnUiThread(() -> {
             int distance = calculateDistance(currentRealmUserActivityItem.getStep());
             currentRealmUserActivityItem.setDistance(distance);
-            primeDao.overWritePrimeData(currentRealmUserActivityItem, isOverWriteAllData);
+            nursingDao.overWritePrimeData(currentRealmUserActivityItem, isOverWriteAllData);
 
 
-            control.setPrimeValue(primeDao.loadPrimeListData());
+            control.setPrimeValue(nursingDao.loadPrimeListData());
         });
 
     }
@@ -515,12 +513,12 @@ public class NursingPresenter implements BaseNursingPresenter {
                         break;
 
                     case VIDONN_HISTORY_DETAIL:
-                        byte[] readHourBlockStatus =VidonnHelper.HistoryHelper.readHourBlock(characteristic);
-                        );
+//                        byte[] readHourBlockStatus =VidonnHelper.HistoryHelper.readHourBlock(characteristic);
+//                        );
 
-                        if (readDateBlockStatus) {
-                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail(readHourBlockStatus[0], readHourBlockStatus[1]));
-                        }
+//                        if (readDateBlockStatus) {
+//                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, VidonnHelper.OperationX6.readHistoryRecodeDetail(readHourBlockStatus[0], readHourBlockStatus[1]));
+//                        }
                         gattReadType = GattReadType.END;
 
 //                        onReadDetailBlock(characteristic);
@@ -562,22 +560,22 @@ public class NursingPresenter implements BaseNursingPresenter {
 
 
     public void removeDeviceUserData() {
-        primeDao.clearSharedPreferenceData();
+        nursingDao.clearSharedPreferenceData();
     }
 
 
     public void removeHistoryData() {
-        primeDao.removePrimeData();
+        nursingDao.removePrimeData();
     }
 
 
     public void saveUserData(DeviceVo deviceVo) {
-        primeDao.saveDeviceData(deviceVo);
+        nursingDao.saveDeviceData(deviceVo);
     }
 
 
     public boolean isHistoryDataAvailable() {
-        return primeDao.isPrimeDataAvailable();
+        return nursingDao.isPrimeDataAvailable();
     }
 
 

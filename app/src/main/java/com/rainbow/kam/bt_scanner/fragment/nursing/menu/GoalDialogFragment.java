@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.menu;
+package com.rainbow.kam.bt_scanner.fragment.nursing.menu;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.data.dao.PrimeDao;
+import com.rainbow.kam.bt_scanner.data.dao.NursingDao;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class GoalDialogFragment extends DialogFragment {
 
     private List<TextInputLayout> textInputLayoutList;
 
-    private PrimeDao primeDao;
+    private NursingDao nursingDao;
 
     private GoalVo goalVo;
 
@@ -39,7 +39,7 @@ public class GoalDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        primeDao = PrimeDao.getInstance(context);
+        nursingDao = NursingDao.getInstance(context);
         onSaveGoalListener = (OnSaveGoalListener) context;
     }
 
@@ -78,7 +78,7 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void setSavedGoalValue() {
-        goalVo = primeDao.loadGoalData();
+        goalVo = nursingDao.loadGoalData();
     }
 
 
@@ -116,7 +116,7 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void saveGoal() {
-        primeDao.saveGoalData(goalVo);
+        nursingDao.saveGoalData(goalVo);
         onSaveGoalListener.onSaveGoal(goalVo);
     }
 

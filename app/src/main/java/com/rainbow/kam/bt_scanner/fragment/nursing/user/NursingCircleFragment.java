@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.user;
+package com.rainbow.kam.bt_scanner.fragment.nursing.user;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
+import com.rainbow.kam.bt_scanner.activity.nursing.NursingActivity;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
@@ -20,16 +20,16 @@ import java.util.List;
 /**
  * Created by kam6512 on 2016-01-27.
  */
-public class PrimeCircleFragment extends Fragment {
+public class NursingCircleFragment extends Fragment {
 
     private Context context;
 
     private static final String KEY_INDEX = "INDEX";
 
     private enum Index {
-        INDEX_STEP(PrimeActivity.INDEX_STEP),
-        INDEX_CALORIE(PrimeActivity.INDEX_CALORIE),
-        INDEX_DISTANCE(PrimeActivity.INDEX_DISTANCE);
+        INDEX_STEP(NursingActivity.INDEX_STEP),
+        INDEX_CALORIE(NursingActivity.INDEX_CALORIE),
+        INDEX_DISTANCE(NursingActivity.INDEX_DISTANCE);
 
         private final int value;
 
@@ -47,12 +47,12 @@ public class PrimeCircleFragment extends Fragment {
     private static List<String> unitList;
 
 
-    public static PrimeCircleFragment newInstance(int index) {
-        PrimeCircleFragment primeCircleFragment = new PrimeCircleFragment();
+    public static NursingCircleFragment newInstance(int index) {
+        NursingCircleFragment nursingCircleFragment = new NursingCircleFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_INDEX, index);
-        primeCircleFragment.setArguments(bundle);
-        return primeCircleFragment;
+        nursingCircleFragment.setArguments(bundle);
+        return nursingCircleFragment;
     }
 
 

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.adapter.prime;
+package com.rainbow.kam.bt_scanner.adapter.nursing;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -15,14 +15,10 @@ import android.widget.TextView;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by Kam6512 on 2015-10-14.

@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.fragment.prime.user;
+package com.rainbow.kam.bt_scanner.fragment.nursing.user;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -26,8 +26,8 @@ import com.db.chart.model.LineSet;
 import com.db.chart.view.AxisController;
 import com.db.chart.view.LineChartView;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.activity.prime.PrimeActivity;
-import com.rainbow.kam.bt_scanner.adapter.prime.HistoryAdapter;
+import com.rainbow.kam.bt_scanner.activity.nursing.NursingActivity;
+import com.rainbow.kam.bt_scanner.adapter.nursing.HistoryAdapter;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Created by kam6512 on 2015-11-04.
  */
-public class PrimeFragment extends Fragment implements
+public class NursingFragment extends Fragment implements
         SwipeRefreshLayout.OnRefreshListener,
         NestedScrollView.OnScrollChangeListener,
         ViewPager.OnPageChangeListener {
@@ -48,7 +48,7 @@ public class PrimeFragment extends Fragment implements
     private int index;
     private int totalStep, totalCalorie, totalDistance;
 
-    private List<PrimeCircleFragment> primeCircleFragments;
+    private List<NursingCircleFragment> nursingCircleFragments;
     private List<String> units;
     private List<String> totalLabels;
     private List<Drawable> totalCardImageDrawable;
@@ -138,10 +138,10 @@ public class PrimeFragment extends Fragment implements
 
 
     private void setFragments() {
-        primeCircleFragments = Arrays.asList(
-                PrimeCircleFragment.newInstance(PrimeActivity.INDEX_STEP),
-                PrimeCircleFragment.newInstance(PrimeActivity.INDEX_CALORIE),
-                PrimeCircleFragment.newInstance(PrimeActivity.INDEX_DISTANCE)
+        nursingCircleFragments = Arrays.asList(
+                NursingCircleFragment.newInstance(NursingActivity.INDEX_STEP),
+                NursingCircleFragment.newInstance(NursingActivity.INDEX_CALORIE),
+                NursingCircleFragment.newInstance(NursingActivity.INDEX_DISTANCE)
         );
     }
 
@@ -335,22 +335,22 @@ public class PrimeFragment extends Fragment implements
 
 
     public void setCircleCounterGoalRange(GoalVo goalVo) {
-        for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
-            primeCircleFragment.setCircleCounterGoalRange(goalVo);
+        for (NursingCircleFragment nursingCircleFragment : nursingCircleFragments) {
+            nursingCircleFragment.setCircleCounterGoalRange(goalVo);
         }
     }
 
 
     private void setCircleCounterNone() {
-        for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
-            primeCircleFragment.setNoneValue();
+        for (NursingCircleFragment nursingCircleFragment : nursingCircleFragments) {
+            nursingCircleFragment.setNoneValue();
         }
     }
 
 
     private void setCircleCounterValue(RealmUserActivityItem realmUserActivityItem) {
-        for (PrimeCircleFragment primeCircleFragment : primeCircleFragments) {
-            primeCircleFragment.setCircleValue(realmUserActivityItem);
+        for (NursingCircleFragment nursingCircleFragment : nursingCircleFragments) {
+            nursingCircleFragment.setCircleValue(realmUserActivityItem);
         }
     }
 
@@ -385,7 +385,7 @@ public class PrimeFragment extends Fragment implements
 
         @Override
         public Fragment getItem(int position) {
-            return primeCircleFragments.get(position);
+            return nursingCircleFragments.get(position);
         }
 
 
