@@ -48,7 +48,7 @@ public class UserDataDialogFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.df_prime_user, container, false);
+        view = inflater.inflate(R.layout.df_nursing_user, container, false);
         setUserInput();
         setBtn();
         setSavedUserValue();
@@ -58,10 +58,10 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void setUserInput() {
-        nameTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_name);
-        ageTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_age);
-        heightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_height);
-        weightTextInput = (TextInputLayout) view.findViewById(R.id.prime_add_user_weight);
+        nameTextInput = (TextInputLayout) view.findViewById(R.id.nursing_add_user_name);
+        ageTextInput = (TextInputLayout) view.findViewById(R.id.nursing_add_user_age);
+        heightTextInput = (TextInputLayout) view.findViewById(R.id.nursing_add_user_height);
+        weightTextInput = (TextInputLayout) view.findViewById(R.id.nursing_add_user_weight);
         genderGroup = (RadioGroup) view.findViewById(R.id.gender_group);
 
         textInputLayoutList = Arrays.asList(nameTextInput, ageTextInput, heightTextInput, weightTextInput);
@@ -69,13 +69,10 @@ public class UserDataDialogFragment extends DialogFragment {
 
 
     private void setBtn() {
-        FloatingActionButton accept = (FloatingActionButton) view.findViewById(R.id.prime_accept_fab);
-        accept.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isValueHasError()) {
-                    onAccept();
-                }
+        FloatingActionButton accept = (FloatingActionButton) view.findViewById(R.id.nursing_accept_fab);
+        accept.setOnClickListener(v -> {
+            if (!isValueHasError()) {
+                onAccept();
             }
         });
     }
@@ -128,7 +125,7 @@ public class UserDataDialogFragment extends DialogFragment {
             editText = textInputLayout.getEditText();
             value = editText.getText().toString();
             if (TextUtils.isEmpty(value)) {
-                textInputLayout.setError("다시 입력하세요");
+                textInputLayout.setError(getString(R.string.nursing_setting_user_error));
                 hasError = true;
             } else {
                 textInputLayout.setErrorEnabled(false);

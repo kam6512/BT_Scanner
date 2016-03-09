@@ -66,12 +66,7 @@ public class DeviceListFragment extends DialogFragment implements SwipeRefreshLa
     private DeviceAdapter deviceAdapter;
 
     private final Handler handler = new Handler();
-    private final Runnable stop = new Runnable() {
-        @Override
-        public void run() {
-            stopScan();
-        }
-    };
+    private final Runnable stop = this::stopScan;
     private final Runnable postSwipeRefresh = new Runnable() {
         @Override
         public void run() {

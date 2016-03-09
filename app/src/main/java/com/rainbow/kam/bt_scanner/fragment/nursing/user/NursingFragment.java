@@ -84,8 +84,8 @@ public class NursingFragment extends Fragment implements
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
-        units = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
-        totalLabels = Arrays.asList(getString(R.string.prime_total_step), getString(R.string.prime_total_calorie), getString(R.string.prime_total_distance));
+        units = Arrays.asList(getString(R.string.nursing_step), getString(R.string.nursing_calorie), getString(R.string.nursing_distance));
+        totalLabels = Arrays.asList(getString(R.string.nursing_total_step), getString(R.string.nursing_total_calorie), getString(R.string.nursing_total_distance));
         totalCardImageDrawable = Arrays.asList(
                 ContextCompat.getDrawable(context, R.drawable.step_wallpaper),
                 ContextCompat.getDrawable(context, R.drawable.calorie_wallpaper),
@@ -97,7 +97,7 @@ public class NursingFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.f_prime, container, false);
+        view = inflater.inflate(R.layout.f_nursing, container, false);
 
         setTotalCardView();
         setFragments();
@@ -127,12 +127,12 @@ public class NursingFragment extends Fragment implements
 
 
     private void setTotalCardView() {
-        totalCardView = (CardView) view.findViewById(R.id.prime_card);
-        labelTextView = (TextView) view.findViewById(R.id.prime_label);
+        totalCardView = (CardView) view.findViewById(R.id.nursing_card);
+        labelTextView = (TextView) view.findViewById(R.id.nursing_label);
         labelTextView.setText(totalLabels.get(index));
-        totalTextView = (TextView) view.findViewById(R.id.prime_value);
+        totalTextView = (TextView) view.findViewById(R.id.nursing_value);
 
-        cardImageView = (ImageView) view.findViewById(R.id.prime_card_image);
+        cardImageView = (ImageView) view.findViewById(R.id.nursing_card_image);
         cardImageView.setImageDrawable(totalCardImageDrawable.get(index));
     }
 
@@ -147,14 +147,14 @@ public class NursingFragment extends Fragment implements
 
 
     private void setMaterialViews() {
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.prime_swipeRefreshLayout);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.nursing_swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-        NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.prime_nested);
+        NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.nursing_nested);
         nestedScrollView.setOnScrollChangeListener(this);
     }
 
@@ -177,12 +177,12 @@ public class NursingFragment extends Fragment implements
 
 
     private void setViewPager() {
-        viewPager = (ViewPager) view.findViewById(R.id.prime_viewpager);
+        viewPager = (ViewPager) view.findViewById(R.id.nursing_viewpager);
         viewPager.setAdapter(new PrimeAdapter(getActivity().getSupportFragmentManager()));
         viewPager.setOffscreenPageLimit(3);
         viewPager.addOnPageChangeListener(this);
 
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.prime_tabs);
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.nursing_tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -209,9 +209,9 @@ public class NursingFragment extends Fragment implements
 
 
     private void setChartView() {
-        chartCardView = (CardView) view.findViewById(R.id.prime_tab_chart);
+        chartCardView = (CardView) view.findViewById(R.id.nursing_tab_chart);
 
-        chart = (LineChartView) view.findViewById(R.id.prime_chart);
+        chart = (LineChartView) view.findViewById(R.id.nursing_chart);
         chart.setBorderSpacing(Tools.fromDpToPx(15))
                 .setYLabels(AxisController.LabelPosition.NONE)
                 .setLabelsColor(ContextCompat.getColor(context, R.color.chart_label))
@@ -261,7 +261,7 @@ public class NursingFragment extends Fragment implements
     }
 
 
-    public void setPrimeValue(List<RealmUserActivityItem> results) {
+    public void setValue(List<RealmUserActivityItem> results) {
 
         setValueEmpty();
 
@@ -319,7 +319,7 @@ public class NursingFragment extends Fragment implements
 
     public void setTextFail() {
         if (isVisible()) {
-            totalTextView.setText(getString(R.string.prime_access_denial));
+            totalTextView.setText(getString(R.string.nursing_access_denial));
         }
     }
 
@@ -372,9 +372,9 @@ public class NursingFragment extends Fragment implements
     private class PrimeAdapter extends FragmentStatePagerAdapter {
 
 
-        private final List<String> tabTitles = Arrays.asList(getString(R.string.prime_step_title),
-                getString(R.string.prime_calorie_title), getString(
-                        R.string.prime_distance_title));
+        private final List<String> tabTitles = Arrays.asList(getString(R.string.nursing_step_title),
+                getString(R.string.nursing_calorie_title), getString(
+                        R.string.nursing_distance_title));
         private final int PAGE_COUNT = tabTitles.size();
 
 

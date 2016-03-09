@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.SwipeRefreshLayout
-    android:id="@+id/prime_swipeRefreshLayout"
+    android:id="@+id/nursing_swipeRefreshLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,7 +8,7 @@
     android:background="@null">
 
     <android.support.v4.widget.NestedScrollView
-        android:id="@+id/prime_nested"
+        android:id="@+id/nursing_nested"
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
             android:orientation="vertical">
 
             <android.support.v7.widget.CardView
-                android:id="@+id/prime_card"
+                android:id="@+id/nursing_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@null"
@@ -38,7 +38,7 @@
                     android:background="@null">
 
                     <ImageView
-                        android:id="@+id/prime_card_image"
+                        android:id="@+id/nursing_card_image"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_centerInParent="true"
@@ -48,7 +48,7 @@
                         />
 
                     <TextView
-                        android:id="@+id/prime_label"
+                        android:id="@+id/nursing_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
@@ -61,7 +61,7 @@
                         android:textSize="24sp"/>
 
                     <TextView
-                        android:id="@+id/prime_value"
+                        android:id="@+id/nursing_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
@@ -78,7 +78,7 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v4.view.ViewPager
-                android:id="@+id/prime_viewpager"
+                android:id="@+id/nursing_viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/circle_counter_size"
                 android:layout_gravity="center_horizontal"
@@ -92,7 +92,7 @@
                 android:orientation="vertical">
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/prime_tab_chart"
+                    android:id="@+id/nursing_tab_chart"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="0dp"
@@ -112,7 +112,7 @@
                         android:orientation="vertical">
 
                         <android.support.design.widget.TabLayout
-                            android:id="@+id/prime_tabs"
+                            android:id="@+id/nursing_tabs"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@null"
@@ -125,7 +125,7 @@
                             app:tabTextColor="@color/text_light"/>
 
                         <com.db.chart.view.LineChartView
-                            android:id="@+id/prime_chart"
+                            android:id="@+id/nursing_chart"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"

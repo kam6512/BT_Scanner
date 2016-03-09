@@ -66,14 +66,14 @@ public class NursingCircleFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
-        unitList = Arrays.asList(getString(R.string.prime_step), getString(R.string.prime_calorie), getString(R.string.prime_distance));
+        unitList = Arrays.asList(getString(R.string.nursing_step), getString(R.string.nursing_calorie), getString(R.string.nursing_distance));
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.f_prime_circle, container, false);
+        view = inflater.inflate(R.layout.f_nursing_circle, container, false);
 
         index = getIndex();
         setCircleCounterView();

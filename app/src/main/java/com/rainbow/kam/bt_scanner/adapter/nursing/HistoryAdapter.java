@@ -36,14 +36,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         iconDrawable = Arrays.asList(ContextCompat.getDrawable(context, R.drawable.ic_directions_walk_white_36dp),
                 ContextCompat.getDrawable(context, R.drawable.ic_whatshot_white_36dp),
                 ContextCompat.getDrawable(context, R.drawable.ic_beenhere_white_36dp));
-        unit = Arrays.asList(context.getString(R.string.prime_step), context.getString(R.string.prime_calorie), context.getString(R.string.prime_distance));
+        unit = Arrays.asList(context.getString(R.string.nursing_step), context.getString(R.string.nursing_calorie), context.getString(R.string.nursing_distance));
     }
 
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.i_prime_history, parent, false);
+        View view = layoutInflater.inflate(R.layout.i_nursing_history, parent, false);
         return new HistoryViewHolder(view);
     }
 

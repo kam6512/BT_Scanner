@@ -46,7 +46,7 @@ public class GoalDialogFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater,  ViewGroup container,  Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.df_prime_goal, container, false);
+        view = inflater.inflate(R.layout.df_nursing_goal, container, false);
         setGoalInput();
         setBtn();
         setSavedGoalValue();
@@ -56,22 +56,19 @@ public class GoalDialogFragment extends DialogFragment {
 
 
     private void setGoalInput() {
-        stepTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_step);
-        calorieTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_calorie);
-        distanceTextInput = (TextInputLayout) view.findViewById(R.id.prime_goal_distance);
+        stepTextInput = (TextInputLayout) view.findViewById(R.id.nursing_goal_step);
+        calorieTextInput = (TextInputLayout) view.findViewById(R.id.nursing_goal_calorie);
+        distanceTextInput = (TextInputLayout) view.findViewById(R.id.nursing_goal_distance);
 
         textInputLayoutList = Arrays.asList(stepTextInput, calorieTextInput, distanceTextInput);
     }
 
 
     private void setBtn() {
-        FloatingActionButton accept = (FloatingActionButton) view.findViewById(R.id.prime_accept_goal_fab);
-        accept.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isValueHasError()) {
-                    onAccept();
-                }
+        FloatingActionButton accept = (FloatingActionButton) view.findViewById(R.id.nursing_accept_goal_fab);
+        accept.setOnClickListener(v -> {
+            if (!isValueHasError()) {
+                onAccept();
             }
         });
     }

@@ -153,7 +153,7 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
             activity.runOnUiThread(() -> {
                 control.showDeviceSettingSnackBar();
                 control.dismissSwipeRefresh();
-                control.setPrimeEmptyValue();
+                control.setEmptyValue();
             });
 
             return false;
@@ -232,7 +232,7 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
             currentRealmUserActivityItem.setDistance(distance);
             nursingDao.overWritePrimeData(currentRealmUserActivityItem);
 
-            control.setPrimeValue(nursingDao.loadPrimeListData());
+            control.setValue(nursingDao.loadPrimeListData());
         });
     }
 
@@ -299,7 +299,7 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
 
     private String readUpdateTimeValue(final BluetoothGattCharacteristic characteristic) {
         final byte[] characteristicValue = characteristic.getValue();
-        final String format = context.getString(R.string.prime_update_format);
+        final String format = context.getString(R.string.nursing_update_format);
         final SimpleDateFormat update = new SimpleDateFormat(format, Locale.getDefault());
         Calendar calendar = new GregorianCalendar();
         if (deviceType == DeviceType.DEVICE_PRIME) {
@@ -327,8 +327,8 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
         activity.runOnUiThread(() -> {
             nursingDao.savePrimeData(makePrimeItem(characteristic));
 
-            control.setPrimeValue(nursingDao.loadPrimeListData());
-            control.setPrimeGoalRange(nursingDao.loadGoalData());
+            control.setValue(nursingDao.loadPrimeListData());
+            control.setGoalRange(nursingDao.loadGoalData());
         });
 
         gattManager.readValue(bluetoothGattCharacteristicForBattery);

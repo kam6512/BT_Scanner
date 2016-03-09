@@ -49,11 +49,11 @@ public interface NursingViewControl {
 
     void updateRssiValue(int rssiValue);
 
-    void setPrimeValue(List<RealmUserActivityItem> primeValue);
+    void setValue(List<RealmUserActivityItem> value);
 
-    void setPrimeGoalRange(GoalVo goalVo);
+    void setGoalRange(GoalVo goalVo);
 
-    void setPrimeEmptyValue();
+    void setEmptyValue();
 
     void fail();
 }

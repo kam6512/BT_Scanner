@@ -72,12 +72,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         @Override
         public void run() {
             deviceStateTextView.setText(R.string.bt_disconnected);
-            new Handler().postDelayed(new Runnable() { // test
-                @Override
-                public void run() {
-                    finish();
-                }
-            }, 500);
+            new Handler().postDelayed(DeviceProfileActivity.this::finish, 500);
         }
     };
 
@@ -313,7 +308,6 @@ public class DeviceProfileActivity extends AppCompatActivity
         if (!bluetoothGattCharacteristics.get(position).equals(controlCharacteristic)) {
             controlCharacteristic = bluetoothGattCharacteristics.get(position);
         }
-
     }
 
 
@@ -321,12 +315,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onServiceReady() {
         if (serviceListFragment.isVisible() && bluetoothGattServices != null) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    serviceListFragment.setServiceList(bluetoothGattServices);
-                }
-            });
+            runOnUiThread(() -> serviceListFragment.setServiceList(bluetoothGattServices));
         }
     }
 
@@ -335,12 +324,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onCharacteristicReady() {
         if (characteristicListFragment.isVisible() && bluetoothGattServices != null) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    characteristicListFragment.setCharacteristicList(bluetoothGattCharacteristics);
-                }
-            });
+            runOnUiThread(() -> characteristicListFragment.setCharacteristicList(bluetoothGattCharacteristics));
         }
     }
 

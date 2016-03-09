@@ -194,7 +194,7 @@ public class NursingDao {
         final int calorie = realmUserActivityItem.getCalorie();
         final int distance = realmUserActivityItem.getDistance();
 
-        final String format = context.getString(R.string.prime_save_date_format_full);
+        final String format = context.getString(R.string.nursing_save_date_format_full);
         final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         final String today = formatter.format(Calendar.getInstance().getTime());
 

@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".activity.prime.PrimeActivity">
+    tools:context=".activity.nursing.NursingActivity">
 
     <item android:title="@string/menu.setting">
         <menu>
             <item
-                android:id="@+id/menu.prime.setting.device"
+                android:id="@+id/menu.nursing.setting.device"
                 android:icon="@drawable/ic_bluetooth_white_24dp"
                 android:title="@string/menu.setting.device" />
             <item
-                android:id="@+id/menu.prime.setting.user"
+                android:id="@+id/menu.nursing.setting.user"
                 android:icon="@drawable/ic_directions_walk_white_36dp"
                 android:title="@string/menu.setting.user" />
             <item
-                android:id="@+id/menu.prime.setting.goal"
+                android:id="@+id/menu.nursing.setting.goal"
                 android:icon="@drawable/ic_beenhere_white_36dp"
                 android:title="@string/menu.setting.goal" />
         </menu>
@@ -22,15 +22,15 @@
     <item android:title="@string/menu.about">
         <menu>
             <item
-                android:id="@+id/menu.prime.about.dev"
+                android:id="@+id/menu.nursing.about.dev"
                 android:icon="@drawable/ic_search_white_36dp"
                 android:title="@string/menu.about.dev" />
             <item
-                android:id="@+id/menu.prime.about.setting"
+                android:id="@+id/menu.nursing.about.setting"
                 android:icon="@drawable/ic_whatshot_white_36dp"
                 android:title="@string/menu.about.reset" />
             <item
-                android:id="@+id/menu.prime.about.about"
+                android:id="@+id/menu.nursing.about.about"
                 android:icon="@drawable/ic_menu"
                 android:title="@string/menu.about.info" />
         </menu>

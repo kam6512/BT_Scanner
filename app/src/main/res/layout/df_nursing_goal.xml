@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/prime_goal_group"
+    android:id="@+id/nursing_goal_group"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@null"
     android:orientation="vertical">
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/prime_goal_step"
+        android:id="@+id/nursing_goal_step"
         style="@style/TextInputEditText.Input">
 
         <android.support.v7.widget.AppCompatEditText
             style="@style/TextInputEditText"
-            android:hint="@string/prime.step"
+            android:hint="@string/nursing.step"
             android:inputType="text" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/prime_goal_calorie"
+        android:id="@+id/nursing_goal_calorie"
         style="@style/TextInputEditText.Input">
 
         <android.support.v7.widget.AppCompatEditText
             style="@style/TextInputEditText"
-            android:hint="@string/prime.calorie"
+            android:hint="@string/nursing.calorie"
             android:inputType="numberSigned" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/prime_goal_distance"
+        android:id="@+id/nursing_goal_distance"
         style="@style/TextInputEditText.Input">
 
         <android.support.v7.widget.AppCompatEditText
             style="@style/TextInputEditText"
-            android:hint="@string/prime.distance"
+            android:hint="@string/nursing.distance"
             android:inputType="numberSigned" />
     </android.support.design.widget.TextInputLayout>
 
@@ -44,7 +44,7 @@
         android:gravity="center_vertical">
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/prime_accept_goal_fab"
+            android:id="@+id/nursing_accept_goal_fab"
             style="@style/Fab"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"

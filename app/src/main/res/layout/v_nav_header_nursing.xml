@@ -26,7 +26,7 @@
 
 
     <ImageView
-        android:id="@+id/prime_battery"
+        android:id="@+id/nursing_battery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -34,21 +34,21 @@
         android:src="@drawable/ic_battery_unknown_white_36dp"/>
 
     <TextView
-        android:id="@+id/prime_update"
+        android:id="@+id/nursing_update"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/prime_battery"
+        android:layout_alignBottom="@+id/nursing_battery"
         android:layout_alignParentEnd="true"
         android:layout_gravity="bottom|end"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
         android:background="@null"
-        android:text="@string/prime_chart_update_wait"
+        android:text="@string/nursing_chart_update_wait"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/text_light"/>
 
     <TextView
-        android:id="@+id/prime_device_name"
+        android:id="@+id/nursing_device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -58,12 +58,12 @@
         android:textSize="30sp"/>
 
     <TextView
-        android:id="@+id/prime_device_address"
+        android:id="@+id/nursing_device_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Large Text"
-        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
         android:textSize="20sp"
-        android:layout_below="@+id/prime_device_name"
-        android:layout_alignStart="@+id/prime_device_name"/>
+        android:layout_below="@+id/nursing_device_name"
+        android:layout_alignStart="@+id/nursing_device_name"/>
 </RelativeLayout>
