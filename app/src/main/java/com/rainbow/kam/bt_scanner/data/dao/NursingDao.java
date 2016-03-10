@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
+import com.rainbow.kam.bt_scanner.data.item.DateHistoryBlockItem;
 import com.rainbow.kam.bt_scanner.data.item.Migration;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.Locale;
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.exceptions.RealmMigrationNeededException;
 import rx.Observable;
@@ -102,6 +100,7 @@ public class NursingDao {
     private static Realm realm = null;
 
     private RealmResults<RealmUserActivityItem> results;
+    private RealmUserActivityItem lastItem;
 
 
     private NursingDao() {
@@ -183,18 +182,14 @@ public class NursingDao {
     }
 
 
-    public Calendar matchingRealmItem(List<Calendar> calendars) throws ParseException {
-        Calendar resCalendar = Calendar.getInstance();
-        for (Calendar calendar : calendars) {
-            for (int i = 0; i < results.size(); i++) {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.KOREA);
-                resCalendar.setTime(sdf.parse(results.get(i).getCalendar()));
-                if (calendar.compareTo(resCalendar) == 0){
-                    return resCalendar;
-                }
+    public int matchingRealmItem(List<DateHistoryBlockItem> historyItemList) {
+        String lastDate = lastItem.getCalendar();
+        for (int i = 0; i < historyItemList.size(); i++) {
+            if (lastDate.contentEquals(historyItemList.get(i).historyBlockCalendar)){
+                return i;
             }
         }
-        return null;
+        return -1;
     }
 
 
@@ -202,6 +197,7 @@ public class NursingDao {
         if (results == null) {
             results = realm.where(RealmUserActivityItem.class).findAll();
         }
+        lastItem = results.last();
         return results;
     }
 

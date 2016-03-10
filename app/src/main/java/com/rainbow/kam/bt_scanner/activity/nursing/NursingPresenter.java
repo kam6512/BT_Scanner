@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.dao.NursingDao;
-import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
+import com.rainbow.kam.bt_scanner.data.item.DateHistoryBlockItem;
 import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
 import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
@@ -19,10 +19,10 @@ import com.rainbow.kam.bt_scanner.tools.helper.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.NursingGattHelper;
 import com.rainbow.kam.bt_scanner.tools.helper.NursingGattHelper.OnHistoryListener;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -242,25 +242,27 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
 
 
     @Override
-    public void onReadDayBlockEnd(List<ActivityHistoryItem> historyItemList) {
+    public void onReadDayBlockEnd(List<DateHistoryBlockItem> historyItemList) {
 
-//        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDetail(1));
-//        gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
+        Collections.sort(historyItemList);
 
-        List<Calendar> calendars = new ArrayList<>();
-        for (ActivityHistoryItem activityHistoryItem : historyItemList) {
-            calendars.add(activityHistoryItem.historyBlockCalendar);
-//            final String format = "yy년 MM월 dd일";
-//            final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.KOREA);
-//            final String today = formatter.format(activityHistoryItem.historyBlockCalendar.getTime());
-//            Log.e(TAG, today);
-        }
-        try {
-            nursingDao.matchingRealmItem(calendars);
-        } catch (ParseException e) {
+        activity.runOnUiThread(() -> {
+            int matchingIndex = nursingDao.matchingRealmItem(historyItemList);
 
-        }
+            List<Integer> readBlockIndex = new ArrayList<>();
 
+            if (matchingIndex == -1) {
+                for (DateHistoryBlockItem dateHistoryBlockItem : historyItemList) {
+                    readBlockIndex.add(dateHistoryBlockItem.historyBlockNumber);
+                }
+            } else {
+                for (int i = matchingIndex; i < historyItemList.size(); i++) {
+                    readBlockIndex.add(historyItemList.get(i).historyBlockNumber);
+                }
+            }
+            gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDetail(readBlockIndex));
+            gattReadType = GattReadType.VIDONN_HISTORY_DETAIL;
+        });
     }
 
 
@@ -271,9 +273,15 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
 
 
     @Override
-    public void onReadAllBlockEnd() {
+    public void onReadAllBlockEnd(List<DateHistoryBlockItem> historyItemList) {
+        for (DateHistoryBlockItem dateHistoryBlockItem : historyItemList) {
+            Log.e(TAG,
+                    "dateHistoryBlockItem.historyBlockNumber : " + dateHistoryBlockItem.historyBlockNumber +
+                            "\ndateHistoryBlockItem.historyBlockCalendar : " + dateHistoryBlockItem.historyBlockCalendar +
+                            "\ndateHistoryBlockItem.totalStep : " + dateHistoryBlockItem.totalStep
+            );
+        }
         gattReadType = GattReadType.END;
-        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.resetHistory());
     }
 
 

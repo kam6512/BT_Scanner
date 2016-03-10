@@ -4,8 +4,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.util.Log;
 
 import com.rainbow.kam.bt_scanner.activity.nursing.NursingPresenter;
-import com.rainbow.kam.bt_scanner.data.item.ActivityHistoryItem;
+import com.rainbow.kam.bt_scanner.data.item.DateHistoryBlockItem;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -23,6 +24,11 @@ public class NursingGattHelper {
     private OperationPrime operationPrime;
 
     private OnHistoryListener onHistoryListener;
+
+    private int historyDetail_Data_Block_Week_ID = 1;// 1~7
+    private int historyDetail_Data_Block_Hour_ID = 0;// 0~23
+
+    private List<Integer> readBlockIndex = new ArrayList<>();
 
 
     public NursingGattHelper() {
@@ -142,15 +148,19 @@ public class NursingGattHelper {
         }
 
 
-        public byte[] readHistoryRecodeDetail(int blockID) {
+        public byte[] readHistoryRecodeDetail(List<Integer> readBlockIndex) {
             Log.e(TAG, "READ_HISTORY_RECODE_DETAIL");
-            return writeCode(new byte[]{5, (byte) blockID, 0}, true);
+            NursingGattHelper.this.readBlockIndex = readBlockIndex;
+            historyDetail_Data_Block_Week_ID = readBlockIndex.get(0);
+            return writeCode(new byte[]{5, (byte) historyDetail_Data_Block_Week_ID, 0}, true);
         }
 
 
         public byte[] readHistoryRecodeDetail(int blockID, int hour) {
             Log.e(TAG, "READ_HISTORY_RECODE_DETAIL");
-            return writeCode(new byte[]{5, (byte) blockID, (byte) hour}, true);
+            historyDetail_Data_Block_Week_ID = blockID;
+            historyDetail_Data_Block_Hour_ID = hour;
+            return writeCode(new byte[]{5, (byte) historyDetail_Data_Block_Week_ID, (byte) historyDetail_Data_Block_Hour_ID}, true);
         }
 
 
@@ -203,7 +213,7 @@ public class NursingGattHelper {
             byte[] code_data = opCode_Data;
             for (int i = 0; i < code_data.length; i++) {
                 byte data = code_data[i];
-                Log.e(TAG, "WRITE_CODE : OPCODE_DATA [" + i + "] = " + Integer.toHexString(data));
+//                Log.e(TAG, "WRITE_CODE : OPCODE_DATA [" + i + "] = " + Integer.toHexString(data));
             }
             byte[] crc = CRC_16(code_data);
 
@@ -222,7 +232,7 @@ public class NursingGattHelper {
 
             for (int i = 0; i < data_Send.length; i++) {
                 byte data = data_Send[i];
-                Log.e(TAG, "data_Send [" + i + "] = " + Integer.toHexString(data));
+//                Log.e(TAG, "data_Send [" + i + "] = " + Integer.toHexString(data));
             }
 
             for (int i = 2; i < 2 + code_data.length; i++) {
@@ -247,7 +257,7 @@ public class NursingGattHelper {
         private byte[] CRC_16(byte[] data) {
             for (int i = 0; i < data.length; i++) {
                 byte temp = data[i];
-                Log.e(TAG, "CRC_16 [" + i + "] = " + temp);
+//                Log.e(TAG, "CRC_16 [" + i + "] = " + temp);
             }
             short crc_result = 0;
             byte[] bytes = new byte[2];
@@ -278,16 +288,13 @@ public class NursingGattHelper {
 
         private DeCodeX6 deCodeX6 = new DeCodeX6();
 
-        private int historyDetail_Data_Block_Week_ID = 1;// 1~7
-        private int historyDetail_Data_Block_Hour_ID = 0;// 0~23
-
         private int dateBlockIndex = 0;
         private int innerHourBlockIndex = 0;
 
         private byte[] historyDate_Data = new byte[40];
         private byte[] historyDetail_Data = new byte[67];
 
-        private List<ActivityHistoryItem> historyItemList = new ArrayList<>(7);
+        private List<DateHistoryBlockItem> historyItemList = new ArrayList<>(7);
 
 
         public void readDateBlock(final BluetoothGattCharacteristic characteristic) {
@@ -299,6 +306,11 @@ public class NursingGattHelper {
                     dateBlockIndex = 0;
 
                     historyDate_Map = deCodeX6.decode_HistoryRecodeDate(blockData, blockData.length);
+
+                    for (int[] aHistoryDate_Map : historyDate_Map) {
+                        Log.e(TAG, aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/" + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
+                    }
+
 
                     addDayBlock(historyDate_Map);
                 } else {
@@ -316,20 +328,29 @@ public class NursingGattHelper {
 
                 historyDate_Map = deCodeX6.decode_HistoryRecodeDate(historyDate_Data, dataLength);
 
+                for (int[] aHistoryDate_Map : historyDate_Map) {
+                    Log.e(TAG, aHistoryDate_Map[0] + "Block  Date=" + aHistoryDate_Map[1] + "/" + aHistoryDate_Map[2] + "/" + aHistoryDate_Map[3]);
+                }
+
                 addDayBlock(historyDate_Map);
             }
         }
 
 
         private void addDayBlock(int[][] historyDate_Map) {
+            final String format = "yy년 MM월 dd일";
+            final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.KOREA);
+            Calendar calendar = GregorianCalendar.getInstance();
+            String today;
             for (int[] historyBlock : historyDate_Map) {
-                Calendar calendar = GregorianCalendar.getInstance();
+                calendar.clear();
                 calendar.set(historyBlock[1], historyBlock[2] - 1, historyBlock[3]);
+                today = formatter.format(calendar.getTime());
 
-                ActivityHistoryItem activityHistoryItem = new ActivityHistoryItem();
-                activityHistoryItem.historyBlockNumber = historyBlock[0];
-                activityHistoryItem.historyBlockCalendar = calendar;
-                historyItemList.add(activityHistoryItem);
+                DateHistoryBlockItem dateHistoryBlockItem = new DateHistoryBlockItem();
+                dateHistoryBlockItem.historyBlockNumber = historyBlock[0];
+                dateHistoryBlockItem.historyBlockCalendar = today;
+                historyItemList.add(dateHistoryBlockItem);
             }
 
             onHistoryListener.onReadDayBlockEnd(historyItemList);
@@ -366,8 +387,8 @@ public class NursingGattHelper {
 //                        Log.e(TAG, "=======================================================");
 //                        Log.e(TAG, (i * 2 - 1) + "~" + (i * 2) + "min data=" + steps[i][1] + "  type=" + steps[i][0]);
                         historyItemList.get(historyDetail_Data_Block_Week_ID - 1).totalStep += steps[i][1];
-                        Log.e(TAG, historyDetail_Data_Block_Week_ID + " Block  : "
-                                + historyDetail_Data_Block_Hour_ID + " Hour = " + steps[i][1]);
+//                        Log.e(TAG, historyDetail_Data_Block_Week_ID + " Block  : "
+//                                + historyDetail_Data_Block_Hour_ID + " Hour = " + steps[i][1]);
 
                     }
                     updateBlockIndex();
@@ -381,28 +402,31 @@ public class NursingGattHelper {
             if (historyDetail_Data_Block_Hour_ID == 24) {
                 historyDetail_Data_Block_Hour_ID = 0;
 
+                checkBlockIndex();
 
-                historyDetail_Data_Block_Week_ID++;
             }
-            if ((historyDetail_Data_Block_Week_ID > 7)) {
+            if ((historyDetail_Data_Block_Week_ID > readBlockIndex.get(readBlockIndex.size() - 1))) {
                 Log.e(TAG, "Over");
-
-                for (ActivityHistoryItem activityHistoryItem : historyItemList) {
-                    Log.e(TAG,
-                            "activityHistoryItem.historyBlockNumber : " + activityHistoryItem.historyBlockNumber +
-                                    "\nactivityHistoryItem.historyBlockCalendar : " + activityHistoryItem.historyBlockCalendar +
-                                    "\nactivityHistoryItem.totalStep : " + activityHistoryItem.totalStep
-                    );
-                }
 
                 historyDetail_Data_Block_Week_ID = 1;
                 historyDetail_Data_Block_Hour_ID = 0;
-                onHistoryListener.onReadAllBlockEnd();
+                onHistoryListener.onReadAllBlockEnd(historyItemList);
                 return;
             }
             onHistoryListener.onReadHourBlockEnd(operationX6.readHistoryRecodeDetail(historyDetail_Data_Block_Week_ID,
                     historyDetail_Data_Block_Hour_ID));
 
+        }
+
+
+        private void checkBlockIndex() {
+            int currentIndex = readBlockIndex.indexOf(historyDetail_Data_Block_Week_ID);
+            currentIndex += 1;
+            if (currentIndex < readBlockIndex.size()) {
+                historyDetail_Data_Block_Week_ID = readBlockIndex.get(currentIndex);
+            } else {
+                historyDetail_Data_Block_Week_ID = 8;
+            }
         }
 
 
@@ -564,10 +588,10 @@ public class NursingGattHelper {
 
     public interface OnHistoryListener {
 
-        void onReadDayBlockEnd(List<ActivityHistoryItem> historyItemList);
+        void onReadDayBlockEnd(List<DateHistoryBlockItem> historyItemList);
 
         void onReadHourBlockEnd(byte[] bytes);
 
-        void onReadAllBlockEnd();
+        void onReadAllBlockEnd(List<DateHistoryBlockItem> historyItemList);
     }
 }
