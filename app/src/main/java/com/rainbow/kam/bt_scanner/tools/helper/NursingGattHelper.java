@@ -164,6 +164,22 @@ public class NursingGattHelper {
         }
 
 
+        public byte[] readPersonalInfo() {
+            Log.e(TAG, "READ_PERSONAL_INFO");
+            return writeCode(new byte[]{32, 1}, true);
+        }
+
+
+        public byte[] writePersonalInfo(byte[] data) {
+            Log.e(TAG, "WRITE_PERSONAL_INFO");
+            byte[] newData = new byte[data.length + 2];
+            newData[0] = 32;
+            newData[1] = 1;
+            System.arraycopy(data, 0, newData, 2, data.length);
+            return writeCode(newData, false);
+        }
+
+
         public byte[] resetSystem() {
             return writeCode(new byte[]{64, 1}, true);
         }

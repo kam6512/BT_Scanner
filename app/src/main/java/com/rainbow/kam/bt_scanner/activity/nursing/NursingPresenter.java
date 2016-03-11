@@ -59,7 +59,10 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
         READ_BATTERY,
         END,
         VIDONN_HISTORY_BLOCK,
-        VIDONN_HISTORY_DETAIL
+        VIDONN_HISTORY_DETAIL,
+        VIDONN_PERSONAL_READ,
+        VIDONN_PERSONAL_WRITE
+
     }
 
     private enum DeviceType {
@@ -525,8 +528,12 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
                                         break;
                                     case DEVICE_VIDONN:
 
-                                        gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
-                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDate());
+//                                        gattReadType = GattReadType.VIDONN_HISTORY_BLOCK;
+//                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDate());
+//                                        gattReadType = GattReadType.VIDONN_PERSONAL_READ;
+//                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readPersonalInfo());
+                                        gattReadType = GattReadType.VIDONN_PERSONAL_WRITE;
+                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.writePersonalInfo(new byte[]{(byte) 180, (byte) 90, (byte) 0, (byte) 18}));
                                         break;
                                 }
                             }
@@ -556,6 +563,7 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
         @DebugLog
         public void onDeviceNotify(final BluetoothGattCharacteristic characteristic) {
 //            try {
+            byte[] val = characteristic.getValue();
             switch (gattReadType) {
                 case READ_TIME:
                     onReadTime(characteristic);
@@ -578,13 +586,41 @@ public class NursingPresenter implements BaseNursingPresenter, OnHistoryListener
                     historyX6.readHourBlock(characteristic);
 
                     break;
-                case END:
-                    byte[] val = characteristic.getValue();
+
+                case VIDONN_PERSONAL_WRITE:
+                    gattReadType = GattReadType.VIDONN_PERSONAL_READ;
+                    gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readPersonalInfo());
+
+
+                case VIDONN_PERSONAL_READ:
                     for (int i = 0; i < val.length; i++) {
-                        byte data = val[i];
-                        Log.e(TAG, "val [" + i + "] = " + Integer.toHexString(data));
+                        int data = val[i];
+                        if (data < 0) {
+                            data = data + 256;
+                        }
+                        Log.e(TAG, "VIDONN_PERSONAL_READ [" + i + "] = " + data);
+//                        Log.e(TAG, "VIDONN_PERSONAL_READ HEX [" + i + "] = " + Integer.toHexString(data));
+                    }
+                    for (int i = 0; i < val.length; i++) {
+                        int data = val[i];
+                        if (data < 0) {
+                            data = data + 256;
+                        }
+                        Log.e(TAG, "VIDONN_PERSONAL_READ HEX [" + i + "] = " + Integer.toHexString(data));
                     }
                     break;
+                case END:
+
+                    for (int i = 0; i < val.length; i++) {
+                        int data = val[i];
+                        if (data < 0) {
+                            data = data + 256;
+                        }
+                        Log.e(TAG, "END [" + i + "] = " + data);
+//                        Log.e(TAG, "VIDONN_PERSONAL_READ HEX [" + i + "] = " + Integer.toHexString(data));
+                    }
+                    break;
+
                 default:
                     break;
             }
