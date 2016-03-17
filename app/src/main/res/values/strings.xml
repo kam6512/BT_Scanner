@@ -2,7 +2,7 @@
     <string name="app_name">BT.Scanner</string>
     <string name="gattManager">BLE</string>
 
-    <string name="device_name_prime">nursing</string>
+    <string name="device_name_prime">Prime</string>
     <string name="device_name_Vidonn">X6S</string>
     <string name="device_name_def">N/A</string>
 

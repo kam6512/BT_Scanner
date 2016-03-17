@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.tools.gatt.GattAttributes;
 
@@ -15,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.Bind;
+import butterknife.BindString;
+import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 /**
@@ -22,17 +26,12 @@ import hugo.weaving.DebugLog;
  */
 public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = getClass().getSimpleName();
-
-    private final Context context;
-
-    private final ArrayList<BluetoothGattService> serviceItemArrayList = new ArrayList<>();
+    private final ArrayList<BluetoothGattService> serviceItemArrayList = Lists.newArrayList();
 
     private final OnServiceItemClickListener onServiceItemClickListener;
 
 
     public ServiceAdapter(Context context) {
-        this.context = context;
         this.onServiceItemClickListener = (OnServiceItemClickListener) context;
     }
 
@@ -69,18 +68,23 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    public class ServiceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ServiceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private final TextView serviceTitle;
-        private final TextView serviceUuid;
-        private final TextView serviceType;
+        @Bind(R.id.profile_parent_list_item_service_name)
+        TextView serviceTitle;
+
+        @Bind(R.id.profile_parent_list_item_service_UUID)
+        TextView serviceUuid;
+
+        @Bind(R.id.profile_parent_list_item_service_type)
+        TextView serviceType;
+
+        @BindString(R.string.profile_uuid_label) String uuidLabel;
 
 
         public ServiceViewHolder(View itemView) {
             super(itemView);
-            serviceTitle = (TextView) itemView.findViewById(R.id.profile_parent_list_item_service_name);
-            serviceUuid = (TextView) itemView.findViewById(R.id.profile_parent_list_item_service_UUID);
-            serviceType = (TextView) itemView.findViewById(R.id.profile_parent_list_item_service_type);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 
@@ -88,7 +92,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private void bindViews(BluetoothGattService bluetoothGattService) {
             String uuid = bluetoothGattService.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = GattAttributes.resolveServiceName(uuid.substring(0, 8));
-            uuid = context.getString(R.string.profile_uuid_label) + uuid.substring(4, 8);
+            uuid = uuidLabel + uuid.substring(4, 8);
             String type = (bluetoothGattService.getType() == BluetoothGattService.SERVICE_TYPE_PRIMARY) ? "primary" : "secondary";
 
             serviceTitle.setText(name);
@@ -101,6 +105,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public void onClick(View v) {
             onServiceItemClickListener.onServiceItemClick(getLayoutPosition());
         }
+
     }
 
 

@@ -16,6 +16,8 @@ import com.rainbow.kam.bt_scanner.adapter.profile.CharacteristicAdapter;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 /**
@@ -30,6 +32,9 @@ public class CharacteristicListFragment extends Fragment {
     private CharacteristicAdapter characteristicAdapter;
 
     private OnCharacteristicReadyListener onCharacteristicReadyListener;
+
+    @Bind(R.id.profile_characteristic_recyclerView)
+    RecyclerView recyclerView;
 
 
     @DebugLog
@@ -46,6 +51,8 @@ public class CharacteristicListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
             view = inflater.inflate(R.layout.f_profile_characteristic, container, false);
+
+            ButterKnife.bind(this, view);
             setRecyclerView();
         }
         return view;
@@ -60,8 +67,14 @@ public class CharacteristicListFragment extends Fragment {
     }
 
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+
     private void setRecyclerView() {
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.profile_characteristic_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setHasFixedSize(true);
         characteristicAdapter = new CharacteristicAdapter(context);

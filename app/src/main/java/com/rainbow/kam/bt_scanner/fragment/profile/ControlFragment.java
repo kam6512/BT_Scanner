@@ -25,6 +25,10 @@ import java.util.IllegalFormatCodePointException;
 import java.util.Locale;
 import java.util.Objects;
 
+import butterknife.Bind;
+import butterknife.BindString;
+import butterknife.ButterKnife;
+
 /**
  * Created by kam6512 on 2015-11-02.
  */
@@ -35,21 +39,46 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     private Context context;
     private View view;
 
-    private TextView deviceName;
-    private TextView deviceAddress;
-    private TextView serviceName;
-    private TextView serviceUuid;
-    private TextView charUuid;
-    private TextView charName;
-    private TextView charDataType;
-    private TextView charStrValue;
-    private EditText charHexValue;
-    private TextView charDateValue;
-    private TextView charProperties;
+    @Bind(R.id.characteristic_device_name)
+    TextView deviceName;
+    @Bind(R.id.characteristic_device_address)
+    TextView deviceAddress;
 
-    private ToggleButton notificationBtn;
-    private Button readBtn;
-    private Button writeBtn;
+    @Bind(R.id.characteristic_service_name)
+    TextView serviceName;
+    @Bind(R.id.characteristic_service_uuid)
+    TextView serviceUuid;
+
+    @Bind(R.id.control_name)
+    TextView charName;
+    @Bind(R.id.control_uuid)
+    TextView charUuid;
+
+    @Bind(R.id.control_type)
+    TextView charDataType;
+    @Bind(R.id.control_properties)
+    TextView charProperties;
+
+    @Bind(R.id.control_hex_value)
+    EditText charHexValue;
+    @Bind(R.id.control_ascii_value)
+    TextView charStrValue;
+    @Bind(R.id.control_timestamp)
+    TextView charDateValue;
+
+
+    @Bind(R.id.control_notification_switcher)
+    ToggleButton notificationBtn;
+    @Bind(R.id.control_read_btn)
+    Button readBtn;
+    @Bind(R.id.control_write_btn)
+    Button writeBtn;
+
+    @BindString(R.string.profile_fail)
+    String profileFail;
+
+    @BindString(R.string.profile_timestamp)
+    String profileTimeStamp;
 
     private BluetoothGattCharacteristic bluetoothGattCharacteristic;
     private String name;
@@ -80,8 +109,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.f_profile_control, container, false);
-        setControlInfoView();
-        setValueView();
+        ButterKnife.bind(this, view);
         setBtn();
         return view;
     }
@@ -102,32 +130,13 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
     }
 
 
-    private void setControlInfoView() {
-        deviceName = (TextView) view.findViewById(R.id.characteristic_device_name);
-        deviceAddress = (TextView) view.findViewById(R.id.characteristic_device_address);
-
-        serviceName = (TextView) view.findViewById(R.id.characteristic_service_name);
-        serviceUuid = (TextView) view.findViewById(R.id.characteristic_service_uuid);
-
-        charName = (TextView) view.findViewById(R.id.control_name);
-        charUuid = (TextView) view.findViewById(R.id.control_uuid);
-
-        charDataType = (TextView) view.findViewById(R.id.control_type);
-        charProperties = (TextView) view.findViewById(R.id.control_properties);
-    }
-
-
-    private void setValueView() {
-        charHexValue = (EditText) view.findViewById(R.id.control_hex_value);
-        charStrValue = (TextView) view.findViewById(R.id.control_ascii_value);
-        charDateValue = (TextView) view.findViewById(R.id.control_timestamp);
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 
 
     private void setBtn() {
-        readBtn = (Button) view.findViewById(R.id.control_read_btn);
-        writeBtn = (Button) view.findViewById(R.id.control_write_btn);
-        notificationBtn = (ToggleButton) view.findViewById(R.id.control_notification_switcher);
 
         readBtn.setOnClickListener(this);
         writeBtn.setOnClickListener(this);
@@ -236,7 +245,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     private void setTimeStamp() {
-        lastUpdateTime = new SimpleDateFormat(context.getString(R.string.profile_timestamp)).format(new Date());
+        lastUpdateTime = new SimpleDateFormat(profileTimeStamp, Locale.getDefault()).format(new Date().getTime());
     }
 
 
@@ -250,9 +259,9 @@ public class ControlFragment extends Fragment implements View.OnClickListener, C
 
 
     public void setFail() {
-        hexValue = context.getString(R.string.profile_fail);
-        strValue = context.getString(R.string.profile_fail);
-        lastUpdateTime = context.getString(R.string.profile_fail);
+        hexValue = profileFail;
+        strValue = profileFail;
+        lastUpdateTime = profileFail;
         bindView();
     }
 

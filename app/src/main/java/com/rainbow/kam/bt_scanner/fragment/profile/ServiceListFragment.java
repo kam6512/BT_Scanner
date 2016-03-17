@@ -16,6 +16,8 @@ import com.rainbow.kam.bt_scanner.adapter.profile.ServiceAdapter;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 /**
@@ -31,8 +33,10 @@ public class ServiceListFragment extends Fragment {
 
     private OnServiceReadyListener onServiceReadyListener;
 
+    @Bind(R.id.profile_service_recyclerView)
+    RecyclerView recyclerView;
 
-    @DebugLog
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -41,18 +45,19 @@ public class ServiceListFragment extends Fragment {
     }
 
 
-    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
             view = inflater.inflate(R.layout.f_profile_service, container, false);
+
+            ButterKnife.bind(this, view);
             setRecyclerView();
         }
+
         return view;
     }
 
 
-    @DebugLog
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -60,8 +65,14 @@ public class ServiceListFragment extends Fragment {
     }
 
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+
     private void setRecyclerView() {
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.profile_service_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setHasFixedSize(true);
         serviceAdapter = new ServiceAdapter(context);

@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.Bind;
+import butterknife.BindString;
+import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 /**
@@ -22,15 +25,12 @@ import hugo.weaving.DebugLog;
  */
 public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final Context context;
-
     private final ArrayList<BluetoothGattCharacteristic> characteristicArrayList = new ArrayList<>();
 
     private final OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
 
     public CharacteristicAdapter(Context context) {
-        this.context = context;
         this.onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) context;
     }
 
@@ -67,16 +67,20 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
 
-    private class CharacteristicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class CharacteristicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private final TextView characteristicTitle;
-        private final TextView characteristicUuid;
+        @Bind(R.id.profile_child_list_item_characteristics_name)
+        TextView characteristicTitle;
+
+        @Bind(R.id.profile_child_list_item_characteristics_UUID)
+        TextView characteristicUuid;
+
+        @BindString(R.string.profile_uuid_label) String uuidLabel;
 
 
         public CharacteristicViewHolder(View itemView) {
             super(itemView);
-            characteristicTitle = (TextView) itemView.findViewById(R.id.profile_child_list_item_characteristics_name);
-            characteristicUuid = (TextView) itemView.findViewById(R.id.profile_child_list_item_characteristics_UUID);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 
@@ -85,7 +89,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             String uuid = characteristicItem.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = GattAttributes.resolveCharacteristicName(uuid.substring(0, 8));
-            uuid = context.getString(R.string.profile_uuid_label) + uuid.substring(4, 8);
+            uuid = uuidLabel + uuid.substring(4, 8);
 
             characteristicTitle.setText(name);
             characteristicUuid.setText(uuid);
