@@ -1,43 +1,86 @@
 package com.rainbow.kam.bt_scanner.adapter.device;
 
-import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
-import android.graphics.Color;
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.util.SortedListAdapterCallback;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
-import android.widget.TableRow;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.tools.helper.DeviceAdapterHelper;
+import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
 
-import java.util.LinkedHashMap;
-
-import hugo.weaving.DebugLog;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Kam6512 on 2015-10-14.
  */
 public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = "DeviceAdapter";
 
-    private final LinkedHashMap<String, DeviceItem> deviceLinkedHashMap = new LinkedHashMap<>();
+    private final Context context;
 
     private final OnDeviceSelectListener onDeviceSelectListener;
 
-    private final Activity activity;
+    private final SortedListAdapterCallback<DeviceItem> sortedListAdapterCallback = new SortedListAdapterCallback<DeviceItem>(this) {
+        @Override
+        public int compare(DeviceItem deviceItem1, DeviceItem deviceItem2) {
+            return deviceItem1.getExtraAddress().compareTo(deviceItem2.getExtraAddress());
+        }
 
 
-    public DeviceAdapter(Activity activity) {
-        this.activity = activity;
-        this.onDeviceSelectListener = (OnDeviceSelectListener) activity;
+        @Override
+        public void onInserted(int position, int count) {
+            notifyItemRangeInserted(position, count);
+        }
+
+
+        @Override
+        public void onRemoved(int position, int count) {
+            notifyItemRangeRemoved(position, count);
+        }
+
+
+        @Override
+        public void onMoved(int fromPosition, int toPosition) {
+            notifyItemMoved(fromPosition, toPosition);
+        }
+
+
+        @Override
+        public void onChanged(int position, int count) {
+            notifyItemRangeChanged(position, count);
+        }
+
+
+        @Override
+        public boolean areContentsTheSame(DeviceItem oldDeviceItem, DeviceItem newDeviceItem) {
+            return oldDeviceItem.getExtraAddress().equals(newDeviceItem.getExtraAddress());
+        }
+
+
+        @Override
+        public boolean areItemsTheSame(DeviceItem DeviceItem1, DeviceItem DeviceItem2) {
+            return Objects.equals(DeviceItem1.getExtraAddress(), DeviceItem2.getExtraAddress());
+        }
+    };
+
+    private final SortedList<DeviceItem> sortedList = new SortedList<>(DeviceItem.class, sortedListAdapterCallback);
+
+
+    public DeviceAdapter(Context context) {
+        this.context = context;
+        this.onDeviceSelectListener = (OnDeviceSelectListener) context;
     }
 
 
@@ -49,43 +92,27 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
-    @DebugLog
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         DeviceViewHolder deviceViewHolder = (DeviceViewHolder) holder;
-        deviceViewHolder.bindViews(DeviceAdapterHelper.getValue(deviceLinkedHashMap, position));
+        deviceViewHolder.bindViews(sortedList.get(position));
     }
 
 
     @Override
     public int getItemCount() {
-        return deviceLinkedHashMap.size();
+        return sortedList.size();
     }
 
 
-    @DebugLog
-    public void addDevice(final BluetoothDevice bluetoothDevice, final int rssi) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (!deviceLinkedHashMap.containsKey(bluetoothDevice.getAddress())) {
-                    deviceLinkedHashMap.put(bluetoothDevice.getAddress(), new DeviceItem(bluetoothDevice, rssi));
-                    notifyDataSetChanged();
-                }
-            }
-        });
+    public void addDevice(final DeviceItem deviceItem) {
+        sortedList.add(deviceItem);
     }
 
 
-    @DebugLog
+
     public void clear() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                deviceLinkedHashMap.clear();
-                notifyDataSetChanged();
-            }
-        });
+        sortedList.clear();
     }
 
 
@@ -96,19 +123,14 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Animation.AnimationListener { //뷰 초기화
 
-        private final TextView extraName;
-        private final TextView extraAddress;
-        private final TextView extraBondState;
-        private final TextView extraType;
-        private final TextView extraRssi;
+        private DeviceItem deviceItem;
+
+        private final TextView extraName, extraAddress, extraBondState, extraType, extraRssi;
 
         private final CardView deviceItemCardView;
 
-        private final TableRow type;
-        private final TableRow bond;
-        private final TableRow rssi;
-        private final Animation expandAnimation;
-        private final Animation collapseAnimation;
+        private final LinearLayout expandGroup;
+        private final Animation expandAnimation, collapseAnimation;
 
         private final ImageView expendImageView;
 
@@ -124,75 +146,67 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             deviceItemCardView = (CardView) itemView.findViewById(R.id.device_item_card);
             deviceItemCardView.setOnClickListener(this);
 
-            type = (TableRow) itemView.findViewById(R.id.row_type);
-            bond = (TableRow) itemView.findViewById(R.id.row_bond);
-            rssi = (TableRow) itemView.findViewById(R.id.row_rssi);
+            expandGroup = (LinearLayout) itemView.findViewById(R.id.row_expand);
 
-            expandAnimation = AnimationUtils.loadAnimation(activity, R.anim.expand_device_item);
+            expandAnimation = AnimationUtils.loadAnimation(context, R.anim.expand_device_item);
             expandAnimation.setAnimationListener(this);
-            collapseAnimation = AnimationUtils.loadAnimation(activity, R.anim.collapse_device_item);
+            expandAnimation.setInterpolator(context, android.R.anim.anticipate_overshoot_interpolator);
+            collapseAnimation = AnimationUtils.loadAnimation(context, R.anim.collapse_device_item);
             collapseAnimation.setAnimationListener(this);
+            collapseAnimation.setInterpolator(context, android.R.anim.anticipate_overshoot_interpolator);
 
-            expendImageView = (ImageView) itemView.findViewById(R.id.item_expend);
+            expendImageView = (ImageView) itemView.findViewById(R.id.button_expand);
+            expendImageView.setColorFilter(ContextCompat.getColor(context, android.R.color.black));
             expendImageView.setOnClickListener(this);
-            expendImageView.setColorFilter(Color.parseColor("#000000"));
         }
 
 
         private void bindViews(DeviceItem deviceItem) {
-            String deviceName = deviceItem.getExtraName();
+            this.deviceItem = deviceItem;
+            String deviceName = this.deviceItem.getExtraName();
             if (deviceName == null) {
-                deviceName = "N/A";
+                deviceName = context.getString(R.string.device_name_def);
             }
             extraName.setText(deviceName);
-            extraAddress.setText(deviceItem.getExtraAddress());
-            extraBondState.setText(String.valueOf(deviceItem.getExtraBondState()));
-            extraType.setText(String.valueOf(deviceItem.getExtraType()));
-            extraRssi.setText(String.valueOf(deviceItem.getExtraRssi()));
+            extraAddress.setText(this.deviceItem.getExtraAddress());
+            extraBondState.setText(String.valueOf(this.deviceItem.getExtraBondState()));
+            extraType.setText(String.valueOf(this.deviceItem.getExtraType()));
+            extraRssi.setText(String.valueOf(this.deviceItem.getExtraRssi()));
 
+            expandGroup.setVisibility(View.GONE);
 
             expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
-
-            type.setVisibility(View.GONE);
-            bond.setVisibility(View.GONE);
-            rssi.setVisibility(View.GONE);
         }
 
 
         @Override
         public void onClick(View v) {
-            if (v.getId() == R.id.item_expend) {
-                if (type.isShown() && bond.isShown() && rssi.isShown()) {
+            if (v.getId() == R.id.button_expand) {
+                if (expandGroup.isShown()) {
                     collapsedView();
                 } else {
                     expandView();
                 }
             } else {
-                final DeviceItem deviceItem = deviceLinkedHashMap.get(extraAddress.getText().toString());
-                onDeviceSelectListener.onDeviceSelect(deviceItem.getExtraName(), deviceItem.getExtraAddress());
+                DeviceVo deviceVo = new DeviceVo();
+                deviceVo.name = deviceItem.getExtraName();
+                deviceVo.address = deviceItem.getExtraAddress();
+                onDeviceSelectListener.onDeviceSelect(deviceVo);
             }
         }
 
 
         void expandView() {
             expandAnimation.reset();
-            type.clearAnimation();
-            type.startAnimation(expandAnimation);
-            bond.clearAnimation();
-            bond.startAnimation(expandAnimation);
-            rssi.clearAnimation();
-            rssi.startAnimation(expandAnimation);
+            expandGroup.clearAnimation();
+            expandGroup.startAnimation(expandAnimation);
         }
 
 
         void collapsedView() {
             collapseAnimation.reset();
-            type.clearAnimation();
-            type.startAnimation(collapseAnimation);
-            bond.clearAnimation();
-            bond.startAnimation(collapseAnimation);
-            rssi.clearAnimation();
-            rssi.startAnimation(collapseAnimation);
+            expandGroup.clearAnimation();
+            expandGroup.startAnimation(collapseAnimation);
         }
 
 
@@ -200,9 +214,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onAnimationStart(Animation animation) {
             itemView.requestLayout();
             if (animation == expandAnimation) {
-                type.setVisibility(View.VISIBLE);
-                bond.setVisibility(View.VISIBLE);
-                rssi.setVisibility(View.VISIBLE);
+                expandGroup.setVisibility(View.VISIBLE);
+
                 expendImageView.setImageResource(R.drawable.ic_expand_less_white_36dp);
             }
         }
@@ -212,9 +225,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onAnimationEnd(Animation animation) {
             itemView.requestLayout();
             if (animation == collapseAnimation) {
-                type.setVisibility(View.GONE);
-                bond.setVisibility(View.GONE);
-                rssi.setVisibility(View.GONE);
+                expandGroup.setVisibility(View.GONE);
                 expendImageView.setImageResource(R.drawable.ic_expand_more_white_36dp);
             }
         }
@@ -225,9 +236,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-
     public interface OnDeviceSelectListener {
-        void onDeviceSelect(String name, String address);
+        void onDeviceSelect(DeviceVo deviceVo);
 
         void onDeviceUnSelected();
     }

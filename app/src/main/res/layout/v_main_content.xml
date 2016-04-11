@@ -35,25 +35,11 @@
         app:layout_anchor="@id/toolbar"
         app:layout_anchorGravity="bottom|center"/>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/main_swipeRefreshLayout"
+    <FrameLayout
+        android:id="@+id/profile_fragment_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@null"
-        android:foreground="?android:windowContentOverlay"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@null"
-            >
-
-
-        </android.support.v7.widget.RecyclerView>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabSearch"
@@ -67,11 +53,5 @@
         app:layout_anchor="@id/toolbar"
         app:layout_anchorGravity="bottom|right|end"/>
 
-
-    <TextView
-        android:id="@+id/no_device_textView"
-        style="@style/NoDeviceLabel"
-        android:layout_gravity="center"
-        android:text="@string/device.list.nothing"/>
 
 </android.support.design.widget.CoordinatorLayout>

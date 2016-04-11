@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -43,7 +44,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-    private static final String RSSI_UNIT = "db";
+    private String RSSI_UNIT;
 
     private String deviceName;
     private String deviceAddress;
@@ -67,6 +68,14 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     private BluetoothGattCharacteristic controlCharacteristic;
 
+    private final Runnable deviceDisconnect = new Runnable() {
+        @Override
+        public void run() {
+            deviceStateTextView.setText(R.string.bt_disconnected);
+            new Handler().postDelayed(DeviceProfileActivity.this::finish, 500);
+        }
+    };
+
 
     @DebugLog
     @Override
@@ -75,8 +84,9 @@ public class DeviceProfileActivity extends AppCompatActivity
         setContentView(R.layout.a_profile);
 
         Intent intent = getIntent();
-        deviceName = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_NAME);
-        deviceAddress = intent.getStringExtra(BluetoothHelper.KEY_DEVICE_ADDRESS);
+        deviceName = intent.getStringExtra(MainActivity.KEY_DEVICE_NAME);
+        deviceAddress = intent.getStringExtra(MainActivity.KEY_DEVICE_ADDRESS);
+        RSSI_UNIT = getString(R.string.bt_rssi_unit);
         deviceRSSI = "- - " + RSSI_UNIT;
 
         setToolbar();
@@ -144,7 +154,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BluetoothHelper.onActivityResult(requestCode, resultCode, this);
+        BluetoothHelper.onRequestEnableResult(requestCode, resultCode, this);
     }
 
 
@@ -161,7 +171,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         if (gattManager.isBluetoothAvailable()) {
             connectDevice();
         } else {
-            BluetoothHelper.bluetoothRequest(this);
+            BluetoothHelper.requestBluetoothEnable(this);
         }
     }
 
@@ -181,10 +191,26 @@ public class DeviceProfileActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onBackPressed() {
+        if (gattManager.isConnected()) {
+            if (serviceListFragment.isVisible()) {
+                disconnectDevice();
+            } else {
+                super.onBackPressed();
+            }
+        } else {
+            finish();
+        }
+    }
+
+
     @DebugLog
     private synchronized void disconnectDevice() {
         if (gattManager != null && gattManager.isBluetoothAvailable()) {
             gattManager.disconnect();
+        } else {
+            runOnUiThread(deviceDisconnect);
         }
     }
 
@@ -201,12 +227,7 @@ public class DeviceProfileActivity extends AppCompatActivity
 
 
         public void onDeviceDisconnected() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    deviceStateTextView.setText(R.string.bt_disconnected);
-                }
-            });
+            runOnUiThread(deviceDisconnect);
         }
 
 
@@ -237,7 +258,7 @@ public class DeviceProfileActivity extends AppCompatActivity
         }
 
 
-        public void onDataNotify(final BluetoothGattCharacteristic ch) {
+        public void onDeviceNotify(final BluetoothGattCharacteristic ch) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -287,7 +308,6 @@ public class DeviceProfileActivity extends AppCompatActivity
         if (!bluetoothGattCharacteristics.get(position).equals(controlCharacteristic)) {
             controlCharacteristic = bluetoothGattCharacteristics.get(position);
         }
-
     }
 
 
@@ -295,12 +315,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onServiceReady() {
         if (serviceListFragment.isVisible() && bluetoothGattServices != null) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    serviceListFragment.setServiceList(bluetoothGattServices);
-                }
-            });
+            runOnUiThread(() -> serviceListFragment.setServiceList(bluetoothGattServices));
         }
     }
 
@@ -309,12 +324,7 @@ public class DeviceProfileActivity extends AppCompatActivity
     @Override
     public void onCharacteristicReady() {
         if (characteristicListFragment.isVisible() && bluetoothGattServices != null) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    characteristicListFragment.setCharacteristicList(bluetoothGattCharacteristics);
-                }
-            });
+            runOnUiThread(() -> characteristicListFragment.setCharacteristicList(bluetoothGattCharacteristics));
         }
     }
 

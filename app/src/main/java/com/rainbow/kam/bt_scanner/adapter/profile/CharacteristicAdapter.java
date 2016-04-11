@@ -1,6 +1,7 @@
 package com.rainbow.kam.bt_scanner.adapter.profile;
 
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,15 +22,16 @@ import hugo.weaving.DebugLog;
  */
 public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = getClass().getSimpleName();
+    private final Context context;
 
     private final ArrayList<BluetoothGattCharacteristic> characteristicArrayList = new ArrayList<>();
 
     private final OnCharacteristicItemClickListener onCharacteristicItemClickListener;
 
 
-    public CharacteristicAdapter(OnCharacteristicItemClickListener onCharacteristicItemClickListener) {
-        this.onCharacteristicItemClickListener = onCharacteristicItemClickListener;
+    public CharacteristicAdapter(Context context) {
+        this.context = context;
+        this.onCharacteristicItemClickListener = (OnCharacteristicItemClickListener) context;
     }
 
 
@@ -56,7 +58,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
 
     @DebugLog
-    public void setCharacteristic(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
+    public void setCharacteristicList(List<BluetoothGattCharacteristic> bluetoothGattCharacteristics) {
         if (!characteristicArrayList.equals(bluetoothGattCharacteristics)) {
             characteristicArrayList.clear();
             characteristicArrayList.addAll(bluetoothGattCharacteristics);
@@ -83,7 +85,7 @@ public class CharacteristicAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             String uuid = characteristicItem.getUuid().toString().toLowerCase(Locale.getDefault());
             String name = GattAttributes.resolveCharacteristicName(uuid.substring(0, 8));
-            uuid = "UUID : 0x" + uuid.substring(4, 8);
+            uuid = context.getString(R.string.profile_uuid_label) + uuid.substring(4, 8);
 
             characteristicTitle.setText(name);
             characteristicUuid.setText(uuid);
