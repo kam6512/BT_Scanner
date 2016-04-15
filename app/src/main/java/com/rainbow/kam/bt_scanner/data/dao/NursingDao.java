@@ -4,27 +4,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.data.Device;
 import com.rainbow.kam.bt_scanner.data.item.DateHistoryBlockItem;
-import com.rainbow.kam.bt_scanner.data.item.Migration;
-import com.rainbow.kam.bt_scanner.data.item.RealmUserActivityItem;
-import com.rainbow.kam.bt_scanner.data.vo.DeviceVo;
+import com.rainbow.kam.bt_scanner.data.item.UserMovementItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
 import com.rainbow.kam.bt_scanner.data.vo.UserVo;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Locale;
 
 import hugo.weaving.DebugLog;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
-import io.realm.exceptions.RealmMigrationNeededException;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by kam6512 on 2016-02-11.
@@ -93,14 +82,13 @@ public class NursingDao {
         }
     }
 
-    private static Context context = null;
+    private static WeakReference<Context> weakReference;
 
     private static SharedPreferences sharedPreferences = null;
     private static SharedPreferences.Editor editor = null;
-    private static Realm realm = null;
+    private UserMovementItem lastItem;
 
-    private RealmResults<RealmUserActivityItem> results;
-    private RealmUserActivityItem lastItem;
+    private String format;
 
 
     private NursingDao() {
@@ -114,21 +102,24 @@ public class NursingDao {
 
 
     public static NursingDao getInstance(Context instanceContext) {
-        if (context == null) {
-            context = instanceContext;
-            sharedPreferences = context.getSharedPreferences(KEY, Context.MODE_PRIVATE);
-            editor = sharedPreferences.edit();
-            realm = getRealm();
-        }
+        weakReference = new WeakReference<>(instanceContext);
+
+        sharedPreferences = getDaoContext().getSharedPreferences(KEY, Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         return PrimeDaoLoader.INSTANCE;
     }
 
 
-    public DeviceVo loadDeviceData() {
-        DeviceVo deviceVo = new DeviceVo();
-        deviceVo.name = sharedPreferences.getString(KEY_DEVICE_NAME, null);
-        deviceVo.address = sharedPreferences.getString(KEY_DEVICE_ADDRESS, null);
-        return deviceVo;
+    private static Context getDaoContext() {
+        return weakReference.get();
+    }
+
+
+    public Device loadDeviceData() {
+        String name = sharedPreferences.getString(KEY_DEVICE_NAME, null);
+        String address = sharedPreferences.getString(KEY_DEVICE_ADDRESS, null);
+        return new Device(name, address);
     }
 
 
@@ -152,9 +143,9 @@ public class NursingDao {
     }
 
 
-    public void saveDeviceData(DeviceVo deviceVo) {
-        editor.putString(KEY_DEVICE_NAME, deviceVo.name);
-        editor.putString(KEY_DEVICE_ADDRESS, deviceVo.address);
+    public void saveDeviceData(Device device) {
+        editor.putString(KEY_DEVICE_NAME, device.getName());
+        editor.putString(KEY_DEVICE_ADDRESS, device.getAddress());
         editor.apply();
     }
 
@@ -183,157 +174,15 @@ public class NursingDao {
 
 
     public int matchingRealmItem(List<DateHistoryBlockItem> historyItemList) {
-        String lastDate = lastItem.getCalendar();
-        for (int i = 0; i < historyItemList.size(); i++) {
-            if (lastDate.contentEquals(historyItemList.get(i).historyBlockCalendar)){
-                return i;
+        if (lastItem != null) {
+            String lastDate = lastItem.getCalendar();
+            for (int i = 0; i < historyItemList.size(); i++) {
+                if (lastDate.contentEquals(historyItemList.get(i).historyBlockCalendar)) {
+                    return i;
+                }
             }
         }
         return -1;
-    }
-
-
-    public RealmResults<RealmUserActivityItem> loadPrimeResultData() {
-        if (results == null) {
-            results = realm.where(RealmUserActivityItem.class).findAll();
-        }
-        lastItem = results.last();
-        return results;
-    }
-
-
-    public List<RealmUserActivityItem> loadPrimeListData() {
-        return loadPrimeResultData();
-    }
-
-
-    public void savePrimeData(final RealmUserActivityItem realmUserActivityItem) {
-
-        final int step = realmUserActivityItem.getStep();
-        final int calorie = realmUserActivityItem.getCalorie();
-        final int distance = realmUserActivityItem.getDistance();
-
-        final String format = context.getString(R.string.nursing_save_date_format_full);
-        final SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.KOREA);
-        final String today = formatter.format(Calendar.getInstance().getTime());
-
-        final Observable<RealmUserActivityItem> observable = Observable.just(realmUserActivityItem);
-        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread());
-        observable.subscribe(new Subscriber<RealmUserActivityItem>() {
-            @Override
-            public void onCompleted() {
-                realm.commitTransaction();
-                unsubscribe();
-            }
-
-
-            @Override
-            public void onError(Throwable e) {
-                realm.commitTransaction();
-                unsubscribe();
-            }
-
-
-            @Override
-            public void onNext(RealmUserActivityItem realmUserActivityItem) {
-                realm.beginTransaction();
-                final RealmResults<RealmUserActivityItem> results = loadPrimeResultData();
-
-                if (results.isEmpty()) {
-                    RealmUserActivityItem newItem = realm.createObject(RealmUserActivityItem.class);
-                    newItem.setCalendar(today);
-                    newItem.setStep(step);
-                    newItem.setCalorie(calorie);
-                    newItem.setDistance(distance);
-                } else {
-                    RealmUserActivityItem lastItem = results.last();
-                    if (lastItem.getCalendar().equals(today)) {
-                        int lastStep = 0;
-                        int lastCalorie = 0;
-                        int lastDistance = 0;
-                        if (lastItem.getStep() > step) {
-                            lastStep = lastItem.getStep();
-                            lastCalorie = lastItem.getCalorie();
-                            lastDistance = lastItem.getDistance();
-                        }
-                        lastItem.setCalendar(today);
-                        lastItem.setStep(step + lastStep);
-                        lastItem.setCalorie(calorie + lastCalorie);
-                        lastItem.setDistance(distance + lastDistance);
-                    } else {
-                        RealmUserActivityItem newItem = realm.createObject(RealmUserActivityItem.class);
-                        newItem.setCalendar(today);
-                        newItem.setStep(step);
-                        newItem.setCalorie(calorie);
-                        newItem.setDistance(distance);
-                    }
-                }
-                realm.commitTransaction();
-                unsubscribe();
-            }
-        });
-    }
-
-
-    public void overWritePrimeData(RealmUserActivityItem realmUserActivityItem) {
-        final Observable<RealmUserActivityItem> observable = Observable.just(realmUserActivityItem);
-        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
-        observable.subscribe(new Subscriber<RealmUserActivityItem>() {
-
-            @Override
-            public void onCompleted() {
-                realm.commitTransaction();
-                unsubscribe();
-            }
-
-
-            @Override
-            public void onError(Throwable e) {
-                realm.commitTransaction();
-                unsubscribe();
-            }
-
-
-            @Override
-            public void onNext(RealmUserActivityItem realmUserActivityItem) {
-                RealmResults<RealmUserActivityItem> results = loadPrimeResultData();
-                realm.beginTransaction();
-                int distance = realmUserActivityItem.getDistance();
-                results.last().setDistance(distance);
-                realm.commitTransaction();
-                unsubscribe();
-            }
-        });
-    }
-
-
-    public void removePrimeData() {
-        final Observable<Class> observable = Observable.just(RealmUserActivityItem.class);
-        observable.onBackpressureBuffer().subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.computation());
-        observable.subscribe(new Subscriber<Class>() {
-
-            @Override
-            public void onCompleted() {
-                realm.commitTransaction();
-                unsubscribe();
-            }
-
-
-            @Override
-            public void onError(Throwable e) {
-                realm.commitTransaction();
-                unsubscribe();
-            }
-
-
-            @Override
-            public void onNext(Class aClass) {
-                realm.beginTransaction();
-                realm.clear(RealmUserActivityItem.class);
-                realm.commitTransaction();
-                unsubscribe();
-            }
-        });
     }
 
 
@@ -348,11 +197,6 @@ public class NursingDao {
     }
 
 
-    public boolean isPrimeDataAvailable() {
-        return results.size() != 0;
-    }
-
-
     private String getUserValue(USER_KEY userKey, USER_DEF userDef) {
         return getSharedPreferenceValue(userKey.keyValue, userDef.defValue);
     }
@@ -364,7 +208,7 @@ public class NursingDao {
 
 
     private String getSharedPreferenceValue(String key, int defValue) {
-        return sharedPreferences.getString(key, context.getString(defValue));
+        return sharedPreferences.getString(key, getDaoContext().getString(defValue));
     }
 
 
@@ -380,16 +224,5 @@ public class NursingDao {
 
     private void putSharedPreferenceValue(String key, String value) {
         editor.putString(key, value);
-    }
-
-
-    private static Realm getRealm() {
-        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(context).migration(new Migration()).build();
-        try {
-            return Realm.getInstance(realmConfiguration);
-        } catch (RealmMigrationNeededException e) {
-            Realm.deleteRealm(realmConfiguration);
-            return Realm.getInstance(realmConfiguration);
-        }
     }
 }

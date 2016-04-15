@@ -3,7 +3,6 @@ package com.rainbow.kam.bt_scanner.tools.helper;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.util.Log;
 
-import com.rainbow.kam.bt_scanner.activity.nursing.NursingPresenter;
 import com.rainbow.kam.bt_scanner.data.item.DateHistoryBlockItem;
 
 import java.text.SimpleDateFormat;
@@ -39,6 +38,7 @@ public class NursingGattHelper {
     public NursingGattHelper(NursingPresenter nursingPresenter) {
         operationX6 = new OperationX6();
         historyX6 = new HistoryX6();
+        operationPrime = new OperationPrime();
         onHistoryListener = nursingPresenter;
     }
 
@@ -54,6 +54,9 @@ public class NursingGattHelper {
 
 
     public OperationPrime getPrimeHelper() {
+        if (operationPrime!=null){
+            return new OperationPrime();
+        }
         return operationPrime;
     }
 
@@ -83,7 +86,7 @@ public class NursingGattHelper {
             if (week == 0) {
                 week = 7;
             }
-            time.append(String.format("%2d", week));
+            time.append(String.format("%02x", week));
 
             return getBytes(time.toString());
         }

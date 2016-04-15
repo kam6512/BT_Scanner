@@ -23,6 +23,7 @@
 
     <string name="bt.rssi">rssi</string>
     <string name="bt.rssi_unit">db</string>
+    <string name="bt.connecting">connecting</string>
     <string name="bt.connected">connected</string>
     <string name="bt.disconnected">disconnected</string>
     <string name="bt.on">블루투스 On</string>

@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"
-        tools:context=".activity.realmUserActivityItem.BandContentActivity">
+        tools:context=".activity.userMovementItem.BandContentActivity">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/nursing_appbar"
@@ -51,7 +51,7 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"/>
 
                 <ImageView
-                    android:id="@+id/nursing_toolbar_bluetoothFlag"
+                    android:id="@+id/nursing_toolbar_bluetooth_flag"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
