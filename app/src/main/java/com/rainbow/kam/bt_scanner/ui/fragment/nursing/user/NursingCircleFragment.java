@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.rainbow.kam.bt_scanner.R;
 import com.rainbow.kam.bt_scanner.data.item.UserMovementItem;
 import com.rainbow.kam.bt_scanner.data.vo.GoalVo;
-import com.rainbow.kam.bt_scanner.tools.view.CircleCounter;
+import com.rainbow.kam.bt_scanner.ui.view.CircleCounter;
 
 import java.util.Arrays;
 import java.util.List;

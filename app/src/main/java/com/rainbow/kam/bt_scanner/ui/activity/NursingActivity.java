@@ -1,4 +1,4 @@
-package com.rainbow.kam.bt_scanner.ui.acativity;
+package com.rainbow.kam.bt_scanner.ui.activity;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -26,6 +26,8 @@ import com.rainbow.kam.ble_gatt_manager.BluetoothHelper;
 import com.rainbow.kam.ble_gatt_manager.GattCustomCallbacks;
 import com.rainbow.kam.ble_gatt_manager.GattManager;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.data.Device;
+import com.rainbow.kam.bt_scanner.operation.X6S;
 import com.rainbow.kam.bt_scanner.ui.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.data.dao.NursingDao;
 import com.rainbow.kam.bt_scanner.data.item.UserMovementItem;
@@ -83,16 +85,16 @@ public class NursingActivity extends AppCompatActivity implements
     @ViewById(R.id.nursing_device_address) TextView navDeviceAddress;
     @ViewById(R.id.nursing_update) TextView navUpdate;
 
-    Snackbar deviceSettingSnackBar;
+    private Snackbar deviceSettingSnackBar;
 
-    FragmentManager fragmentManager;
+    private FragmentManager fragmentManager;
 
     private final static int FRAGMENT_FRAME = R.id.nursing_fragment_frame;
 
-    NursingFragment nursingFragment;
-    UserDataDialogFragment userDataDialogFragment;
-    DeviceListFragment deviceListFragment;
-    GoalDialogFragment goalDialogFragment;
+    private NursingFragment nursingFragment;
+    private UserDataDialogFragment userDataDialogFragment;
+    private DeviceListFragment deviceListFragment;
+    private GoalDialogFragment goalDialogFragment;
 
 
     private enum GATT_STATE {
@@ -134,6 +136,7 @@ public class NursingActivity extends AppCompatActivity implements
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForWrite;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicForBattery;
 
+    private X6S operationX6S;
 
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -295,8 +298,8 @@ public class NursingActivity extends AppCompatActivity implements
     }
 
 
-    @Override public void onDeviceSelect(DeviceVo deviceVo) {
-        nursingDao.saveDeviceData(deviceVo);
+    @Override public void onDeviceSelect(Device device) {
+        nursingDao.saveDeviceData(device);
 
         deviceListFragment.dismiss();
         connectDevice();
@@ -359,13 +362,13 @@ public class NursingActivity extends AppCompatActivity implements
 
     private void loadUserDeviceData() {
         UserVo userVo = nursingDao.loadUserData();
-        final DeviceVo deviceVo = nursingDao.loadDeviceData();
+        final Device device = nursingDao.loadDeviceData();
         userAge = userVo.age;
         userHeight = userVo.height;
-        deviceName = deviceVo.name;
-        deviceAddress = deviceVo.address;
+        deviceName = device.getName();
+        deviceAddress = device.getAddress();
 
-        runOnUiThread(() -> setDeviceValue(deviceVo));
+        runOnUiThread(() -> setDeviceValue(device));
     }
 
 
@@ -407,7 +410,7 @@ public class NursingActivity extends AppCompatActivity implements
     private void onReadTime(final BluetoothGattCharacteristic ch) {
         runOnUiThread(() -> setUpdateTimeValue(readUpdateTimeValue(ch)));
 
-        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readCurrentValue());
+        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6S.readCurrentValue());
     }
 
 
@@ -498,9 +501,9 @@ public class NursingActivity extends AppCompatActivity implements
     }
 
 
-    public void setDeviceValue(DeviceVo deviceValue) {
-        navDeviceName.setText(deviceValue.name);
-        navDeviceAddress.setText(deviceValue.address);
+    public void setDeviceValue(Device deviceValue) {
+        navDeviceName.setText(deviceValue.getName());
+        navDeviceAddress.setText(deviceValue.getAddress());
     }
 
 
@@ -529,7 +532,7 @@ public class NursingActivity extends AppCompatActivity implements
 
 
     public void setValue(List<UserMovementItem> nursingValue) {
-        nursingFragment.setValue(nursingValue);
+        nursingFragment.setHistoryValue(nursingValue);
     }
 
 
@@ -602,7 +605,7 @@ public class NursingActivity extends AppCompatActivity implements
 
     @Override public void onDeviceReady() {
         action = GATT_ACTION.READ_TIME;
-        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readDateTime());
+        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6S.readTime());
     }
 
 
@@ -625,18 +628,18 @@ public class NursingActivity extends AppCompatActivity implements
                 break;
 
             case VIDONN_HISTORY_BLOCK:
-                historyX6.readDateBlock(characteristic);
+//                historyX6.readDateBlock(characteristic);
 
                 break;
 
             case VIDONN_HISTORY_DETAIL:
-                historyX6.readHourBlock(characteristic);
+//                historyX6.readHourBlock(characteristic);
 
                 break;
 
             case VIDONN_PERSONAL_WRITE:
                 action = GATT_ACTION.VIDONN_PERSONAL_READ;
-                gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readPersonalInfo());
+                gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6S.readUserData());
 
 
             case VIDONN_PERSONAL_READ:
@@ -699,7 +702,7 @@ public class NursingActivity extends AppCompatActivity implements
                         },
                         () -> {
                             action = GATT_ACTION.VIDONN_HISTORY_BLOCK;
-                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readHistoryRecodeDate());
+                            gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6S.readHistoryX6S(1,0));
 //                                        gattReadType = GattReadType.VIDONN_PERSONAL_READ;
 //                                        gattManager.writeValue(bluetoothGattCharacteristicForWrite, operationX6.readPersonalInfo());
 //                                        gattReadType = GattReadType.VIDONN_PERSONAL_WRITE;

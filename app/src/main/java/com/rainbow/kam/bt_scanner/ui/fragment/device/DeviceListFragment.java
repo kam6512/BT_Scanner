@@ -28,7 +28,7 @@ import android.widget.Toast;
 
 import com.rainbow.kam.ble_gatt_manager.BluetoothHelper;
 import com.rainbow.kam.bt_scanner.R;
-import com.rainbow.kam.bt_scanner.ui.acativity.NursingActivity;
+import com.rainbow.kam.bt_scanner.ui.activity.NursingActivity;
 import com.rainbow.kam.bt_scanner.ui.adapter.device.DeviceAdapter;
 import com.rainbow.kam.bt_scanner.ui.adapter.device.DeviceItem;
 

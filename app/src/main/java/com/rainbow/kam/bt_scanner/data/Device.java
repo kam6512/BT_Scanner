@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.rainbow.kam.bt_scanner.operation.Operator;
+import com.rainbow.kam.bt_scanner.operation.X6S;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -51,21 +51,21 @@ public class Device implements Comparable<Device> {
 
     static {
         COMMAND_MENU.put(DEVICE_TYPE.Prime, Lists.newArrayList(
-                Operator.READ_TIME,
-                Operator.WRITE_TIME,
-                Operator.READ_CURRENT_VALUE,
-                Operator.READ_BATTERY_VALUE
+                X6S.READ_TIME,
+                X6S.WRITE_TIME,
+                X6S.READ_CURRENT_VALUE,
+                X6S.READ_BATTERY_VALUE
         ));
         COMMAND_MENU.put(DEVICE_TYPE.X6S, Lists.newArrayList(
-                Operator.READ_TIME,
-                Operator.WRITE_TIME,
-                Operator.READ_CURRENT_VALUE,
-                Operator.READ_BATTERY_VALUE,
-                Operator.READ_USER_INFO,
-                Operator.WRITE_USER_INFO,
-                Operator.READ_RECODED_DATE,
-                Operator.READ_HISTORY,
-                Operator.RESET
+                X6S.READ_TIME,
+                X6S.WRITE_TIME,
+                X6S.READ_CURRENT_VALUE,
+                X6S.READ_BATTERY_VALUE,
+                X6S.READ_USER_INFO,
+                X6S.WRITE_USER_INFO,
+                X6S.READ_RECODED_DATE,
+                X6S.READ_HISTORY,
+                X6S.RESET
         ));
 
         UUID_MAP.put(DEVICE_TYPE.Prime, new HashMap<String, UUID>() {{

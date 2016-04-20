@@ -5,7 +5,19 @@ import java.util.Calendar;
 /**
  * Created by kam6512 on 2016-03-24.
  */
-public class X6S extends Operator {
+public class X6S {
+
+    public final static String READ_TIME = "READ TIME";
+    public final static String WRITE_TIME = "WRITE TIME";
+    public final static String READ_CURRENT_VALUE = "READ CURRENT VALUE";
+    public final static String READ_USER_INFO = "READ USER INFO";
+    public final static String WRITE_USER_INFO = "WRITE USER INFO";
+    public final static String READ_RECODED_DATE = "READ RECODED DATE";
+    public final static String READ_HISTORY = "READ HISTORY";
+    public final static String RESET = "RESET";
+
+    public final static String READ_BATTERY_VALUE = "READ BATTERY VALUE";
+
 
     private static final byte[] OPCODE_READ_TIME = {33};
     private static final byte OPCODE_WRITE_TIME = 33;
@@ -19,12 +31,12 @@ public class X6S extends Operator {
     private static final byte WRITE = 37;
 
 
-    @Override public byte[] readTime() {
-        return writeCode(OPCODE_READ_TIME, true);
+     public byte[] readTime() {
+        return getBytes(OPCODE_READ_TIME, true);
     }
 
 
-    @Override public byte[] writeTime() {
+     public byte[] writeTime() {
         Calendar calendar = Calendar.getInstance();
 
         int year = calendar.get(Calendar.YEAR);
@@ -43,48 +55,50 @@ public class X6S extends Operator {
         if (apm == 1 && hour < 12) {
             hour += 12;
         }
-        byte[] year01 = int2Bytes_2Bytes(year);
+        byte[] splitYear = new byte[2];
+        splitYear[0] = (byte) ((year & 0xFF00) >> 8);
+        splitYear[1] = (byte) (year & 0xFF);
 
-
-        return writeCode(new byte[]{OPCODE_WRITE_TIME, year01[1], year01[0], (byte) month, (byte) day, (byte) hour, (byte) minute, (byte) second, (byte) dayOfWeek}, false);
+        return getBytes(new byte[]{OPCODE_WRITE_TIME, splitYear[1], splitYear[0], (byte) month, (byte) day, (byte) hour, (byte) minute, (byte) second, (byte) dayOfWeek}, false);
     }
 
 
-    @Override public byte[] readCurrentValue() {
-        return writeCode(OPCODE_READ_CURRENT_VALUE, true);
+     public byte[] readCurrentValue() {
+        return getBytes(OPCODE_READ_CURRENT_VALUE, true);
     }
 
 
-    @Override public byte[] readUserData() {
-        return writeCode(OPCODE_READ_USER, true);
+     public byte[] readUserData() {
+        return getBytes(OPCODE_READ_USER, true);
     }
 
 
-    @Override public byte[] writeUserData(int height, int weight, int gender, int age) {
+    
+    public byte[] writeUserData(int height, int weight, int gender, int age) {
         byte[] physicalInfo = new byte[]{(byte) height, (byte) weight, (byte) gender, (byte) age};
         byte[] writeData = new byte[physicalInfo.length + 2];
         System.arraycopy(OPCODE_WRITE_USER, 0, writeData, 0, OPCODE_WRITE_USER.length);
         System.arraycopy(physicalInfo, 0, writeData, 2, physicalInfo.length);
-        return writeCode(writeData, false);
+        return getBytes(writeData, false);
     }
 
 
-    @Override public byte[] readDateBlockX6S() {
-        return writeCode(OPCODE_READ_BLOCK_DATE, true);
+     public byte[] readDateBlockX6S() {
+        return getBytes(OPCODE_READ_BLOCK_DATE, true);
     }
 
 
-    @Override public byte[] readHistoryX6S(int blockID, int hour) {
-        return writeCode(new byte[]{OPCODE_READ_HISTORY, (byte) blockID, (byte) hour}, true);
+     public byte[] readHistoryX6S(int blockID, int hour) {
+        return getBytes(new byte[]{OPCODE_READ_HISTORY, (byte) blockID, (byte) hour}, true);
     }
 
 
-    @Override public byte[] resetX6S(int flag) {
-        return writeCode(new byte[]{(byte) 0x40, (byte) flag}, false);
+     public byte[] resetX6S(int flag) {
+        return getBytes(new byte[]{(byte) 0x40, (byte) flag}, false);
     }
 
 
-    private byte[] writeCode(byte[] opCode_Data, boolean isRead) {
+    private byte[] getBytes(byte[] opCode_Data, boolean isRead) {
         byte[] crc = CRC_16(opCode_Data);
 
         byte[] writeData = new byte[opCode_Data.length + 4];
@@ -104,14 +118,6 @@ public class X6S extends Operator {
         System.arraycopy(opCode_Data, 0, writeData, 2, opCode_Data.length);
 
         return writeData;
-    }
-
-
-    private byte[] int2Bytes_2Bytes(int value) {
-        byte[] byte_src = new byte[2];
-        byte_src[0] = (byte) ((value & 0xFF00) >> 8);
-        byte_src[1] = (byte) (value & 0xFF);
-        return byte_src;
     }
 
 

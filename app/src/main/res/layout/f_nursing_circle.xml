@@ -7,7 +7,7 @@
     android:background="@null"
     android:orientation="vertical">
 
-    <com.rainbow.kam.bt_scanner.tools.view.CircleCounter
+    <com.rainbow.kam.bt_scanner.ui.view.CircleCounter
         android:id="@+id/counter"
         android:layout_width="@dimen/circle_counter_size"
         android:layout_height="@dimen/circle_counter_size"

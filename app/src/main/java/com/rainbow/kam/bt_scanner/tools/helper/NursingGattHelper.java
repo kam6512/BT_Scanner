@@ -18,290 +18,13 @@ import java.util.Locale;
 public class NursingGattHelper {
     private final String TAG = NursingGattHelper.class.getSimpleName();
 
-    private OperationX6 operationX6;
-    private HistoryX6 historyX6;
-    private OperationPrime operationPrime;
-
-    private OnHistoryListener onHistoryListener;
-
     private int historyDetail_Data_Block_Week_ID = 1;// 1~7
     private int historyDetail_Data_Block_Hour_ID = 0;// 0~23
 
     private List<Integer> readBlockIndex = new ArrayList<>();
 
+    private OnHistoryListener onHistoryListener;
 
-    public NursingGattHelper() {
-        operationPrime = new OperationPrime();
-    }
-
-
-    public NursingGattHelper(NursingPresenter nursingPresenter) {
-        operationX6 = new OperationX6();
-        historyX6 = new HistoryX6();
-        operationPrime = new OperationPrime();
-        onHistoryListener = nursingPresenter;
-    }
-
-
-    public OperationX6 getOperationX6() {
-        return operationX6;
-    }
-
-
-    public HistoryX6 getHistoryX6() {
-        return historyX6;
-    }
-
-
-    public OperationPrime getPrimeHelper() {
-        if (operationPrime!=null){
-            return new OperationPrime();
-        }
-        return operationPrime;
-    }
-
-
-    public class OperationPrime {
-
-        public final byte[] readTime = getBytes("8900");
-        public final byte[] reset = getBytes("8700");
-        public final byte[] clear = getBytes("8800");
-        public final byte[] readCurrentValue = getBytes("C60108");
-        public final byte[] alertDevice = getBytes("F30101");
-
-
-        public byte[] getBytesForDateTime() {
-            Calendar cal = new GregorianCalendar();
-
-            StringBuilder time = new StringBuilder();
-            time.append("C207");
-            time.append(String.format("%02x", cal.get(Calendar.YEAR) - 2000));
-            time.append(String.format("%02x", cal.get(Calendar.MONTH) + 1));
-            time.append(String.format("%02x", cal.get(Calendar.DATE)));
-            time.append(String.format("%02x", cal.get(Calendar.HOUR_OF_DAY)));
-            time.append(String.format("%02x", cal.get(Calendar.MINUTE)));
-            time.append(String.format("%02x", cal.get(Calendar.SECOND)));
-
-            int week = cal.get(Calendar.DAY_OF_WEEK) - 1;
-            if (week == 0) {
-                week = 7;
-            }
-            time.append(String.format("%02x", week));
-
-            return getBytes(time.toString());
-        }
-
-
-        public byte[] getBytes(String hex) {
-            hex = makeHexClean(hex);
-            return parseHexStringToBytes(hex);
-        }
-
-
-        private String makeHexClean(String hex) {
-            return hex.toLowerCase(Locale.getDefault()).replaceAll("[^[0-9][a-f]]", "");
-        }
-
-
-        private byte[] parseHexStringToBytes(String hex) {
-            byte[] bytes = new byte[(hex.length() / 2) + 1];
-
-            int length = bytes.length;
-            int checksum = 0;
-
-            for (int i = 0; i < length - 1; ++i) {
-                bytes[i] = decodeValue(hex.substring(i * 2, i * 2 + 2));
-
-                if (i > 1 && i <= length - 2) {
-                    if (bytes[i] < 0x00) {
-                        checksum ^= bytes[i] + 256;
-                    } else {
-                        checksum ^= bytes[i];
-                    }
-                }
-            }
-            bytes[length - 1] = decodeValue(String.format("%02x", checksum));
-
-            return bytes;
-        }
-
-
-        private byte decodeValue(String value) {
-            return Long.decode("0x" + value).byteValue();
-        }
-    }
-
-    public class OperationX6 {
-
-        public byte[] readDateTime() {
-            Log.e(TAG, "READ_DATE_TIME");
-            return writeCode(new byte[]{(byte) 33}, true);
-        }
-
-
-        public byte[] readCurrentValue() {
-            Log.e(TAG, "READ_CURRENT_VALUE");
-            return writeCode(new byte[]{3, 1}, true);
-        }
-
-
-        public byte[] readHistoryRecodeDate() {
-            Log.e(TAG, "READ_HISTORY_RECODE_DATE");
-            return writeCode(new byte[]{4}, true);
-        }
-
-
-        public byte[] readHistoryRecodeDetail(List<Integer> readBlockIndex) {
-            Log.e(TAG, "READ_HISTORY_RECODE_DETAIL");
-            NursingGattHelper.this.readBlockIndex = readBlockIndex;
-            historyDetail_Data_Block_Week_ID = readBlockIndex.get(0);
-            return writeCode(new byte[]{5, (byte) historyDetail_Data_Block_Week_ID, 0}, true);
-        }
-
-
-        public byte[] readHistoryRecodeDetail(int blockID, int hour) {
-            Log.e(TAG, "READ_HISTORY_RECODE_DETAIL");
-            historyDetail_Data_Block_Week_ID = blockID;
-            historyDetail_Data_Block_Hour_ID = hour;
-            return writeCode(new byte[]{5, (byte) historyDetail_Data_Block_Week_ID, (byte) historyDetail_Data_Block_Hour_ID}, true);
-        }
-
-
-        public byte[] readPersonalInfo() {
-            Log.e(TAG, "READ_PERSONAL_INFO");
-            return writeCode(new byte[]{32, 1}, true);
-        }
-
-
-        public byte[] writePersonalInfo(byte[] data) {
-            Log.e(TAG, "WRITE_PERSONAL_INFO");
-            byte[] newData = new byte[data.length + 2];
-            newData[0] = 32;
-            newData[1] = 1;
-            System.arraycopy(data, 0, newData, 2, data.length);
-            return writeCode(newData, false);
-        }
-
-
-        public byte[] resetSystem() {
-            return writeCode(new byte[]{64, 1}, true);
-        }
-
-
-        public byte[] resetDefault() {
-            return writeCode(new byte[]{64, 2}, true);
-        }
-
-
-        public byte[] resetHistory() {
-            return writeCode(new byte[]{64, 3}, true);
-        }
-
-
-        public byte[] writeDateTime() {
-            Log.e(TAG, "WRITE_DATE_TIME");
-            Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH) + 1;
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            int hour = calendar.get(Calendar.HOUR);
-            int minute = calendar.get(Calendar.MINUTE);
-            int second = calendar.get(Calendar.SECOND);
-            int apm = calendar.get(Calendar.AM_PM);
-            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-            if (dayOfWeek == 1) {
-                dayOfWeek = 7;
-            } else {
-                dayOfWeek--;
-            }
-            if (apm == 1 && hour < 12) {
-                hour += 12;
-            }
-            byte[] year01 = int2Bytes_2Bytes(year);
-            for (int i = 0; i < year01.length; i++) {
-                byte data = year01[i];
-                Log.e(TAG, "WRITE_DATE_TIME : year01" +
-                        " [" + i + "] = " + Integer.toHexString(data));
-            }
-            return writeCode(new byte[]{(byte) 33, year01[1], year01[0], (byte) month, (byte) day, (byte) hour, (byte) minute, (byte) second, (byte) dayOfWeek}, false);
-
-        }
-
-
-        private byte[] writeCode(byte[] opCode_Data, boolean isRead) {
-            byte[] code_data = opCode_Data;
-            for (int i = 0; i < code_data.length; i++) {
-                byte data = code_data[i];
-//                Log.e(TAG, "WRITE_CODE : OPCODE_DATA [" + i + "] = " + Integer.toHexString(data));
-            }
-            byte[] crc = CRC_16(code_data);
-
-            byte[] data_Send = new byte[code_data.length + 4];
-
-            if (isRead)
-                data_Send[0] = -91;
-            else {
-                data_Send[0] = 37;
-            }
-
-            data_Send[1] = (byte) code_data.length;
-
-            data_Send[(data_Send.length - 2)] = crc[1];
-            data_Send[(data_Send.length - 1)] = crc[0];
-
-            for (int i = 0; i < data_Send.length; i++) {
-                byte data = data_Send[i];
-//                Log.e(TAG, "data_Send [" + i + "] = " + Integer.toHexString(data));
-            }
-
-            for (int i = 2; i < 2 + code_data.length; i++) {
-                data_Send[i] = code_data[(i - 2)];
-            }
-            for (int i = 0; i < data_Send.length; i++) {
-                byte data = data_Send[i];
-                Log.e(TAG, "apply code_data in data_Send [" + i + "] = " + Integer.toHexString(data));
-            }
-            return data_Send;
-        }
-
-
-        private byte[] int2Bytes_2Bytes(int value) {
-            byte[] byte_src = new byte[2];
-            byte_src[0] = (byte) ((value & 0xFF00) >> 8);
-            byte_src[1] = (byte) (value & 0xFF);
-            return byte_src;
-        }
-
-
-        private byte[] CRC_16(byte[] data) {
-            for (int i = 0; i < data.length; i++) {
-                byte temp = data[i];
-//                Log.e(TAG, "CRC_16 [" + i + "] = " + temp);
-            }
-            short crc_result = 0;
-            byte[] bytes = new byte[2];
-            int Poly = 4129;
-            for (byte aData : data) {
-                for (int j = 128; j != 0; j >>= 1) {
-                    if ((crc_result & 0x8000) != 0) {
-                        crc_result = (short) (crc_result << 1);
-                        crc_result = (short) (crc_result ^ Poly);
-                    } else {
-                        crc_result = (short) (crc_result << 1);
-                    }
-                    if ((aData & j) != 0) {
-                        crc_result = (short) (crc_result ^ Poly);
-                    }
-                }
-            }
-
-            for (int i = 1; i >= 0; i--) {
-                bytes[i] = (byte) (crc_result % 256);
-                crc_result = (short) (crc_result >> 8);
-            }
-            return bytes;
-        }
-    }
 
     public class HistoryX6 {
 
@@ -432,8 +155,9 @@ public class NursingGattHelper {
                 onHistoryListener.onReadAllBlockEnd(historyItemList);
                 return;
             }
-            onHistoryListener.onReadHourBlockEnd(operationX6.readHistoryRecodeDetail(historyDetail_Data_Block_Week_ID,
-                    historyDetail_Data_Block_Hour_ID));
+            Log.e(TAG, "onReadHourBlockEnd");
+//            onHistoryListener.onReadHourBlockEnd(operationX6.readHistoryRecodeDetail(historyDetail_Data_Block_Week_ID,
+//                    historyDetail_Data_Block_Hour_ID));
 
         }
 
@@ -609,7 +333,7 @@ public class NursingGattHelper {
 
         void onReadDayBlockEnd(List<DateHistoryBlockItem> historyItemList);
 
-        void onReadHourBlockEnd(byte[] bytes);
+        void onReadHourBlockEnd();
 
         void onReadAllBlockEnd(List<DateHistoryBlockItem> historyItemList);
     }

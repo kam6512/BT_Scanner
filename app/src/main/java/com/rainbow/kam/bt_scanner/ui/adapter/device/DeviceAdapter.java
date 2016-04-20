@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Strings;
 import com.rainbow.kam.bt_scanner.R;
+import com.rainbow.kam.bt_scanner.data.Device;
 
 import java.util.Objects;
 
@@ -205,10 +206,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         @OnClick(R.id.device_item_card)
         public void clickDeviceItem() {
-            DeviceVo deviceVo = new DeviceVo();
-            deviceVo.name = deviceItem.getExtraName();
-            deviceVo.address = deviceItem.getExtraAddress();
-            onDeviceSelectListener.onDeviceSelect(deviceVo);
+            Device device = new Device(deviceItem.getExtraName(),deviceItem.getExtraAddress());
+
+            onDeviceSelectListener.onDeviceSelect(device);
         }
 
 
@@ -238,7 +238,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public interface OnDeviceSelectListener {
-        void onDeviceSelect(DeviceVo deviceVo);
+        void onDeviceSelect(Device device);
 
         void onDeviceUnSelected();
     }

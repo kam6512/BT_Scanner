@@ -1,6 +1,6 @@
 
 
-package com.rainbow.kam.bt_scanner.tools.view;
+package com.rainbow.kam.bt_scanner.ui.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
